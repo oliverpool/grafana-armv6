@@ -3,9 +3,13 @@ set -euxo pipefail
 
 apt-get -y install golang-go curl
 
+# download
 mkdir grafana
 cd grafana
 curl --location https://github.com/grafana/grafana/archive/refs/tags/v8.4.4.tar.gz | tar -xz --strip-components=1
+
+# compile
+make gen-go
 LDFLAGS="-static" go run build.go -goarch=armv6 -cgo-enabled=1 -cc=arm-linux-gnueabihf-gcc -pkg-arch=armhf build build-server
 
 # GOARCH=arm CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc go build \

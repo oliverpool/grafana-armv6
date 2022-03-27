@@ -16,4 +16,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Compile grafana
-        run: docker run -it ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316 bash < test.sh
+        run: docker exec -i ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316 bash < test.sh

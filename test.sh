@@ -2,7 +2,7 @@
 set -euxo pipefail
 
 echo "before"
-apt-get -y install golang-go
+apt-get -y install golang-go curl
 curl https://github.com/grafana/grafana/archive/refs/tags/v8.4.4.tar.gz | tar -xz
 ls
 cd src

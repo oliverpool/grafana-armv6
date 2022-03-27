@@ -1,8 +1,9 @@
-set -x
+# fail on error
+set -euxo pipefail
+
 echo "before"
 apt-get -y install golang-go
-wget -O src.tar.gz https://github.com/grafana/grafana/archive/refs/tags/v8.4.4.tar.gz
-tar xf src.tar.gz
+curl https://github.com/grafana/grafana/archive/refs/tags/v8.4.4.tar.gz | tar -xz
 ls
 cd src
 ls

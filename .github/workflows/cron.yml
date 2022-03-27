@@ -1,0 +1,19 @@
+name: Auto-update firmware
+
+on:
+  push:
+    branches:
+      - main
+  # schedule:
+  #   # daily, hour and minute chosen arbitrarily
+  #   - cron: "32 14 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Compile grafana
+        run: docker run ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316 bash < test.sh

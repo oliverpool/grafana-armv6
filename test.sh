@@ -25,5 +25,5 @@ LDFLAGS="-static" go run build.go -goarch=armv6 -cgo-enabled=1 -cc=arm-linux-gnu
 # GOARCH=arm CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc go build \
 #   -ldflags "-linkmode external -extldflags -static" \
 #   ./pkg/cmd/grafana-server/
-ls -alh grafana-server
+ls -alh bin/linux-armv6/grafana-server
 echo "after"

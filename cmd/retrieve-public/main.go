@@ -58,7 +58,7 @@ func run() error {
 			continue
 		case tar.TypeReg:
 			_, relName, _ := strings.Cut(name, "/")
-			if !strings.HasPrefix(relName, "public/") {
+			if !strings.HasPrefix(relName, "public/") || strings.HasSuffix(relName, ".gitignore") {
 				fmt.Println("skip", relName)
 				continue
 			}

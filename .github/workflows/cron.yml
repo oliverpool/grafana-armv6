@@ -49,4 +49,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: grafana ${{steps.check.outputs.tag}}
-          tagging_message: v1.0.1-${{steps.check.outputs.tag}}
+          tagging_message: v1.0.2-${{steps.check.outputs.tag}}

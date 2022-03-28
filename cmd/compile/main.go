@@ -45,6 +45,13 @@ func run() error {
 		"run",
 		"--rm", // cleanup afterwards
 		"-v", grafanaFolder+":/root/armhf",
+		"ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go",
+	)
+	dockerRunWithGoEnv := execCmd(nil, os.Stdout, os.Stderr,
+		"docker",
+		"run",
+		"--rm", // cleanup afterwards
+		"-v", grafanaFolder+":/root/armhf",
 		"--env", "GOARCH=arm",
 		"--env", "CGO_ENABLED=1",
 		"--env", "CC=arm-linux-gnueabihf-gcc",
@@ -65,7 +72,7 @@ func run() error {
 	}
 
 	// compile grafana
-	if err := dockerRun(
+	if err := dockerRunWithGoEnv(
 		"go", "build",
 		"-ldflags", "-linkmode external -extldflags -static",
 		"-o", "./bin/linux-armv6/grafana-server",

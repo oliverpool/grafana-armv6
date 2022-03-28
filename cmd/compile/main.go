@@ -94,6 +94,9 @@ func run() error {
 	binFolder := filepath.Join(grafanaFolder, "bin", "linux-armv6")
 	extraFiles := filepath.Join("_gokrazy", "extrafiles", "grafana")
 	os.RemoveAll(extraFiles) // ignore any error
+	if err = os.MkdirAll(extraFiles, 0755); err != nil {
+		return err
+	}
 
 	// move server binary
 	if err := os.Rename(filepath.Join(binFolder, "grafana-server"), filepath.Join(extraFiles, "server")); err != nil {

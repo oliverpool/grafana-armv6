@@ -57,15 +57,18 @@ func shouldCopyFile(src, dst string, neededMode fs.FileMode) (bool, error) {
 		return true, err
 	}
 
+	if dstStat.Mode()&neededMode == 0 { // missing mode
+		log.Println("mode", dstStat.Mode())
+		return true, nil
+	}
+
 	srcStat, err := os.Stat(src)
 	if err != nil {
 		return false, err
 	}
-	if srcStat.Mode()&neededMode == 0 { // missing mode
-		return true, nil
-	}
 
 	if dstStat.Size() != srcStat.Size() {
+		log.Println("sizes", dstStat.Size(), srcStat.Size())
 		return true, nil
 	}
 

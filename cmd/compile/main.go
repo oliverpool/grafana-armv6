@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/magefile/mage/sh"
+	"github.com/otiai10/copy"
 )
 
 func main() {
@@ -81,6 +82,7 @@ func run() error {
 		// -marm https://stackoverflow.com/q/35132319/3207406
 		"-ldflags", "-w -s -linkmode external -extldflags -static",
 		"-o", "./bin/linux-armv6/grafana-server",
+		"-buildvcs=false",
 		"./pkg/cmd/grafana-server",
 	); err != nil {
 		return err
@@ -90,21 +92,20 @@ func run() error {
 	}
 
 	binFolder := filepath.Join(grafanaFolder, "bin", "linux-armv6")
-	dstFolder := filepath.Join(".", "dist") // TODO: extrafiles
-	os.RemoveAll(dstFolder)                 // ignore any error
-	if err = os.MkdirAll(dstFolder, 0755); err != nil {
+	extraFiles := filepath.Join("_gokrazy", "extrafiles", "grafana")
+	os.RemoveAll(extraFiles) // ignore any error
+
+	// move server binary
+	if err := os.Rename(filepath.Join(binFolder, "grafana-server"), filepath.Join(extraFiles, "server")); err != nil {
 		return err
 	}
 
-	// copy grafana binary
-	if err = os.Rename(filepath.Join(binFolder, "grafana-server"), filepath.Join(dstFolder, "grafana")); err != nil {
+	// copy conf folder
+	if err = copy.Copy(filepath.Join(grafanaFolder, "conf"), filepath.Join(extraFiles, "conf")); err != nil {
 		return err
 	}
-
-	if err = os.WriteFile(filepath.Join(dstFolder, "placeholder.go"), []byte(`package dist
-
-// empty package so we can use the go tool with this repository
-`), 0755); err != nil {
+	// copy public folder
+	if err = copy.Copy(filepath.Join(grafanaFolder, "public"), filepath.Join(extraFiles, "public")); err != nil {
 		return err
 	}
 

@@ -43,13 +43,9 @@ jobs:
         if: steps.check.outputs.sha != ''
         run: go run cmd/compile/main.go
 
-      - name: Compile latest grafana
+      - name: Commit the new grafana
         if: steps.check.outputs.sha != ''
-        run: ls -alh dist
-
-      # - name: Commit the new grafana
-      #   if: steps.check.outputs.sha != ''
-      #   uses: stefanzweifel/git-auto-commit-action@v4
-      #   with:
-      #     commit_message: grafana ${{steps.fetch.outputs.version}}
-      #     tagging_message: v1.0.0-${{steps.fetch.outputs.version}}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: grafana ${{steps.check.outputs.tag}}
+          tagging_message: v1.0.0-${{steps.check.outputs.tag}}

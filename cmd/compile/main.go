@@ -76,7 +76,7 @@ func run() error {
 	// compile grafana
 	if err := dockerRunWithGoEnv(
 		"go", "build",
-		"-ldflags", "-linkmode external -extldflags -static",
+		"-ldflags", "-linkmode external -extldflags -static -extld=arm-linux-gnueabihf-gcc",
 		"-o", "./bin/linux-armv6/grafana-server",
 		"./pkg/cmd/grafana-server",
 	); err != nil {

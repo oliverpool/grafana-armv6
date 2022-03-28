@@ -106,8 +106,8 @@ func run() error {
 		return err
 	}
 
-	// move grafana binary
-	if err = os.Rename(filepath.Join(binFolder, "grafana-server"), filepath.Join(dstFolder, "grafana")); err != nil {
+	// copy grafana binary
+	if err = sh.Copy(filepath.Join(dstFolder, "grafana"), filepath.Join(binFolder, "grafana-server")); err != nil {
 		return err
 	}
 

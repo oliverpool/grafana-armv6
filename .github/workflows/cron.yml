@@ -38,14 +38,14 @@ jobs:
           git checkout ${{steps.check.outputs.sha}}
           cd ..
           git diff --no-ext-diff
-          echo ${{steps.check.outputs.tag}}
 
-      # - name: Compile latest grafana
-      #   if: steps.check.outputs.sha != ''
-      #   run: go run cmd/compile/main.go
+      - name: Compile latest grafana
+        if: steps.check.outputs.sha != ''
+        run: go run cmd/compile/main.go
 
-      # - name: Compile grafana
-      #   run: docker run -i ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go bash < test.sh
+      - name: Compile latest grafana
+        if: steps.check.outputs.sha != ''
+        run: ls -alh dist
 
       # - name: Commit the new grafana
       #   if: steps.check.outputs.sha != ''

@@ -107,10 +107,6 @@ func run() error {
 	if err = copy.Copy(filepath.Join(grafanaFolder, "conf"), filepath.Join(extraFiles, "conf")); err != nil {
 		return err
 	}
-	// copy public folder
-	if err = copy.Copy(filepath.Join(grafanaFolder, "public"), filepath.Join(extraFiles, "public")); err != nil {
-		return err
-	}
 
 	return nil
 }

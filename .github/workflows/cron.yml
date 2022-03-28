@@ -38,7 +38,11 @@ jobs:
 
       - name: Compile latest grafana
         if: steps.check.outputs.sha != ''
-        run: go run cmd/compile/main.go
+        run: go run cmd/compile
+
+      - name: Retrieve public files
+        if: steps.check.outputs.sha != ''
+        run: go run cmd/retrieve-public ${{steps.check.outputs.tag}}
 
       - name: Commit the new grafana
         if: steps.check.outputs.sha != ''

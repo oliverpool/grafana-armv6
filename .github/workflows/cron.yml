@@ -1,13 +1,13 @@
 name: Auto-update grafana
 
 on:
-  push:
+  schedule:
+    # daily, hour and minute chosen arbitrarily
+    - cron: "32 14 * * *"
+  workflow_dispatch:
+  push: # TODO: remove
     branches:
       - main
-  # schedule:
-  #   # daily, hour and minute chosen arbitrarily
-  #   - cron: "32 14 * * *"
-  workflow_dispatch:
 
 jobs:
   build:
@@ -15,5 +15,41 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Compile grafana
-        run: docker run -i ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go bash < test.sh
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
+      - name: Check latest grafana version from https://api.github.com/repos/grafana/grafana/
+        id: check
+        run: |
+          # split lines to fail on exit != 0
+          version="$(go run ./cmd/check-update/main.go)"
+          echo "::set-output name=sha::${version%:*}"
+          echo "::set-output name=tag::${version#*:}"
+
+      - name: Fetch latest grafana
+        if: steps.check.outputs.sha != ''
+        id: fetch
+        run: |
+          git submodule update --init --depth=1 grafana-sources
+          cd grafana-sources
+          git fetch --depth=1 origin ${{steps.check.outputs.sha}}
+          git checkout ${{steps.check.outputs.sha}}
+          cd ..
+          git diff --no-ext-diff
+          echo ${{steps.check.outputs.tag}}
+
+      # - name: Compile latest grafana
+      #   if: steps.check.outputs.sha != ''
+      #   run: go run cmd/compile/main.go
+
+      # - name: Compile grafana
+      #   run: docker run -i ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go bash < test.sh
+
+      # - name: Commit the new grafana
+      #   if: steps.check.outputs.sha != ''
+      #   uses: stefanzweifel/git-auto-commit-action@v4
+      #   with:
+      #     commit_message: grafana ${{steps.fetch.outputs.version}}
+      #     tagging_message: v1.0.0-${{steps.fetch.outputs.version}}

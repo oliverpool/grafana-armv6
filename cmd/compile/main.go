@@ -1,16 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 
 	"github.com/magefile/mage/sh"
 )
@@ -48,7 +45,9 @@ func run() error {
 		"run",
 		"--rm", // cleanup afterwards
 		"-v", grafanaFolder+":/root/armhf",
-		"--env", "LDFLAGS=-static",
+		"--env", "GOARCH=arm",
+		"--env", "CGO_ENABLED=1",
+		"--env", "CC=arm-linux-gnueabihf-gcc",
 		"ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go",
 	)
 	// change the owner of the files inside docker to the current user
@@ -64,34 +63,13 @@ func run() error {
 	if err := dockerRun("make", "gen-go"); err != nil {
 		return err
 	}
-	if err := chown("pkg/build/cmd.go"); err != nil {
-		return err
-	}
-
-	// adjust pkg/build/cmd.go for static linking
-	configPath := filepath.Join(grafanaFolder, "pkg", "build", "cmd.go")
-	found := 0
-	substr := `" -extldflags`
-	err = adjustTextFile(configPath, func(line string) string {
-		if strings.Contains(line, substr) {
-			found++
-			return strings.ReplaceAll(line, substr, `" -linkmode external -extldflags`)
-		}
-		return line
-	})
-	if err != nil {
-		return err
-	}
-	if found != 1 {
-		return fmt.Errorf("could not add '-linkmode external' for static linking to pkg/build/cmd.go: %d", found)
-	}
 
 	// compile grafana
-	// LDFLAGS="-static" go run build.go -goarch=armv6 -cgo-enabled=1 -cc=arm-linux-gnueabihf-gcc -pkg-arch=armhf build-server
 	if err := dockerRun(
-		"go", "run", "build.go",
-		"-goarch=armv6", "-cgo-enabled=1", "-cc=arm-linux-gnueabihf-gcc", "-pkg-arch=armhf",
-		"build-server",
+		"go", "build",
+		"-ldflags", "-linkmode external -extldflags -static",
+		"-o", "./bin/linux-armv6/grafana-server",
+		"./pkg/cmd/grafana-server",
 	); err != nil {
 		return err
 	}
@@ -119,45 +97,4 @@ func run() error {
 	}
 
 	return nil
-}
-
-func adjustTextFile(path string, replaceLine func(string) string) error {
-	b, stat, err := readFile(path) // read the whole file in memory, since we are going to overwrite it
-	if err != nil {
-		return err
-	}
-
-	dst, err := os.OpenFile(path, os.O_TRUNC|os.O_WRONLY, stat.Mode())
-	if err != nil {
-		return err
-	}
-	defer dst.Close()
-	w := bufio.NewWriter(dst)
-
-	for _, line := range strings.Split(string(b), "\n") {
-		_, err = w.WriteString(replaceLine(line) + "\n")
-		if err != nil {
-			return err
-		}
-	}
-	err = w.Flush()
-	if err != nil {
-		return err
-	}
-	return dst.Close()
-}
-
-func readFile(path string) ([]byte, fs.FileInfo, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer f.Close()
-	b, err := io.ReadAll(f)
-	if err != nil {
-		return b, nil, err
-	}
-
-	stats, err := f.Stat()
-	return b, stats, err
 }

@@ -52,7 +52,9 @@ func run() error {
 		"run",
 		"--rm", // cleanup afterwards
 		"-v", grafanaFolder+":/root/armhf",
+		"--env", "GOOS=linux",
 		"--env", "GOARCH=arm",
+		"--env", "GOARM=6",
 		"--env", "CGO_ENABLED=1",
 		"--env", "CC=arm-linux-gnueabihf-gcc",
 		"ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go",

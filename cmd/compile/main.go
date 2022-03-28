@@ -44,20 +44,20 @@ func run() error {
 		"docker",
 		"run",
 		"--rm", // cleanup afterwards
-		"-v", grafanaFolder+":/root/armhf",
-		"ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go",
+		"-v", grafanaFolder+":/src",
+		"ghcr.io/oliverpool/grafana-armv6:main",
 	)
 	dockerRunWithGoEnv := execCmd(nil, os.Stdout, os.Stderr,
 		"docker",
 		"run",
 		"--rm", // cleanup afterwards
-		"-v", grafanaFolder+":/root/armhf",
+		"-v", grafanaFolder+":/src",
 		"--env", "GOOS=linux",
 		"--env", "GOARCH=arm",
 		"--env", "GOARM=6",
 		"--env", "CGO_ENABLED=1",
 		"--env", "CC=arm-linux-gnueabihf-gcc",
-		"ghcr.io/gokrazy-community/crossbuild-armhf:impish-20220316-go",
+		"ghcr.io/oliverpool/grafana-armv6:main",
 	)
 	// change the owner of the files inside docker to the current user
 	chown := func(folder string) error {
@@ -76,13 +76,16 @@ func run() error {
 	// compile grafana
 	if err := dockerRunWithGoEnv(
 		"go", "build",
-		"-ldflags", "-linkmode external -extldflags -static -extld=arm-linux-gnueabihf-gcc",
+		// -w -s https://stackoverflow.com/a/22276273/3207406 reduce binary size
+		// -linkmode external -extldflags -static : static linking (https://gokrazy.org/prototyping/)
+		// -marm https://stackoverflow.com/q/35132319/3207406
+		"-ldflags", "-w -s -linkmode external -extldflags -static",
 		"-o", "./bin/linux-armv6/grafana-server",
 		"./pkg/cmd/grafana-server",
 	); err != nil {
 		return err
 	}
-	if err := chown("bin/linux-armv6/grafana-server"); err != nil {
+	if err := chown("bin/linux-armv6"); err != nil {
 		return err
 	}
 
@@ -94,7 +97,7 @@ func run() error {
 	}
 
 	// copy grafana binary
-	if err = sh.Copy(filepath.Join(dstFolder, "grafana"), filepath.Join(binFolder, "grafana-server")); err != nil {
+	if err = os.Rename(filepath.Join(binFolder, "grafana-server"), filepath.Join(dstFolder, "grafana")); err != nil {
 		return err
 	}
 

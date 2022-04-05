@@ -93,7 +93,8 @@ func githubCommitSha(tagName string) (string, error) {
 	type githubResponse struct {
 		Message string `json:"message"`
 		Object  struct {
-			Sha string `json:"sha"`
+			Type string `json:"type"`
+			Sha  string `json:"sha"`
 		} `json:"object"`
 	}
 	var gr githubResponse
@@ -104,6 +105,36 @@ func githubCommitSha(tagName string) (string, error) {
 	if gr.Object.Sha == "" {
 		return "", errors.New("could not get sha: " + gr.Message)
 	}
+	switch gr.Object.Type {
+	case "commit":
+		return gr.Object.Sha, nil
+	case "tag":
+		break
+	default:
+		return "", errors.New("unsupported object type: " + gr.Object.Type)
+	}
+
+	// get commit sha1
+	// https://stackoverflow.com/a/67041031/3207406
+	req, err = http.NewRequest("GET", baseURL+"git/tags/"+gr.Object.Sha, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Add("Accept", "application/vnd.github.v3+json")
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&gr)
+	if err != nil {
+		return "", err
+	}
+	if gr.Object.Sha == "" {
+		return "", errors.New("could not get sha from tag: " + gr.Message)
+	}
+
 	return gr.Object.Sha, nil
 }
 

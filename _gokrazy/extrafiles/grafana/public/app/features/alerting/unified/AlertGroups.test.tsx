@@ -6,17 +6,22 @@ import { Router } from 'react-router-dom';
 import { fetchAlertGroups } from './api/alertmanager';
 import { byRole, byTestId, byText } from 'testing-library-selector';
 import { configureStore } from 'app/store/configureStore';
-import { typeAsJestMock } from 'test/helpers/typeAsJestMock';
 import AlertGroups from './AlertGroups';
 import { mockAlertGroup, mockAlertmanagerAlert, mockDataSource, MockDataSourceSrv } from './mocks';
 import { DataSourceType } from './utils/datasource';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('./api/alertmanager');
-
+jest.mock('app/core/services/context_srv', () => ({
+  contextSrv: {
+    isEditor: true,
+    hasAccess: () => true,
+    hasPermission: () => true,
+  },
+}));
 const mocks = {
   api: {
-    fetchAlertGroups: typeAsJestMock(fetchAlertGroups),
+    fetchAlertGroups: jest.mocked(fetchAlertGroups),
   },
 };
 

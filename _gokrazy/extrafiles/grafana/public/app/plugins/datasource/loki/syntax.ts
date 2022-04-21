@@ -199,7 +199,7 @@ export const lokiGrammar: Grammar = {
         pattern: /#.*/,
       },
       'label-key': {
-        pattern: /[a-z_]\w*(?=\s*(=|!=|=~|!~))/,
+        pattern: /[a-zA-Z_]\w*(?=\s*(=|!=|=~|!~))/,
         alias: 'attr-name',
         greedy: true,
       },
@@ -246,9 +246,19 @@ export const lokiGrammar: Grammar = {
       },
     },
   ],
+  quote: {
+    pattern: /"(?:\\.|[^\\"])*"/,
+    alias: 'string',
+    greedy: true,
+  },
+  backticks: {
+    pattern: /`(?:\\.|[^\\`])*`/,
+    alias: 'string',
+    greedy: true,
+  },
   number: /\b-?\d+((\.\d*)?([eE][+-]?\d+)?)?\b/,
   operator: /\s?(\|[=~]?|!=?|<(?:=>?|<|>)?|>[>=]?)\s?/i,
-  punctuation: /[{}()`,.]/,
+  punctuation: /[{}(),.]/,
 };
 
 export default lokiGrammar;

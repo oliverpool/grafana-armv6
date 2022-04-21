@@ -31,7 +31,7 @@ import { getConfig, TimelineCoreOptions } from './timeline';
 import { VizLegendOptions, AxisPlacement, ScaleDirection, ScaleOrientation } from '@grafana/schema';
 import { TimelineFieldConfig, TimelineOptions } from './types';
 import { PlotTooltipInterpolator } from '@grafana/ui/src/components/uPlot/types';
-import { preparePlotData } from '../../../../../packages/grafana-ui/src/components/uPlot/utils';
+import { preparePlotData2, getStackingGroups } from '../../../../../packages/grafana-ui/src/components/uPlot/utils';
 import uPlot from 'uplot';
 
 const defaultConfig: TimelineFieldConfig = {
@@ -59,6 +59,7 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn<TimelineOptions> = ({
   showValue,
   alignValue,
   mergeValues,
+  getValueColor,
 }) => {
   const builder = new UPlotConfigBuilder(timeZone);
 
@@ -70,14 +71,15 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn<TimelineOptions> = ({
     return !(mode && field.display && mode.startsWith('continuous-'));
   };
 
-  const getValueColor = (seriesIdx: number, value: any) => {
+  const getValueColorFn = (seriesIdx: number, value: any) => {
     const field = frame.fields[seriesIdx];
 
-    if (field.display) {
-      const disp = field.display(value); // will apply color modes
-      if (disp.color) {
-        return disp.color;
-      }
+    if (
+      field.state?.origin?.fieldIndex !== undefined &&
+      field.state?.origin?.frameIndex !== undefined &&
+      getValueColor
+    ) {
+      return getValueColor(field.state?.origin?.frameIndex, field.state?.origin?.fieldIndex, value);
     }
 
     return FALLBACK_COLOR;
@@ -96,7 +98,7 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn<TimelineOptions> = ({
     theme,
     label: (seriesIdx) => getFieldDisplayName(frame.fields[seriesIdx], frame),
     getFieldConfig: (seriesIdx) => frame.fields[seriesIdx].config.custom,
-    getValueColor,
+    getValueColor: getValueColorFn,
     getTimeRange,
     // hardcoded formatter for state values
     formatValue: (seriesIdx, value) => formattedValueToString(frame.fields[seriesIdx].display!(value)),
@@ -151,7 +153,7 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn<TimelineOptions> = ({
 
   builder.setTooltipInterpolator(interpolateTooltip);
 
-  builder.setPrepData(preparePlotData);
+  builder.setPrepData((frames) => preparePlotData2(frames[0], getStackingGroups(frames[0])));
 
   builder.setCursor(coreConfig.cursor);
 

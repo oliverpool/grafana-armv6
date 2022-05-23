@@ -20,6 +20,7 @@ func main() {
 }
 
 const baseURL = "https://api.github.com/repos/grafana/grafana/"
+const versionPrefix = "v8."
 
 func run() error {
 	log.Println("checking:", baseURL)
@@ -51,7 +52,7 @@ func run() error {
 }
 
 func githubLatestTag() (string, error) {
-	req, err := http.NewRequest("GET", baseURL+"releases/latest", nil)
+	req, err := http.NewRequest("GET", baseURL+"releases", nil)
 	if err != nil {
 		return "", err
 	}
@@ -63,19 +64,23 @@ func githubLatestTag() (string, error) {
 	defer resp.Body.Close()
 
 	type githubResponse struct {
-		Message string `json:"message"`
 		TagName string `json:"tag_name"`
 	}
-	var gr githubResponse
+	var gr []githubResponse
 	err = json.NewDecoder(resp.Body).Decode(&gr)
 	if err != nil {
 		return "", err
 	}
-	if gr.TagName == "" {
-		return "", errors.New("could not get tag_name: " + gr.Message)
+	if len(gr) == 0 {
+		return "", errors.New("got no releases")
 	}
-	return gr.TagName, nil
-
+	for _, r := range gr {
+		if len(r.TagName) <= 3 || r.TagName[:3] != versionPrefix {
+			continue
+		}
+		return r.TagName, nil
+	}
+	return "", errors.New("got no usable release")
 }
 
 func githubCommitSha(tagName string) (string, error) {

@@ -44,9 +44,15 @@ jobs:
         if: steps.check.outputs.sha != ''
         run: go run ./cmd/retrieve-public/main.go ${{steps.check.outputs.tag}}
 
+      - name: Archive the files
+        if: steps.check.outputs.sha != ''
+        run: |
+          tar -C _gokrazy/extrafiles -cvf _gokrazy/extrafiles.tar grafana
+          rm -rf _gokrazy/extrafiles
+
       - name: Commit the new grafana
         if: steps.check.outputs.sha != ''
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: grafana ${{steps.check.outputs.tag}}
-          tagging_message: v1.0.3-${{steps.check.outputs.tag}}
+          tagging_message: v1.0.4-${{steps.check.outputs.tag}}

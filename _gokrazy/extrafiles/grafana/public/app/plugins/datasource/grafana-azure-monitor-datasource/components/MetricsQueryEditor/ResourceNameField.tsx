@@ -1,11 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-
-import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
+import { SelectableValue } from '@grafana/data';
 
-import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
 import { Field } from '../Field';
-
+import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
 import { setResourceName } from './setQueryValue';
 
 interface ResourceNameFieldProps extends AzureQueryEditorFieldProps {

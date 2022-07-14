@@ -1,23 +1,20 @@
-import { css } from '@emotion/css';
-import { uniqueId } from 'lodash';
 import React, { Fragment, useEffect } from 'react';
-
 import { Input, InlineLabel } from '@grafana/ui';
-
-import { useStatelessReducer, useDispatch } from '../../../../../hooks/useStatelessReducer';
-import { AddRemove } from '../../../../AddRemove';
-import { MetricPicker } from '../../../../MetricPicker';
-import { BucketScript, MetricAggregation } from '../../aggregations';
 import { changeMetricAttribute } from '../../state/actions';
-import { SettingField } from '../SettingField';
-
+import { css } from '@emotion/css';
+import { AddRemove } from '../../../../AddRemove';
+import { useStatelessReducer, useDispatch } from '../../../../../hooks/useStatelessReducer';
+import { MetricPicker } from '../../../../MetricPicker';
+import { reducer } from './state/reducer';
 import {
   addPipelineVariable,
   removePipelineVariable,
   renamePipelineVariable,
   changePipelineVariableMetric,
 } from './state/actions';
-import { reducer } from './state/reducer';
+import { SettingField } from '../SettingField';
+import { BucketScript, MetricAggregation } from '../../aggregations';
+import { uniqueId } from 'lodash';
 
 interface Props {
   value: BucketScript;

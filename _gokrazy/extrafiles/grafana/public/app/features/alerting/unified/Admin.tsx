@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { AlertingPageWrapper } from './components/AlertingPageWrapper';
 import AlertmanagerConfig from './components/admin/AlertmanagerConfig';
 import { ExternalAlertmanagers } from './components/admin/ExternalAlertmanagers';

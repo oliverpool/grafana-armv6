@@ -1,11 +1,8 @@
-import React, { FormEvent, useCallback, useEffect, useState, useRef } from 'react';
-
+import React, { FormEvent, useCallback, useEffect, useState } from 'react';
 import { ClickOutsideWrapper, HorizontalGroup, Spinner } from '@grafana/ui';
-import { Role, OrgRole } from 'app/types';
-
-import { RolePickerInput } from './RolePickerInput';
 import { RolePickerMenu } from './RolePickerMenu';
-import { MENU_MAX_HEIGHT } from './constants';
+import { RolePickerInput } from './RolePickerInput';
+import { Role, OrgRole } from 'app/types';
 
 export interface Props {
   builtInRole?: OrgRole;
@@ -24,6 +21,7 @@ export const RolePicker = ({
   builtInRole,
   appliedRoles,
   roleOptions,
+  builtInRoles,
   disabled,
   isLoading,
   builtinRolesDisabled,
@@ -35,27 +33,10 @@ export const RolePicker = ({
   const [selectedRoles, setSelectedRoles] = useState<Role[]>(appliedRoles);
   const [selectedBuiltInRole, setSelectedBuiltInRole] = useState<OrgRole | undefined>(builtInRole);
   const [query, setQuery] = useState('');
-  const [offset, setOffset] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedRoles(appliedRoles);
   }, [appliedRoles]);
-
-  useEffect(() => {
-    const dimensions = ref?.current?.getBoundingClientRect();
-    if (!dimensions || !isOpen) {
-      return;
-    }
-    const { bottom, top } = dimensions;
-    const distance = window.innerHeight - bottom;
-    const offset = bottom - top + 10; // Add extra 10px to offset to account for border and outline
-    if (distance < MENU_MAX_HEIGHT) {
-      setOffset(offset);
-    } else {
-      setOffset(-offset);
-    }
-  }, [isOpen]);
 
   const onOpen = useCallback(
     (event: FormEvent<HTMLElement>) => {
@@ -120,7 +101,7 @@ export const RolePicker = ({
   }
 
   return (
-    <div data-testid="role-picker" style={{ position: 'relative' }} ref={ref}>
+    <div data-testid="role-picker" style={{ position: 'relative' }}>
       <ClickOutsideWrapper onClick={onClickOutside}>
         <RolePickerInput
           builtInRole={selectedBuiltInRole}
@@ -137,6 +118,7 @@ export const RolePicker = ({
           <RolePickerMenu
             options={getOptions()}
             builtInRole={selectedBuiltInRole}
+            builtInRoles={builtInRoles}
             appliedRoles={appliedRoles}
             onBuiltInRoleSelect={onBuiltInRoleSelect}
             onSelect={onSelect}
@@ -144,7 +126,6 @@ export const RolePicker = ({
             showGroups={query.length === 0 || query.trim() === ''}
             builtinRolesDisabled={builtinRolesDisabled}
             showBuiltInRole={showBuiltInRole}
-            offset={offset}
           />
         )}
       </ClickOutsideWrapper>

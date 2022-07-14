@@ -1,17 +1,14 @@
-import { css, cx } from '@emotion/css';
 import React, { FC, memo } from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { css, cx } from '@emotion/css';
 import { FixedSizeList, FixedSizeGrid } from 'react-window';
-
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { GrafanaTheme } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
 import { Spinner, stylesFactory, useTheme } from '@grafana/ui';
-
-import { SEARCH_ITEM_HEIGHT, SEARCH_ITEM_MARGIN } from '../constants';
+import { selectors } from '@grafana/e2e-selectors';
 import { DashboardSection, OnToggleChecked, SearchLayout } from '../types';
-
-import { SearchCard } from './SearchCard';
+import { SEARCH_ITEM_HEIGHT, SEARCH_ITEM_MARGIN } from '../constants';
 import { SearchItem } from './SearchItem';
+import { SearchCard } from './SearchCard';
 import { SectionHeader } from './SectionHeader';
 
 export interface Props {

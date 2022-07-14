@@ -1,12 +1,9 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme2, PluginSignatureStatus } from '@grafana/data';
 import { PluginSignatureBadge, useStyles2 } from '@grafana/ui';
-
-import { CatalogPlugin } from '../types';
-
 import { PluginSignatureDetailsBadge } from './PluginSignatureDetailsBadge';
+import { CatalogPlugin } from '../types';
 
 type Props = {
   plugin: CatalogPlugin;

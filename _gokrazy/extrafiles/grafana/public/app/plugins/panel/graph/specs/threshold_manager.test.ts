@@ -1,7 +1,5 @@
 import angular from 'angular';
-
 import TimeSeries from 'app/core/time_series2';
-
 import { ThresholdManager } from '../threshold_manager';
 
 describe('ThresholdManager', () => {

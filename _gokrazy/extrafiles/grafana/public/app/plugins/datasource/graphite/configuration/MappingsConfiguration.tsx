@@ -1,7 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-
 import { Button, Icon, InlineField, InlineFieldRow, Input } from '@grafana/ui';
-
 import MappingsHelp from './MappingsHelp';
 
 type Props = {

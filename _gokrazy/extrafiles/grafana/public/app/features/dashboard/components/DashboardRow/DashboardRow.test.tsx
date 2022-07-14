@@ -1,9 +1,7 @@
-import { mount } from 'enzyme';
 import React from 'react';
-
-import { PanelModel } from '../../state/PanelModel';
-
+import { mount } from 'enzyme';
 import { DashboardRow } from './DashboardRow';
+import { PanelModel } from '../../state/PanelModel';
 
 describe('DashboardRow', () => {
   let wrapper: any, panel: PanelModel, dashboardMock: any;

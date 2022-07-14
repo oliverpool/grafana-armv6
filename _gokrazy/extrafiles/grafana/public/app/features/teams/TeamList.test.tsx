@@ -1,14 +1,11 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { mockToolkitActionCreator } from 'test/core/redux/mocks';
-
-import { NavModel } from '@grafana/data';
-import { contextSrv, User } from 'app/core/services/context_srv';
-
-import { OrgRole, Team } from '../../types';
-
+import { shallow } from 'enzyme';
 import { Props, TeamList } from './TeamList';
+import { OrgRole, Team } from '../../types';
 import { getMockTeam, getMultipleMockTeams } from './__mocks__/teamMocks';
+import { contextSrv, User } from 'app/core/services/context_srv';
+import { NavModel } from '@grafana/data';
+import { mockToolkitActionCreator } from 'test/core/redux/mocks';
 import { setSearchQuery, setTeamsSearchPage } from './state/reducers';
 
 jest.mock('app/core/config', () => {

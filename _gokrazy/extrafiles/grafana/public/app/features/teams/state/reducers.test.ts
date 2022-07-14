@@ -1,7 +1,3 @@
-import { reducerTester } from '../../../../test/core/redux/reducerTester';
-import { TeamsState, TeamState } from '../../../types';
-import { getMockTeam, getMockTeamGroups, getMockTeamMember } from '../__mocks__/teamMocks';
-
 import {
   initialTeamsState,
   initialTeamState,
@@ -14,6 +10,9 @@ import {
   teamsLoaded,
   teamsReducer,
 } from './reducers';
+import { getMockTeam, getMockTeamGroups, getMockTeamMember } from '../__mocks__/teamMocks';
+import { reducerTester } from '../../../../test/core/redux/reducerTester';
+import { TeamsState, TeamState } from '../../../types';
 
 describe('teams reducer', () => {
   describe('when teamsLoaded is dispatched', () => {

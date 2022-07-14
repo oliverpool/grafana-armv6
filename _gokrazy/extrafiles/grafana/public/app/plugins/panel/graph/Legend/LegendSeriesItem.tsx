@@ -1,9 +1,8 @@
-import classNames from 'classnames';
 import React, { PureComponent } from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
-import { SeriesColorPicker, SeriesIcon } from '@grafana/ui';
+import classNames from 'classnames';
 import { TimeSeries } from 'app/core/core';
+import { SeriesColorPicker, SeriesIcon } from '@grafana/ui';
+import { selectors } from '@grafana/e2e-selectors';
 
 export const LEGEND_STATS = ['min', 'max', 'avg', 'current', 'total'] as const;
 export type LegendStat = typeof LEGEND_STATS[number];

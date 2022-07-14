@@ -1,8 +1,7 @@
-import { DataSourcePlugin } from '@grafana/data';
-
-import { ConfigEditor } from './components/ConfigEditor';
 import OpenTsDatasource from './datasource';
 import { OpenTsQueryCtrl } from './query_ctrl';
+import { DataSourcePlugin } from '@grafana/data';
+import { ConfigEditor } from './components/ConfigEditor';
 
 class AnnotationsQueryCtrl {
   static templateUrl = 'partials/annotations.editor.html';

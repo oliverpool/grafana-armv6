@@ -1,18 +1,16 @@
-import { css, cx } from '@emotion/css';
 import React from 'react';
-
+import { css, cx } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2, Icon, HorizontalGroup } from '@grafana/ui';
 
-import { getLatestCompatibleVersion } from '../helpers';
+import { InstallControls } from './InstallControls';
+import { PluginDetailsHeaderSignature } from './PluginDetailsHeaderSignature';
+import { PluginDetailsHeaderDependencies } from './PluginDetailsHeaderDependencies';
+import { PluginLogo } from './PluginLogo';
 import { CatalogPlugin } from '../types';
-
 import { PluginDisabledBadge } from './Badges';
 import { GetStartedWithPlugin } from './GetStartedWithPlugin';
-import { InstallControls } from './InstallControls';
-import { PluginDetailsHeaderDependencies } from './PluginDetailsHeaderDependencies';
-import { PluginDetailsHeaderSignature } from './PluginDetailsHeaderSignature';
-import { PluginLogo } from './PluginLogo';
+import { getLatestCompatibleVersion } from '../helpers';
 
 type Props = {
   currentUrl: string;
@@ -142,12 +140,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
         }
       }
       font-size: ${theme.typography.h4.fontSize};
-
-      a {
-        &:hover {
-          text-decoration: underline;
-        }
-      }
     `,
     headerInformationRowSecondary: css`
       font-size: ${theme.typography.body.fontSize};

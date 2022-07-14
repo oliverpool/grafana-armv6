@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
 import React, { PropsWithChildren, ReactElement } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
 import { useStyles } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
 
 interface VariableSectionHeaderProps {
   name: string;

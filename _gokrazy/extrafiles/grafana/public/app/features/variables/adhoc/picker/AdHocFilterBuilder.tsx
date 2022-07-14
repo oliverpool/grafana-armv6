@@ -1,8 +1,6 @@
 import React, { FC, useCallback, useState } from 'react';
-
-import { DataSourceRef, SelectableValue } from '@grafana/data';
 import { AdHocVariableFilter } from 'app/features/variables/types';
-
+import { DataSourceRef, SelectableValue } from '@grafana/data';
 import { AdHocFilterKey, REMOVE_FILTER_KEY } from './AdHocFilterKey';
 import { AdHocFilterRenderer } from './AdHocFilterRenderer';
 

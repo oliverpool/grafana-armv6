@@ -1,37 +1,20 @@
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
-import { DataSourceRef, SelectableValue } from '@grafana/data';
 import { Alert, InlineFieldRow, VerticalGroup } from '@grafana/ui';
-import { StoreState } from 'app/types';
+import { DataSourceRef, SelectableValue } from '@grafana/data';
 
+import { AdHocVariableModel } from '../types';
+import { VariableEditorProps } from '../editor/types';
+import { VariableEditorState } from '../editor/reducer';
+import { AdHocVariableEditorState } from './reducer';
+import { changeVariableDatasource, initAdHocVariableEditor } from './actions';
+import { StoreState } from 'app/types';
 import { VariableSectionHeader } from '../editor/VariableSectionHeader';
 import { VariableSelectField } from '../editor/VariableSelectField';
-import { initialVariableEditorState } from '../editor/reducer';
-import { getAdhocVariableEditorState } from '../editor/selectors';
-import { VariableEditorProps } from '../editor/types';
-import { getVariablesState } from '../state/selectors';
-import { AdHocVariableModel } from '../types';
-import { toKeyedVariableIdentifier } from '../utils';
 
-import { changeVariableDatasource, initAdHocVariableEditor } from './actions';
-
-const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
-  const { rootStateKey } = ownProps.variable;
-
-  if (!rootStateKey) {
-    console.error('AdHocVariableEditor: variable has no rootStateKey');
-    return {
-      extended: getAdhocVariableEditorState(initialVariableEditorState),
-    };
-  }
-
-  const { editor } = getVariablesState(rootStateKey, state);
-
-  return {
-    extended: getAdhocVariableEditorState(editor),
-  };
-};
+const mapStateToProps = (state: StoreState) => ({
+  editor: state.templating.editor as VariableEditorState<AdHocVariableEditorState>,
+});
 
 const mapDispatchToProps = {
   initAdHocVariableEditor,
@@ -46,23 +29,17 @@ type Props = OwnProps & ConnectedProps<typeof connector>;
 
 export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
-    const { rootStateKey } = this.props.variable;
-    if (!rootStateKey) {
-      console.error('AdHocVariableEditor: variable has no rootStateKey');
-      return;
-    }
-
-    this.props.initAdHocVariableEditor(rootStateKey);
+    this.props.initAdHocVariableEditor();
   }
 
   onDatasourceChanged = (option: SelectableValue<DataSourceRef>) => {
-    this.props.changeVariableDatasource(toKeyedVariableIdentifier(this.props.variable), option.value);
+    this.props.changeVariableDatasource(option.value);
   };
 
   render() {
-    const { variable, extended } = this.props;
-    const dataSources = extended?.dataSources ?? [];
-    const infoText = extended?.infoText ?? null;
+    const { variable, editor } = this.props;
+    const dataSources = editor.extended?.dataSources ?? [];
+    const infoText = editor.extended?.infoText ?? null;
     const options = dataSources.map((ds) => ({ label: ds.text, value: ds.value }));
     const value = options.find((o) => o.value?.uid === variable.datasource?.uid) ?? options[0];
 
@@ -79,7 +56,6 @@ export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
               labelWidth={10}
             />
           </InlineFieldRow>
-
           {infoText ? <Alert title={infoText} severity="info" /> : null}
         </VerticalGroup>
       </VerticalGroup>

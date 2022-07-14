@@ -1,16 +1,12 @@
 import { css } from '@emotion/css';
-import React, { FC } from 'react';
-
 import { GrafanaTheme2 } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
 import { Alert, CustomScrollbar, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
-import { contextSrv } from 'app/core/services/context_srv';
 import { DashboardModel, PanelModel } from 'app/features/dashboard/state';
-
+import React, { FC } from 'react';
 import { NewRuleFromPanelButton } from './components/panel-alerts-tab/NewRuleFromPanelButton';
 import { RulesTable } from './components/rules/RulesTable';
 import { usePanelCombinedRules } from './hooks/usePanelCombinedRules';
-import { getRulesPermissions } from './utils/access-control';
+import { selectors } from '@grafana/e2e-selectors';
 
 interface Props {
   dashboard: DashboardModel;
@@ -24,8 +20,6 @@ export const PanelAlertTabContent: FC<Props> = ({ dashboard, panel }) => {
     panel,
     poll: true,
   });
-  const permissions = getRulesPermissions('grafana');
-  const canCreateRules = contextSrv.hasPermission(permissions.create);
 
   const alert = errors.length ? (
     <Alert title="Errors loading rules" severity="error">
@@ -50,7 +44,7 @@ export const PanelAlertTabContent: FC<Props> = ({ dashboard, panel }) => {
         <div className={styles.innerWrapper}>
           {alert}
           <RulesTable rules={rules} />
-          {!!dashboard.meta.canSave && canCreateRules && (
+          {!!dashboard.meta.canSave && (
             <NewRuleFromPanelButton className={styles.newButton} panel={panel} dashboard={dashboard} />
           )}
         </div>
@@ -64,7 +58,7 @@ export const PanelAlertTabContent: FC<Props> = ({ dashboard, panel }) => {
       {!!dashboard.uid && (
         <>
           <p>There are no alert rules linked to this panel.</p>
-          {!!dashboard.meta.canSave && canCreateRules && <NewRuleFromPanelButton panel={panel} dashboard={dashboard} />}
+          {!!dashboard.meta.canSave && <NewRuleFromPanelButton panel={panel} dashboard={dashboard} />}
         </>
       )}
       {!dashboard.uid && !!dashboard.meta.canSave && (

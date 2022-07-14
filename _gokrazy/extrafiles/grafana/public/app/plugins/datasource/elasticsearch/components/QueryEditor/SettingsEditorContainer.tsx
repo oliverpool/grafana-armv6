@@ -1,9 +1,7 @@
-import { css, cx } from '@emotion/css';
-import React, { PropsWithChildren, useState } from 'react';
-
 import { GrafanaTheme2 } from '@grafana/data';
 import { Icon, InlineSegmentGroup, useTheme2 } from '@grafana/ui';
-
+import { css, cx } from '@emotion/css';
+import React, { PropsWithChildren, useState } from 'react';
 import { segmentStyles } from './styles';
 
 const getStyles = (theme: GrafanaTheme2, hidden: boolean) => {

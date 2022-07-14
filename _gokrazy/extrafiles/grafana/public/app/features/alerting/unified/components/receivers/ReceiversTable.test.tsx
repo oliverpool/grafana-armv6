@@ -1,21 +1,18 @@
-import { render } from '@testing-library/react';
 import React from 'react';
-import { Provider } from 'react-redux';
-import { Router } from 'react-router-dom';
-import { byRole } from 'testing-library-selector';
-
-import { locationService } from '@grafana/runtime';
+import { render } from '@testing-library/react';
 import {
   AlertManagerCortexConfig,
   GrafanaManagedReceiverConfig,
   Receiver,
 } from 'app/plugins/datasource/alertmanager/types';
 import { configureStore } from 'app/store/configureStore';
-import { NotifierDTO, NotifierType } from 'app/types';
-
-import { fetchGrafanaNotifiersAction } from '../../state/actions';
-
+import { Provider } from 'react-redux';
 import { ReceiversTable } from './ReceiversTable';
+import { fetchGrafanaNotifiersAction } from '../../state/actions';
+import { NotifierDTO, NotifierType } from 'app/types';
+import { byRole } from 'testing-library-selector';
+import { Router } from 'react-router-dom';
+import { locationService } from '@grafana/runtime';
 
 const renderReceieversTable = async (receivers: Receiver[], notifiers: NotifierDTO[]) => {
   const config: AlertManagerCortexConfig = {

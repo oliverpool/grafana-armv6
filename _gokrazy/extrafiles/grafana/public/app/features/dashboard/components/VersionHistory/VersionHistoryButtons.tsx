@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { HorizontalGroup, Tooltip, Button } from '@grafana/ui';
 
 type VersionsButtonsType = {

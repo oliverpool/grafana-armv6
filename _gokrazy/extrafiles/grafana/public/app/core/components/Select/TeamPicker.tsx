@@ -1,9 +1,8 @@
-import { debounce, isNil } from 'lodash';
 import React, { Component } from 'react';
-
+import { debounce, isNil } from 'lodash';
+import { AsyncSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { AsyncSelect } from '@grafana/ui';
 import { Team } from 'app/types';
 
 export interface Props {

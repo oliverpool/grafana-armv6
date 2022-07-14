@@ -1,15 +1,13 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
-import { GrafanaTheme, SelectableValue } from '@grafana/data';
+import { css } from '@emotion/css';
 import { stylesFactory, useTheme, Select, Button, Switch, Field } from '@grafana/ui';
-import { notifyApp } from 'app/core/actions';
+import { GrafanaTheme, SelectableValue } from '@grafana/data';
 import appEvents from 'app/core/app_events';
-import { createSuccessNotification } from 'app/core/copy/appNotification';
-import { MAX_HISTORY_ITEMS } from 'app/core/history/RichHistoryLocalStorage';
-import { dispatch } from 'app/store/store';
-
 import { ShowConfirmModalEvent } from '../../../types/events';
+import { dispatch } from 'app/store/store';
+import { notifyApp } from 'app/core/actions';
+import { createSuccessNotification } from 'app/core/copy/appNotification';
+import { MAX_HISTORY_ITEMS } from '../../../core/utils/richHistory';
 
 export interface RichHistorySettingsProps {
   retentionPeriod: number;

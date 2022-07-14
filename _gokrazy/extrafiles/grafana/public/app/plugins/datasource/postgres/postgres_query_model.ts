@@ -1,7 +1,6 @@
 import { find, map } from 'lodash';
-
-import { ScopedVars } from '@grafana/data';
 import { TemplateSrv } from '@grafana/runtime';
+import { ScopedVars } from '@grafana/data';
 
 export default class PostgresQueryModel {
   target: any;

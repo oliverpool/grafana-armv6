@@ -1,4 +1,4 @@
-import { from, merge, Observable, of, throwError } from 'rxjs';
+import { from, merge, Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 import {
@@ -15,14 +15,13 @@ import {
   ScopedVars,
   toDataFrame,
 } from '@grafana/data';
-import { DataSourceWithBackend, getBackendSrv, getGrafanaLiveSrv, getTemplateSrv, TemplateSrv } from '@grafana/runtime';
-import { getSearchFilterScopedVar } from 'app/features/variables/utils';
-
-import { queryMetricTree } from './metricTree';
-import { generateRandomNodes, savedNodesResponse } from './nodeGraphUtils';
-import { runStream } from './runStreams';
 import { Scenario, TestDataQuery } from './types';
+import { DataSourceWithBackend, getBackendSrv, getGrafanaLiveSrv, getTemplateSrv, TemplateSrv } from '@grafana/runtime';
+import { queryMetricTree } from './metricTree';
+import { runStream } from './runStreams';
+import { getSearchFilterScopedVar } from 'app/features/variables/utils';
 import { TestDataVariableSupport } from './variables';
+import { generateRandomNodes, savedNodesResponse } from './nodeGraphUtils';
 
 export class TestDataDataSource extends DataSourceWithBackend<TestDataQuery> {
   scenariosCache?: Promise<Scenario[]>;
@@ -69,12 +68,6 @@ export class TestDataDataSource extends DataSourceWithBackend<TestDataQuery> {
         case 'raw_frame':
           streams.push(this.rawFrameQuery(target, options));
           break;
-        case 'server_error_500':
-          // this now has an option where it can return/throw an error from the frontend.
-          // if it doesn't, send it to the backend where it might panic there :)
-          const query = this.serverErrorQuery(target, options);
-          query ? streams.push(query) : backendQueries.push(target);
-          break;
         // Unusable since 7, removed in 8
         case 'manual_entry': {
           let csvContent = 'Time,Value\n';
@@ -88,6 +81,10 @@ export class TestDataDataSource extends DataSourceWithBackend<TestDataQuery> {
         }
 
         default:
+          if (target.alias) {
+            target.alias = this.templateSrv.replace(target.alias, options.scopedVars);
+          }
+
           backendQueries.push(target);
       }
     }
@@ -108,24 +105,7 @@ export class TestDataDataSource extends DataSourceWithBackend<TestDataQuery> {
   }
 
   resolveTemplateVariables(query: TestDataQuery, scopedVars: ScopedVars) {
-    if (query.labels) {
-      query.labels = this.templateSrv.replace(query.labels, scopedVars);
-    }
-    if (query.alias) {
-      query.alias = this.templateSrv.replace(query.alias, scopedVars);
-    }
-    if (query.scenarioId) {
-      query.scenarioId = this.templateSrv.replace(query.scenarioId, scopedVars);
-    }
-    if (query.stringInput) {
-      query.stringInput = this.templateSrv.replace(query.stringInput, scopedVars);
-    }
-    if (query.csvContent) {
-      query.csvContent = this.templateSrv.replace(query.csvContent, scopedVars);
-    }
-    if (query.rawFrameContent) {
-      query.rawFrameContent = this.templateSrv.replace(query.rawFrameContent, scopedVars);
-    }
+    query.labels = this.templateSrv.replace(query.labels!, scopedVars);
   }
 
   annotationDataTopicTest(target: TestDataQuery, req: DataQueryRequest<TestDataQuery>): Observable<DataQueryResponse> {
@@ -159,13 +139,10 @@ export class TestDataDataSource extends DataSourceWithBackend<TestDataQuery> {
   }
 
   getQueryDisplayText(query: TestDataQuery) {
-    const scenario = query.scenarioId ?? 'Default scenario';
-
     if (query.alias) {
-      return scenario + ' as ' + query.alias;
+      return query.scenarioId + ' as ' + query.alias;
     }
-
-    return scenario;
+    return query.scenarioId;
   }
 
   testDatasource() {
@@ -224,29 +201,6 @@ export class TestDataDataSource extends DataSourceWithBackend<TestDataQuery> {
     } catch (ex) {
       return of({ data: [], error: ex }).pipe(delay(100));
     }
-  }
-
-  serverErrorQuery(
-    target: TestDataQuery,
-    options: DataQueryRequest<TestDataQuery>
-  ): Observable<DataQueryResponse> | null {
-    const { errorType } = target;
-    console.log("we're here!", target);
-
-    if (errorType === 'server_panic') {
-      return null;
-    }
-
-    const stringInput = target.stringInput ?? '';
-    if (stringInput === '') {
-      if (errorType === 'frontend_exception') {
-        throw new Error('Scenario threw an exception in the frontend because the input was empty.');
-      } else {
-        return throwError(() => new Error('Scenario returned an error because the input was empty.'));
-      }
-    }
-
-    return null;
   }
 }
 

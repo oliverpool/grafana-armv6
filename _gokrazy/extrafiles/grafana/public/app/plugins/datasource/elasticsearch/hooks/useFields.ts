@@ -1,7 +1,5 @@
 import { lastValueFrom } from 'rxjs';
-
 import { MetricFindValue, SelectableValue } from '@grafana/data';
-
 import {
   BucketAggregationType,
   isBucketAggregationType,

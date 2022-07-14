@@ -1,9 +1,7 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-
-import { PluginDashboard } from '../../types';
-
+import { shallow } from 'enzyme';
 import DashboardsTable, { Props } from './DashboardsTable';
+import { PluginDashboard } from '../../types';
 
 const setup = (propOverrides?: object) => {
   const props: Props = {

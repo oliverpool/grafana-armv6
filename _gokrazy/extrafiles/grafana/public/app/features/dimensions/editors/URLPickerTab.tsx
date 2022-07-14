@@ -1,12 +1,11 @@
-import { css } from '@emotion/css';
 import React, { Dispatch, SetStateAction } from 'react';
+import { Field, Input, Label, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
 import SVG from 'react-inlinesvg';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Field, Input, Label, useStyles2 } from '@grafana/ui';
-
-import { getPublicOrAbsoluteUrl } from '../resource';
 import { MediaType } from '../types';
+import { getPublicOrAbsoluteUrl } from '../resource';
 
 interface Props {
   newValue: string;

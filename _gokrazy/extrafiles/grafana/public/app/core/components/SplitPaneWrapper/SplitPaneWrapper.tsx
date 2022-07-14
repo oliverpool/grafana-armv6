@@ -1,7 +1,6 @@
-import { css, cx } from '@emotion/css';
 import React, { createRef, MutableRefObject, PureComponent, ReactNode } from 'react';
 import SplitPane from 'react-split-pane';
-
+import { css, cx } from '@emotion/css';
 import { GrafanaTheme } from '@grafana/data';
 import { stylesFactory } from '@grafana/ui';
 import { config } from 'app/core/config';
@@ -20,7 +19,7 @@ interface Props {
 }
 
 export class SplitPaneWrapper extends PureComponent<Props> {
-  rafToken: MutableRefObject<number | null> = createRef();
+  rafToken = createRef<number>();
   static defaultProps = {
     rightPaneVisible: true,
   };
@@ -37,7 +36,7 @@ export class SplitPaneWrapper extends PureComponent<Props> {
     if (this.rafToken.current !== undefined) {
       window.cancelAnimationFrame(this.rafToken.current!);
     }
-    this.rafToken.current = window.requestAnimationFrame(() => {
+    (this.rafToken as MutableRefObject<number>).current = window.requestAnimationFrame(() => {
       this.forceUpdate();
     });
   };
@@ -69,7 +68,8 @@ export class SplitPaneWrapper extends PureComponent<Props> {
   renderHorizontalSplit() {
     const { leftPaneComponents, uiState } = this.props;
     const styles = getStyles(config.theme);
-    const topPaneSize = uiState.topPaneSize >= 1 ? uiState.topPaneSize : uiState.topPaneSize * window.innerHeight;
+    const topPaneSize =
+      uiState.topPaneSize >= 1 ? (uiState.topPaneSize as number) : (uiState.topPaneSize as number) * window.innerHeight;
 
     /*
       Guesstimate the height of the browser window minus
@@ -104,7 +104,9 @@ export class SplitPaneWrapper extends PureComponent<Props> {
 
     // Need to handle when width is relative. ie a percentage of the viewport
     const rightPaneSize =
-      uiState.rightPaneSize <= 1 ? uiState.rightPaneSize * window.innerWidth : uiState.rightPaneSize;
+      uiState.rightPaneSize <= 1
+        ? (uiState.rightPaneSize as number) * window.innerWidth
+        : (uiState.rightPaneSize as number);
 
     if (!rightPaneVisible) {
       return this.renderHorizontalSplit();

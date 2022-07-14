@@ -23,9 +23,6 @@ declare module monaco.languages.kusto {
         onDidProvideCompletionItems?: monaco.languages.kusto.OnDidProvideCompletionItems;
         enableHover?: boolean;
         formatter?: FormatterOptions;
-        enableQueryWarnings?: boolean;
-        enableQuerySuggestions?: boolean;
-        disabledDiagnoticCodes?: string[];
     }
 
     export interface SyntaxErrorAsMarkDownOptions {

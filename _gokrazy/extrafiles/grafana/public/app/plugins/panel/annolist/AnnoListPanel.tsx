@@ -1,8 +1,7 @@
-import { css } from '@emotion/css';
-import { FocusScope } from '@react-aria/focus';
+// Libraries
 import React, { PureComponent } from 'react';
-import { Subscription } from 'rxjs';
-
+// Types
+import { AnnoOptions } from './types';
 import {
   AnnotationChangeEvent,
   AnnotationEvent,
@@ -14,13 +13,14 @@ import {
   PanelProps,
 } from '@grafana/data';
 import { config, getBackendSrv, locationService } from '@grafana/runtime';
-import { CustomScrollbar, stylesFactory, TagList } from '@grafana/ui';
 import { AbstractList } from '@grafana/ui/src/components/List/AbstractList';
-import appEvents from 'app/core/app_events';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
-
+import appEvents from 'app/core/app_events';
 import { AnnotationListItem } from './AnnotationListItem';
-import { AnnoOptions } from './types';
+import { CustomScrollbar, stylesFactory, TagList } from '@grafana/ui';
+import { css } from '@emotion/css';
+import { Subscription } from 'rxjs';
+import { FocusScope } from '@react-aria/focus';
 
 interface UserInfo {
   id?: number;

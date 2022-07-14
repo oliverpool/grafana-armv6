@@ -1,5 +1,3 @@
-import { Geometry } from 'ol/geom';
-
 import {
   FrameGeometrySource,
   FrameGeometrySourceMode,
@@ -11,9 +9,9 @@ import {
   getFieldDisplayName,
   FieldType,
 } from '@grafana/data';
-
-import { getGeoFieldFromGazetteer, pointFieldFromGeohash, pointFieldFromLonLat } from '../format/utils';
+import { Geometry } from 'ol/geom';
 import { getGazetteer, Gazetteer } from '../gazetteer/gazetteer';
+import { getGeoFieldFromGazetteer, pointFieldFromGeohash, pointFieldFromLonLat } from '../format/utils';
 
 export type FieldFinder = (frame: DataFrame) => Field | undefined;
 

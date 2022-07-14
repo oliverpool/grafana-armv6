@@ -1,18 +1,17 @@
-import { css, cx } from '@emotion/css';
-import { useLingui } from '@lingui/react';
-import { Item } from '@react-stately/collections';
 import React, { ReactNode } from 'react';
-
+import { Item } from '@react-stately/collections';
+import { css, cx } from '@emotion/css';
 import { GrafanaTheme2, locationUtil, NavMenuItemType, NavModelItem } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
 import { IconName, useTheme2 } from '@grafana/ui';
+import { locationService } from '@grafana/runtime';
 
-import { NavBarItemMenu } from './NavBarItemMenu';
-import { NavBarItemMenuTrigger } from './NavBarItemMenuTrigger';
-import { getNavBarItemWithoutMenuStyles, NavBarItemWithoutMenu } from './NavBarItemWithoutMenu';
 import { NavBarMenuItem } from './NavBarMenuItem';
-import menuItemTranslations from './navBarItem-translations';
+import { getNavBarItemWithoutMenuStyles, NavBarItemWithoutMenu } from './NavBarItemWithoutMenu';
+import { NavBarItemMenuTrigger } from './NavBarItemMenuTrigger';
+import { NavBarItemMenu } from './NavBarItemMenu';
 import { getNavModelItemKey } from './utils';
+import { useLingui } from '@lingui/react';
+import menuItemTranslations from './navBarItem-translations';
 
 export interface Props {
   isActive?: boolean;
@@ -34,9 +33,7 @@ const NavBarItem = ({
   const { i18n } = useLingui();
   const theme = useTheme2();
   const menuItems = link.children ?? [];
-
-  // Spreading `menuItems` here as otherwise we'd be mutating props
-  const menuItemsSorted = reverseMenuDirection ? [...menuItems].reverse() : menuItems;
+  const menuItemsSorted = reverseMenuDirection ? menuItems.reverse() : menuItems;
   const filteredItems = menuItemsSorted
     .filter((item) => !item.hideFromMenu)
     .map((i) => ({ ...i, menuItemType: NavMenuItemType.Item }));

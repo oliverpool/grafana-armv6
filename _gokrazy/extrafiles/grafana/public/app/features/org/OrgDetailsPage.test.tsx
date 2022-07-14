@@ -1,12 +1,10 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { mockToolkitActionCreator } from 'test/core/redux/mocks';
-
+import { shallow } from 'enzyme';
 import { NavModel } from '@grafana/data';
 
-import { Organization } from '../../types';
-
 import { OrgDetailsPage, Props } from './OrgDetailsPage';
+import { Organization } from '../../types';
+import { mockToolkitActionCreator } from 'test/core/redux/mocks';
 import { setOrganizationName } from './state/reducers';
 
 jest.mock('app/core/core', () => {

@@ -1,13 +1,8 @@
-import { render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { locationService, setDataSourceSrv } from '@grafana/runtime';
+import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
-import { byLabelText, byRole, byTestId, byText } from 'testing-library-selector';
-
-import { locationService, setDataSourceSrv } from '@grafana/runtime';
-import { selectOptionInTest } from '@grafana/ui';
-import { contextSrv } from 'app/core/services/context_srv';
 import {
   AlertManagerCortexConfig,
   AlertManagerDataSourceJsonData,
@@ -16,28 +11,28 @@ import {
   Route,
 } from 'app/plugins/datasource/alertmanager/types';
 import { configureStore } from 'app/store/configureStore';
-import { AccessControlAction } from 'app/types';
-
+import { typeAsJestMock } from 'test/helpers/typeAsJestMock';
+import { byLabelText, byRole, byTestId, byText } from 'testing-library-selector';
 import AmRoutes from './AmRoutes';
 import { fetchAlertManagerConfig, fetchStatus, updateAlertManagerConfig } from './api/alertmanager';
 import { mockDataSource, MockDataSourceSrv, someCloudAlertManagerConfig, someCloudAlertManagerStatus } from './mocks';
 import { getAllDataSources } from './utils/config';
-import { ALERTMANAGER_NAME_QUERY_KEY } from './utils/constants';
 import { DataSourceType, GRAFANA_RULES_SOURCE_NAME } from './utils/datasource';
+import userEvent from '@testing-library/user-event';
+import { selectOptionInTest } from '@grafana/ui';
+import { ALERTMANAGER_NAME_QUERY_KEY } from './utils/constants';
 
 jest.mock('./api/alertmanager');
 jest.mock('./utils/config');
-jest.mock('app/core/services/context_srv');
 
 const mocks = {
-  getAllDataSourcesMock: jest.mocked(getAllDataSources),
+  getAllDataSourcesMock: typeAsJestMock(getAllDataSources),
 
   api: {
-    fetchAlertManagerConfig: jest.mocked(fetchAlertManagerConfig),
-    updateAlertManagerConfig: jest.mocked(updateAlertManagerConfig),
-    fetchStatus: jest.mocked(fetchStatus),
+    fetchAlertManagerConfig: typeAsJestMock(fetchAlertManagerConfig),
+    updateAlertManagerConfig: typeAsJestMock(updateAlertManagerConfig),
+    fetchStatus: typeAsJestMock(fetchStatus),
   },
-  contextSrv: jest.mocked(contextSrv),
 };
 
 const renderAmRoutes = (alertManagerSourceName?: string) => {
@@ -183,9 +178,6 @@ describe('AmRoutes', () => {
 
   beforeEach(() => {
     mocks.getAllDataSourcesMock.mockReturnValue(Object.values(dataSources));
-    mocks.contextSrv.hasAccess.mockImplementation(() => true);
-    mocks.contextSrv.hasPermission.mockImplementation(() => true);
-    mocks.contextSrv.evaluatePermission.mockImplementation(() => []);
     setDataSourceSrv(new MockDataSourceSrv(dataSources));
   });
 
@@ -366,18 +358,6 @@ describe('AmRoutes', () => {
       },
       template_files: {},
     });
-  });
-
-  it('hides create and edit button if user does not have permission', () => {
-    mocks.contextSrv.hasAccess.mockImplementation((action) =>
-      [AccessControlAction.AlertingNotificationsRead, AccessControlAction.AlertingNotificationsRead].includes(
-        action as AccessControlAction
-      )
-    );
-
-    renderAmRoutes();
-    expect(ui.newPolicyButton.query()).not.toBeInTheDocument();
-    expect(ui.editButton.query()).not.toBeInTheDocument();
   });
 
   it('Show error message if loading Alertmanager config fails', async () => {
@@ -646,7 +626,6 @@ const clickSelectOption = async (selectElement: HTMLElement, optionText: string)
 const updateTiming = async (selectElement: HTMLElement, value: string, timeUnit: string): Promise<void> => {
   const input = byRole('textbox').get(selectElement);
   const select = byRole('combobox').get(selectElement);
-  userEvent.clear(input);
   userEvent.type(input, value);
   userEvent.click(select);
   await selectOptionInTest(selectElement, timeUnit);

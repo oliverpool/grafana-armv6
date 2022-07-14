@@ -1,11 +1,9 @@
 import React from 'react';
-
-import { Stack } from '@grafana/experimental';
-import { OperationExplainedBox } from 'app/plugins/datasource/prometheus/querybuilder/shared/OperationExplainedBox';
-import { OperationListExplained } from 'app/plugins/datasource/prometheus/querybuilder/shared/OperationListExplained';
-
-import { lokiQueryModeller } from '../LokiQueryModeller';
 import { LokiVisualQuery } from '../types';
+import { Stack } from '@grafana/experimental';
+import { lokiQueryModeller } from '../LokiQueryModeller';
+import { OperationListExplained } from 'app/plugins/datasource/prometheus/querybuilder/shared/OperationListExplained';
+import { OperationExplainedBox } from 'app/plugins/datasource/prometheus/querybuilder/shared/OperationExplainedBox';
 
 export interface Props {
   query: LokiVisualQuery;

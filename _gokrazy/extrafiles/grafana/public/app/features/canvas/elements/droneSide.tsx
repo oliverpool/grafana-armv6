@@ -1,12 +1,11 @@
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
-import { DimensionContext, ScalarDimensionConfig } from 'app/features/dimensions';
-import { ScalarDimensionEditor } from 'app/features/dimensions/editors';
 
+import { ScalarDimensionEditor } from 'app/features/dimensions/editors';
 import { CanvasElementItem, CanvasElementProps } from '../element';
+import { DimensionContext, ScalarDimensionConfig } from 'app/features/dimensions';
 
 interface DroneSideData {
   pitchAngle?: number;

@@ -1,16 +1,13 @@
-import { css } from '@emotion/css';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useFormContext, FieldErrors } from 'react-hook-form';
-
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { Alert, Button, Field, InputControl, Select, useStyles2 } from '@grafana/ui';
 import { NotifierDTO } from 'app/types';
-
-import { useUnifiedAlertingSelector } from '../../../hooks/useUnifiedAlertingSelector';
+import React, { useEffect, useMemo, useState } from 'react';
+import { css } from '@emotion/css';
+import { Alert, Button, Field, InputControl, Select, useStyles2 } from '@grafana/ui';
+import { useFormContext, FieldErrors } from 'react-hook-form';
 import { ChannelValues, CommonSettingsComponentType } from '../../../types/receiver-form';
-
 import { ChannelOptions } from './ChannelOptions';
 import { CollapsibleSection } from './CollapsibleSection';
+import { useUnifiedAlertingSelector } from '../../../hooks/useUnifiedAlertingSelector';
 
 interface Props<R> {
   defaultValues: R;
@@ -40,15 +37,12 @@ export function ChannelSubForm<R extends ChannelValues>({
 }: Props<R>): JSX.Element {
   const styles = useStyles2(getStyles);
   const name = (fieldName: string) => `${pathPrefix}${fieldName}`;
-  const { control, watch, register, trigger, formState, setValue } = useFormContext();
+  const { control, watch, register, trigger, formState } = useFormContext();
   const selectedType = watch(name('type')) ?? defaultValues.type; // nope, setting "default" does not work at all.
   const { loading: testingReceiver } = useUnifiedAlertingSelector((state) => state.testReceivers);
 
   useEffect(() => {
     register(`${pathPrefix}.__id`);
-    /* Need to manually register secureFields or else they'll
-     be lost when testing a contact point */
-    register(`${pathPrefix}.secureFields`);
   }, [register, pathPrefix]);
 
   const [_secureFields, setSecureFields] = useState(secureFields ?? {});
@@ -58,7 +52,6 @@ export function ChannelSubForm<R extends ChannelValues>({
       const updatedSecureFields = { ...secureFields };
       delete updatedSecureFields[key];
       setSecureFields(updatedSecureFields);
-      setValue(`${pathPrefix}.secureFields`, updatedSecureFields);
     }
   };
 

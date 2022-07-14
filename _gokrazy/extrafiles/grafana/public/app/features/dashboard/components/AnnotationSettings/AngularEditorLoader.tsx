@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { AnnotationQuery, DataSourceApi } from '@grafana/data';
 import { AngularComponent, getAngularLoader } from '@grafana/runtime';
 

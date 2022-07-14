@@ -1,7 +1,6 @@
-import { ComponentType } from 'enzyme';
 import { defaultsDeep } from 'lodash';
-
 import { PanelPluginMeta, PluginMeta, PluginType, PanelPlugin, PanelProps } from '@grafana/data';
+import { ComponentType } from 'enzyme';
 
 export const getMockPlugins = (amount: number): PluginMeta[] => {
   const plugins = [];

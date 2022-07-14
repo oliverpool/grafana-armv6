@@ -1,7 +1,6 @@
 import { map, each, isUndefined } from 'lodash';
-
-import { textUtil } from '@grafana/data';
 import coreModule from 'app/angular/core_module';
+import { textUtil } from '@grafana/data';
 
 /** @ngInject */
 export function SeriesOverridesCtrl($scope: any, $element: JQuery, popoverSrv: any) {

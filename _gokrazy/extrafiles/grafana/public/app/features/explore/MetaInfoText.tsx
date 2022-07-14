@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
 import React, { memo } from 'react';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
@@ -44,7 +43,7 @@ const MetaInfoItem = memo(function MetaInfoItem(props: MetaItemProps) {
   const { label, value } = props;
 
   return (
-    <div data-testid="meta-info-text-item" className={style.metaItem}>
+    <div className={style.metaItem}>
       {label && <span className={style.metaLabel}>{label}:</span>}
       <span className={style.metaValue}>{value}</span>
     </div>
@@ -60,7 +59,7 @@ export const MetaInfoText = memo(function MetaInfoText(props: MetaInfoTextProps)
   const { metaItems } = props;
 
   return (
-    <div className={style.metaContainer} data-testid="meta-info-text">
+    <div className={style.metaContainer}>
       {metaItems.map((item, index) => (
         <MetaInfoItem key={`${index}-${item.label}`} label={item.label} value={item.value} />
       ))}

@@ -1,18 +1,11 @@
-import { last } from 'lodash';
-import React, { FC, useEffect, useMemo } from 'react';
-import { useFormContext } from 'react-hook-form';
-
 import { SelectableValue } from '@grafana/data';
 import { Field, InputControl, Select } from '@grafana/ui';
 import { ExpressionDatasourceUID } from 'app/features/expressions/ExpressionDatasource';
-
+import React, { FC, useEffect, useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import { RuleFormValues } from '../../types/rule-form';
 
-interface Props {
-  existing?: boolean;
-}
-
-export const ConditionField: FC<Props> = ({ existing = false }) => {
+export const ConditionField: FC = () => {
   const {
     watch,
     setValue,
@@ -33,29 +26,15 @@ export const ConditionField: FC<Props> = ({ existing = false }) => {
     [queries]
   );
 
-  const expressions = useMemo(() => {
-    return queries.filter((query) => query.datasourceUid === ExpressionDatasourceUID);
-  }, [queries]);
-
-  // automatically use the last expression when new expressions have been added
-  useEffect(() => {
-    const lastExpression = last(expressions);
-    if (lastExpression && !existing) {
-      setValue('condition', lastExpression.refId, { shouldValidate: true });
-    }
-  }, [expressions, setValue, existing]);
-
   // reset condition if option no longer exists or if it is unset, but there are options available
   useEffect(() => {
-    const lastExpression = last(expressions);
-    const conditionExists = options.find(({ value }) => value === condition);
-
-    if (condition && !conditionExists) {
-      setValue('condition', lastExpression?.refId ?? null);
-    } else if (!condition && lastExpression) {
-      setValue('condition', lastExpression.refId, { shouldValidate: true });
+    const expressions = queries.filter((query) => query.datasourceUid === ExpressionDatasourceUID);
+    if (condition && !options.find(({ value }) => value === condition)) {
+      setValue('condition', expressions.length ? expressions[expressions.length - 1].refId : null);
+    } else if (!condition && expressions.length) {
+      setValue('condition', expressions[expressions.length - 1].refId);
     }
-  }, [condition, expressions, options, setValue]);
+  }, [condition, options, queries, setValue]);
 
   return (
     <Field

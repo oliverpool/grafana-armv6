@@ -1,11 +1,8 @@
 import React, { FC } from 'react';
-
 import { Alert, CollapsableSection } from '@grafana/ui';
-
-import { NotificationChannelSecureFields, NotificationChannelType } from '../../../types';
-
-import { NotificationSettingsProps } from './NotificationChannelForm';
 import { NotificationChannelOptions } from './NotificationChannelOptions';
+import { NotificationSettingsProps } from './NotificationChannelForm';
+import { NotificationChannelSecureFields, NotificationChannelType } from '../../../types';
 
 interface Props extends NotificationSettingsProps {
   selectedChannel: NotificationChannelType;

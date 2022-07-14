@@ -1,16 +1,14 @@
 // Libraries
-import { css } from '@emotion/css';
 import React, { memo } from 'react';
 
 // Types
 import { AbsoluteTimeRange, QueryEditorProps } from '@grafana/data';
 import { InlineFormLabel } from '@grafana/ui';
-
 import { CloudWatchDatasource } from '../datasource';
 import { CloudWatchJsonData, CloudWatchLogsQuery, CloudWatchQuery } from '../types';
-
-import CloudWatchLink from './CloudWatchLink';
 import { CloudWatchLogsQueryField } from './LogsQueryField';
+import CloudWatchLink from './CloudWatchLink';
+import { css } from '@emotion/css';
 
 type Props = QueryEditorProps<CloudWatchDatasource, CloudWatchQuery, CloudWatchJsonData> & {
   allowCustomValue?: boolean;
@@ -43,6 +41,7 @@ export const CloudWatchLogsQueryEditor = memo(function CloudWatchLogsQueryEditor
       exploreId={exploreId}
       datasource={datasource}
       query={query}
+      onBlur={() => {}}
       onChange={onChange}
       onRunQuery={onRunQuery}
       history={[]}

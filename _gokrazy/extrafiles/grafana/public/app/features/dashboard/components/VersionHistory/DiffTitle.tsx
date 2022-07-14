@@ -1,11 +1,9 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
 import { useStyles, Icon } from '@grafana/ui';
-
-import { DiffValues } from './DiffValues';
+import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
 import { Diff, getDiffText } from './utils';
+import { DiffValues } from './DiffValues';
 
 type DiffTitleProps = {
   diff?: Diff;

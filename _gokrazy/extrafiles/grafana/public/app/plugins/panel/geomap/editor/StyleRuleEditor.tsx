@@ -1,19 +1,17 @@
-import { css } from '@emotion/css';
-import { FeatureLike } from 'ol/Feature';
 import React, { FC, useCallback, useMemo } from 'react';
-import { useObservable } from 'react-use';
-import { Observable } from 'rxjs';
-
 import { GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Button, InlineField, InlineFieldRow, Select, useStyles2 } from '@grafana/ui';
-import { NumberInput } from 'app/features/dimensions/editors/NumberInput';
-
-import { StyleEditor } from '../layers/data/StyleEditor';
-import { DEFAULT_STYLE_RULE } from '../layers/data/geojsonLayer';
-import { defaultStyleConfig, StyleConfig } from '../style/types';
 import { ComparisonOperation, FeatureStyleConfig } from '../types';
+import { Button, InlineField, InlineFieldRow, Select, useStyles2 } from '@grafana/ui';
+import { css } from '@emotion/css';
+import { StyleEditor } from '../layers/data/StyleEditor';
+import { defaultStyleConfig, StyleConfig } from '../style/types';
+import { DEFAULT_STYLE_RULE } from '../layers/data/geojsonLayer';
+import { Observable } from 'rxjs';
+import { useObservable } from 'react-use';
 import { getUniqueFeatureValues, LayerContentInfo } from '../utils/getFeatures';
+import { FeatureLike } from 'ol/Feature';
 import { getSelectionInfo } from '../utils/selection';
+import { NumberInput } from 'app/features/dimensions/editors/NumberInput';
 
 export interface StyleRuleEditorSettings {
   features: Observable<FeatureLike[]>;

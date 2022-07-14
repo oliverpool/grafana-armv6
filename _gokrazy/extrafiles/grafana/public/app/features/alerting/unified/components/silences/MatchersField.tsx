@@ -1,12 +1,10 @@
-import { css, cx } from '@emotion/css';
 import React, { FC } from 'react';
-import { useFormContext, useFieldArray } from 'react-hook-form';
-
-import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Field, Input, IconButton, InputControl, useStyles2, Select } from '@grafana/ui';
-import { MatcherOperator } from 'app/plugins/datasource/alertmanager/types';
-
+import { GrafanaTheme2 } from '@grafana/data';
+import { css, cx } from '@emotion/css';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 import { SilenceFormFields } from '../../types/silence-form';
+import { MatcherOperator } from 'app/plugins/datasource/alertmanager/types';
 import { matcherFieldOptions } from '../../utils/alertmanager';
 
 interface Props {

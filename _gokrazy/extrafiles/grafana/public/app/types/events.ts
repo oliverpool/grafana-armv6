@@ -132,25 +132,14 @@ export class RenderEvent extends BusEventBase {
   static type = 'render';
 }
 
-interface ZoomOutEventPayload {
-  scale: number;
-  updateUrl?: boolean;
-}
-
-export class ZoomOutEvent extends BusEventWithPayload<ZoomOutEventPayload> {
+export class ZoomOutEvent extends BusEventWithPayload<number> {
   static type = 'zoom-out';
 }
 
-export enum ShiftTimeEventDirection {
+export enum ShiftTimeEventPayload {
   Left = -1,
   Right = 1,
 }
-
-interface ShiftTimeEventPayload {
-  direction: ShiftTimeEventDirection;
-  updateUrl?: boolean;
-}
-
 export class ShiftTimeEvent extends BusEventWithPayload<ShiftTimeEventPayload> {
   static type = 'shift-time';
 }

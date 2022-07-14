@@ -1,24 +1,19 @@
 import { css } from '@emotion/css';
-import React, { FC, useState } from 'react';
-
 import { GrafanaTheme2 } from '@grafana/data';
+import React, { FC, useState } from 'react';
 import { Button, useStyles2 } from '@grafana/ui';
-
 import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
-import { getNotificationsPermissions } from '../../utils/access-control';
 import { emptyRoute } from '../../utils/amroutes';
-import { Authorize } from '../Authorize';
-
 import { AmRoutesTable } from './AmRoutesTable';
-import { MuteTimingsTable } from './MuteTimingsTable';
 import { getGridStyles } from './gridStyles';
+import { MuteTimingsTable } from './MuteTimingsTable';
+import { useAlertManagerSourceName } from '../../hooks/useAlertManagerSourceName';
 
 export interface AmRoutesExpandedReadProps {
   onChange: (routes: FormAmRoute) => void;
   receivers: AmRouteReceiver[];
   routes: FormAmRoute;
   readOnly?: boolean;
-  alertManagerSourceName: string;
 }
 
 export const AmRoutesExpandedRead: FC<AmRoutesExpandedReadProps> = ({
@@ -26,11 +21,10 @@ export const AmRoutesExpandedRead: FC<AmRoutesExpandedReadProps> = ({
   receivers,
   routes,
   readOnly = false,
-  alertManagerSourceName,
 }) => {
   const styles = useStyles2(getStyles);
   const gridStyles = useStyles2(getGridStyles);
-  const permissions = getNotificationsPermissions(alertManagerSourceName);
+  const [alertManagerSourceName] = useAlertManagerSourceName();
 
   const groupWait = routes.groupWaitValue ? `${routes.groupWaitValue}${routes.groupWaitValueType}` : '-';
   const groupInterval = routes.groupIntervalValue
@@ -77,26 +71,23 @@ export const AmRoutesExpandedRead: FC<AmRoutesExpandedReadProps> = ({
             }}
             receivers={receivers}
             routes={subroutes}
-            alertManagerSourceName={alertManagerSourceName}
           />
         ) : (
           <p>No nested policies configured.</p>
         )}
         {!isAddMode && !readOnly && (
-          <Authorize actions={[permissions.create]}>
-            <Button
-              className={styles.addNestedRoutingBtn}
-              icon="plus"
-              onClick={() => {
-                setSubroutes((subroutes) => [...subroutes, emptyRoute]);
-                setIsAddMode(true);
-              }}
-              variant="secondary"
-              type="button"
-            >
-              Add nested policy
-            </Button>
-          </Authorize>
+          <Button
+            className={styles.addNestedRoutingBtn}
+            icon="plus"
+            onClick={() => {
+              setSubroutes((subroutes) => [...subroutes, emptyRoute]);
+              setIsAddMode(true);
+            }}
+            variant="secondary"
+            type="button"
+          >
+            Add nested policy
+          </Button>
         )}
       </div>
       <div className={gridStyles.titleCell}>Mute timings</div>

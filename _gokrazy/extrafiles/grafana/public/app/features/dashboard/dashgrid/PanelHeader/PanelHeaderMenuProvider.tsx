@@ -1,12 +1,11 @@
 import { FC, ReactElement, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-
 import { PanelMenuItem } from '@grafana/data';
-import { getPanelStateForModel } from 'app/features/panel/state/selectors';
 
-import { StoreState } from '../../../../types';
 import { DashboardModel, PanelModel } from '../../state';
+import { StoreState } from '../../../../types';
 import { getPanelMenu } from '../../utils/getPanelMenu';
+import { getPanelStateForModel } from 'app/features/panel/state/selectors';
 
 interface PanelHeaderMenuProviderApi {
   items: PanelMenuItem[];

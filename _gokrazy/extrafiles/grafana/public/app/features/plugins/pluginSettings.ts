@@ -1,5 +1,5 @@
-import { PluginMeta } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
+import { PluginMeta } from '@grafana/data';
 
 type PluginCache = {
   [key: string]: PluginMeta;

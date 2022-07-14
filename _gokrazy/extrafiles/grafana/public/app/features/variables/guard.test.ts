@@ -1,7 +1,3 @@
-import { VariableSupportType } from '@grafana/data';
-
-import { LegacyVariableQueryEditor } from './editor/LegacyVariableQueryEditor';
-import { StandardVariableQueryEditor } from './editor/getVariableQueryEditor';
 import {
   hasCustomVariableSupport,
   hasDatasourceVariableSupport,
@@ -10,6 +6,9 @@ import {
   isLegacyQueryEditor,
   isQueryEditor,
 } from './guard';
+import { LegacyVariableQueryEditor } from './editor/LegacyVariableQueryEditor';
+import { StandardVariableQueryEditor } from './editor/getVariableQueryEditor';
+import { VariableSupportType } from '@grafana/data';
 
 describe('type guards', () => {
   describe('hasLegacyVariableSupport', () => {

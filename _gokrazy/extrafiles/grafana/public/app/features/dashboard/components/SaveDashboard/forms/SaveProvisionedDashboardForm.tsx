@@ -1,17 +1,13 @@
+import React, { useCallback, useState } from 'react';
 import { css } from '@emotion/css';
 import { saveAs } from 'file-saver';
-import React, { useCallback, useState } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { Stack } from '@grafana/experimental';
-import { Button, ClipboardButton, HorizontalGroup, stylesFactory, TextArea, useTheme } from '@grafana/ui';
-import { useAppNotification } from 'app/core/copy/appNotification';
-
+import { Button, ClipboardButton, Modal, stylesFactory, TextArea, useTheme } from '@grafana/ui';
 import { SaveDashboardFormProps } from '../types';
+import { AppEvents, GrafanaTheme } from '@grafana/data';
+import appEvents from '../../../../../core/app_events';
 
 export const SaveProvisionedDashboardForm: React.FC<SaveDashboardFormProps> = ({ dashboard, onCancel }) => {
   const theme = useTheme();
-  const notifyApp = useAppNotification();
   const [dashboardJSON, setDashboardJson] = useState(() => {
     const clone = dashboard.getSaveModelClone();
     delete clone.id;
@@ -26,13 +22,13 @@ export const SaveProvisionedDashboardForm: React.FC<SaveDashboardFormProps> = ({
   }, [dashboard.title, dashboardJSON]);
 
   const onCopyToClipboardSuccess = useCallback(() => {
-    notifyApp.success('Dashboard JSON copied to clipboard');
-  }, [notifyApp]);
+    appEvents.emit(AppEvents.alertSuccess, ['Dashboard JSON copied to clipboard']);
+  }, []);
 
   const styles = getStyles(theme);
   return (
     <>
-      <Stack direction="column" gap={2}>
+      <div>
         <div>
           This dashboard cannot be saved from the Grafana UI because it has been provisioned from another source. Copy
           the JSON or save it to a file below, then you can update your dashboard in the provisioning source.
@@ -60,7 +56,7 @@ export const SaveProvisionedDashboardForm: React.FC<SaveDashboardFormProps> = ({
           }}
           className={styles.json}
         />
-        <HorizontalGroup>
+        <Modal.ButtonRow>
           <Button variant="secondary" onClick={onCancel} fill="outline">
             Cancel
           </Button>
@@ -68,8 +64,8 @@ export const SaveProvisionedDashboardForm: React.FC<SaveDashboardFormProps> = ({
             Copy JSON to clipboard
           </ClipboardButton>
           <Button onClick={saveToFile}>Save JSON to file</Button>
-        </HorizontalGroup>
-      </Stack>
+        </Modal.ButtonRow>
+      </div>
     </>
   );
 };

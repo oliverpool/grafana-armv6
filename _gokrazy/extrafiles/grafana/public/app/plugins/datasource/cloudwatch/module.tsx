@@ -1,13 +1,12 @@
 import { DataSourcePlugin } from '@grafana/data';
-
-import { CloudWatchAnnotationsQueryCtrl } from './annotations_query_ctrl';
 import { ConfigEditor } from './components/ConfigEditor';
-import LogsCheatSheet from './components/LogsCheatSheet';
-import { CloudWatchLogsQueryEditor } from './components/LogsQueryEditor';
-import { MetaInspector } from './components/MetaInspector';
-import { PanelQueryEditor } from './components/PanelQueryEditor';
 import { CloudWatchDatasource } from './datasource';
+import { CloudWatchAnnotationsQueryCtrl } from './annotations_query_ctrl';
 import { CloudWatchJsonData, CloudWatchQuery } from './types';
+import { CloudWatchLogsQueryEditor } from './components/LogsQueryEditor';
+import { PanelQueryEditor } from './components/PanelQueryEditor';
+import { MetaInspector } from './components/MetaInspector';
+import LogsCheatSheet from './components/LogsCheatSheet';
 
 export const plugin = new DataSourcePlugin<CloudWatchDatasource, CloudWatchQuery, CloudWatchJsonData>(
   CloudWatchDatasource

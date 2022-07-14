@@ -1,7 +1,6 @@
-import { MutableDataFrame } from '@grafana/data';
-
 import { createTraceFrame, transformToJaeger } from './responseTransform';
 import { testResponse, testResponseDataFrameFields } from './testResponse';
+import { MutableDataFrame } from '@grafana/data';
 
 describe('createTraceFrame', () => {
   it('creates data frame from jaeger response', () => {

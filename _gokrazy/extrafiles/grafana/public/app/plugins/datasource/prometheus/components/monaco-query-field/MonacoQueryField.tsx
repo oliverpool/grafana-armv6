@@ -1,15 +1,13 @@
-import { css } from '@emotion/css';
-import { promLanguageDefinition } from 'monaco-promql';
 import React, { useRef, useEffect } from 'react';
-import { useLatest } from 'react-use';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
 import { useTheme2, ReactMonacoEditor, Monaco, monacoTypes } from '@grafana/ui';
-
+import { GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
+import { useLatest } from 'react-use';
+import { promLanguageDefinition } from 'monaco-promql';
+import { selectors } from '@grafana/e2e-selectors';
+import { getCompletionProvider, getSuggestOptions } from './monaco-completion-provider';
 import { Props } from './MonacoQueryFieldProps';
 import { getOverrideServices } from './getOverrideServices';
-import { getCompletionProvider, getSuggestOptions } from './monaco-completion-provider';
 
 const options: monacoTypes.editor.IStandaloneEditorConstructionOptions = {
   codeLens: false,
@@ -151,7 +149,7 @@ const MonacoQueryField = (props: Props) => {
           const completionProvider = getCompletionProvider(monaco, dataProvider);
 
           // completion-providers in monaco are not registered directly to editor-instances,
-          // they are registered to languages. this makes it hard for us to have
+          // they are registerd to languages. this makes it hard for us to have
           // separate completion-providers for every query-field-instance
           // (but we need that, because they might connect to different datasources).
           // the trick we do is, we wrap the callback in a "proxy",
@@ -208,6 +206,6 @@ const MonacoQueryField = (props: Props) => {
 // we will lazy-load this module using React.lazy,
 // and that only supports default-exports,
 // so we have to default-export this, even if
-// it is against the style-guidelines.
+// it is agains the style-guidelines.
 
 export default MonacoQueryField;

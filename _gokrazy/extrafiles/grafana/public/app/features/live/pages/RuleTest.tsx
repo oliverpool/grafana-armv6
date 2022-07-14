@@ -1,11 +1,9 @@
-import { css } from '@emotion/css';
 import React, { useState } from 'react';
-
-import { dataFrameFromJSON, getDisplayProcessor, GrafanaTheme } from '@grafana/data';
-import { getBackendSrv, config } from '@grafana/runtime';
 import { Button, CodeEditor, Table, useStyles, Field } from '@grafana/ui';
-
 import { ChannelFrame, Rule } from './types';
+import { getBackendSrv, config } from '@grafana/runtime';
+import { css } from '@emotion/css';
+import { dataFrameFromJSON, getDisplayProcessor, GrafanaTheme } from '@grafana/data';
 
 interface Props {
   rule: Rule;

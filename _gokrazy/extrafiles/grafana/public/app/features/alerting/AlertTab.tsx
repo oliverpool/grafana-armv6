@@ -1,22 +1,22 @@
 import React, { PureComponent } from 'react';
 import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-
-import { EventBusSrv } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
-import { AngularComponent, config, getAngularLoader, getDataSourceSrv } from '@grafana/runtime';
 import { Alert, Button, ConfirmModal, Container, CustomScrollbar, HorizontalGroup, IconName, Modal } from '@grafana/ui';
-import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
-import { getPanelStateForModel } from 'app/features/panel/state/selectors';
-import { AppNotificationSeverity, StoreState } from 'app/types';
+import { selectors } from '@grafana/e2e-selectors';
+import { AngularComponent, getAngularLoader, getDataSourceSrv } from '@grafana/runtime';
+import { getAlertingValidationMessage } from './getAlertingValidationMessage';
 
-import { AlertState } from '../../plugins/datasource/alertmanager/types';
-import { PanelNotSupported } from '../dashboard/components/PanelEditor/PanelNotSupported';
+import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
+import StateHistory from './StateHistory';
+import 'app/features/alerting/AlertTabCtrl';
+
 import { DashboardModel } from '../dashboard/state/DashboardModel';
 import { PanelModel } from '../dashboard/state/PanelModel';
-
-import StateHistory from './StateHistory';
 import { TestRuleResult } from './TestRuleResult';
-import { getAlertingValidationMessage } from './getAlertingValidationMessage';
+import { AppNotificationSeverity, StoreState } from 'app/types';
+import { PanelNotSupported } from '../dashboard/components/PanelEditor/PanelNotSupported';
+import { AlertState } from '../../plugins/datasource/alertmanager/types';
+import { EventBusSrv } from '@grafana/data';
+import { getPanelStateForModel } from 'app/features/panel/state/selectors';
 
 interface AngularPanelController {
   _enableAlert: () => void;
@@ -57,14 +57,8 @@ class UnConnectedAlertTab extends PureComponent<Props, State> {
     showTestRule: false,
   };
 
-  async componentDidMount() {
-    if (config.angularSupportEnabled) {
-      await import(/* webpackChunkName: "AlertTabCtrl" */ 'app/features/alerting/AlertTabCtrl');
-      this.loadAlertTab();
-    } else {
-      // TODO probably need to migrate AlertTab to react
-      alert('Angular support disabled, legacy alerting cannot function without angular support');
-    }
+  componentDidMount() {
+    this.loadAlertTab();
   }
 
   onAngularPanelUpdated = () => {

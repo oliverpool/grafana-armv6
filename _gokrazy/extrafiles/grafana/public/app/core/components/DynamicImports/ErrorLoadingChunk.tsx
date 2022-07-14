@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
 import React, { FunctionComponent } from 'react';
-
 import { Button, stylesFactory } from '@grafana/ui';
+import { css } from '@emotion/css';
 import { useUrlParams } from 'app/core/navigation/hooks';
 
 const getStyles = stylesFactory(() => {

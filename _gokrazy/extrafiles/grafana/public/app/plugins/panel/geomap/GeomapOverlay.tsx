@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import React, { PureComponent } from 'react';
-
 import { GrafanaTheme } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { stylesFactory } from '@grafana/ui';
+import { css } from '@emotion/css';
 
 export interface OverlayProps {
   topRight?: React.ReactNode[];

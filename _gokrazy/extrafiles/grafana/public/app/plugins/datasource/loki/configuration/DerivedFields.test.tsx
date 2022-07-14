@@ -1,11 +1,9 @@
-import { mount } from 'enzyme';
 import React from 'react';
-import { act } from 'react-dom/test-utils';
-
-import { Button } from '@grafana/ui';
-
-import { DerivedField } from './DerivedField';
+import { mount } from 'enzyme';
 import { DerivedFields } from './DerivedFields';
+import { Button } from '@grafana/ui';
+import { DerivedField } from './DerivedField';
+import { act } from 'react-dom/test-utils';
 
 describe('DerivedFields', () => {
   let originalGetSelection: typeof window.getSelection;

@@ -1,16 +1,14 @@
-import classNames from 'classnames';
 import React from 'react';
-import { Unsubscribable } from 'rxjs';
-
-import { selectors } from '@grafana/e2e-selectors';
-import { getTemplateSrv, RefreshEvent } from '@grafana/runtime';
+import classNames from 'classnames';
 import { Icon } from '@grafana/ui';
-import appEvents from 'app/core/app_events';
-
-import { ShowConfirmModalEvent } from '../../../../types/events';
-import { DashboardModel } from '../../state/DashboardModel';
 import { PanelModel } from '../../state/PanelModel';
+import { DashboardModel } from '../../state/DashboardModel';
+import appEvents from 'app/core/app_events';
 import { RowOptionsButton } from '../RowOptions/RowOptionsButton';
+import { getTemplateSrv, RefreshEvent } from '@grafana/runtime';
+import { ShowConfirmModalEvent } from '../../../../types/events';
+import { Unsubscribable } from 'rxjs';
+import { selectors } from '@grafana/e2e-selectors';
 
 export interface DashboardRowProps {
   panel: PanelModel;

@@ -1,6 +1,4 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
 import {
   FieldType,
   formattedValueToString,
@@ -10,6 +8,7 @@ import {
   TimeZone,
 } from '@grafana/data';
 import { stylesFactory, useTheme2 } from '@grafana/ui';
+import { css } from '@emotion/css';
 
 interface InspectStatsTableProps {
   timeZone: TimeZone;

@@ -1,15 +1,20 @@
+// Libraries
 import React, { Component } from 'react';
-import { Unsubscribable } from 'rxjs';
-
 import { dateMath, TimeRange, TimeZone } from '@grafana/data';
 import { TimeRangeUpdatedEvent } from '@grafana/runtime';
+
+// Types
+import { DashboardModel } from '../../state';
+
+// Components
 import { defaultIntervals, RefreshPicker, ToolbarButtonRow } from '@grafana/ui';
 import { TimePickerWithHistory } from 'app/core/components/TimePicker/TimePickerWithHistory';
-import { appEvents } from 'app/core/core';
-import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
 
-import { ShiftTimeEvent, ShiftTimeEventDirection, ZoomOutEvent } from '../../../../types/events';
-import { DashboardModel } from '../../state';
+// Utils & Services
+import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
+import { appEvents } from 'app/core/core';
+import { ShiftTimeEvent, ShiftTimeEventPayload, ZoomOutEvent } from '../../../../types/events';
+import { Unsubscribable } from 'rxjs';
 
 export interface Props {
   dashboard: DashboardModel;
@@ -33,16 +38,16 @@ export class DashNavTimeControls extends Component<Props> {
   };
 
   onRefresh = () => {
-    getTimeSrv().refreshTimeModel();
+    getTimeSrv().refreshDashboard();
     return Promise.resolve();
   };
 
   onMoveBack = () => {
-    appEvents.publish(new ShiftTimeEvent({ direction: ShiftTimeEventDirection.Left }));
+    appEvents.publish(new ShiftTimeEvent(ShiftTimeEventPayload.Left));
   };
 
   onMoveForward = () => {
-    appEvents.publish(new ShiftTimeEvent({ direction: ShiftTimeEventDirection.Right }));
+    appEvents.publish(new ShiftTimeEvent(ShiftTimeEventPayload.Right));
   };
 
   onChangeTimePicker = (timeRange: TimeRange) => {
@@ -72,7 +77,7 @@ export class DashNavTimeControls extends Component<Props> {
   };
 
   onZoom = () => {
-    appEvents.publish(new ZoomOutEvent({ scale: 2 }));
+    appEvents.publish(new ZoomOutEvent(2));
   };
 
   render() {

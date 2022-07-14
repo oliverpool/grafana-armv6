@@ -1,7 +1,6 @@
 import { DataQueryResponse, dateMath } from '@grafana/data';
-import { setDataSourceSrv } from '@grafana/runtime';
-
 import { addDataLinksToLogsResponse } from './datalinks';
+import { setDataSourceSrv } from '@grafana/runtime';
 
 describe('addDataLinksToLogsResponse', () => {
   it('should add data links to response', async () => {
@@ -52,7 +51,6 @@ describe('addDataLinksToLogsResponse', () => {
       mockOptions,
       { ...time, raw: time },
       (s) => s ?? '',
-      (v) => [v] ?? [],
       (r) => r,
       'xrayUid'
     );

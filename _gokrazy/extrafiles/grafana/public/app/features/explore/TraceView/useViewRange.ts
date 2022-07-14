@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-
 import { ViewRangeTimeUpdate, ViewRange } from '@jaegertracing/jaeger-ui-components';
 
 /**

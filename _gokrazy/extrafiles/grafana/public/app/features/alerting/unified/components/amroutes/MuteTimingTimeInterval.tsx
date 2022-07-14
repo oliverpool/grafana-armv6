@@ -1,13 +1,10 @@
-import { css } from '@emotion/css';
 import React from 'react';
-import { useFormContext, useFieldArray } from 'react-hook-form';
-
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Input, Field, FieldSet, useStyles2 } from '@grafana/ui';
-
-import { MuteTimingFields } from '../../types/mute-timing-form';
+import { css } from '@emotion/css';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 import { DAYS_OF_THE_WEEK, MONTHS, validateArrayField, defaultTimeInterval } from '../../utils/mute-timings';
-
+import { MuteTimingFields } from '../../types/mute-timing-form';
 import { MuteTimingTimeRange } from './MuteTimingTimeRange';
 
 export const MuteTimingTimeInterval = () => {

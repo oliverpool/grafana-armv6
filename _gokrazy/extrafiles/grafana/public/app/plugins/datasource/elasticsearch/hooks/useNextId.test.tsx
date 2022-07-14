@@ -1,12 +1,9 @@
-import { renderHook } from '@testing-library/react-hooks';
 import React, { PropsWithChildren } from 'react';
-
-import { getDefaultTimeRange } from '@grafana/data';
-
+import { renderHook } from '@testing-library/react-hooks';
 import { ElasticsearchProvider } from '../components/QueryEditor/ElasticsearchQueryContext';
-import { ElasticsearchQuery } from '../types';
-
 import { useNextId } from './useNextId';
+import { ElasticsearchQuery } from '../types';
+import { getDefaultTimeRange } from '@grafana/data';
 
 describe('useNextId', () => {
   it('Should return the next available id', () => {

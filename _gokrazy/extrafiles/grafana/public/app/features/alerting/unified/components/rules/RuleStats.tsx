@@ -1,9 +1,7 @@
-import pluralize from 'pluralize';
-import React, { FC, Fragment, useMemo } from 'react';
-
 import { CombinedRule, CombinedRuleGroup, CombinedRuleNamespace } from 'app/types/unified-alerting';
 import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
-
+import pluralize from 'pluralize';
+import React, { FC, Fragment, useMemo } from 'react';
 import { isAlertingRule, isRecordingRule, isRecordingRulerRule } from '../../utils/rules';
 import { StateColoredText } from '../StateColoredText';
 

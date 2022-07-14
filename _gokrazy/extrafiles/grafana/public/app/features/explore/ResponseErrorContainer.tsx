@@ -1,10 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-
-import { LoadingState } from '@grafana/data';
-
 import { ExploreId, StoreState } from '../../types';
-
+import { LoadingState } from '@grafana/data';
 import { ErrorContainer } from './ErrorContainer';
 
 interface Props {

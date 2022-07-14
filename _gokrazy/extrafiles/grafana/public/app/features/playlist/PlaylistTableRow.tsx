@@ -1,13 +1,11 @@
-import { css, cx } from '@emotion/css';
 import React, { FC, MouseEvent } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
+import { css, cx } from '@emotion/css';
 import { Icon, IconButton, useStyles } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
 
 import { TagBadge } from '../../core/components/TagFilter/TagBadge';
-
 import { PlaylistItem } from './types';
+import { selectors } from '@grafana/e2e-selectors';
 
 interface PlaylistTableRowProps {
   first: boolean;

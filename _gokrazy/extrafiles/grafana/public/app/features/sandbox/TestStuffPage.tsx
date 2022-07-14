@@ -1,7 +1,3 @@
-import React, { FC, useMemo, useState } from 'react';
-import { useObservable } from 'react-use';
-import AutoSizer from 'react-virtualized-auto-sizer';
-
 import {
   ApplyFieldOverrideOptions,
   DataTransformerConfig,
@@ -10,15 +6,16 @@ import {
   NavModelItem,
   PanelData,
 } from '@grafana/data';
-import { Button, Table } from '@grafana/ui';
+import { Table } from '@grafana/ui';
 import { config } from 'app/core/config';
-import { useAppNotification } from 'app/core/copy/appNotification';
-import { QueryGroupOptions } from 'app/types';
-
-import Page from '../../core/components/Page/Page';
-import { PanelRenderer } from '../panel/components/PanelRenderer';
+import React, { FC, useMemo, useState } from 'react';
+import { useObservable } from 'react-use';
 import { QueryGroup } from '../query/components/QueryGroup';
 import { PanelQueryRunner } from '../query/state/PanelQueryRunner';
+import { QueryGroupOptions } from 'app/types';
+import Page from '../../core/components/Page/Page';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { PanelRenderer } from '../panel/components/PanelRenderer';
 
 interface State {
   queryRunner: PanelQueryRunner;
@@ -61,8 +58,6 @@ export const TestStuffPage: FC = () => {
     url: 'sandbox/test',
   };
 
-  const notifyApp = useAppNotification();
-
   return (
     <Page navModel={{ node: node, main: node }}>
       <Page.Contents>
@@ -94,23 +89,6 @@ export const TestStuffPage: FC = () => {
             onRunQueries={onRunQueries}
             onOptionsChange={onOptionsChange}
           />
-        </div>
-        <div style={{ display: 'flex', gap: '1em' }}>
-          <Button onClick={() => notifyApp.success('Success toast', 'some more text goes here')} variant="primary">
-            Success
-          </Button>
-          <Button
-            onClick={() => notifyApp.warning('Warning toast', 'some more text goes here', 'bogus-trace-99999')}
-            variant="secondary"
-          >
-            Warning
-          </Button>
-          <Button
-            onClick={() => notifyApp.error('Error toast', 'some more text goes here', 'bogus-trace-fdsfdfsfds')}
-            variant="destructive"
-          >
-            Error
-          </Button>
         </div>
       </Page.Contents>
     </Page>

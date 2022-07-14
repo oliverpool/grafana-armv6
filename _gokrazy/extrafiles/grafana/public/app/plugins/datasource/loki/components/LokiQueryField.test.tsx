@@ -1,9 +1,7 @@
-import { render } from '@testing-library/react';
 import React, { ComponentProps } from 'react';
-
-import { dateTime } from '@grafana/data';
-
+import { render } from '@testing-library/react';
 import { LokiQueryField } from './LokiQueryField';
+import { dateTime } from '@grafana/data';
 
 type Props = ComponentProps<typeof LokiQueryField>;
 

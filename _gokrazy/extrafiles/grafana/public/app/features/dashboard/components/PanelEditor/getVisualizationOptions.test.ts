@@ -1,5 +1,4 @@
 import { EventBusSrv, FieldType, getDefaultTimeRange, LoadingState, toDataFrame } from '@grafana/data';
-
 import { getStandardEditorContext } from './getVisualizationOptions';
 
 describe('getStandardEditorContext', () => {

@@ -1,5 +1,3 @@
-import { Style } from 'ol/style';
-
 import {
   ColorDimensionConfig,
   DimensionSupplier,
@@ -10,6 +8,7 @@ import {
   ScalarDimensionMode,
   TextDimensionConfig,
 } from 'app/features/dimensions';
+import { Style } from 'ol/style';
 
 export enum GeometryTypeId {
   Point = 'point',

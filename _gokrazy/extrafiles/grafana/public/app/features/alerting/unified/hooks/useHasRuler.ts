@@ -1,9 +1,6 @@
-import { useCallback } from 'react';
-
 import { RulesSource } from 'app/types/unified-alerting';
-
+import { useCallback } from 'react';
 import { GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
-
 import { useUnifiedAlertingSelector } from './useUnifiedAlertingSelector';
 
 // datasource has ruler if it's grafana managed or if we're able to load rules from it

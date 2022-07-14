@@ -1,5 +1,4 @@
 import { DataFrame, FieldConfigSource, PanelData, PanelPlugin } from '@grafana/data';
-
 import { DashboardModel, PanelModel } from '../../state';
 
 export interface PanelEditorTab {

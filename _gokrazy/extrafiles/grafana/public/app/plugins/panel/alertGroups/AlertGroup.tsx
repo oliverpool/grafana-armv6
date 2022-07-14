@@ -1,14 +1,14 @@
-import { css } from '@emotion/css';
+import { AlertmanagerGroup, AlertState } from 'app/plugins/datasource/alertmanager/types';
 import React, { useState, useEffect } from 'react';
-
 import { GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
 import { useStyles2, LinkButton } from '@grafana/ui';
+import { css } from '@emotion/css';
+
 import { AlertLabels } from 'app/features/alerting/unified/components/AlertLabels';
-import { CollapseToggle } from 'app/features/alerting/unified/components/CollapseToggle';
 import { AlertGroupHeader } from 'app/features/alerting/unified/components/alert-groups/AlertGroupHeader';
+import { CollapseToggle } from 'app/features/alerting/unified/components/CollapseToggle';
 import { getNotificationsTextColors } from 'app/features/alerting/unified/styles/notifications';
 import { makeAMLink, makeLabelBasedSilenceLink } from 'app/features/alerting/unified/utils/misc';
-import { AlertmanagerGroup, AlertState } from 'app/plugins/datasource/alertmanager/types';
 
 type Props = {
   alertManagerSourceName: string;

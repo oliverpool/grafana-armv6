@@ -1,8 +1,6 @@
 import React from 'react';
-
-import { SelectableValue } from '@grafana/data';
 import { InlineField, InlineFieldRow, Select } from '@grafana/ui';
-
+import { SelectableValue } from '@grafana/data';
 import { EditorProps } from '../QueryEditor';
 
 export const CSVFileEditor = ({ onChange, query }: EditorProps) => {

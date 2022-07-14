@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useDeepCompareEffect } from 'react-use';
-
 import { SelectableValue, toOption } from '@grafana/data';
-
-import { CloudWatchDatasource } from './datasource';
-import { Dimensions } from './types';
 import { appendTemplateVariables } from './utils/utils';
+import { Dimensions } from './types';
+import { CloudWatchDatasource } from './datasource';
+import { useDeepCompareEffect } from 'react-use';
 
 export const useRegions = (datasource: CloudWatchDatasource): [Array<SelectableValue<string>>, boolean] => {
   const [regionsIsLoading, setRegionsIsLoading] = useState<boolean>(false);

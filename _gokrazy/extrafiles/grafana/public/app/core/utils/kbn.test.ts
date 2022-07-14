@@ -1,13 +1,5 @@
-import { DecimalCount, TimeZone } from '@grafana/data';
-
 import kbn from './kbn';
-
-// Most of the methods in this file are deprecated
-// Stub the deprecation warning here to prevent polluting the test output
-jest.mock('@grafana/data', () => ({
-  ...jest.requireActual('@grafana/data'),
-  deprecationWarning: () => {},
-}));
+import { DecimalCount, TimeZone } from '@grafana/data';
 
 interface ValueFormatTest {
   id: string;

@@ -1,13 +1,10 @@
-import memoizeOne from 'memoize-one';
 import React from 'react';
-
 import { PanelProps } from '@grafana/data';
-
-import { useLinks } from '../../../features/explore/utils/links';
-
-import { NodeGraph } from './NodeGraph';
+import memoizeOne from 'memoize-one';
 import { Options } from './types';
+import { NodeGraph } from './NodeGraph';
 import { getNodeGraphDataFrames } from './utils';
+import { useLinks } from '../../../features/explore/utils/links';
 
 export const NodeGraphPanel: React.FunctionComponent<PanelProps<Options>> = ({ width, height, data }) => {
   const getLinks = useLinks(data.timeRange);

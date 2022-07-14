@@ -1,12 +1,5 @@
 import { reducerTester } from 'test/core/redux/reducerTester';
-
-import { ElasticsearchQuery } from 'app/plugins/datasource/elasticsearch/types';
-
-import { defaultMetricAgg } from '../../../../query_def';
-import { initQuery } from '../../state';
-import { Derivative, ExtendedStats, MetricAggregation } from '../aggregations';
-import { metricAggregationConfig } from '../utils';
-
+import { reducer } from './reducer';
 import {
   addMetric,
   changeMetricAttribute,
@@ -17,7 +10,11 @@ import {
   removeMetric,
   toggleMetricVisibility,
 } from './actions';
-import { reducer } from './reducer';
+import { Derivative, ExtendedStats, MetricAggregation } from '../aggregations';
+import { defaultMetricAgg } from '../../../../query_def';
+import { metricAggregationConfig } from '../utils';
+import { initQuery } from '../../state';
+import { ElasticsearchQuery } from 'app/plugins/datasource/elasticsearch/types';
 
 describe('Metric Aggregations Reducer', () => {
   it('should correctly add new aggregations', () => {

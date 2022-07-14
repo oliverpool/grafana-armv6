@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { Unsubscribable } from 'rxjs';
-
 import { DataQueryError, LoadingState, PanelData } from '@grafana/data';
-
-import { GetDataOptions } from '../../../query/state/PanelQueryRunner';
+import { useEffect, useRef, useState } from 'react';
 import { PanelModel } from '../../state';
+import { Unsubscribable } from 'rxjs';
+import { GetDataOptions } from '../../../query/state/PanelQueryRunner';
 
 interface UsePanelLatestData {
   data?: PanelData;

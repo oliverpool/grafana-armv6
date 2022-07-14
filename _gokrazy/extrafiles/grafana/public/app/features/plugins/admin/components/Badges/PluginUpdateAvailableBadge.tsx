@@ -1,9 +1,7 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme2, PluginType } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
-
 import { CatalogPlugin } from '../../types';
 
 type Props = {

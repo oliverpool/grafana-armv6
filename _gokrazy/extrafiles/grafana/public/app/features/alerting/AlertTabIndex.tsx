@@ -1,5 +1,4 @@
 import { config } from '@grafana/runtime';
-
 import { AlertTab } from './AlertTab';
 import { PanelAlertTabContent } from './unified/PanelAlertTabContent';
 

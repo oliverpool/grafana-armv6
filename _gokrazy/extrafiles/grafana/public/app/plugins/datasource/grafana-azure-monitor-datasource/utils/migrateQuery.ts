@@ -1,10 +1,10 @@
-import { setKustoQuery } from '../components/LogsQueryEditor/setQueryValue';
+import { AzureMonitorQuery, AzureQueryType } from '../types';
+import TimegrainConverter from '../time_grain_converter';
 import {
   appendDimensionFilter,
   setTimeGrain as setMetricsTimeGrain,
 } from '../components/MetricsQueryEditor/setQueryValue';
-import TimegrainConverter from '../time_grain_converter';
-import { AzureMonitorQuery, AzureQueryType, DeprecatedAzureQueryType } from '../types';
+import { setKustoQuery } from '../components/LogsQueryEditor/setQueryValue';
 
 const OLD_DEFAULT_DROPDOWN_VALUE = 'select';
 
@@ -127,12 +127,7 @@ function migrateMetricsDimensionFilters(query: AzureMonitorQuery): AzureMonitorQ
 
   const oldDimension = workingQuery.azureMonitor?.dimension;
   if (oldDimension && oldDimension !== 'None') {
-    workingQuery = appendDimensionFilter(
-      workingQuery,
-      oldDimension,
-      'eq',
-      workingQuery.azureMonitor?.dimensionFilter || ''
-    );
+    workingQuery = appendDimensionFilter(workingQuery, oldDimension, 'eq', workingQuery.azureMonitor?.dimensionFilter);
   }
 
   return workingQuery;
@@ -143,10 +138,10 @@ function migrateMetricsDimensionFilters(query: AzureMonitorQuery): AzureMonitorQ
 export function datasourceMigrations(query: AzureMonitorQuery): AzureMonitorQuery {
   let workingQuery = query;
 
-  if (workingQuery.queryType === DeprecatedAzureQueryType.ApplicationInsights && workingQuery.appInsights?.rawQuery) {
+  if (workingQuery.queryType === AzureQueryType.ApplicationInsights && workingQuery.appInsights?.rawQuery) {
     workingQuery = {
       ...workingQuery,
-      queryType: DeprecatedAzureQueryType.InsightsAnalytics,
+      queryType: AzureQueryType.InsightsAnalytics,
       appInsights: undefined,
       insightsAnalytics: {
         query: workingQuery.appInsights.rawQuery,

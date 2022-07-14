@@ -1,18 +1,15 @@
-import { css } from '@emotion/css';
 import React, { PureComponent } from 'react';
 import { connect, MapStateToProps } from 'react-redux';
-
-import { AnnotationQuery } from '@grafana/data';
-
 import { StoreState } from '../../../../types';
-import { getSubMenuVariables, getVariablesState } from '../../../variables/state/selectors';
+import { getSubMenuVariables } from '../../../variables/state/selectors';
 import { VariableModel } from '../../../variables/types';
 import { DashboardModel } from '../../state';
-import { DashboardLink } from '../../state/DashboardModel';
-
-import { Annotations } from './Annotations';
 import { DashboardLinks } from './DashboardLinks';
+import { Annotations } from './Annotations';
 import { SubMenuItems } from './SubMenuItems';
+import { DashboardLink } from '../../state/DashboardModel';
+import { AnnotationQuery } from '@grafana/data';
+import { css } from '@emotion/css';
 
 interface OwnProps {
   dashboard: DashboardModel;
@@ -67,11 +64,9 @@ class SubMenuUnConnected extends PureComponent<Props> {
   }
 }
 
-const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = (state, ownProps) => {
-  const { uid } = ownProps.dashboard;
-  const templatingState = getVariablesState(uid, state);
+const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = (state) => {
   return {
-    variables: getSubMenuVariables(uid, templatingState.variables),
+    variables: getSubMenuVariables(state.templating.variables),
   };
 };
 

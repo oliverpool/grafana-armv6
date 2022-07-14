@@ -1,7 +1,5 @@
-import Map from 'ol/Map';
-
 import { MapLayerRegistryItem, MapLayerOptions, GrafanaTheme2, RegistryItem, Registry } from '@grafana/data';
-
+import Map from 'ol/Map';
 import { xyzTiles, defaultXYZConfig, XYZConfig } from './generic';
 
 interface PublicServiceItem extends RegistryItem {

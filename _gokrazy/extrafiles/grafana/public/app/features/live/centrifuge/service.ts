@@ -1,6 +1,12 @@
 import Centrifuge from 'centrifuge/dist/centrifuge';
+import {
+  GrafanaLiveSrv,
+  LiveDataStreamOptions,
+  LiveQueryDataOptions,
+  StreamingFrameAction,
+  StreamingFrameOptions,
+} from '@grafana/runtime/src/services/live';
 import { BehaviorSubject, Observable, share, startWith } from 'rxjs';
-
 import {
   DataQueryError,
   DataQueryResponse,
@@ -9,20 +15,11 @@ import {
   LiveChannelId,
   toLiveChannelId,
 } from '@grafana/data';
-import { FetchResponse } from '@grafana/runtime/src/services/backendSrv';
-import {
-  GrafanaLiveSrv,
-  LiveDataStreamOptions,
-  LiveQueryDataOptions,
-  StreamingFrameAction,
-  StreamingFrameOptions,
-} from '@grafana/runtime/src/services/live';
-import { BackendDataSourceResponse } from '@grafana/runtime/src/utils/queryResponse';
-
-import { StreamingResponseData } from '../data/utils';
-
-import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
+import { LiveDataStream } from './LiveDataStream';
+import { StreamingResponseData } from '../data/utils';
+import { BackendDataSourceResponse } from '@grafana/runtime/src/utils/queryResponse';
+import { FetchResponse } from '@grafana/runtime/src/services/backendSrv';
 
 export type CentrifugeSrvDeps = {
   appUrl: string;

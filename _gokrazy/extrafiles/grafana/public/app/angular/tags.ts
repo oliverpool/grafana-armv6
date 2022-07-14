@@ -1,8 +1,6 @@
 import angular from 'angular';
-import $ from 'jquery';
-
 import { getTagColorsFromName } from '@grafana/ui';
-
+import $ from 'jquery';
 import coreModule from './core_module';
 import 'vendor/tagsinput/bootstrap-tagsinput.js';
 

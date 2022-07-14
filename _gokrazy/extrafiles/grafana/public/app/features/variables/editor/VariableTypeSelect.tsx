@@ -1,11 +1,10 @@
 import React, { PropsWithChildren, useMemo } from 'react';
-
 import { SelectableValue, VariableType } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
-import { variableAdapters } from '../adapters';
 import { VariableSelectField } from '../editor/VariableSelectField';
 import { getVariableTypes } from '../utils';
+import { variableAdapters } from '../adapters';
 
 interface Props {
   onChange: (option: SelectableValue<VariableType>) => void;
@@ -23,7 +22,7 @@ export function VariableTypeSelect({ onChange, type }: PropsWithChildren<Props>)
       options={options}
       onChange={onChange}
       tooltip={variableAdapters.get(type).description}
-      testId={selectors.pages.Dashboard.Settings.Variables.Edit.General.generalTypeSelectV2}
+      ariaLabel={selectors.pages.Dashboard.Settings.Variables.Edit.General.generalTypeSelect}
     />
   );
 }

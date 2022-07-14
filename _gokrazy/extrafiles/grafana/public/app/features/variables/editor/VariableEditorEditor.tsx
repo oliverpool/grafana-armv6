@@ -1,62 +1,49 @@
-import { isEqual } from 'lodash';
 import React, { FormEvent, PureComponent } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
+import { isEqual } from 'lodash';
 import { AppEvents, LoadingState, SelectableValue, VariableType } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
 import { Button, Icon, InlineFieldRow, VerticalGroup } from '@grafana/ui';
+import { selectors } from '@grafana/e2e-selectors';
 
-import { appEvents } from '../../../core/core';
-import { StoreState, ThunkDispatch } from '../../../types';
 import { variableAdapters } from '../adapters';
-import { hasOptions } from '../guard';
-import { updateOptions } from '../state/actions';
-import { toKeyedAction } from '../state/keyedVariablesReducer';
-import { getVariable, getVariablesState } from '../state/selectors';
-import { changeVariableProp, changeVariableType } from '../state/sharedReducer';
-import { KeyedVariableIdentifier } from '../state/types';
-import { VariableHide } from '../types';
-import { toKeyedVariableIdentifier, toVariablePayload } from '../utils';
-
-import { VariableHideSelect } from './VariableHideSelect';
-import { VariableSectionHeader } from './VariableSectionHeader';
-import { VariableTextField } from './VariableTextField';
-import { VariableTypeSelect } from './VariableTypeSelect';
+import { toVariableIdentifier, toVariablePayload, VariableIdentifier } from '../state/types';
+import { VariableHide, VariableModel } from '../types';
+import { appEvents } from '../../../core/core';
 import { VariableValuesPreview } from './VariableValuesPreview';
 import { changeVariableName, onEditorUpdate, variableEditorMount, variableEditorUnMount } from './actions';
+import { MapDispatchToProps, MapStateToProps } from 'react-redux';
+import { StoreState } from '../../../types';
+import { VariableEditorState } from './reducer';
+import { getVariable } from '../state/selectors';
+import { connectWithStore } from '../../../core/utils/connectWithReduxStore';
 import { OnPropChangeArguments } from './types';
-
-const mapStateToProps = (state: StoreState, ownProps: OwnProps) => ({
-  editor: getVariablesState(ownProps.identifier.rootStateKey, state).editor,
-  variable: getVariable(ownProps.identifier, state, false), // we could be renaming a variable and we don't want this to throw
-});
-
-const mapDispatchToProps = (dispatch: ThunkDispatch) => {
-  return {
-    ...bindActionCreators(
-      { variableEditorMount, variableEditorUnMount, changeVariableName, onEditorUpdate, updateOptions },
-      dispatch
-    ),
-    changeVariableProp: (identifier: KeyedVariableIdentifier, propName: string, propValue: any) =>
-      dispatch(
-        toKeyedAction(
-          identifier.rootStateKey,
-          changeVariableProp(toVariablePayload(identifier, { propName, propValue }))
-        )
-      ),
-    changeVariableType: (identifier: KeyedVariableIdentifier, newType: VariableType) =>
-      dispatch(toKeyedAction(identifier.rootStateKey, changeVariableType(toVariablePayload(identifier, { newType })))),
-  };
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
+import { changeVariableProp, changeVariableType } from '../state/sharedReducer';
+import { updateOptions } from '../state/actions';
+import { VariableTextField } from './VariableTextField';
+import { VariableSectionHeader } from './VariableSectionHeader';
+import { hasOptions } from '../guard';
+import { VariableTypeSelect } from './VariableTypeSelect';
+import { VariableHideSelect } from './VariableHideSelect';
 
 export interface OwnProps {
-  identifier: KeyedVariableIdentifier;
+  identifier: VariableIdentifier;
 }
 
-type Props = OwnProps & ConnectedProps<typeof connector>;
+interface ConnectedProps {
+  editor: VariableEditorState;
+  variable: VariableModel;
+}
+
+interface DispatchProps {
+  variableEditorMount: typeof variableEditorMount;
+  variableEditorUnMount: typeof variableEditorUnMount;
+  changeVariableName: typeof changeVariableName;
+  changeVariableProp: typeof changeVariableProp;
+  onEditorUpdate: typeof onEditorUpdate;
+  changeVariableType: typeof changeVariableType;
+  updateOptions: typeof updateOptions;
+}
+
+type Props = OwnProps & ConnectedProps & DispatchProps;
 
 export class VariableEditorEditorUnConnected extends PureComponent<Props> {
   componentDidMount(): void {
@@ -84,26 +71,35 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
     if (!option.value) {
       return;
     }
-    this.props.changeVariableType(this.props.identifier, option.value);
+    this.props.changeVariableType(toVariablePayload(this.props.identifier, { newType: option.value }));
   };
 
   onLabelChange = (event: FormEvent<HTMLInputElement>) => {
     event.preventDefault();
-    this.props.changeVariableProp(this.props.identifier, 'label', event.currentTarget.value);
+    this.props.changeVariableProp(
+      toVariablePayload(this.props.identifier, { propName: 'label', propValue: event.currentTarget.value })
+    );
   };
 
   onDescriptionChange = (event: FormEvent<HTMLInputElement>) => {
-    this.props.changeVariableProp(this.props.identifier, 'description', event.currentTarget.value);
+    this.props.changeVariableProp(
+      toVariablePayload(this.props.identifier, { propName: 'description', propValue: event.currentTarget.value })
+    );
   };
 
   onHideChange = (option: SelectableValue<VariableHide>) => {
-    this.props.changeVariableProp(this.props.identifier, 'hide', option.value);
+    this.props.changeVariableProp(
+      toVariablePayload(this.props.identifier, {
+        propName: 'hide',
+        propValue: option.value,
+      })
+    );
   };
 
   onPropChanged = async ({ propName, propValue, updateOptions = false }: OnPropChangeArguments) => {
-    this.props.changeVariableProp(this.props.identifier, propName, propValue);
+    this.props.changeVariableProp(toVariablePayload(this.props.identifier, { propName, propValue }));
     if (updateOptions) {
-      await this.props.updateOptions(toKeyedVariableIdentifier(this.props.variable));
+      await this.props.updateOptions(toVariableIdentifier(this.props.variable));
     }
   };
 
@@ -137,7 +133,7 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
                   name="Name"
                   placeholder="name"
                   required
-                  testId={selectors.pages.Dashboard.Settings.Variables.Edit.General.generalNameInputV2}
+                  ariaLabel={selectors.pages.Dashboard.Settings.Variables.Edit.General.generalNameInput}
                 />
                 <VariableTypeSelect onChange={this.onTypeChange} type={this.props.variable.type} />
               </InlineFieldRow>
@@ -154,7 +150,7 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
                   onChange={this.onLabelChange}
                   name="Label"
                   placeholder="optional display name"
-                  testId={selectors.pages.Dashboard.Settings.Variables.Edit.General.generalLabelInputV2}
+                  ariaLabel={selectors.pages.Dashboard.Settings.Variables.Edit.General.generalLabelInput}
                 />
                 <VariableHideSelect
                   onChange={this.onHideChange}
@@ -195,4 +191,23 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
   }
 }
 
-export const VariableEditorEditor = connector(VariableEditorEditorUnConnected);
+const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = (state, ownProps) => ({
+  editor: state.templating.editor,
+  variable: getVariable(ownProps.identifier.id, state, false), // we could be renaming a variable and we don't want this to throw
+});
+
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = {
+  variableEditorMount,
+  variableEditorUnMount,
+  changeVariableName,
+  changeVariableProp,
+  onEditorUpdate,
+  changeVariableType,
+  updateOptions,
+};
+
+export const VariableEditorEditor = connectWithStore(
+  VariableEditorEditorUnConnected,
+  mapStateToProps,
+  mapDispatchToProps
+);

@@ -1,6 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
 import React, { PropsWithChildren } from 'react';
-
+import { renderHook } from '@testing-library/react-hooks';
 import { useStatelessReducer, useDispatch, DispatchContext, combineReducers } from './useStatelessReducer';
 
 describe('useStatelessReducer Hook', () => {

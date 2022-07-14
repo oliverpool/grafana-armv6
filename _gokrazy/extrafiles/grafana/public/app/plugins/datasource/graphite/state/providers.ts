@@ -1,17 +1,14 @@
+import { GraphiteQueryEditorState } from './store';
 import { eachRight, map, remove } from 'lodash';
-
-import { SelectableValue } from '@grafana/data';
-
-import { mapSegmentsToSelectables, mapStringsToSelectables } from '../components/helpers';
-import { GraphiteSegment, GraphiteTag, GraphiteTagOperator } from '../types';
-
 import {
   TAG_PREFIX,
   GRAPHITE_TAG_OPERATORS,
   handleMetricsAutoCompleteError,
   handleTagsAutoCompleteError,
 } from './helpers';
-import { GraphiteQueryEditorState } from './store';
+import { GraphiteSegment, GraphiteTag, GraphiteTagOperator } from '../types';
+import { mapSegmentsToSelectables, mapStringsToSelectables } from '../components/helpers';
+import { SelectableValue } from '@grafana/data';
 
 /**
  * All auto-complete lists are updated while typing. To avoid performance issues we do not render more

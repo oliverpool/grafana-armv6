@@ -1,11 +1,9 @@
 import { Fill, RegularShape, Stroke, Circle, Style, Icon, Text } from 'ol/style';
-import tinycolor from 'tinycolor2';
-
 import { Registry, RegistryItem } from '@grafana/data';
-import { config } from '@grafana/runtime';
-import { getPublicOrAbsoluteUrl } from 'app/features/dimensions';
-
 import { defaultStyleConfig, DEFAULT_SIZE, StyleConfigValues, StyleMaker } from './types';
+import { getPublicOrAbsoluteUrl } from 'app/features/dimensions';
+import tinycolor from 'tinycolor2';
+import { config } from '@grafana/runtime';
 
 interface SymbolMaker extends RegistryItem {
   aliasIds: string[];

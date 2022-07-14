@@ -1,21 +1,18 @@
-import { css } from '@emotion/css';
 import React, { FC, memo, useState } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
 import { FilterInput, Spinner, stylesFactory, useTheme } from '@grafana/ui';
-import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
+import { GrafanaTheme } from '@grafana/data';
 import { contextSrv } from 'app/core/services/context_srv';
+import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
 import { FolderDTO } from 'app/types';
-
 import { useManageDashboards } from '../hooks/useManageDashboards';
-import { useSearchQuery } from '../hooks/useSearchQuery';
 import { SearchLayout } from '../types';
-
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
-import { DashboardActions } from './DashboardActions';
 import { MoveToFolderModal } from './MoveToFolderModal';
-import { SearchResults } from './SearchResults';
+import { useSearchQuery } from '../hooks/useSearchQuery';
 import { SearchResultsFilter } from './SearchResultsFilter';
+import { SearchResults } from './SearchResults';
+import { DashboardActions } from './DashboardActions';
 
 export interface Props {
   folder?: FolderDTO;
@@ -65,7 +62,7 @@ export const ManageDashboards: FC<Props> = memo(({ folder }) => {
     onMoveItems,
     noFolders,
     showPreviews,
-    setShowPreviews,
+    onShowPreviewsChange,
   } = useManageDashboards(query, {}, folder);
 
   const onMoveTo = () => {
@@ -111,7 +108,7 @@ export const ManageDashboards: FC<Props> = memo(({ folder }) => {
           canMove={hasEditPermissionInFolders && canMove}
           deleteItem={onItemDelete}
           moveTo={onMoveTo}
-          setShowPreviews={setShowPreviews}
+          onShowPreviewsChange={(ev) => onShowPreviewsChange(ev.target.checked)}
           onToggleAllChecked={onToggleAllChecked}
           onStarredFilterChange={onStarredFilterChange}
           onSortChange={onSortChange}

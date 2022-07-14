@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { DataFrame, DataTransformerConfig, standardTransformersRegistry } from '@grafana/data';
 
 import { TransformationOperationRow } from './TransformationOperationRow';

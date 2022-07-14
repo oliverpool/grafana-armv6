@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
 import { LoginLayout, InnerBox } from '../Login/LoginLayout';
-
 import { VerifyEmail } from './VerifyEmail';
 
 export const VerifyEmailPage: FC = () => {

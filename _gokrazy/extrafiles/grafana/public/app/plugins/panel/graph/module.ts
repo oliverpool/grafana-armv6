@@ -5,30 +5,30 @@ import './time_regions_form';
 import './annotation_tooltip';
 import './event_editor';
 
-import { auto } from 'angular';
+import template from './template';
 import { defaults, find, without } from 'lodash';
 
-import { DataFrame, FieldConfigProperty, getColorForTheme, PanelEvents, PanelPlugin } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
-import { MetricsPanelCtrl } from 'app/angular/panel/metrics_panel_ctrl';
+import { DataProcessor } from './data_processor';
+import { axesEditorComponent } from './axes_editor';
 import config from 'app/core/config';
 import TimeSeries from 'app/core/time_series2';
-import { ThresholdMapper } from 'app/features/alerting/state/ThresholdMapper';
-import { changePanelPlugin } from 'app/features/panel/state/actions';
-import { dispatch } from 'app/store/store';
-
-import { appEvents } from '../../../core/core';
-import { loadSnapshotData } from '../../../features/dashboard/utils/loadSnapshotData';
-import { annotationsFromDataFrames } from '../../../features/query/state/DashboardQueryRunner/utils';
-import { ZoomOutEvent } from '../../../types/events';
+import { DataFrame, FieldConfigProperty, getColorForTheme, PanelEvents, PanelPlugin } from '@grafana/data';
 
 import { GraphContextMenuCtrl } from './GraphContextMenuCtrl';
 import { graphPanelMigrationHandler } from './GraphMigrations';
-import { axesEditorComponent } from './axes_editor';
-import { DataProcessor } from './data_processor';
-import template from './template';
 import { DataWarning, GraphFieldConfig, GraphPanelOptions } from './types';
+
+import { auto } from 'angular';
+import { locationService } from '@grafana/runtime';
 import { getDataTimeRange } from './utils';
+import { changePanelPlugin } from 'app/features/panel/state/actions';
+import { dispatch } from 'app/store/store';
+import { ThresholdMapper } from 'app/features/alerting/state/ThresholdMapper';
+import { appEvents } from '../../../core/core';
+import { ZoomOutEvent } from '../../../types/events';
+import { MetricsPanelCtrl } from 'app/angular/panel/metrics_panel_ctrl';
+import { loadSnapshotData } from '../../../features/dashboard/utils/loadSnapshotData';
+import { annotationsFromDataFrames } from '../../../features/query/state/DashboardQueryRunner/utils';
 
 export class GraphCtrl extends MetricsPanelCtrl {
   static template = template;
@@ -187,7 +187,7 @@ export class GraphCtrl extends MetricsPanelCtrl {
   }
 
   zoomOut(evt: any) {
-    appEvents.publish(new ZoomOutEvent({ scale: 2 }));
+    appEvents.publish(new ZoomOutEvent(2));
   }
 
   onDataSnapshotLoad(snapshotData: any) {

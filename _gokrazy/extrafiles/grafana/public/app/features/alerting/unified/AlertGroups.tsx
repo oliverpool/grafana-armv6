@@ -1,28 +1,26 @@
-import { css } from '@emotion/css';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-
-import { GrafanaTheme2 } from '@grafana/data';
 import { Alert, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 import { AlertingPageWrapper } from './components/AlertingPageWrapper';
-import { NoAlertManagerWarning } from './components/NoAlertManagerWarning';
 import { AlertGroup } from './components/alert-groups/AlertGroup';
 import { AlertGroupFilter } from './components/alert-groups/AlertGroupFilter';
-import { useAlertManagerSourceName } from './hooks/useAlertManagerSourceName';
-import { useAlertManagersByPermission } from './hooks/useAlertManagerSources';
-import { useFilteredAmGroups } from './hooks/useFilteredAmGroups';
-import { useGroupedAlerts } from './hooks/useGroupedAlerts';
-import { useUnifiedAlertingSelector } from './hooks/useUnifiedAlertingSelector';
 import { fetchAlertGroupsAction } from './state/actions';
-import { NOTIFICATIONS_POLL_INTERVAL_MS } from './utils/constants';
-import { getFiltersFromUrlParams } from './utils/misc';
+
 import { initialAsyncRequestState } from './utils/redux';
+import { getFiltersFromUrlParams } from './utils/misc';
+import { NOTIFICATIONS_POLL_INTERVAL_MS } from './utils/constants';
+
+import { useAlertManagerSourceName } from './hooks/useAlertManagerSourceName';
+import { useUnifiedAlertingSelector } from './hooks/useUnifiedAlertingSelector';
+import { useGroupedAlerts } from './hooks/useGroupedAlerts';
+import { useFilteredAmGroups } from './hooks/useFilteredAmGroups';
+import { css } from '@emotion/css';
 
 const AlertGroups = () => {
-  const alertManagers = useAlertManagersByPermission('instance');
-  const [alertManagerSourceName] = useAlertManagerSourceName(alertManagers);
+  const [alertManagerSourceName] = useAlertManagerSourceName();
   const dispatch = useDispatch();
   const [queryParams] = useQueryParams();
   const { groupBy = [] } = getFiltersFromUrlParams(queryParams);
@@ -50,14 +48,6 @@ const AlertGroups = () => {
       clearInterval(interval);
     };
   }, [dispatch, alertManagerSourceName]);
-
-  if (!alertManagerSourceName) {
-    return (
-      <AlertingPageWrapper pageId="groups">
-        <NoAlertManagerWarning availableAlertManagers={alertManagers} />
-      </AlertingPageWrapper>
-    );
-  }
 
   return (
     <AlertingPageWrapper pageId="groups">

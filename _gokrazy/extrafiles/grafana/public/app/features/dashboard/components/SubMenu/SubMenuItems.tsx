@@ -1,9 +1,7 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
-
-import { PickerRenderer } from '../../../variables/pickers/PickerRenderer';
 import { VariableHide, VariableModel } from '../../../variables/types';
+import { selectors } from '@grafana/e2e-selectors';
+import { PickerRenderer } from '../../../variables/pickers/PickerRenderer';
 
 interface Props {
   variables: VariableModel[];

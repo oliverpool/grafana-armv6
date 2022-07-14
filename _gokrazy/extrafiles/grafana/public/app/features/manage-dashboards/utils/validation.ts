@@ -1,6 +1,5 @@
-import { getBackendSrv } from '@grafana/runtime';
-
 import { validationSrv } from '../services/ValidationSrv';
+import { getBackendSrv } from '@grafana/runtime';
 
 export const validateDashboardJson = (json: string) => {
   try {

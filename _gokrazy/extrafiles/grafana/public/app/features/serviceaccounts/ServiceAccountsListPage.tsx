@@ -1,124 +1,49 @@
-import { css, cx } from '@emotion/css';
-import pluralize from 'pluralize';
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { useStyles2 } from '@grafana/ui';
+import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2, OrgRole } from '@grafana/data';
-import { ConfirmModal, FilterInput, LinkButton, RadioButtonGroup, useStyles2 } from '@grafana/ui';
-import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
 import Page from 'app/core/components/Page/Page';
-import PageLoader from 'app/core/components/PageLoader/PageLoader';
-import { contextSrv } from 'app/core/core';
+import { StoreState, ServiceAccountDTO } from 'app/types';
+import { loadServiceAccounts, removeServiceAccount, updateServiceAccount } from './state/actions';
 import { getNavModel } from 'app/core/selectors/navModel';
-import { StoreState, ServiceAccountDTO, AccessControlAction } from 'app/types';
+import { getServiceAccounts, getServiceAccountsSearchPage, getServiceAccountsSearchQuery } from './state/selectors';
+import PageLoader from 'app/core/components/PageLoader/PageLoader';
+import { GrafanaTheme2 } from '@grafana/data';
+export type Props = ConnectedProps<typeof connector>;
 
-import ServiceAccountListItem from './ServiceAccountsListItem';
-import {
-  changeFilter,
-  changeQuery,
-  fetchACOptions,
-  fetchServiceAccounts,
-  removeServiceAccount,
-  updateServiceAccount,
-  setServiceAccountToRemove,
-} from './state/actions';
-
-interface OwnProps {}
-
-type Props = OwnProps & ConnectedProps<typeof connector>;
+export interface State {}
 
 function mapStateToProps(state: StoreState) {
   return {
     navModel: getNavModel(state.navIndex, 'serviceaccounts'),
-    ...state.serviceAccounts,
+    serviceAccounts: getServiceAccounts(state.serviceAccounts),
+    searchQuery: getServiceAccountsSearchQuery(state.serviceAccounts),
+    searchPage: getServiceAccountsSearchPage(state.serviceAccounts),
+    isLoading: state.serviceAccounts.isLoading,
   };
 }
 
 const mapDispatchToProps = {
-  fetchServiceAccounts,
-  fetchACOptions,
+  loadServiceAccounts,
   updateServiceAccount,
   removeServiceAccount,
-  setServiceAccountToRemove,
-  changeFilter,
-  changeQuery,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
-const ServiceAccountsListPage = ({
-  fetchServiceAccounts,
-  removeServiceAccount,
-  fetchACOptions,
-  updateServiceAccount,
-  setServiceAccountToRemove,
-  navModel,
-  serviceAccounts,
-  isLoading,
-  roleOptions,
-  builtInRoles,
-  changeFilter,
-  changeQuery,
-  query,
-  filters,
-  serviceAccountToRemove,
-}: Props) => {
+const ServiceAccountsListPage: React.FC<Props> = ({ loadServiceAccounts, navModel, serviceAccounts, isLoading }) => {
   const styles = useStyles2(getStyles);
 
   useEffect(() => {
-    fetchServiceAccounts();
-    if (contextSrv.licensedAccessControlEnabled()) {
-      fetchACOptions();
-    }
-  }, [fetchServiceAccounts, fetchACOptions]);
-
-  const onRoleChange = (role: OrgRole, serviceAccount: ServiceAccountDTO) => {
-    const updatedServiceAccount = { ...serviceAccount, role: role };
-    updateServiceAccount(updatedServiceAccount);
-  };
+    loadServiceAccounts();
+  }, [loadServiceAccounts]);
   return (
     <Page navModel={navModel}>
       <Page.Contents>
-        <h2>Service accounts</h2>
-        <div className="page-action-bar" style={{ justifyContent: 'flex-end' }}>
-          <FilterInput
-            placeholder="Search service account by name."
-            autoFocus={true}
-            value={query}
-            onChange={changeQuery}
-          />
-          <RadioButtonGroup
-            options={[
-              { label: 'All service accounts', value: false },
-              { label: 'Expired tokens', value: true },
-            ]}
-            onChange={(value) => changeFilter({ name: 'expiredTokens', value })}
-            value={filters.find((f) => f.name === 'expiredTokens')?.value}
-            className={styles.filter}
-          />
-          {serviceAccounts.length !== 0 && contextSrv.hasPermission(AccessControlAction.ServiceAccountsCreate) && (
-            <LinkButton href="org/serviceaccounts/create" variant="primary">
-              Add service account
-            </LinkButton>
-          )}
-        </div>
-        {isLoading && <PageLoader />}
-        {!isLoading && serviceAccounts.length === 0 && (
-          <>
-            <EmptyListCTA
-              title="You haven't created any service accounts yet."
-              buttonIcon="key-skeleton-alt"
-              buttonLink="org/serviceaccounts/create"
-              buttonTitle="Add service account"
-              buttonDisabled={!contextSrv.hasPermission(AccessControlAction.ServiceAccountsCreate)}
-              proTip="Remember, you can provide specific permissions for API access to other applications."
-              proTipLink=""
-              proTipLinkTitle=""
-              proTipTarget="_blank"
-            />
-          </>
-        )}
-        {!isLoading && serviceAccounts.length !== 0 && (
+        {isLoading ? (
+          <PageLoader />
+        ) : (
           <>
             <div className={cx(styles.table, 'admin-list-table')}>
               <table className="filter-table form-inline filter-table--hover">
@@ -128,58 +53,96 @@ const ServiceAccountsListPage = ({
                     <th>Account</th>
                     <th>ID</th>
                     <th>Roles</th>
-                    <th>Status</th>
                     <th>Tokens</th>
-                    <th style={{ width: '34px' }} />
                   </tr>
                 </thead>
                 <tbody>
-                  {serviceAccounts.map((serviceAccount: ServiceAccountDTO) => (
-                    <ServiceAccountListItem
-                      serviceAccount={serviceAccount}
-                      key={serviceAccount.id}
-                      builtInRoles={builtInRoles}
-                      roleOptions={roleOptions}
-                      onRoleChange={onRoleChange}
-                      onSetToRemove={setServiceAccountToRemove}
-                    />
+                  {serviceAccounts.map((serviceaccount: ServiceAccountDTO) => (
+                    <ServiceAccountListItem serviceaccount={serviceaccount} key={serviceaccount.userId} />
                   ))}
                 </tbody>
               </table>
             </div>
           </>
         )}
-        {serviceAccountToRemove && (
-          <ConfirmModal
-            body={
-              <div>
-                Are you sure you want to delete &apos;{serviceAccountToRemove.name}&apos;
-                {Boolean(serviceAccountToRemove.tokens) &&
-                  ` and ${serviceAccountToRemove.tokens} accompanying ${pluralize(
-                    'token',
-                    serviceAccountToRemove.tokens
-                  )}`}
-                ?
-              </div>
-            }
-            confirmText="Delete"
-            title="Delete service account"
-            onDismiss={() => {
-              setServiceAccountToRemove(null);
-            }}
-            isOpen={true}
-            onConfirm={() => {
-              removeServiceAccount(serviceAccountToRemove.id);
-              setServiceAccountToRemove(null);
-            }}
-          />
-        )}
       </Page.Contents>
     </Page>
   );
 };
 
-export const getStyles = (theme: GrafanaTheme2) => {
+type ServiceAccountListItemProps = {
+  serviceaccount: ServiceAccountDTO;
+};
+
+const getServiceAccountsAriaLabel = (name: string) => {
+  return `Edit service account's ${name} details`;
+};
+
+const ServiceAccountListItem = memo(({ serviceaccount }: ServiceAccountListItemProps) => {
+  const editUrl = `org/serviceaccounts/${serviceaccount.userId}`;
+  const styles = useStyles2(getStyles);
+
+  return (
+    <tr key={serviceaccount.userId}>
+      <td className="width-4 text-center link-td">
+        <a href={editUrl} aria-label={getServiceAccountsAriaLabel(serviceaccount.name)}>
+          <img
+            className="filter-table__avatar"
+            src={serviceaccount.avatarUrl}
+            alt={`Avatar for user ${serviceaccount.name}`}
+          />
+        </a>
+      </td>
+      <td className="link-td max-width-10">
+        <a
+          className="ellipsis"
+          href={editUrl}
+          title={serviceaccount.login}
+          aria-label={getServiceAccountsAriaLabel(serviceaccount.name)}
+        >
+          {serviceaccount.login}
+        </a>
+      </td>
+      <td className="link-td max-width-10">
+        <a
+          className="ellipsis"
+          href={editUrl}
+          title={serviceaccount.name}
+          aria-label={getServiceAccountsAriaLabel(serviceaccount.name)}
+        >
+          {serviceaccount.name}
+        </a>
+      </td>
+      <td className={cx('link-td', styles.iconRow)}>
+        <a
+          className="ellipsis"
+          href={editUrl}
+          title={serviceaccount.name}
+          aria-label={getServiceAccountsAriaLabel(serviceaccount.name)}
+        >
+          {serviceaccount.role === 'None' ? (
+            <span className={styles.disabled}>Not assigned </span>
+          ) : (
+            serviceaccount.role
+          )}
+        </a>
+      </td>
+      <td className="link-td max-width-10">
+        <a
+          className="ellipsis"
+          href={editUrl}
+          title="tokens"
+          aria-label={getServiceAccountsAriaLabel(serviceaccount.name)}
+        >
+          0
+        </a>
+      </td>
+    </tr>
+  );
+});
+ServiceAccountListItem.displayName = 'ServiceAccountListItem';
+
+const getStyles = (theme: GrafanaTheme2) => {
   return {
     table: css`
       margin-top: ${theme.spacing(3)};

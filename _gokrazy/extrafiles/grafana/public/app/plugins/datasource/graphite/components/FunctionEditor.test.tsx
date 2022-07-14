@@ -1,9 +1,7 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
-import { FuncInstance } from '../gfunc';
-
+import { render, screen } from '@testing-library/react';
 import { FunctionEditor } from './FunctionEditor';
+import { FuncInstance } from '../gfunc';
 
 function mockFunctionInstance(name: string, unknown?: boolean): FuncInstance {
   const def = {

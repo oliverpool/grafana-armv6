@@ -1,10 +1,8 @@
 import React, { ChangeEvent, FunctionComponent, useEffect, useReducer, useState } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Button } from '@grafana/ui/src/components';
-import { Input } from '@grafana/ui/src/components/Forms/Legacy/Input/Input';
 import { Select } from '@grafana/ui/src/components/Forms/Legacy/Select/Select';
-
+import { Input } from '@grafana/ui/src/components/Forms/Legacy/Input/Input';
 import { AzureAuthType, AzureCredentials, isCredentialsComplete } from './AzureCredentials';
 
 export interface Props {

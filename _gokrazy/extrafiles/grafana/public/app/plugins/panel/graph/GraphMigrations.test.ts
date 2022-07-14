@@ -1,5 +1,4 @@
 import { PanelModel, FieldConfigSource, DataQuery } from '@grafana/data';
-
 import { graphPanelMigrationHandler } from './GraphMigrations';
 
 describe('Graph Panel Migrations', () => {

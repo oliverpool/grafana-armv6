@@ -1,11 +1,8 @@
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { Icon, stylesFactory, useTheme } from '@grafana/ui';
-
 import { Card } from '../types';
-
+import { Icon, stylesFactory, useTheme } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
 import { cardContent, cardStyle, iconStyle } from './sharedStyles';
 
 interface Props {

@@ -1,33 +1,25 @@
-import { extend } from 'lodash';
-
-import { OrgRole, rangeUtil, WithAccessControlMetadata } from '@grafana/data';
-import { featureEnabled, getBackendSrv } from '@grafana/runtime';
-import { AccessControlAction, UserPermission } from 'app/types';
-import { CurrentUserInternal } from 'app/types/config';
-
 import config from '../../core/config';
+import { extend } from 'lodash';
+import { rangeUtil, WithAccessControlMetadata } from '@grafana/data';
+import { AccessControlAction, UserPermission } from 'app/types';
+import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 
-export class User implements CurrentUserInternal {
-  isSignedIn: boolean;
+export class User {
   id: number;
-  login: string;
-  email: string;
-  name: string;
-  externalUserId: string;
-  lightTheme: boolean;
-  orgCount: number;
+  isGrafanaAdmin: any;
+  isSignedIn: any;
+  orgRole: any;
   orgId: number;
   orgName: string;
-  orgRole: OrgRole | '';
-  isGrafanaAdmin: boolean;
-  gravatarUrl: string;
+  login: string;
+  orgCount: number;
   timezone: string;
-  weekStart: string;
-  locale: string;
-  helpFlags1: number;
-  hasEditPermissionInFolders: boolean;
-  permissions?: UserPermission;
   fiscalYearStartMonth: number;
+  helpFlags1: number;
+  lightTheme: boolean;
+  hasEditPermissionInFolders: boolean;
+  email?: string;
+  permissions?: UserPermission;
 
   constructor() {
     this.id = 0;
@@ -37,19 +29,13 @@ export class User implements CurrentUserInternal {
     this.orgId = 0;
     this.orgName = '';
     this.login = '';
-    this.externalUserId = '';
     this.orgCount = 0;
     this.timezone = '';
     this.fiscalYearStartMonth = 0;
     this.helpFlags1 = 0;
     this.lightTheme = false;
     this.hasEditPermissionInFolders = false;
-    this.email = '';
-    this.name = '';
-    this.locale = '';
-    this.weekStart = '';
-    this.gravatarUrl = '';
-
+    this.email = undefined;
     if (config.bootData.user) {
       extend(this, config.bootData.user);
     }
@@ -69,7 +55,7 @@ export class ContextSrv {
 
   constructor() {
     if (!config.bootData) {
-      config.bootData = { user: {}, settings: {} } as any;
+      config.bootData = { user: {}, settings: {} };
     }
 
     this.user = new User();
@@ -194,7 +180,7 @@ export { contextSrv };
 
 export const setContextSrv = (override: ContextSrv) => {
   if (process.env.NODE_ENV !== 'test') {
-    throw new Error('contextSrv can be only overridden in test environment');
+    throw new Error('contextSrv can be only overriden in test environment');
   }
   contextSrv = override;
 };

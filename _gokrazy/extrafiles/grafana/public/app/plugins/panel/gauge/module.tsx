@@ -1,12 +1,10 @@
 import { PanelPlugin } from '@grafana/data';
-import { commonOptionsBuilder } from '@grafana/ui';
-
-import { addOrientationOption, addStandardDataReduceOptions } from '../stat/types';
-
-import { gaugePanelMigrationHandler, gaugePanelChangedHandler } from './GaugeMigrations';
 import { GaugePanel } from './GaugePanel';
-import { GaugeSuggestionsSupplier } from './suggestions';
 import { GaugeOptions } from './types';
+import { addOrientationOption, addStandardDataReduceOptions } from '../stat/types';
+import { gaugePanelMigrationHandler, gaugePanelChangedHandler } from './GaugeMigrations';
+import { commonOptionsBuilder } from '@grafana/ui';
+import { GaugeSuggestionsSupplier } from './suggestions';
 
 export const plugin = new PanelPlugin<GaugeOptions>(GaugePanel)
   .useFieldConfig()

@@ -1,18 +1,15 @@
+import React from 'react';
+import { Router } from 'react-router-dom';
 import { render, RenderResult, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { Provider } from 'react-redux';
-import { Router } from 'react-router-dom';
-
-import { PluginType } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
+import { PluginType } from '@grafana/data';
 import { getRouteComponentProps } from 'app/core/navigation/__mocks__/routeProps';
 import { configureStore } from 'app/store/configureStore';
-
-import { getCatalogPluginMock, getPluginsStateMock } from '../__mocks__';
 import { fetchRemotePlugins } from '../state/actions';
 import { PluginAdminRoutes, CatalogPlugin, ReducerState, RequestStatus } from '../types';
-
+import { getCatalogPluginMock, getPluginsStateMock } from '../__mocks__';
 import BrowsePage from './Browse';
 
 jest.mock('@grafana/runtime', () => {

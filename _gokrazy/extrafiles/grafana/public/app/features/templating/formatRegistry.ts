@@ -1,10 +1,8 @@
-import { isArray, map, replace } from 'lodash';
-
-import { dateTime, Registry, RegistryItem, textUtil, VariableModel } from '@grafana/data';
 import kbn from 'app/core/utils/kbn';
-
-import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
+import { dateTime, Registry, RegistryItem, textUtil, VariableModel } from '@grafana/data';
+import { isArray, map, replace } from 'lodash';
 import { formatVariableLabel } from '../variables/shared/formatVariable';
+import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
 
 export interface FormatOptions {
   value: any;

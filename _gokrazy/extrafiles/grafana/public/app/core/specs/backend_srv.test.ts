@@ -1,14 +1,13 @@
 import 'whatwg-fetch'; // fetch polyfill needed for PhantomJs rendering
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-
 import { AppEvents, DataQueryErrorType, EventBusExtended } from '@grafana/data';
-import { BackendSrvRequest, FetchError } from '@grafana/runtime';
 
-import { TokenRevokedModal } from '../../features/users/TokenRevokedModal';
-import { ShowModalReactEvent } from '../../types/events';
 import { BackendSrv } from '../services/backend_srv';
 import { ContextSrv, User } from '../services/context_srv';
+import { BackendSrvRequest, FetchError } from '@grafana/runtime';
+import { TokenRevokedModal } from '../../features/users/TokenRevokedModal';
+import { ShowModalReactEvent } from '../../types/events';
 
 const getTestContext = (overides?: object) => {
   const defaults = {
@@ -265,15 +264,10 @@ describe('backendSrv', () => {
               data: {
                 message: 'Something failed',
                 error: 'Error',
-                traceID: 'bogus-trace-id',
               },
             } as FetchError
           );
-          expect(appEventsMock.emit).toHaveBeenCalledWith(AppEvents.alertError, [
-            'Something failed',
-            '',
-            'bogus-trace-id',
-          ]);
+          expect(appEventsMock.emit).toHaveBeenCalledWith(AppEvents.alertError, ['Something failed', '']);
         });
       });
     });

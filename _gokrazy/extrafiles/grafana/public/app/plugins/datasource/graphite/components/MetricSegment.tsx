@@ -1,14 +1,12 @@
-import { debounce } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
-
-import { SelectableValue } from '@grafana/data';
 import { SegmentAsync } from '@grafana/ui';
-
 import { actions } from '../state/actions';
-import { useDispatch } from '../state/context';
-import { getAltSegmentsSelectables } from '../state/providers';
-import { GraphiteQueryEditorState } from '../state/store';
 import { GraphiteSegment } from '../types';
+import { SelectableValue } from '@grafana/data';
+import { getAltSegmentsSelectables } from '../state/providers';
+import { debounce } from 'lodash';
+import { GraphiteQueryEditorState } from '../state/store';
+import { useDispatch } from '../state/context';
 
 type Props = {
   segment: GraphiteSegment;

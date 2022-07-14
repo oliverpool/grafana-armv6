@@ -1,5 +1,4 @@
 import { PanelModel } from '@grafana/data';
-
 import { tablePanelChangedHandler } from './migrations';
 
 describe('Table Migrations', () => {

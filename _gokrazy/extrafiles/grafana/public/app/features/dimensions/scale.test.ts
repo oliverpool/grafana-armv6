@@ -1,5 +1,4 @@
 import { ArrayVector, DataFrame, FieldType } from '@grafana/data';
-
 import { getScaledDimension, validateScaleConfig } from './scale';
 
 describe('scale dimensions', () => {

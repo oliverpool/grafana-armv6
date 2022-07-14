@@ -1,13 +1,10 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import { TemplateSrvStub } from 'test/specs/helpers';
-
 import { Select } from '@grafana/ui';
-
-import { ValueTypes, MetricKind } from '../types';
-
 import { Aggregation, Props } from './Aggregation';
+import { ValueTypes, MetricKind } from '../types';
+import { TemplateSrvStub } from 'test/specs/helpers';
 
 const props: Props = {
   onChange: () => {},

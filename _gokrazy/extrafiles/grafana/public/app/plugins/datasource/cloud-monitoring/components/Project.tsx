@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
-
-import { SELECT_WIDTH } from '../constants';
-import CloudMonitoringDatasource from '../datasource';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { QueryEditorRow } from '.';
+import { SELECT_WIDTH } from '../constants';
+import CloudMonitoringDatasource from '../datasource';
 
 export interface Props {
   refId: string;

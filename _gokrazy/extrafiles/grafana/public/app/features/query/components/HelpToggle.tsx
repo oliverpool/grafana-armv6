@@ -1,8 +1,7 @@
-import { css, cx } from '@emotion/css';
-import React, { useState } from 'react';
-
 import { GrafanaTheme } from '@grafana/data';
 import { Icon, InfoBox, stylesFactory, useTheme } from '@grafana/ui';
+import { css, cx } from '@emotion/css';
+import React, { useState } from 'react';
 
 const getStyles = stylesFactory((theme: GrafanaTheme) => ({
   infoBox: css`

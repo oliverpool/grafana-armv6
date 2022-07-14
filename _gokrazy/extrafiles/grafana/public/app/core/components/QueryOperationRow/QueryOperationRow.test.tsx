@@ -1,8 +1,7 @@
-import { mount, shallow } from 'enzyme';
 import React from 'react';
-import { act } from 'react-dom/test-utils';
-
 import { QueryOperationRow } from './QueryOperationRow';
+import { mount, shallow } from 'enzyme';
+import { act } from 'react-dom/test-utils';
 
 describe('QueryOperationRow', () => {
   it('renders', () => {

@@ -1,9 +1,7 @@
 import React from 'react';
-
 import { LogsDedupStrategy, LogsMetaItem, LogsMetaKind, LogRowModel } from '@grafana/data';
 import { Button, Tooltip, Icon, LogLabels } from '@grafana/ui';
 import { MAX_CHARACTERS } from '@grafana/ui/src/components/Logs/LogRowMessage';
-
 import { MetaInfoText, MetaItemProps } from './MetaInfoText';
 
 export type Props = {
@@ -73,7 +71,7 @@ export const LogsMetaRow: React.FC<Props> = React.memo(
         label: 'Your logs might have incorrectly escaped content',
         value: (
           <Tooltip
-            content="Fix incorrectly escaped newline and tab sequences in log lines. Manually review the results to confirm that the replacements are correct."
+            content="We suggest to try to fix the escaping of your log lines first. This is an experimental feature, your logs might not be correctly escaped."
             placement="right"
           >
             <Button variant="secondary" size="sm" onClick={onEscapeNewlines}>

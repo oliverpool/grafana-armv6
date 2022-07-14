@@ -1,9 +1,8 @@
+import { AppEvents } from '@grafana/data';
 import { getBackendSrv, locationService } from '@grafana/runtime';
-import { notifyApp } from 'app/core/actions';
-import { createErrorNotification, createSuccessNotification } from 'app/core/copy/appNotification';
-import { AlertRuleDTO, NotifierDTO, ThunkResult } from 'app/types';
-
+import { appEvents } from 'app/core/core';
 import { loadAlertRules, loadedAlertRules, notificationChannelLoaded, setNotificationChannels } from './reducers';
+import { AlertRuleDTO, NotifierDTO, ThunkResult } from 'app/types';
 
 export function getAlertRulesAsync(options: { state: string }): ThunkResult<void> {
   return async (dispatch) => {
@@ -21,14 +20,14 @@ export function togglePauseAlertRule(id: number, options: { paused: boolean }): 
   };
 }
 
-export function createNotificationChannel(data: any): ThunkResult<Promise<void>> {
+export function createNotificationChannel(data: any): ThunkResult<void> {
   return async (dispatch) => {
     try {
       await getBackendSrv().post(`/api/alert-notifications`, data);
-      dispatch(notifyApp(createSuccessNotification('Notification created')));
+      appEvents.emit(AppEvents.alertSuccess, ['Notification created']);
       locationService.push('/alerting/notifications');
     } catch (error) {
-      dispatch(notifyApp(createErrorNotification(error.data.error)));
+      appEvents.emit(AppEvents.alertError, [error.data.error]);
     }
   };
 }
@@ -37,9 +36,9 @@ export function updateNotificationChannel(data: any): ThunkResult<void> {
   return async (dispatch) => {
     try {
       await getBackendSrv().put(`/api/alert-notifications/${data.id}`, data);
-      dispatch(notifyApp(createSuccessNotification('Notification updated')));
+      appEvents.emit(AppEvents.alertSuccess, ['Notification updated']);
     } catch (error) {
-      dispatch(notifyApp(createErrorNotification(error.data.error)));
+      appEvents.emit(AppEvents.alertError, [error.data.error]);
     }
   };
 }

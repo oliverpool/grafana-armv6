@@ -1,9 +1,7 @@
-import { thunkTester } from 'test/core/thunk/thunkTester';
-
-import { updateConfigurationSubtitle } from 'app/core/actions';
-import { OrgRole } from 'app/types';
-
 import { updateOrganization, setUserOrganization, getUserOrganizations } from './actions';
+import { updateConfigurationSubtitle } from 'app/core/actions';
+import { thunkTester } from 'test/core/thunk/thunkTester';
+import { OrgRole } from 'app/types';
 
 const setup = () => {
   const initialState = {

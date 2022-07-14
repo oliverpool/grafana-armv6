@@ -1,32 +1,29 @@
 import React, { ComponentType } from 'react';
-import { Provider } from 'react-redux';
 import { Router, Route, Redirect, Switch } from 'react-router-dom';
-
 import { config, locationService, navigationLogger } from '@grafana/runtime';
-import { ErrorBoundaryAlert, GlobalStyles, ModalRoot, ModalsProvider } from '@grafana/ui';
-import { SearchWrapper } from 'app/features/search';
-import { getAppRoutes } from 'app/routes/routes';
+import { Provider } from 'react-redux';
 import { store } from 'app/store/store';
-
-import { AngularRoot } from './angular/AngularRoot';
-import { loadAndInitAngularIfEnabled } from './angular/loadAndInitAngularIfEnabled';
+import { ErrorBoundaryAlert, GlobalStyles, ModalRoot, ModalsProvider } from '@grafana/ui';
 import { GrafanaApp } from './app';
-import { AppNotificationList } from './core/components/AppNotifications/AppNotificationList';
-import { NavBar } from './core/components/NavBar/NavBar';
-import { NavBarNext } from './core/components/NavBar/Next/NavBarNext';
-import { I18nProvider } from './core/localisation';
-import { GrafanaRoute } from './core/navigation/GrafanaRoute';
+import { getAppRoutes } from 'app/routes/routes';
+import { ConfigContext, ThemeProvider } from './core/utils/ConfigProvider';
 import { RouteDescriptor } from './core/navigation/types';
 import { contextSrv } from './core/services/context_srv';
-import { ConfigContext, ThemeProvider } from './core/utils/ConfigProvider';
+import { NavBar } from './core/components/NavBar/NavBar';
+import { NavBarNext } from './core/components/NavBar/NavBarNext';
+import { GrafanaRoute } from './core/navigation/GrafanaRoute';
+import { AppNotificationList } from './core/components/AppNotifications/AppNotificationList';
+import { SearchWrapper } from 'app/features/search';
 import { LiveConnectionWarning } from './features/live/LiveConnectionWarning';
+import { AngularRoot } from './angular/AngularRoot';
+import { I18nProvider } from './core/localisation';
 
 interface AppWrapperProps {
   app: GrafanaApp;
 }
 
 interface AppWrapperState {
-  ready?: boolean;
+  ngInjector: any;
 }
 
 /** Used by enterprise */
@@ -42,14 +39,27 @@ export function addPageBanner(fn: ComponentType) {
 }
 
 export class AppWrapper extends React.Component<AppWrapperProps, AppWrapperState> {
+  container = React.createRef<HTMLDivElement>();
+
   constructor(props: AppWrapperProps) {
     super(props);
-    this.state = {};
+
+    this.state = {
+      ngInjector: null,
+    };
   }
 
-  async componentDidMount() {
-    await loadAndInitAngularIfEnabled();
-    this.setState({ ready: true });
+  componentDidMount() {
+    if (this.container) {
+      this.bootstrapNgApp();
+    } else {
+      throw new Error('Failed to boot angular app, no container to attach to');
+    }
+  }
+
+  bootstrapNgApp() {
+    const injector = this.props.app.angularApp.bootstrap();
+    this.setState({ ngInjector: injector });
     $('.preloader').remove();
   }
 
@@ -81,8 +91,6 @@ export class AppWrapper extends React.Component<AppWrapperProps, AppWrapperState
   }
 
   render() {
-    const { ready } = this.state;
-
     navigationLogger('AppWrapper', false, 'rendering');
 
     const newNavigationEnabled = Boolean(config.featureToggles.newNavigation);
@@ -97,16 +105,16 @@ export class AppWrapper extends React.Component<AppWrapperProps, AppWrapperState
                   <GlobalStyles />
                   <div className="grafana-app">
                     <Router history={locationService.getHistory()}>
-                      {ready && <>{newNavigationEnabled ? <NavBarNext /> : <NavBar />}</>}
+                      {newNavigationEnabled ? <NavBarNext /> : <NavBar />}
                       <main className="main-view">
                         {pageBanners.map((Banner, index) => (
                           <Banner key={index.toString()} />
                         ))}
 
-                        <AngularRoot />
+                        <AngularRoot ref={this.container} />
                         <AppNotificationList />
                         <SearchWrapper />
-                        {ready && this.renderRoutes()}
+                        {this.state.ngInjector && this.renderRoutes()}
                         {bodyRenderHooks.map((Hook, index) => (
                           <Hook key={index.toString()} />
                         ))}

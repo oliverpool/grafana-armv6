@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
-
-import { SelectableValue, toOption } from '@grafana/data';
-import { AccessoryButton, InputGroup } from '@grafana/experimental';
 import { Select } from '@grafana/ui';
-
+import { SelectableValue, toOption } from '@grafana/data';
 import { QueryBuilderLabelFilter } from './types';
+import { AccessoryButton, InputGroup } from '@grafana/experimental';
 
 export interface Props {
   defaultOp: string;
   item: Partial<QueryBuilderLabelFilter>;
   onChange: (value: QueryBuilderLabelFilter) => void;
-  onGetLabelNames: (forLabel: Partial<QueryBuilderLabelFilter>) => Promise<SelectableValue[]>;
-  onGetLabelValues: (forLabel: Partial<QueryBuilderLabelFilter>) => Promise<SelectableValue[]>;
+  onGetLabelNames: (forLabel: Partial<QueryBuilderLabelFilter>) => Promise<string[]>;
+  onGetLabelValues: (forLabel: Partial<QueryBuilderLabelFilter>) => Promise<string[]>;
   onDelete: () => void;
 }
 
 export function LabelFilterItem({ item, defaultOp, onChange, onDelete, onGetLabelNames, onGetLabelValues }: Props) {
   const [state, setState] = useState<{
-    labelNames?: SelectableValue[];
-    labelValues?: SelectableValue[];
+    labelNames?: Array<SelectableValue<any>>;
+    labelValues?: Array<SelectableValue<any>>;
     isLoadingLabelNames?: boolean;
     isLoadingLabelValues?: boolean;
   }>({});
@@ -27,18 +25,22 @@ export function LabelFilterItem({ item, defaultOp, onChange, onDelete, onGetLabe
     return item.op === operators[0].label;
   };
 
-  const getSelectOptionsFromString = (item?: string): string[] => {
-    if (item) {
-      if (item.indexOf('|') > 0) {
-        return item.split('|');
+  const getValue = (item: any) => {
+    if (item && item.value) {
+      if (item.value.indexOf('|') > 0) {
+        return item.value.split('|').map((x: any) => ({ label: x, value: x }));
       }
-      return [item];
+      return toOption(item.value);
     }
-    return [];
+    return null;
   };
 
-  const getOptions = (): SelectableValue[] => {
-    return [...getSelectOptionsFromString(item?.value).map(toOption), ...(state.labelValues ?? [])];
+  const getOptions = () => {
+    if (!state.labelValues && item && item.value && item.value.indexOf('|') > 0) {
+      return getValue(item);
+    }
+
+    return state.labelValues;
   };
 
   return (
@@ -51,7 +53,7 @@ export function LabelFilterItem({ item, defaultOp, onChange, onDelete, onGetLabe
           allowCustomValue
           onOpenMenu={async () => {
             setState({ isLoadingLabelNames: true });
-            const labelNames = await onGetLabelNames(item);
+            const labelNames = (await onGetLabelNames(item)).map((x) => ({ label: x, value: x }));
             setState({ labelNames, isLoadingLabelNames: undefined });
           }}
           isLoading={state.isLoadingLabelNames}
@@ -81,18 +83,14 @@ export function LabelFilterItem({ item, defaultOp, onChange, onDelete, onGetLabe
         <Select
           inputId="prometheus-dimensions-filter-item-value"
           width="auto"
-          value={
-            isMultiSelect()
-              ? getSelectOptionsFromString(item?.value).map(toOption)
-              : getSelectOptionsFromString(item?.value).map(toOption)[0]
-          }
+          value={getValue(item)}
           allowCustomValue
           onOpenMenu={async () => {
             setState({ isLoadingLabelValues: true });
             const labelValues = await onGetLabelValues(item);
             setState({
               ...state,
-              labelValues,
+              labelValues: labelValues.map((value) => ({ label: value, value })),
               isLoadingLabelValues: undefined,
             });
           }}
@@ -122,5 +120,4 @@ const operators = [
   { label: '=~', value: '=~' },
   { label: '=', value: '=' },
   { label: '!=', value: '!=' },
-  { label: '!~', value: '!~' },
 ];

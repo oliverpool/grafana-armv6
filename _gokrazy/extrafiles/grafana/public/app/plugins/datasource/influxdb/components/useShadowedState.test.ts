@@ -1,5 +1,4 @@
 import { renderHook, act } from '@testing-library/react-hooks';
-
 import { useShadowedState } from './useShadowedState';
 
 describe('useShadowedState', () => {

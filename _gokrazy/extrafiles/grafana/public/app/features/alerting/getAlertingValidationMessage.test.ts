@@ -1,3 +1,4 @@
+import { DataSourceSrv } from '@grafana/runtime';
 import {
   DataSourceApi,
   PluginMeta,
@@ -5,10 +6,8 @@ import {
   DataSourceInstanceSettings,
   DataSourceRef,
 } from '@grafana/data';
-import { DataSourceSrv } from '@grafana/runtime';
 
 import { ElasticsearchQuery } from '../../plugins/datasource/elasticsearch/types';
-
 import { getAlertingValidationMessage } from './getAlertingValidationMessage';
 
 describe('getAlertingValidationMessage', () => {

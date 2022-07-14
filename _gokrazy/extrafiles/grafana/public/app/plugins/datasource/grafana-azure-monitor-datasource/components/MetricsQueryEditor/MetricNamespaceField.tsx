@@ -1,11 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-
-import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
+import { SelectableValue } from '@grafana/data';
 
-import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
 import { Field } from '../Field';
-
+import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
 import { setMetricNamespace } from './setQueryValue';
 
 interface MetricNamespaceFieldProps extends AzureQueryEditorFieldProps {
@@ -31,11 +29,9 @@ const MetricNamespaceField: React.FC<MetricNamespaceFieldProps> = ({
   );
 
   const options = useMemo(() => [...metricNamespaces, variableOptionGroup], [metricNamespaces, variableOptionGroup]);
-  const optionValues = metricNamespaces
-    .map((m) => m.value.toLowerCase())
-    .concat(variableOptionGroup.options.map((p) => p.value));
+  const optionValues = metricNamespaces.map((m) => m.value).concat(variableOptionGroup.options.map((p) => p.value));
   const value = query.azureMonitor?.metricNamespace;
-  if (value && !optionValues.includes(value.toLowerCase())) {
+  if (value && !optionValues.includes(value)) {
     options.push({ label: value, value });
   }
 

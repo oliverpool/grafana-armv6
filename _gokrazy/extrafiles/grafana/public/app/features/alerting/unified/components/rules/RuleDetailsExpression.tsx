@@ -1,8 +1,6 @@
-import { css, cx } from '@emotion/css';
 import React from 'react';
-
+import { css, cx } from '@emotion/css';
 import { CombinedRule, RulesSource } from 'app/types/unified-alerting';
-
 import { isCloudRulesSource } from '../../utils/datasource';
 import { DetailsField } from '../DetailsField';
 import { Expression } from '../Expression';

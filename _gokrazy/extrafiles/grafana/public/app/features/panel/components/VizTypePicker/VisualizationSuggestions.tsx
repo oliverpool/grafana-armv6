@@ -1,15 +1,12 @@
-import { css } from '@emotion/css';
 import React from 'react';
+import { useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2, PanelData, PanelPluginMeta, PanelModel, VisualizationSuggestion } from '@grafana/data';
+import { css } from '@emotion/css';
+import { VizTypeChangeDetails } from './types';
+import { VisualizationSuggestionCard } from './VisualizationSuggestionCard';
+import { getAllSuggestions } from '../../state/getAllSuggestions';
 import { useAsync, useLocalStorage } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
-
-import { GrafanaTheme2, PanelData, PanelPluginMeta, PanelModel, VisualizationSuggestion } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
-
-import { getAllSuggestions } from '../../state/getAllSuggestions';
-
-import { VisualizationSuggestionCard } from './VisualizationSuggestionCard';
-import { VizTypeChangeDetails } from './types';
 
 export interface Props {
   current: PanelPluginMeta;

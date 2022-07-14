@@ -272,12 +272,6 @@ export interface ExternalAlertmanagersResponse {
   data: ExternalAlertmanagers;
   status: 'string';
 }
-
-export interface ExternalAlertmanagerConfig {
-  alertmanagers: string[];
-  alertmanagersChoice: string;
-}
-
 export enum AlertManagerImplementation {
   cortex = 'cortex',
   prometheus = 'prometheus',

@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
 import React, { MouseEventHandler } from 'react';
-
 import { GrafanaTheme2, isUnsignedPluginSignature, PanelPluginMeta, PluginState } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
 import { IconButton, PluginSignatureBadge, useStyles2 } from '@grafana/ui';
+import { css, cx } from '@emotion/css';
+import { selectors } from '@grafana/e2e-selectors';
 import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
 interface Props {
@@ -61,7 +60,6 @@ export const PanelTypeCard: React.FC<Props> = ({
             e.stopPropagation();
             onDelete();
           }}
-          className={styles.deleteButton}
           aria-label="Delete button on panel type card"
         />
       )}
@@ -96,8 +94,8 @@ const getStyles = (theme: GrafanaTheme2) => {
       }
     `,
     itemContent: css`
-      overflow: hidden;
       position: relative;
+      width: 100%;
       padding: ${theme.spacing(0, 1)};
     `,
     current: css`
@@ -119,14 +117,12 @@ const getStyles = (theme: GrafanaTheme2) => {
       width: 100%;
     `,
     description: css`
-      display: block;
       text-overflow: ellipsis;
       overflow: hidden;
       color: ${theme.colors.text.secondary};
       font-size: ${theme.typography.bodySmall.fontSize};
       font-weight: ${theme.typography.fontWeightLight};
       width: 100%;
-      max-height: 4.5em;
     `,
     img: css`
       max-height: 38px;
@@ -136,9 +132,6 @@ const getStyles = (theme: GrafanaTheme2) => {
     `,
     badge: css`
       background: ${theme.colors.background.primary};
-    `,
-    deleteButton: css`
-      margin-left: auto;
     `,
   };
 };

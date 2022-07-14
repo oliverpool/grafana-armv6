@@ -1,14 +1,11 @@
-import { css, cx } from '@emotion/css';
-import { isEqual } from 'lodash';
 import React, { memo, useCallback } from 'react';
 import { usePrevious } from 'react-use';
-
+import { isEqual } from 'lodash';
+import { css, cx } from '@emotion/css';
 import { InlineFormLabel, RadioButtonGroup } from '@grafana/ui';
-
-import { PrometheusDatasource } from '../datasource';
 import { PromQuery } from '../types';
-
 import { PromExemplarField } from './PromExemplarField';
+import { PrometheusDatasource } from '../datasource';
 
 export interface PromExploreExtraFieldProps {
   query: PromQuery;
@@ -19,7 +16,16 @@ export interface PromExploreExtraFieldProps {
 
 export const PromExploreExtraField: React.FC<PromExploreExtraFieldProps> = memo(
   ({ query, datasource, onChange, onRunQuery }) => {
-    const rangeOptions = getQueryTypeOptions(true);
+    const rangeOptions = [
+      { value: 'range', label: 'Range', description: 'Run query over a range of time.' },
+      {
+        value: 'instant',
+        label: 'Instant',
+        description: 'Run query against a single point in time. For this query, the "To" time is used.',
+      },
+      { value: 'both', label: 'Both', description: 'Run an Instant query and a Range query.' },
+    ];
+
     const prevQuery = usePrevious(query);
 
     const onExemplarChange = useCallback(
@@ -47,7 +53,17 @@ export const PromExploreExtraField: React.FC<PromExploreExtraFieldProps> = memo(
       }
     }
 
-    const onQueryTypeChange = getQueryTypeChangeHandler(query, onChange);
+    function onQueryTypeChange(queryType: string) {
+      let nextQuery;
+      if (queryType === 'instant') {
+        nextQuery = { ...query, instant: true, range: false };
+      } else if (queryType === 'range') {
+        nextQuery = { ...query, instant: false, range: true };
+      } else {
+        nextQuery = { ...query, instant: true, range: true };
+      }
+      onChange(nextQuery);
+    }
 
     return (
       <div aria-label="Prometheus extra field" className="gf-form-inline" data-testid={testIds.extraFieldEditor}>
@@ -106,35 +122,6 @@ export const PromExploreExtraField: React.FC<PromExploreExtraFieldProps> = memo(
 );
 
 PromExploreExtraField.displayName = 'PromExploreExtraField';
-
-export function getQueryTypeOptions(includeBoth: boolean) {
-  const rangeOptions = [
-    { value: 'range', label: 'Range', description: 'Run query over a range of time' },
-    {
-      value: 'instant',
-      label: 'Instant',
-      description: 'Run query against a single point in time. For this query, the "To" time is used',
-    },
-  ];
-
-  if (includeBoth) {
-    rangeOptions.push({ value: 'both', label: 'Both', description: 'Run an Instant query and a Range query' });
-  }
-
-  return rangeOptions;
-}
-
-export function getQueryTypeChangeHandler(query: PromQuery, onChange: (update: PromQuery) => void) {
-  return (queryType: string) => {
-    if (queryType === 'instant') {
-      onChange({ ...query, instant: true, range: false, exemplar: false });
-    } else if (queryType === 'range') {
-      onChange({ ...query, instant: false, range: true });
-    } else {
-      onChange({ ...query, instant: true, range: true });
-    }
-  };
-}
 
 export const testIds = {
   extraFieldEditor: 'prom-editor-extra-field',

@@ -1,6 +1,5 @@
-﻿import { shallow } from 'enzyme';
-import React from 'react';
-
+﻿import React from 'react';
+import { shallow } from 'enzyme';
 import { ApiKeysAddedModal, Props } from './ApiKeysAddedModal';
 
 const setup = (propOverrides?: object) => {

@@ -1,13 +1,10 @@
 import React from 'react';
-
 import { SelectableValue } from '@grafana/data';
-
-import { InfluxQueryTag } from '../../types';
-
-import { AddButton } from './AddButton';
 import { Seg } from './Seg';
-import { adjustOperatorIfNeeded, getCondition, getOperator } from './tagUtils';
+import { InfluxQueryTag } from '../../types';
 import { toSelectableValue } from './toSelectableValue';
+import { adjustOperatorIfNeeded, getCondition, getOperator } from './tagUtils';
+import { AddButton } from './AddButton';
 
 type KnownOperator = '=' | '!=' | '<>' | '<' | '>' | '=~' | '!~';
 const knownOperators: KnownOperator[] = ['=', '!=', '<>', '<', '>', '=~', '!~'];

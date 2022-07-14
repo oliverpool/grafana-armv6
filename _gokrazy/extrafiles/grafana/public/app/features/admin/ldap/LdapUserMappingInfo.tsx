@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-
 import { LdapUserInfo } from 'app/types';
 
 interface Props {

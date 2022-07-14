@@ -1,11 +1,10 @@
 import React, { FC } from 'react';
-
-import { getBackendSrv } from '@grafana/runtime';
 import { Form, Field, Input, Button, HorizontalGroup, LinkButton, FormAPI } from '@grafana/ui';
 import { getConfig } from 'app/core/config';
-import { useAppNotification } from 'app/core/copy/appNotification';
+import { getBackendSrv } from '@grafana/runtime';
+import appEvents from 'app/core/app_events';
+import { AppEvents } from '@grafana/data';
 import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
-
 import { InnerBox, LoginLayout } from '../Login/LoginLayout';
 import { PasswordField } from '../PasswordField/PasswordField';
 
@@ -27,7 +26,6 @@ interface QueryParams {
 interface Props extends GrafanaRouteComponentProps<{}, QueryParams> {}
 
 export const SignupPage: FC<Props> = (props) => {
-  const notifyApp = useAppNotification();
   const onSubmit = async (formData: SignupDTO) => {
     if (formData.name === '') {
       delete formData.name;
@@ -45,7 +43,7 @@ export const SignupPage: FC<Props> = (props) => {
       })
       .catch((err) => {
         const msg = err.data?.message || err;
-        notifyApp.warning(msg);
+        appEvents.emit(AppEvents.alertWarning, [msg]);
       });
 
     if (response.code === 'redirect-to-select-org') {

@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { FieldOverrideEditorProps, rangeUtil, SelectableValue } from '@grafana/data';
 import { HorizontalGroup, Input, RadioButtonGroup } from '@grafana/ui';
 

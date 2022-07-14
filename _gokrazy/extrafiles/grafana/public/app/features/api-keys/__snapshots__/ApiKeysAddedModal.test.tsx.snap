@@ -10,23 +10,11 @@ exports[`Render should render component 1`] = `
   <Field
     label="Key"
   >
-    <Input
-      addonAfter={
-        <ClipboardButton
-          getText={[Function]}
-          onClipboardCopy={[Function]}
-          variant="primary"
-        >
-          <Icon
-            name="copy"
-          />
-           Copy
-        </ClipboardButton>
-      }
-      id="Key"
-      readOnly={true}
-      value="api key test"
-    />
+    <span
+      className="css-ypoxjz"
+    >
+      api key test
+    </span>
   </Field>
   <Alert
     severity="info"

@@ -1,19 +1,4 @@
-import { css } from '@emotion/css';
 import React, { ChangeEvent } from 'react';
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
-import { Unsubscribable } from 'rxjs';
-
-import {
-  DataFrame,
-  DataTransformerConfig,
-  DocsId,
-  GrafanaTheme2,
-  PanelData,
-  SelectableValue,
-  standardTransformersRegistry,
-  TransformerRegistryItem,
-} from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
 import {
   Alert,
   Button,
@@ -27,16 +12,28 @@ import {
   useStyles2,
   Card,
 } from '@grafana/ui';
-import { LocalStorageValueProvider } from 'app/core/components/LocalStorageValueProvider';
-import { getDocsLink } from 'app/core/utils/docsLinks';
-import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
-
-import { AppNotificationSeverity } from '../../../../types';
+import {
+  DataFrame,
+  DataTransformerConfig,
+  DocsId,
+  GrafanaTheme2,
+  PanelData,
+  SelectableValue,
+  standardTransformersRegistry,
+  TransformerRegistryItem,
+} from '@grafana/data';
+import { css } from '@emotion/css';
+import { selectors } from '@grafana/e2e-selectors';
+import { Unsubscribable } from 'rxjs';
 import { PanelModel } from '../../state';
-import { PanelNotSupported } from '../PanelEditor/PanelNotSupported';
-
+import { getDocsLink } from 'app/core/utils/docsLinks';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { TransformationOperationRows } from './TransformationOperationRows';
 import { TransformationsEditorTransformation } from './types';
+import { PanelNotSupported } from '../PanelEditor/PanelNotSupported';
+import { AppNotificationSeverity } from '../../../../types';
+import { LocalStorageValueProvider } from 'app/core/components/LocalStorageValueProvider';
+import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
 
 const LOCAL_STORAGE_KEY = 'dashboard.components.TransformationEditor.featureInfoBox.isDismissed';
 

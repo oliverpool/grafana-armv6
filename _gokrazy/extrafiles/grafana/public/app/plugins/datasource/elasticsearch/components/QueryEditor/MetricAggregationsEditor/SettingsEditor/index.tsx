@@ -1,26 +1,23 @@
-import { uniqueId } from 'lodash';
-import React, { ComponentProps, useRef, useState } from 'react';
-
 import { InlineField, Input, InlineSwitch, Select } from '@grafana/ui';
-
-import { useDispatch } from '../../../../hooks/useStatelessReducer';
+import React, { ComponentProps, useRef, useState } from 'react';
 import { extendedStats } from '../../../../query_def';
-import { useQuery } from '../../ElasticsearchQueryContext';
-import { SettingsEditorContainer } from '../../SettingsEditorContainer';
+import { useDispatch } from '../../../../hooks/useStatelessReducer';
+import { changeMetricMeta, changeMetricSetting } from '../state/actions';
 import {
   MetricAggregation,
   isMetricAggregationWithInlineScript,
   isMetricAggregationWithMissingSupport,
   ExtendedStat,
 } from '../aggregations';
-import { changeMetricMeta, changeMetricSetting } from '../state/actions';
-import { metricAggregationConfig } from '../utils';
-
 import { BucketScriptSettingsEditor } from './BucketScriptSettingsEditor';
-import { MovingAverageSettingsEditor } from './MovingAverageSettingsEditor';
 import { SettingField } from './SettingField';
-import { TopMetricsSettingsEditor } from './TopMetricsSettingsEditor';
+import { SettingsEditorContainer } from '../../SettingsEditorContainer';
 import { useDescription } from './useDescription';
+import { MovingAverageSettingsEditor } from './MovingAverageSettingsEditor';
+import { TopMetricsSettingsEditor } from './TopMetricsSettingsEditor';
+import { uniqueId } from 'lodash';
+import { metricAggregationConfig } from '../utils';
+import { useQuery } from '../../ElasticsearchQueryContext';
 
 // TODO: Move this somewhere and share it with BucketsAggregation Editor
 const inlineFieldProps: Partial<ComponentProps<typeof InlineField>> = {

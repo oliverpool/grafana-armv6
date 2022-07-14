@@ -1,16 +1,14 @@
 import { throwError } from 'rxjs';
-import { delay, first } from 'rxjs/operators';
-
-import { AlertState, AlertStateInfo } from '@grafana/data';
+import { delay } from 'rxjs/operators';
 import { setDataSourceSrv } from '@grafana/runtime';
+import { AlertState, AlertStateInfo } from '@grafana/data';
 
-import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
-import { backendSrv } from '../../../../core/services/backend_srv';
 import * as annotationsSrv from '../../../annotations/executeAnnotationQuery';
-
-import { createDashboardQueryRunner } from './DashboardQueryRunner';
 import { getDefaultOptions, LEGACY_DS_NAME, NEXT_GEN_DS_NAME, toAsyncOfResult } from './testHelpers';
+import { backendSrv } from '../../../../core/services/backend_srv';
 import { DashboardQueryRunner, DashboardQueryRunnerResult } from './types';
+import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
+import { createDashboardQueryRunner } from './DashboardQueryRunner';
 
 jest.mock('@grafana/runtime', () => ({
   ...(jest.requireActual('@grafana/runtime') as unknown as object),
@@ -62,19 +60,18 @@ function expectOnResults(args: {
   expect: (results: DashboardQueryRunnerResult) => void;
 }) {
   const { runner, done, panelId, expect: expectCallback } = args;
-  runner
-    .getResult(panelId)
-    .pipe(first())
-    .subscribe({
-      next: (value) => {
-        try {
-          expectCallback(value);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-    });
+  const subscription = runner.getResult(panelId).subscribe({
+    next: (value) => {
+      try {
+        expectCallback(value);
+        subscription?.unsubscribe();
+        done();
+      } catch (err) {
+        subscription?.unsubscribe();
+        done.fail(err);
+      }
+    },
+  });
 }
 
 describe('DashboardQueryRunnerImpl', () => {

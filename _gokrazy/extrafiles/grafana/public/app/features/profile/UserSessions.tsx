@@ -1,10 +1,9 @@
-import { t, Trans } from '@lingui/macro';
-import { withI18n, withI18nProps } from '@lingui/react';
 import React, { PureComponent } from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
-import { Button, Icon, LoadingPlaceholder } from '@grafana/ui';
 import { UserSession } from 'app/types';
+import { Button, Icon, LoadingPlaceholder } from '@grafana/ui';
+import { withI18n, withI18nProps } from '@lingui/react';
+import { t, Trans } from '@lingui/macro';
+import { selectors } from '@grafana/e2e-selectors';
 
 interface Props extends withI18nProps {
   sessions: UserSession[];

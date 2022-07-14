@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-
 import { HorizontalGroup, LinkButton } from '@grafana/ui';
 
 export interface Props {

@@ -1,11 +1,9 @@
+import { SelectableValue } from '@grafana/data';
 import React from 'react';
 
-import { SelectableValue } from '@grafana/data';
-
+import { Alignment, GroupBy, LabelFilter, Metrics, Preprocessor } from '.';
 import CloudMonitoringDatasource from '../datasource';
 import { CustomMetaData, MetricDescriptor, MetricQuery, SLOQuery } from '../types';
-
-import { Alignment, GroupBy, LabelFilter, Metrics, Preprocessor } from '.';
 
 export interface Props {
   refId: string;

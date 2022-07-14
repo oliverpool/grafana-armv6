@@ -1,5 +1,5 @@
-import { uniqueId } from 'lodash';
 import { useRef } from 'react';
+import { uniqueId } from 'lodash';
 
 export function useUniqueId(): string {
   // we need to lazy-init this ref.

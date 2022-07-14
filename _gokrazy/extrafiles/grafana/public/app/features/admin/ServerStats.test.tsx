@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
+import { render, screen } from '@testing-library/react';
 import { ServerStats } from './ServerStats';
 import { ServerStat } from './state/apis';
 

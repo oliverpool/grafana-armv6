@@ -1,12 +1,10 @@
-import { css } from '@emotion/css';
 import React, { useEffect, useState } from 'react';
-import { usePrevious } from 'react-use';
-
+import { css } from '@emotion/css';
+import { Button, DataLinkInput, stylesFactory, LegacyForms } from '@grafana/ui';
 import { VariableSuggestion } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
-import { Button, DataLinkInput, stylesFactory, LegacyForms } from '@grafana/ui';
-
 import { DerivedFieldConfig } from '../types';
+import { usePrevious } from 'react-use';
 
 const { Switch, FormField } = LegacyForms;
 

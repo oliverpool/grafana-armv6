@@ -1,5 +1,4 @@
 import { getBackendSrv } from '@grafana/runtime';
-
 import { PipelineListOption, PipeLineEntitiesInfo } from './types';
 
 export async function getPipeLineEntities(): Promise<PipeLineEntitiesInfo> {

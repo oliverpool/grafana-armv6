@@ -1,5 +1,4 @@
 import { find, first, isArray, isString, escape } from 'lodash';
-
 import {
   escapeStringForRegex,
   formattedValueToString,
@@ -16,9 +15,8 @@ import {
   GrafanaTheme,
 } from '@grafana/data';
 import { getTemplateSrv, TemplateSrv } from '@grafana/runtime';
-
-import { ColumnOptionsCtrl } from './column_options';
 import { ColumnRender, TableRenderModel, ColumnStyle } from './types';
+import { ColumnOptionsCtrl } from './column_options';
 
 export class TableRenderer {
   formatters: any[] = [];

@@ -18,10 +18,11 @@ import {
   GraphTresholdsStyleMode,
   GraphTransform,
 } from '@grafana/schema';
+
 import { graphFieldOptions, commonOptionsBuilder } from '@grafana/ui';
 
-import { FillBellowToEditor } from './FillBelowToEditor';
 import { LineStyleEditor } from './LineStyleEditor';
+import { FillBellowToEditor } from './FillBelowToEditor';
 import { SpanNullsEditor } from './SpanNullsEditor';
 import { ThresholdsStyleEditor } from './ThresholdsStyleEditor';
 

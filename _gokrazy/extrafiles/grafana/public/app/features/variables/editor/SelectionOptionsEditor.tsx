@@ -1,20 +1,17 @@
 import React, { ChangeEvent, FormEvent, FunctionComponent, useCallback } from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
 import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
+import { selectors } from '@grafana/e2e-selectors';
 
-import { KeyedVariableIdentifier } from '../state/types';
 import { VariableWithMultiSupport } from '../types';
-import { toKeyedVariableIdentifier } from '../utils';
-
+import { VariableEditorProps } from './types';
+import { toVariableIdentifier, VariableIdentifier } from '../state/types';
 import { VariableSectionHeader } from './VariableSectionHeader';
 import { VariableSwitchField } from './VariableSwitchField';
 import { VariableTextField } from './VariableTextField';
-import { VariableEditorProps } from './types';
 
 export interface SelectionOptionsEditorProps<Model extends VariableWithMultiSupport = VariableWithMultiSupport>
   extends VariableEditorProps<Model> {
-  onMultiChanged: (identifier: KeyedVariableIdentifier, value: boolean) => void;
+  onMultiChanged: (identifier: VariableIdentifier, value: boolean) => void;
 }
 
 export const SelectionOptionsEditor: FunctionComponent<SelectionOptionsEditorProps> = ({
@@ -24,7 +21,7 @@ export const SelectionOptionsEditor: FunctionComponent<SelectionOptionsEditorPro
 }) => {
   const onMultiChanged = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      onMultiChangedProps(toKeyedVariableIdentifier(variable), event.target.checked);
+      onMultiChangedProps(toVariableIdentifier(variable), event.target.checked);
     },
     [onMultiChangedProps, variable]
   );
@@ -71,7 +68,7 @@ export const SelectionOptionsEditor: FunctionComponent<SelectionOptionsEditorPro
             onChange={onAllValueChanged}
             name="Custom all value"
             placeholder="blank = auto"
-            testId={selectors.pages.Dashboard.Settings.Variables.Edit.General.selectionOptionsCustomAllInputV2}
+            ariaLabel={selectors.pages.Dashboard.Settings.Variables.Edit.General.selectionOptionsCustomAllInput}
             labelWidth={20}
           />
         </InlineFieldRow>

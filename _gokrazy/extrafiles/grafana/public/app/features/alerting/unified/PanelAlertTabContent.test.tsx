@@ -1,21 +1,11 @@
-import { render, act } from '@testing-library/react';
 import React from 'react';
+import { locationService, setDataSourceSrv } from '@grafana/runtime';
+import { configureStore } from 'app/store/configureStore';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
-import { byTestId } from 'testing-library-selector';
-
-import { DataSourceApi } from '@grafana/data';
-import { locationService, setDataSourceSrv } from '@grafana/runtime';
-import { ExpressionDatasourceRef } from '@grafana/runtime/src/utils/DataSourceWithBackend';
-import { DashboardModel, PanelModel } from 'app/features/dashboard/state';
-import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
-import { PrometheusDatasource } from 'app/plugins/datasource/prometheus/datasource';
-import { PromOptions } from 'app/plugins/datasource/prometheus/types';
-import { configureStore } from 'app/store/configureStore';
-
+import { render } from '@testing-library/react';
 import { PanelAlertTabContent } from './PanelAlertTabContent';
-import { fetchRules } from './api/prometheus';
-import { fetchRulerRules } from './api/ruler';
+import { DashboardModel, PanelModel } from 'app/features/dashboard/state';
 import {
   mockDataSource,
   MockDataSourceSrv,
@@ -24,9 +14,18 @@ import {
   mockPromRuleNamespace,
   mockRulerGrafanaRule,
 } from './mocks';
-import { getAllDataSources } from './utils/config';
-import { Annotation } from './utils/constants';
 import { DataSourceType, GRAFANA_RULES_SOURCE_NAME } from './utils/datasource';
+import { typeAsJestMock } from 'test/helpers/typeAsJestMock';
+import { getAllDataSources } from './utils/config';
+import { fetchRules } from './api/prometheus';
+import { fetchRulerRules } from './api/ruler';
+import { Annotation } from './utils/constants';
+import { byTestId } from 'testing-library-selector';
+import { PrometheusDatasource } from 'app/plugins/datasource/prometheus/datasource';
+import { DataSourceApi } from '@grafana/data';
+import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
+import { PromOptions } from 'app/plugins/datasource/prometheus/types';
+import { ExpressionDatasourceRef } from '@grafana/runtime/src/utils/DataSourceWithBackend';
 
 jest.mock('./api/prometheus');
 jest.mock('./api/ruler');
@@ -48,25 +47,23 @@ dataSources.prometheus.meta.alerting = true;
 dataSources.default.meta.alerting = true;
 
 const mocks = {
-  getAllDataSources: jest.mocked(getAllDataSources),
+  getAllDataSources: typeAsJestMock(getAllDataSources),
   api: {
-    fetchRules: jest.mocked(fetchRules),
-    fetchRulerRules: jest.mocked(fetchRulerRules),
+    fetchRules: typeAsJestMock(fetchRules),
+    fetchRulerRules: typeAsJestMock(fetchRulerRules),
   },
 };
 
 const renderAlertTabContent = (dashboard: DashboardModel, panel: PanelModel) => {
   const store = configureStore();
 
-  return act(async () => {
-    render(
-      <Provider store={store}>
-        <Router history={locationService.getHistory()}>
-          <PanelAlertTabContent dashboard={dashboard} panel={panel} />
-        </Router>
-      </Provider>
-    );
-  });
+  return render(
+    <Provider store={store}>
+      <Router history={locationService.getHistory()}>
+        <PanelAlertTabContent dashboard={dashboard} panel={panel} />
+      </Router>
+    </Provider>
+  );
 };
 
 const rules = [
@@ -335,13 +332,10 @@ describe('PanelAlertTabContent', () => {
       ],
     });
 
-    expect(mocks.api.fetchRulerRules).toHaveBeenCalledWith(
-      { dataSourceName: GRAFANA_RULES_SOURCE_NAME, apiVersion: 'legacy' },
-      {
-        dashboardUID: dashboard.uid,
-        panelId: panel.id,
-      }
-    );
+    expect(mocks.api.fetchRulerRules).toHaveBeenCalledWith(GRAFANA_RULES_SOURCE_NAME, {
+      dashboardUID: dashboard.uid,
+      panelId: panel.id,
+    });
     expect(mocks.api.fetchRules).toHaveBeenCalledWith(GRAFANA_RULES_SOURCE_NAME, {
       dashboardUID: dashboard.uid,
       panelId: panel.id,

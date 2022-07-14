@@ -1,18 +1,12 @@
 import { of, throwError } from 'rxjs';
+import { getDefaultTimeRange, LoadingState, VariableSupportType } from '@grafana/data';
 import { delay } from 'rxjs/operators';
 
-import { getDefaultTimeRange, LoadingState, VariableSupportType } from '@grafana/data';
-
-import { queryBuilder } from '../shared/testing/builders';
-import { getPreloadedState } from '../state/helpers';
-import { toKeyedAction } from '../state/keyedVariablesReducer';
-import { initialTransactionState } from '../state/transactionReducer';
-import { KeyedVariableIdentifier } from '../state/types';
-import { QueryVariableModel } from '../types';
-import { toKeyedVariableIdentifier } from '../utils';
-
 import { UpdateOptionsResults, VariableQueryRunner } from './VariableQueryRunner';
+import { queryBuilder } from '../shared/testing/builders';
 import { QueryRunner, QueryRunners } from './queryRunners';
+import { toVariableIdentifier, VariableIdentifier } from '../state/types';
+import { QueryVariableModel } from '../types';
 import { updateVariableOptions } from './reducer';
 
 type DoneCallback = {
@@ -22,7 +16,7 @@ type DoneCallback = {
 
 function expectOnResults(args: {
   runner: VariableQueryRunner;
-  identifier: KeyedVariableIdentifier;
+  identifier: VariableIdentifier;
   done: DoneCallback;
   expect: (results: UpdateOptionsResults[]) => void;
 }) {
@@ -38,7 +32,7 @@ function expectOnResults(args: {
           done();
         } catch (err) {
           subscription.unsubscribe();
-          done(err);
+          done.fail(err);
         }
       }
     },
@@ -46,23 +40,25 @@ function expectOnResults(args: {
 }
 
 function getTestContext(variable?: QueryVariableModel) {
+  variable = variable ?? queryBuilder().withId('query').build();
   const getTimeSrv = jest.fn().mockReturnValue({
     timeRange: jest.fn().mockReturnValue(getDefaultTimeRange()),
   });
-  const key = '0123456789';
-  variable = variable ?? queryBuilder().withId('query').withRootStateKey(key).withName('query').build();
   const datasource: any = { metricFindQuery: jest.fn().mockResolvedValue([]) };
-  const identifier = toKeyedVariableIdentifier(variable);
+  const identifier = toVariableIdentifier(variable);
   const searchFilter = undefined;
   const getTemplatedRegex = jest.fn().mockReturnValue('getTemplatedRegex result');
   const dispatch = jest.fn().mockResolvedValue({});
-  const templatingState = {
-    transaction: { ...initialTransactionState, uid: key },
+  const getState = jest.fn().mockReturnValue({
+    templating: {
+      transaction: {
+        uid: '0123456789',
+      },
+    },
     variables: {
       [variable.id]: variable,
     },
-  };
-  const getState = jest.fn().mockReturnValue(getPreloadedState(key, templatingState));
+  });
   const queryRunner: QueryRunner = {
     type: VariableSupportType.Standard,
     canRun: jest.fn().mockReturnValue(true),
@@ -85,7 +81,6 @@ function getTestContext(variable?: QueryVariableModel) {
   });
 
   return {
-    key,
     identifier,
     datasource,
     runner,
@@ -105,7 +100,7 @@ function getTestContext(variable?: QueryVariableModel) {
 describe('VariableQueryRunner', () => {
   describe('happy case', () => {
     it('then it should work as expected', (done) => {
-      const { key, identifier, runner, datasource, getState, getVariable, queryRunners, queryRunner, dispatch } =
+      const { identifier, runner, datasource, getState, getVariable, queryRunners, queryRunner, dispatch } =
         getTestContext();
 
       expectOnResults({
@@ -129,14 +124,11 @@ describe('VariableQueryRunner', () => {
           // updateVariableOptions and validateVariableSelectionState
           expect(dispatch).toHaveBeenCalledTimes(2);
           expect(dispatch.mock.calls[0][0]).toEqual(
-            toKeyedAction(
-              key,
-              updateVariableOptions({
-                id: 'query',
-                type: 'query',
-                data: { results: [], templatedRegex: 'getTemplatedRegex result' },
-              })
-            )
+            updateVariableOptions({
+              id: 'query',
+              type: 'query',
+              data: { results: [], templatedRegex: 'getTemplatedRegex result' },
+            })
           );
         },
         done,

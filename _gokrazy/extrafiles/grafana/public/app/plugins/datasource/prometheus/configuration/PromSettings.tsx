@@ -1,24 +1,14 @@
-import React, { SyntheticEvent } from 'react';
-
 import {
   DataSourcePluginOptionsEditorProps,
   onUpdateDatasourceJsonDataOptionChecked,
   SelectableValue,
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
-import {
-  InlineField,
-  InlineSwitch,
-  EventsWithValidation,
-  InlineFormLabel,
-  LegacyForms,
-  regexValidation,
-} from '@grafana/ui';
-
+import { EventsWithValidation, InlineFormLabel, LegacyForms, regexValidation } from '@grafana/ui';
+import React, { SyntheticEvent } from 'react';
 import { PromOptions } from '../types';
-
 import { ExemplarsSettings } from './ExemplarsSettings';
-const { Select, Input, FormField } = LegacyForms;
+const { Select, Input, FormField, Switch } = LegacyForms;
 
 const httpOptions = [
   { value: 'POST', label: 'POST' },
@@ -97,16 +87,13 @@ export const PromSettings = (props: Props) => {
       <h3 className="page-heading">Misc</h3>
       <div className="gf-form-group">
         <div className="gf-form">
-          <InlineField
-            labelWidth={28}
+          <Switch
+            checked={options.jsonData.disableMetricsLookup ?? false}
             label="Disable metrics lookup"
+            labelClass="width-14"
+            onChange={onUpdateDatasourceJsonDataOptionChecked(props, 'disableMetricsLookup')}
             tooltip="Checking this option will disable the metrics chooser and metric/label support in the query field's autocomplete. This helps if you have performance issues with bigger Prometheus instances."
-          >
-            <InlineSwitch
-              value={options.jsonData.disableMetricsLookup ?? false}
-              onChange={onUpdateDatasourceJsonDataOptionChecked(props, 'disableMetricsLookup')}
-            />
-          </InlineField>
+          />
         </div>
         <div className="gf-form-inline">
           <div className="gf-form max-width-30">

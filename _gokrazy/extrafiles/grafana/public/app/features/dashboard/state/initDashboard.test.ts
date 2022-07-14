@@ -1,30 +1,27 @@
+import { Subject } from 'rxjs';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { Subject } from 'rxjs';
-
 import { locationService, setEchoSrv } from '@grafana/runtime';
+
+import { initDashboard, InitDashboardArgs } from './initDashboard';
+import { DashboardInitPhase, DashboardRoutes } from 'app/types';
 import { getBackendSrv } from 'app/core/services/backend_srv';
-import { keybindingSrv } from 'app/core/services/keybindingSrv';
+import { dashboardInitCompleted, dashboardInitFetching, dashboardInitServices } from './reducers';
+import { Echo } from '../../../core/services/echo/Echo';
 import { variableAdapters } from 'app/features/variables/adapters';
 import { createConstantVariableAdapter } from 'app/features/variables/constant/adapter';
 import { constantBuilder } from 'app/features/variables/shared/testing/builders';
-import { DashboardInitPhase, DashboardRoutes } from 'app/types';
-
-import { Echo } from '../../../core/services/echo/Echo';
+import { variablesInitTransaction } from '../../variables/state/transactionReducer';
+import { keybindingSrv } from 'app/core/services/keybindingSrv';
+import { getTimeSrv, setTimeSrv } from '../services/TimeSrv';
+import { DashboardLoaderSrv, setDashboardLoaderSrv } from '../services/DashboardLoaderSrv';
+import { getDashboardSrv, setDashboardSrv } from '../services/DashboardSrv';
 import {
   getDashboardQueryRunner,
   setDashboardQueryRunnerFactory,
 } from '../../query/state/DashboardQueryRunner/DashboardQueryRunner';
 import { emptyResult } from '../../query/state/DashboardQueryRunner/utils';
-import { getPreloadedState } from '../../variables/state/helpers';
-import { initialTransactionState, variablesInitTransaction } from '../../variables/state/transactionReducer';
 import { TransactionStatus } from '../../variables/types';
-import { DashboardLoaderSrv, setDashboardLoaderSrv } from '../services/DashboardLoaderSrv';
-import { getDashboardSrv, setDashboardSrv } from '../services/DashboardSrv';
-import { getTimeSrv, setTimeSrv } from '../services/TimeSrv';
-
-import { initDashboard, InitDashboardArgs } from './initDashboard';
-import { dashboardInitCompleted, dashboardInitFetching, dashboardInitServices } from './reducers';
 
 jest.mock('app/core/services/backend_srv');
 jest.mock('app/features/dashboard/services/TimeSrv', () => {
@@ -56,7 +53,7 @@ interface ScenarioContext {
 }
 
 type ScenarioFn = (ctx: ScenarioContext) => void;
-const DASH_UID = 'DGmvKKxZz';
+
 function describeInitScenario(description: string, scenarioFn: ScenarioFn) {
   describe(description, () => {
     const loaderSrv = {
@@ -86,7 +83,6 @@ function describeInitScenario(description: string, scenarioFn: ScenarioFn) {
           templating: {
             list: [constantBuilder().build()],
           },
-          uid: DASH_UID,
         },
       })),
     };
@@ -104,7 +100,7 @@ function describeInitScenario(description: string, scenarioFn: ScenarioFn) {
 
     const ctx: ScenarioContext = {
       args: {
-        urlUid: DASH_UID,
+        urlUid: 'DGmvKKxZz',
         fixUrl: false,
         routeName: DashboardRoutes.Normal,
       },
@@ -121,13 +117,14 @@ function describeInitScenario(description: string, scenarioFn: ScenarioFn) {
         user: {},
         explore: {
           left: {
+            originPanelId: undefined,
             queries: [],
           },
         },
-        ...getPreloadedState(DASH_UID, {
+        templating: {
           variables: {},
-          transaction: { ...initialTransactionState, uid: DASH_UID, status: TransactionStatus.Completed },
-        }),
+          transaction: { uid: 'DGmvKKxZz', status: TransactionStatus.Completed },
+        },
       },
       setup: (fn: () => void) => {
         setupFn = fn;
@@ -233,6 +230,7 @@ describeInitScenario('Initializing existing dashboard', (ctx) => {
 
   ctx.setup(() => {
     ctx.storeState.user.orgId = 12;
+    ctx.storeState.explore.left.originPanelId = 2;
     ctx.storeState.explore.left.queries = mockQueries;
   });
 
@@ -262,7 +260,7 @@ describeInitScenario('Initializing existing dashboard', (ctx) => {
   });
 
   it('Should initialize redux variables if newVariables is enabled', () => {
-    expect(ctx.actions[2].payload.action.type).toBe(variablesInitTransaction.type);
+    expect(ctx.actions[2].type).toBe(variablesInitTransaction.type);
   });
 });
 
@@ -289,16 +287,5 @@ describeInitScenario('Initializing previously canceled dashboard initialization'
   it('Should initialize timeSrv and dashboard query runner', () => {
     expect(getTimeSrv().init).toBeCalled();
     expect(getDashboardQueryRunner().run).toBeCalled();
-  });
-});
-
-describeInitScenario('Initializing snapshot dashboard', (ctx) => {
-  ctx.setup(() => {
-    ctx.args.urlUid = undefined;
-  });
-
-  it('Should send action initVariablesTransaction with correct payload', () => {
-    expect(ctx.actions[2].payload.action.type).toBe(variablesInitTransaction.type);
-    expect(ctx.actions[2].payload.action.payload.uid).toBe(DASH_UID);
   });
 });

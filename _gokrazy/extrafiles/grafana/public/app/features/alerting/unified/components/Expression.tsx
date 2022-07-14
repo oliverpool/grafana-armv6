@@ -1,16 +1,13 @@
-import { css, cx } from '@emotion/css';
-import { LanguageMap, languages as prismLanguages } from 'prismjs';
-import React, { FC, useMemo } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
 import { Editor } from '@grafana/slate-react';
-import { makeValue, SlatePrism, useStyles } from '@grafana/ui';
-import LogqlSyntax from 'app/plugins/datasource/loki/syntax';
+import React, { FC, useMemo } from 'react';
 import PromqlSyntax from 'app/plugins/datasource/prometheus/promql';
+import LogqlSyntax from 'app/plugins/datasource/loki/syntax';
+import { LanguageMap, languages as prismLanguages } from 'prismjs';
+import { makeValue, SlatePrism, useStyles } from '@grafana/ui';
+import { css, cx } from '@emotion/css';
+import { GrafanaTheme } from '@grafana/data';
 import { RulesSource } from 'app/types/unified-alerting';
-
 import { DataSourceType, isCloudRulesSource } from '../utils/datasource';
-
 import { Well } from './Well';
 
 interface Props {

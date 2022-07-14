@@ -1,11 +1,8 @@
 import React from 'react';
-
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings } from '@grafana/ui';
-
-import { OpenTsdbOptions } from '../types';
-
+import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { OpenTsdbDetails } from './OpenTsdbDetails';
+import { OpenTsdbOptions } from '../types';
 
 export const ConfigEditor = (props: DataSourcePluginOptionsEditorProps<OpenTsdbOptions>) => {
   const { options, onOptionsChange } = props;

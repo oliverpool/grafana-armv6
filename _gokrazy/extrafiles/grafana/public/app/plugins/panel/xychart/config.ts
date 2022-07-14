@@ -6,10 +6,9 @@ import {
   SetFieldConfigOptionsArgs,
 } from '@grafana/data';
 import { LineStyle, VisibilityMode } from '@grafana/schema';
+
 import { commonOptionsBuilder, graphFieldOptions } from '@grafana/ui';
-
 import { LineStyleEditor } from '../timeseries/LineStyleEditor';
-
 import { ScatterFieldConfig, ScatterLineMode } from './models.gen';
 
 const categoryStyles = undefined; // ['Scatter styles'];

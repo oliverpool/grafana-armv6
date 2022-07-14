@@ -1,14 +1,11 @@
-import { css } from '@emotion/css';
+import { AlertmanagerGroup, AlertState } from 'app/plugins/datasource/alertmanager/types';
 import React, { useState } from 'react';
-
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
-import { AlertmanagerGroup, AlertState } from 'app/plugins/datasource/alertmanager/types';
-
+import { css } from '@emotion/css';
 import { AlertLabels } from '../AlertLabels';
-import { CollapseToggle } from '../CollapseToggle';
-
 import { AlertGroupAlertsTable } from './AlertGroupAlertsTable';
+import { CollapseToggle } from '../CollapseToggle';
 import { AlertGroupHeader } from './AlertGroupHeader';
 
 interface Props {

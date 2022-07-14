@@ -1,12 +1,9 @@
-import React from 'react';
-
 import { DataLinksInlineEditor, Input, RadioButtonGroup, Select, Switch, TextArea } from '@grafana/ui';
 import { getPanelLinksVariableSuggestions } from 'app/features/panel/panellinks/link_srv';
-
+import React from 'react';
 import { RepeatRowSelect } from '../RepeatRowSelect/RepeatRowSelect';
-
-import { OptionsPaneCategoryDescriptor } from './OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemDescriptor } from './OptionsPaneItemDescriptor';
+import { OptionsPaneCategoryDescriptor } from './OptionsPaneCategoryDescriptor';
 import { OptionPaneRenderProps } from './types';
 
 export function getPanelFrameCategory(props: OptionPaneRenderProps): OptionsPaneCategoryDescriptor {
@@ -57,7 +54,7 @@ export function getPanelFrameCategory(props: OptionPaneRenderProps): OptionsPane
           return (
             <Switch
               value={panel.transparent}
-              id="transparent-background"
+              id="Transparent background"
               onChange={(e) => onPanelConfigChange('transparent', e.currentTarget.checked)}
             />
           );

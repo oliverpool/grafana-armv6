@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-
 import { AppEvents, SelectableValue, UrlQueryMap, urlUtil } from '@grafana/data';
 import { Checkbox, ClipboardButton, Field, FieldSet, Icon, Input, Modal, RadioButtonGroup } from '@grafana/ui';
 import appEvents from 'app/core/app_events';
-
 import { buildBaseUrl } from '../dashboard/components/ShareModal/utils';
-
 import { PlaylistMode } from './types';
 
 interface ShareModalProps {

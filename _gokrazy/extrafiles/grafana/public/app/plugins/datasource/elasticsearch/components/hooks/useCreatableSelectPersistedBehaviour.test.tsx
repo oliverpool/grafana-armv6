@@ -1,10 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
-
+import { render, screen } from '@testing-library/react';
 import { Select, InlineField } from '@grafana/ui';
-
 import { useCreatableSelectPersistedBehaviour } from './useCreatableSelectPersistedBehaviour';
+import userEvent from '@testing-library/user-event';
 
 describe('useCreatableSelectPersistedBehaviour', () => {
   it('Should make a Select accept custom values', () => {

@@ -1,14 +1,13 @@
 import { keys as _keys } from 'lodash';
-
-import { getDashboardModel } from '../../../../test/helpers/getDashboardModel';
-import { expect } from '../../../../test/lib/common';
-import { variableAdapters } from '../../variables/adapters';
-import { createAdHocVariableAdapter } from '../../variables/adhoc/adapter';
-import { createCustomVariableAdapter } from '../../variables/custom/adapter';
-import { createQueryVariableAdapter } from '../../variables/query/adapter';
-import { setTimeSrv, TimeSrv } from '../services/TimeSrv';
 import { DashboardModel } from '../state/DashboardModel';
 import { PanelModel } from '../state/PanelModel';
+import { getDashboardModel } from '../../../../test/helpers/getDashboardModel';
+import { variableAdapters } from '../../variables/adapters';
+import { createAdHocVariableAdapter } from '../../variables/adhoc/adapter';
+import { createQueryVariableAdapter } from '../../variables/query/adapter';
+import { createCustomVariableAdapter } from '../../variables/custom/adapter';
+import { expect } from '../../../../test/lib/common';
+import { setTimeSrv, TimeSrv } from '../services/TimeSrv';
 
 jest.mock('app/core/services/context_srv', () => ({}));
 
@@ -507,10 +506,8 @@ describe('DashboardModel', () => {
 
   describe('Given model with time', () => {
     let model: DashboardModel;
-    let consoleWarnSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       model = new DashboardModel({
         time: {
           from: 'now-6h',
@@ -522,10 +519,6 @@ describe('DashboardModel', () => {
         from: 'now-3h',
         to: 'now-1h',
       };
-    });
-
-    afterEach(() => {
-      consoleWarnSpy.mockRestore();
     });
 
     it('hasTimeChanged should be true', () => {
@@ -864,7 +857,7 @@ describe('DashboardModel', () => {
         dashboard.meta.canEdit = canEdit;
         dashboard.meta.canMakeEditable = canMakeEditable;
 
-        const result = dashboard.canEditDashboard();
+        const result = dashboard.canAddAnnotations();
 
         expect(result).toBe(expected);
       }

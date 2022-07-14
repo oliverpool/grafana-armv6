@@ -1,6 +1,5 @@
 import { FieldColorModeId, VisualizationSuggestionsBuilder } from '@grafana/data';
 import { SuggestionName } from 'app/types/suggestions';
-
 import { StatusPanelOptions, StatusFieldConfig } from './types';
 
 export class StatusHistorySuggestionsSupplier {

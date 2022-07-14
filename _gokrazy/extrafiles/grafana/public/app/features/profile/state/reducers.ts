@@ -1,10 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { isEmpty, isString, set } from 'lodash';
-
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { dateTimeFormatTimeAgo, setWeekStart, TimeZone } from '@grafana/data';
+
+import { Team, ThunkResult, UserDTO, UserOrg, UserSession } from 'app/types';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/core';
-import { Team, ThunkResult, UserDTO, UserOrg, UserSession } from 'app/types';
 
 export interface UserState {
   orgId: number;

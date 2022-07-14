@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { DataSourcePicker } from '@grafana/runtime';
+import { css } from '@emotion/css';
 import { Alert, InlineField, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
+import { DataSourcePicker } from '@grafana/runtime';
 
 const getStyles = (theme: GrafanaTheme2) => ({
   infoText: css`

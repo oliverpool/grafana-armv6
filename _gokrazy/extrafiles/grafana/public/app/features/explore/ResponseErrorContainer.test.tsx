@@ -1,14 +1,12 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-
+import { render, screen } from '@testing-library/react';
 import { DataQueryError, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { configureStore } from '../../store/configureStore';
-import { ExploreId } from '../../types';
-
 import { ResponseErrorContainer } from './ResponseErrorContainer';
+import { ExploreId } from '../../types';
 
 describe('ResponseErrorContainer', () => {
   it('shows error message if it does not contain refId', async () => {
@@ -52,14 +50,6 @@ function setup(error: DataQueryError) {
     series: [],
     state: LoadingState.Error,
     error,
-    graphFrames: [],
-    logsFrames: [],
-    tableFrames: [],
-    traceFrames: [],
-    nodeGraphFrames: [],
-    graphResult: null,
-    logsResult: null,
-    tableResult: null,
   };
   render(
     <Provider store={store}>

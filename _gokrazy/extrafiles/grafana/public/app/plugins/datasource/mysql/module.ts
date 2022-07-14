@@ -1,14 +1,12 @@
-import { DataSourcePlugin } from '@grafana/data';
-
+import { MysqlDatasource } from './datasource';
+import { MysqlQueryCtrl } from './query_ctrl';
 import {
   createChangeHandler,
   createResetHandler,
   PasswordFieldEnum,
 } from '../../../features/datasources/utils/passwordHandlers';
-
-import { MysqlDatasource } from './datasource';
-import { MysqlQueryCtrl } from './query_ctrl';
 import { MySQLQuery } from './types';
+import { DataSourcePlugin } from '@grafana/data';
 
 class MysqlConfigCtrl {
   static templateUrl = 'partials/config.html';

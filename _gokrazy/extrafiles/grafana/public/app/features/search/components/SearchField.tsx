@@ -1,10 +1,8 @@
-import { css, cx } from '@emotion/css';
 import React, { FC } from 'react';
-
+import { css, cx } from '@emotion/css';
 import { GrafanaTheme } from '@grafana/data';
-import { useStyles } from '@grafana/ui';
-
 import { DashboardQuery } from '../types';
+import { useStyles } from '@grafana/ui';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 

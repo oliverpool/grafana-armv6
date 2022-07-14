@@ -1,19 +1,17 @@
 // Libraries
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
+import { css } from '@emotion/css';
 
 // Components
-import { HorizontalGroup, LinkButton } from '@grafana/ui';
-import { Branding } from 'app/core/components/Branding/Branding';
-import config from 'app/core/config';
-
-import { ChangePassword } from '../ForgottenPassword/ChangePassword';
-
+import { UserSignup } from './UserSignup';
+import { LoginServiceButtons } from './LoginServiceButtons';
 import LoginCtrl from './LoginCtrl';
 import { LoginForm } from './LoginForm';
+import { ChangePassword } from '../ForgottenPassword/ChangePassword';
+import { Branding } from 'app/core/components/Branding/Branding';
+import { HorizontalGroup, LinkButton } from '@grafana/ui';
 import { LoginLayout, InnerBox } from './LoginLayout';
-import { LoginServiceButtons } from './LoginServiceButtons';
-import { UserSignup } from './UserSignup';
+import config from 'app/core/config';
 
 const forgottenPasswordStyles = css`
   padding: 0;

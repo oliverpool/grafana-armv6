@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-
 import { ConfirmButton, RadioButtonGroup, Icon } from '@grafana/ui';
-import { contextSrv } from 'app/core/core';
 import { AccessControlAction } from 'app/types';
+import { contextSrv } from 'app/core/core';
 
 interface Props {
   isGrafanaAdmin: boolean;

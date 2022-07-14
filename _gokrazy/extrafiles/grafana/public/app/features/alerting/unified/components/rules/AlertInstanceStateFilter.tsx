@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { RadioButtonGroup, Label } from '@grafana/ui';
 import { GrafanaAlertState } from 'app/types/unified-alerting-dto';
 

@@ -1,13 +1,12 @@
 import { FieldType, locationUtil, toDataFrame, VariableOrigin } from '@grafana/data';
 import { setTemplateSrv } from '@grafana/runtime';
+import { getDataFrameVars, LinkSrv } from '../link_srv';
 import { getTimeSrv, setTimeSrv, TimeSrv } from 'app/features/dashboard/services/TimeSrv';
 import { TemplateSrv } from 'app/features/templating/template_srv';
 import { variableAdapters } from 'app/features/variables/adapters';
 import { createQueryVariableAdapter } from 'app/features/variables/query/adapter';
-
-import { initTemplateSrv } from '../../../../../test/helpers/initTemplateSrv';
 import { updateConfig } from '../../../../core/config';
-import { getDataFrameVars, LinkSrv } from '../link_srv';
+import { initTemplateSrv } from '../../../../../test/helpers/initTemplateSrv';
 
 jest.mock('app/core/core', () => ({
   appEvents: {
@@ -33,7 +32,7 @@ describe('linkSrv', () => {
     _dashboard.refresh = false;
     setTimeSrv(timeSrv);
 
-    templateSrv = initTemplateSrv('key', [
+    templateSrv = initTemplateSrv([
       { type: 'query', name: 'home', current: { value: '127.0.0.1' } },
       { type: 'query', name: 'server1', current: { value: '192.168.0.100' } },
     ]);

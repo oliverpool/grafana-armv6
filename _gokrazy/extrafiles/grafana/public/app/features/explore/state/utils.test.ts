@@ -1,5 +1,5 @@
-import store from '../../../core/store';
 import { lastUsedDatasourceKeyForOrgId } from '../../../core/utils/explore';
+import store from '../../../core/store';
 
 const dataSourceMock = {
   get: jest.fn(),

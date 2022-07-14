@@ -1,15 +1,12 @@
-import { css } from '@emotion/css';
-import React, { useMemo } from 'react';
-
-import { GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
-
-import { AlertLabels } from '../AlertLabels';
+import React, { useMemo } from 'react';
+import { useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2, intervalToAbbreviatedDurationString } from '@grafana/data';
+import { css } from '@emotion/css';
 import { DynamicTableColumnProps, DynamicTableItemProps } from '../DynamicTable';
-import { DynamicTableWithGuidelines } from '../DynamicTableWithGuidelines';
 import { AmAlertStateTag } from '../silences/AmAlertStateTag';
-
+import { AlertLabels } from '../AlertLabels';
+import { DynamicTableWithGuidelines } from '../DynamicTableWithGuidelines';
 import { AlertDetails } from './AlertDetails';
 
 interface Props {

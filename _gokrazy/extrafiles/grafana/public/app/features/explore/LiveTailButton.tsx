@@ -1,7 +1,6 @@
-import { css } from '@emotion/css';
 import React from 'react';
+import { css } from '@emotion/css';
 import { CSSTransition } from 'react-transition-group';
-
 import { Tooltip, ButtonGroup, ToolbarButton } from '@grafana/ui';
 
 type LiveTailButtonProps = {

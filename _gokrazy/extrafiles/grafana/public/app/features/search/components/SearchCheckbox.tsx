@@ -1,5 +1,4 @@
 import React, { FC, memo } from 'react';
-
 import { Checkbox } from '@grafana/ui';
 
 interface Props {

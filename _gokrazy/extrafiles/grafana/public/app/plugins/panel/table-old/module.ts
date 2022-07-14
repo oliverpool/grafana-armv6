@@ -1,17 +1,15 @@
-import $ from 'jquery';
 import { defaults } from 'lodash';
-import { ComponentType } from 'react';
-
-import { isTableData, PanelEvents, PanelPlugin, PanelProps } from '@grafana/data';
-import config from 'app/core/config';
-import { applyFilterFromTable } from 'app/features/variables/adhoc/actions';
+import $ from 'jquery';
 import { MetricsPanelCtrl } from 'app/plugins/sdk';
-import { dispatch } from 'app/store/store';
-
-import { columnOptionsTab } from './column_options';
-import { tablePanelEditor } from './editor';
-import { TableRenderer } from './renderer';
+import config from 'app/core/config';
 import { transformDataToTable } from './transformers';
+import { tablePanelEditor } from './editor';
+import { columnOptionsTab } from './column_options';
+import { TableRenderer } from './renderer';
+import { isTableData, PanelEvents, PanelPlugin, PanelProps } from '@grafana/data';
+import { dispatch } from 'app/store/store';
+import { ComponentType } from 'react';
+import { applyFilterFromTable } from 'app/features/variables/adhoc/actions';
 
 export class TablePanelCtrl extends MetricsPanelCtrl {
   static templateUrl = 'module.html';

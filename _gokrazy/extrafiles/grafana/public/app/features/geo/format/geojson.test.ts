@@ -1,5 +1,4 @@
 import { dataFrameToJSON, FieldType } from '@grafana/data';
-
 import { frameFromGeoJSON } from './geojson';
 
 describe('Read GeoJSON', () => {

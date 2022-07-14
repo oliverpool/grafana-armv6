@@ -1,7 +1,5 @@
 import React, { useCallback } from 'react';
-
 import { QueryField } from '@grafana/ui';
-
 import { actions } from '../state/actions';
 import { useDispatch } from '../state/context';
 

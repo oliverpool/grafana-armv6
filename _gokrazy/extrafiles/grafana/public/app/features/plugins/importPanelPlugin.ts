@@ -1,8 +1,6 @@
-import * as grafanaData from '@grafana/data';
 import config from 'app/core/config';
-
+import * as grafanaData from '@grafana/data';
 import { getPanelPluginLoadError } from '../panel/components/PanelPluginError';
-
 import { importPluginModule } from './plugin_loader';
 interface PanelCache {
   [key: string]: Promise<grafanaData.PanelPlugin>;

@@ -1,7 +1,6 @@
+import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
-
 import { getRouteComponentProps } from 'app/core/navigation/__mocks__/routeProps';
 
 import { ChangePasswordPage, Props } from './ChangePasswordPage';

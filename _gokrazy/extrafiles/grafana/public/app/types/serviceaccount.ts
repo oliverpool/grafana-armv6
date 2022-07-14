@@ -1,8 +1,7 @@
-import { SelectableValue, WithAccessControlMetadata } from '@grafana/data';
+import { WithAccessControlMetadata } from '@grafana/data';
+import { OrgRole } from '.';
 
-import { ApiKey, OrgRole, Role } from '.';
-
-export interface OrgServiceAccount extends WithAccessControlMetadata {
+export interface OrgServiceAccount {
   serviceAccountId: number;
   avatarUrl: string;
   email: string;
@@ -26,37 +25,25 @@ export interface ServiceAccount {
 }
 
 export interface ServiceAccountDTO extends WithAccessControlMetadata {
-  id: number;
   orgId: number;
-  tokens: number;
+  userId: number;
+  email: string;
   name: string;
-  login: string;
   avatarUrl?: string;
-  createdAt: string;
-  isDisabled: boolean;
-  teams: string[];
-  role: OrgRole;
+  login: string;
+  role: string;
+  lastSeenAt: string;
+  lastSeenAtAge: string;
 }
 
 export interface ServiceAccountProfileState {
   serviceAccount: ServiceAccountDTO;
   isLoading: boolean;
-  tokens: ApiKey[];
 }
 
-export type ServiceAccountFilter = Record<string, string | boolean | SelectableValue[]>;
 export interface ServiceAccountsState {
   serviceAccounts: ServiceAccountDTO[];
+  searchQuery: string;
+  searchPage: number;
   isLoading: boolean;
-  roleOptions: Role[];
-  serviceAccountToRemove: ServiceAccountDTO | null;
-  builtInRoles: Record<string, Role[]>;
-
-  // search / filtering
-  query: string;
-  perPage: number;
-  page: number;
-  totalPages: number;
-  showPaging: boolean;
-  filters: ServiceAccountFilter[];
 }

@@ -1,5 +1,4 @@
 import { Observable, SubscriptionLike, Unsubscribable } from 'rxjs';
-
 import {
   AbsoluteTimeRange,
   DataFrame,
@@ -43,12 +42,16 @@ export interface ExploreState {
    * Explore state of the right area in split view.
    */
   right?: ExploreItemState;
+  /**
+   * History of all queries
+   */
+  richHistory: RichHistoryQuery[];
 
   /**
-   * True if local storage quota was exceeded when a rich history item was added. This is to prevent showing
+   * True if local storage quota was exceeded when a new item was added. This is to prevent showing
    * multiple errors when local storage is full.
    */
-  richHistoryStorageFull: boolean;
+  localStorageFull: boolean;
 
   /**
    * True if a warning message of hitting the exceeded number of items has been shown already.
@@ -142,7 +145,13 @@ export interface ExploreItemState {
 
   querySubscription?: Unsubscribable;
 
-  queryResponse: ExplorePanelData;
+  queryResponse: PanelData;
+
+  /**
+   * Panel Id that is set if we come to explore from a penel. Used so we can get back to it and optionally modify the
+   * query of that panel.
+   */
+  originPanelId?: number | null;
 
   showLogs?: boolean;
   showMetrics?: boolean;
@@ -151,16 +160,11 @@ export interface ExploreItemState {
   showNodeGraph?: boolean;
 
   /**
-   * History of all queries
-   */
-  richHistory: RichHistoryQuery[];
-
-  /**
    * We are using caching to store query responses of queries run from logs navigation.
    * In logs navigation, we do pagination and we don't want our users to unnecessarily run the same queries that they've run just moments before.
    * We are currently caching last 5 query responses.
    */
-  cache: Array<{ key: string; value: ExplorePanelData }>;
+  cache: Array<{ key: string; value: PanelData }>;
 
   // properties below should be more generic if we add more providers
   // see also: DataSourceWithLogsVolumeSupport
@@ -197,14 +201,15 @@ export interface QueryTransaction {
   scanning?: boolean;
 }
 
-export type RichHistoryQuery<T extends DataQuery = DataQuery> = {
-  id: string;
-  createdAt: number;
-  datasourceUid: string;
+export type RichHistoryQuery = {
+  ts: number;
   datasourceName: string;
+  datasourceId: string;
   starred: boolean;
   comment: string;
-  queries: T[];
+  queries: DataQuery[];
+  sessionName: string;
+  timeRange?: string;
 };
 
 export interface ExplorePanelData extends PanelData {

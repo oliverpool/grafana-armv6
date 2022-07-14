@@ -1,28 +1,21 @@
-import { css, cx } from '@emotion/css';
-import { useDialog } from '@react-aria/dialog';
-import { FocusScope } from '@react-aria/focus';
-import { useOverlay } from '@react-aria/overlays';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-
-import { GrafanaTheme2, locationUtil } from '@grafana/data';
-import { locationService, reportInteraction } from '@grafana/runtime';
+import { css, cx } from '@emotion/css';
 import { Button, CustomScrollbar, Icon, IconName, PageToolbar, stylesFactory, useForceUpdate } from '@grafana/ui';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
-import { AccessControlAction } from 'app/types';
-
-import { VariableEditorContainer } from '../../../variables/editor/VariableEditorContainer';
+import { dashboardWatcher } from 'app/features/live/dashboard/dashboardWatcher';
 import { DashboardModel } from '../../state/DashboardModel';
-import { AccessControlDashboardPermissions } from '../DashboardPermissions/AccessControlDashboardPermissions';
-import { DashboardPermissions } from '../DashboardPermissions/DashboardPermissions';
 import { SaveDashboardAsButton, SaveDashboardButton } from '../SaveDashboard/SaveDashboardButton';
-
-import { AnnotationsSettings } from './AnnotationsSettings';
+import { VariableEditorContainer } from '../../../variables/editor/VariableEditorContainer';
+import { DashboardPermissions } from '../DashboardPermissions/DashboardPermissions';
 import { GeneralSettings } from './GeneralSettings';
-import { JsonEditorSettings } from './JsonEditorSettings';
+import { AnnotationsSettings } from './AnnotationsSettings';
 import { LinksSettings } from './LinksSettings';
 import { VersionsSettings } from './VersionsSettings';
+import { JsonEditorSettings } from './JsonEditorSettings';
+import { GrafanaTheme2, locationUtil } from '@grafana/data';
+import { locationService, reportInteraction } from '@grafana/runtime';
 
 export interface Props {
   dashboard: DashboardModel;
@@ -46,14 +39,6 @@ const MakeEditable = (props: { onMakeEditable: () => any }) => (
 );
 
 export function DashboardSettings({ dashboard, editview }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { overlayProps } = useOverlay({}, ref);
-  const { dialogProps } = useDialog(
-    {
-      'aria-label': 'Dashboard settings',
-    },
-    ref
-  );
   const forceUpdate = useForceUpdate();
   const onMakeEditable = useCallback(() => {
     dashboard.editable = true;
@@ -85,7 +70,7 @@ export function DashboardSettings({ dashboard, editview }: Props) {
         title: 'Variables',
         id: 'templating',
         icon: 'calculator-alt',
-        component: <VariableEditorContainer dashboard={dashboard} />,
+        component: <VariableEditorContainer />,
       });
 
       pages.push({
@@ -115,21 +100,12 @@ export function DashboardSettings({ dashboard, editview }: Props) {
     }
 
     if (dashboard.id && dashboard.meta.canAdmin) {
-      if (!config.featureToggles['accesscontrol']) {
-        pages.push({
-          title: 'Permissions',
-          id: 'permissions',
-          icon: 'lock',
-          component: <DashboardPermissions dashboard={dashboard} />,
-        });
-      } else if (contextSrv.hasPermission(AccessControlAction.DashboardsPermissionsRead)) {
-        pages.push({
-          title: 'Permissions',
-          id: 'permissions',
-          icon: 'lock',
-          component: <AccessControlDashboardPermissions dashboard={dashboard} />,
-        });
-      }
+      pages.push({
+        title: 'Permissions',
+        id: 'permissions',
+        icon: 'lock',
+        component: <DashboardPermissions dashboard={dashboard} />,
+      });
     }
 
     pages.push({
@@ -144,6 +120,7 @@ export function DashboardSettings({ dashboard, editview }: Props) {
 
   const onPostSave = () => {
     dashboard.meta.hasUnsavedFolderChange = false;
+    dashboardWatcher.reloadPage();
   };
 
   const folderTitle = dashboard.meta.folderTitle;
@@ -153,37 +130,35 @@ export function DashboardSettings({ dashboard, editview }: Props) {
   const styles = getStyles(config.theme2);
 
   return (
-    <FocusScope contain autoFocus restoreFocus>
-      <div className="dashboard-settings" ref={ref} {...overlayProps} {...dialogProps}>
-        <PageToolbar title={`${dashboard.title} / Settings`} parent={folderTitle} onGoBack={onClose} />
-        <CustomScrollbar>
-          <div className={styles.scrollInner}>
-            <div className={styles.settingsWrapper}>
-              <aside className="dashboard-settings__aside">
-                {pages.map((page) => (
-                  <Link
-                    onClick={() => reportInteraction(`Dashboard settings navigation to ${page.id}`)}
-                    to={(loc) => locationUtil.getUrlForPartial(loc, { editview: page.id })}
-                    className={cx('dashboard-settings__nav-item', { active: page.id === editview })}
-                    key={page.id}
-                  >
-                    <Icon name={page.icon} style={{ marginRight: '4px' }} />
-                    {page.title}
-                  </Link>
-                ))}
-                <div className="dashboard-settings__aside-actions">
-                  {canSave && <SaveDashboardButton dashboard={dashboard} onSaveSuccess={onPostSave} />}
-                  {canSaveAs && (
-                    <SaveDashboardAsButton dashboard={dashboard} onSaveSuccess={onPostSave} variant="secondary" />
-                  )}
-                </div>
-              </aside>
-              <div className={styles.settingsContent}>{currentPage.component}</div>
-            </div>
+    <div className="dashboard-settings">
+      <PageToolbar title={`${dashboard.title} / Settings`} parent={folderTitle} onGoBack={onClose} />
+      <CustomScrollbar>
+        <div className={styles.scrollInner}>
+          <div className={styles.settingsWrapper}>
+            <aside className="dashboard-settings__aside">
+              {pages.map((page) => (
+                <Link
+                  onClick={() => reportInteraction(`Dashboard settings navigation to ${page.id}`)}
+                  to={(loc) => locationUtil.updateSearchParams(loc.search, `editview=${page.id}`)}
+                  className={cx('dashboard-settings__nav-item', { active: page.id === editview })}
+                  key={page.id}
+                >
+                  <Icon name={page.icon} style={{ marginRight: '4px' }} />
+                  {page.title}
+                </Link>
+              ))}
+              <div className="dashboard-settings__aside-actions">
+                {canSave && <SaveDashboardButton dashboard={dashboard} onSaveSuccess={onPostSave} />}
+                {canSaveAs && (
+                  <SaveDashboardAsButton dashboard={dashboard} onSaveSuccess={onPostSave} variant="secondary" />
+                )}
+              </div>
+            </aside>
+            <div className={styles.settingsContent}>{currentPage.component}</div>
           </div>
-        </CustomScrollbar>
-      </div>
-    </FocusScope>
+        </div>
+      </CustomScrollbar>
+    </div>
   );
 }
 

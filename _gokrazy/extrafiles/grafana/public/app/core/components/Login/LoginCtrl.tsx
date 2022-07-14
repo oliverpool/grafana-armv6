@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-
-import { AppEvents } from '@grafana/data';
+import config from 'app/core/config';
 import { getBackendSrv } from '@grafana/runtime';
 import appEvents from 'app/core/app_events';
-import config from 'app/core/config';
+import { AppEvents } from '@grafana/data';
 
 const isOauthEnabled = () => {
   return !!config.oauth && Object.keys(config.oauth).length > 0;

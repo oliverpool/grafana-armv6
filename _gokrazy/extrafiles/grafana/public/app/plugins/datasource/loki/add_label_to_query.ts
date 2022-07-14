@@ -1,8 +1,6 @@
 import { chain, isEqual } from 'lodash';
-
-import { PROM_KEYWORDS, OPERATORS, LOGICAL_OPERATORS } from 'app/plugins/datasource/prometheus/promql';
-
 import { LOKI_KEYWORDS } from './syntax';
+import { PROM_KEYWORDS, OPERATORS, LOGICAL_OPERATORS } from 'app/plugins/datasource/prometheus/promql';
 
 const builtInWords = [...PROM_KEYWORDS, ...OPERATORS, ...LOGICAL_OPERATORS, ...LOKI_KEYWORDS];
 

@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { TagBadge } from './TagBadge';
 
 export interface Props {

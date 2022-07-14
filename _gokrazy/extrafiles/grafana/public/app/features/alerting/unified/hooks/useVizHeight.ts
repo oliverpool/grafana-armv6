@@ -1,6 +1,5 @@
 import { PanelData } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
-
 import { STAT, TIMESERIES } from '../utils/constants';
 
 export function useVizHeight(data: PanelData, pluginId: string, frameIndex: number) {

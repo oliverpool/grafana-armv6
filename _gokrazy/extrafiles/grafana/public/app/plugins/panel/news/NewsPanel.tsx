@@ -1,17 +1,21 @@
-import { css, cx } from '@emotion/css';
+// Libraries
 import React, { PureComponent } from 'react';
-import { Unsubscribable } from 'rxjs';
 
-import { PanelProps, DataFrameView, dateTimeFormat, GrafanaTheme2, textUtil } from '@grafana/data';
-import { RefreshEvent } from '@grafana/runtime';
+// Utils & Services
 import { CustomScrollbar, stylesFactory } from '@grafana/ui';
-import config from 'app/core/config';
 
-import { DEFAULT_FEED_URL } from './constants';
-import { loadFeed } from './feed';
-import { PanelOptions } from './models.gen';
-import { NewsItem } from './types';
+import config from 'app/core/config';
 import { feedToDataFrame } from './utils';
+import { loadRSSFeed } from './rss';
+
+// Types
+import { PanelProps, DataFrameView, dateTimeFormat, GrafanaTheme2, textUtil } from '@grafana/data';
+import { NewsItem } from './types';
+import { PanelOptions } from './models.gen';
+import { DEFAULT_FEED_URL, PROXY_PREFIX } from './constants';
+import { css, cx } from '@emotion/css';
+import { RefreshEvent } from '@grafana/runtime';
+import { Unsubscribable } from 'rxjs';
 
 interface Props extends PanelProps<PanelOptions> {}
 
@@ -46,18 +50,19 @@ export class NewsPanel extends PureComponent<Props, State> {
   async loadChannel() {
     const { options } = this.props;
     try {
-      const url = options.feedUrl || DEFAULT_FEED_URL;
-
-      const feed = await loadFeed(url);
-      const frame = feedToDataFrame(feed);
-
+      const url = options.feedUrl
+        ? options.useProxy
+          ? `${PROXY_PREFIX}${options.feedUrl}`
+          : options.feedUrl
+        : DEFAULT_FEED_URL;
+      const res = await loadRSSFeed(url);
+      const frame = feedToDataFrame(res);
       this.setState({
         news: new DataFrameView<NewsItem>(frame),
         isError: false,
       });
     } catch (err) {
       console.error('Error Loading News', err);
-
       this.setState({
         news: undefined,
         isError: true,
@@ -73,10 +78,10 @@ export class NewsPanel extends PureComponent<Props, State> {
     const useWideLayout = width > 600;
 
     if (isError) {
-      return <div>Error loading RSS feed.</div>;
+      return <div>Error Loading News</div>;
     }
     if (!news) {
-      return <div>Loading...</div>;
+      return <div>loading...</div>;
     }
 
     return (

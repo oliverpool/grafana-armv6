@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
 import React, { Component } from 'react';
-
+import { Select, Table } from '@grafana/ui';
 import {
   DataFrame,
   FieldMatcherID,
@@ -9,17 +8,15 @@ import {
   PanelProps,
   SelectableValue,
 } from '@grafana/data';
-import { Select, Table } from '@grafana/ui';
-import { FilterItem, TableSortByFieldState } from '@grafana/ui/src/components/Table/types';
-import { config } from 'app/core/config';
-import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
-
-import { getDashboardSrv } from '../../../features/dashboard/services/DashboardSrv';
-import { applyFilterFromTable } from '../../../features/variables/adhoc/actions';
-import { dispatch } from '../../../store/store';
-
-import { getFooterCells } from './footer';
 import { PanelOptions } from './models.gen';
+import { css } from '@emotion/css';
+import { config } from 'app/core/config';
+import { FilterItem, TableSortByFieldState } from '@grafana/ui/src/components/Table/types';
+import { dispatch } from '../../../store/store';
+import { applyFilterFromTable } from '../../../features/variables/adhoc/actions';
+import { getDashboardSrv } from '../../../features/dashboard/services/DashboardSrv';
+import { getFooterCells } from './footer';
+import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 
 interface Props extends PanelProps<PanelOptions> {}
 
@@ -111,7 +108,6 @@ export class TablePanel extends Component<Props> {
         onColumnResize={this.onColumnResize}
         onCellFilterAdded={this.onCellFilterAdded}
         footerValues={footerValues}
-        enablePagination={options.footer?.enablePagination}
       />
     );
   }

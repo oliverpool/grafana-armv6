@@ -1,9 +1,7 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-
-import { PanelModel } from '../../state';
-
+import { shallow } from 'enzyme';
 import { PanelHeaderCorner } from './PanelHeaderCorner';
+import { PanelModel } from '../../state';
 
 describe('Render', () => {
   it('should render component', () => {

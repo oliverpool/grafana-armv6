@@ -49,9 +49,7 @@ register({
     {
       name: 'name',
       type: 'string',
-      options: [],
-      baseOptions: ['avg', 'count', 'min', 'max', 'sum', 'stddev', 'variance'],
-      timescaleOptions: ['first', 'last'],
+      options: ['avg', 'count', 'min', 'max', 'sum', 'stddev', 'variance'],
     },
   ],
   defaultParams: ['avg'],

@@ -1,8 +1,7 @@
 ///<amd-dependency path="test/specs/helpers" name="helpers" />
 
-import { toUtc, getLocale, setLocale, dateTime } from '@grafana/data';
-
 import { IndexPattern } from '../index_pattern';
+import { toUtc, getLocale, setLocale, dateTime } from '@grafana/data';
 
 describe('IndexPattern', () => {
   const originalLocale = getLocale();

@@ -1,11 +1,9 @@
-import { Trans, t } from '@lingui/macro';
 import React, { FC } from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
+import { Trans, t } from '@lingui/macro';
 import { Button, Field, FieldSet, Form, Icon, Input, Tooltip } from '@grafana/ui';
-import config from 'app/core/config';
+import { selectors } from '@grafana/e2e-selectors';
 import { UserDTO } from 'app/types';
-
+import config from 'app/core/config';
 import { ProfileUpdateFields } from './types';
 
 export interface Props {

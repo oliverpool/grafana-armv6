@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { LegacyForms } from '@grafana/ui';
 const { FormField } = LegacyForms;
 

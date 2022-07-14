@@ -1,5 +1,4 @@
 import React, { FC, useCallback, useEffect, useRef } from 'react';
-
 import { GraphEdge, GraphNode } from './utils';
 
 interface OwnProps {

@@ -31,33 +31,6 @@ describe('LokiQueryModeller', () => {
     ).toBe('{app="grafana"} | logfmt');
   });
 
-  it('Can query with pipeline operation regexp', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.Regexp, params: ['re'] }],
-      })
-    ).toBe('{app="grafana"} | regexp `re`');
-  });
-
-  it('Can query with pipeline operation pattern', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.Pattern, params: ['<pattern>'] }],
-      })
-    ).toBe('{app="grafana"} | pattern `<pattern>`');
-  });
-
-  it('Can query with pipeline operation unpack', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.Unpack, params: [] }],
-      })
-    ).toBe('{app="grafana"} | unpack');
-  });
-
   it('Can query with line filter contains operation', () => {
     expect(
       modeller.renderQuery({
@@ -109,7 +82,7 @@ describe('LokiQueryModeller', () => {
         labels: [{ label: 'app', op: '=', value: 'grafana' }],
         operations: [{ id: LokiOperationId.LabelFilter, params: ['__error__', '=', 'value'] }],
       })
-    ).toBe('{app="grafana"} | __error__=`value`');
+    ).toBe('{app="grafana"} | __error__="value"');
   });
 
   it('Can query with label filter expression using greater than operator', () => {
@@ -127,7 +100,7 @@ describe('LokiQueryModeller', () => {
         labels: [{ label: 'app', op: '=', value: 'grafana' }],
         operations: [{ id: LokiOperationId.LabelFilterNoErrors, params: [] }],
       })
-    ).toBe('{app="grafana"} | __error__=``');
+    ).toBe('{app="grafana"} | __error__=""');
   });
 
   it('Can query with unwrap operation', () => {
@@ -139,51 +112,6 @@ describe('LokiQueryModeller', () => {
     ).toBe('{app="grafana"} | unwrap count');
   });
 
-  it('Can render with line_format operation', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.LineFormat, params: ['{{.status_code}}'] }],
-      })
-    ).toBe('{app="grafana"} | line_format `{{.status_code}}`');
-  });
-
-  it('Can render with label_format operation', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.LabelFormat, params: ['new', 'old'] }],
-      })
-    ).toBe('{app="grafana"} | label_format old=`new`');
-  });
-
-  it('Can render simply binary operation with scalar', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.MultiplyBy, params: [1000] }],
-      })
-    ).toBe('{app="grafana"} * 1000');
-  });
-
-  it('Can render query with simple binary query', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.Rate, params: ['5m'] }],
-        binaryQueries: [
-          {
-            operator: '/',
-            query: {
-              labels: [{ label: 'job', op: '=', value: 'backup' }],
-              operations: [{ id: LokiOperationId.CountOverTime, params: ['5m'] }],
-            },
-          },
-        ],
-      })
-    ).toBe('rate({app="grafana"} [5m]) / count_over_time({job="backup"} [5m])');
-  });
-
   describe('On add operation handlers', () => {
     it('When adding function without range vector param should automatically add rate', () => {
       const query = {
@@ -191,7 +119,7 @@ describe('LokiQueryModeller', () => {
         operations: [],
       };
 
-      const def = modeller.getOperationDef('sum')!;
+      const def = modeller.getOperationDef('sum');
       const result = def.addOperationHandler(def, query, modeller);
       expect(result.operations[0].id).toBe('rate');
       expect(result.operations[1].id).toBe('sum');
@@ -200,12 +128,12 @@ describe('LokiQueryModeller', () => {
     it('When adding function without range vector param should automatically add rate after existing pipe operation', () => {
       const query = {
         labels: [],
-        operations: [{ id: LokiOperationId.Json, params: [] }],
+        operations: [{ id: 'json', params: [] }],
       };
 
-      const def = modeller.getOperationDef('sum')!;
+      const def = modeller.getOperationDef('sum');
       const result = def.addOperationHandler(def, query, modeller);
-      expect(result.operations[0].id).toBe(LokiOperationId.Json);
+      expect(result.operations[0].id).toBe('json');
       expect(result.operations[1].id).toBe('rate');
       expect(result.operations[2].id).toBe('sum');
     });
@@ -216,59 +144,45 @@ describe('LokiQueryModeller', () => {
         operations: [{ id: 'rate', params: [] }],
       };
 
-      const def = modeller.getOperationDef(LokiOperationId.Json)!;
+      const def = modeller.getOperationDef('json');
       const result = def.addOperationHandler(def, query, modeller);
-      expect(result.operations[0].id).toBe(LokiOperationId.Json);
+      expect(result.operations[0].id).toBe('json');
       expect(result.operations[1].id).toBe('rate');
     });
 
     it('When adding a pipe operation after a line filter operation', () => {
       const query = {
         labels: [],
-        operations: [{ id: LokiOperationId.LineContains, params: ['error'] }],
+        operations: [{ id: '__line_contains', params: ['error'] }],
       };
 
-      const def = modeller.getOperationDef(LokiOperationId.Json)!;
+      const def = modeller.getOperationDef('json');
       const result = def.addOperationHandler(def, query, modeller);
-      expect(result.operations[0].id).toBe(LokiOperationId.LineContains);
-      expect(result.operations[1].id).toBe(LokiOperationId.Json);
+      expect(result.operations[0].id).toBe('__line_contains');
+      expect(result.operations[1].id).toBe('json');
     });
 
     it('When adding a line filter operation after format operation', () => {
       const query = {
         labels: [],
-        operations: [{ id: LokiOperationId.Json, params: [] }],
+        operations: [{ id: 'json', params: [] }],
       };
 
-      const def = modeller.getOperationDef(LokiOperationId.LineContains)!;
+      const def = modeller.getOperationDef('__line_contains');
       const result = def.addOperationHandler(def, query, modeller);
-      expect(result.operations[0].id).toBe(LokiOperationId.LineContains);
-      expect(result.operations[1].id).toBe(LokiOperationId.Json);
+      expect(result.operations[0].id).toBe('__line_contains');
+      expect(result.operations[1].id).toBe('json');
     });
 
     it('When adding a rate it should not add another rate', () => {
       const query = {
         labels: [],
-        operations: [{ id: LokiOperationId.Rate, params: [] }],
+        operations: [],
       };
 
-      const def = modeller.getOperationDef(LokiOperationId.Rate)!;
+      const def = modeller.getOperationDef('rate');
       const result = def.addOperationHandler(def, query, modeller);
       expect(result.operations.length).toBe(1);
-    });
-
-    it('When adding unwrap it should be added after format and error filter', () => {
-      const query = {
-        labels: [],
-        operations: [
-          { id: LokiOperationId.Json, params: [] },
-          { id: LokiOperationId.LabelFilterNoErrors, params: [] },
-        ],
-      };
-
-      const def = modeller.getOperationDef(LokiOperationId.Unwrap)!;
-      const result = def.addOperationHandler(def, query, modeller);
-      expect(result.operations[1].id).toBe(LokiOperationId.Unwrap);
     });
   });
 });

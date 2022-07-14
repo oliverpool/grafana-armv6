@@ -1,8 +1,4 @@
-import { LoadingState } from '@grafana/data';
-
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
-import { LibraryElementDTO } from '../../library-panels/types';
-
 import {
   clearDashboard,
   DashboardSource,
@@ -18,6 +14,8 @@ import {
   setJsonDashboard,
   setLibraryPanelInputs,
 } from './reducers';
+import { LibraryElementDTO } from '../../library-panels/types';
+import { LoadingState } from '@grafana/data';
 
 describe('importDashboardReducer', () => {
   describe('when setGcomDashboard action is dispatched', () => {

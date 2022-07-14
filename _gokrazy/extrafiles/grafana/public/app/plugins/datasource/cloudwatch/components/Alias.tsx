@@ -1,6 +1,5 @@
-import { debounce } from 'lodash';
 import React, { FunctionComponent, useState } from 'react';
-
+import { debounce } from 'lodash';
 import { Input } from '@grafana/ui';
 
 export interface Props {

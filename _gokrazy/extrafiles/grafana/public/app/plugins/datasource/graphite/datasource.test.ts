@@ -1,14 +1,13 @@
+import { GraphiteDatasource } from './datasource';
 import { isArray } from 'lodash';
-import { of } from 'rxjs';
-import { createFetchResponse } from 'test/helpers/createFetchResponse';
 
+import { TemplateSrv } from 'app/features/templating/template_srv';
 import { AbstractLabelMatcher, AbstractLabelOperator, dateTime, getFrameDisplayName } from '@grafana/data';
 import { backendSrv } from 'app/core/services/backend_srv'; // will use the version in __mocks__
-import { TemplateSrv } from 'app/features/templating/template_srv';
-
-import { fromString } from './configuration/parseLokiLabelMappings';
-import { GraphiteDatasource } from './datasource';
+import { of } from 'rxjs';
+import { createFetchResponse } from 'test/helpers/createFetchResponse';
 import { DEFAULT_GRAPHITE_VERSION } from './versions';
+import { fromString } from './configuration/parseLokiLabelMappings';
 
 jest.mock('@grafana/runtime', () => ({
   ...(jest.requireActual('@grafana/runtime') as unknown as object),
@@ -184,15 +183,6 @@ describe('graphiteDatasource', () => {
 
   describe('when fetching Graphite Events as annotations', () => {
     let results: any;
-    let errorSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    });
-
-    afterEach(() => {
-      errorSpy.mockRestore();
-    });
 
     const options = {
       annotation: {
@@ -270,7 +260,6 @@ describe('graphiteDatasource', () => {
         results = data;
       });
       expect(results).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/Unable to get annotations/));
     });
   });
 
@@ -302,6 +291,14 @@ describe('graphiteDatasource', () => {
           ],
         },
       });
+    });
+
+    it('should use hardcoded list of functions when no functions are returned', async () => {
+      fetchMock.mockImplementation(() => {
+        return of(createFetchResponse('{}'));
+      });
+      const funcDefs = await ctx.ds.getFuncDefs();
+      expect(Object.keys(funcDefs)).not.toHaveLength(0);
     });
   });
 

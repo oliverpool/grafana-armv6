@@ -1,7 +1,6 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit';
-
-import { PanelPlugin } from '@grafana/data';
 import { AngularComponent } from '@grafana/runtime';
+import { PanelPlugin } from '@grafana/data';
 
 export type RootPanelsState = Record<string, PanelState>;
 
@@ -27,17 +26,9 @@ const panelsSlice = createSlice({
         plugin: action.payload.plugin,
       };
     },
-    changePanelKey: (state, action: PayloadAction<{ oldKey: string; newKey: string }>) => {
-      state[action.payload.newKey] = state[action.payload.oldKey];
-      delete state[action.payload.oldKey];
-    },
-    removePanel: (state, action: PayloadAction<{ key: string }>) => {
+    cleanUpPanelState: (state, action: PayloadAction<{ key: string }>) => {
+      cleanUpAngularComponent(state[action.payload.key]);
       delete state[action.payload.key];
-    },
-    removePanels: (state, action: PayloadAction<{ keys: string[] }>) => {
-      for (const key of action.payload.keys) {
-        delete state[key];
-      }
     },
     setPanelInstanceState: (state, action: PayloadAction<SetPanelInstanceStatePayload>) => {
       state[action.payload.key].instanceState = action.payload.value;
@@ -50,7 +41,7 @@ const panelsSlice = createSlice({
   },
 });
 
-export function cleanUpAngularComponent(panelState?: Draft<PanelState>) {
+function cleanUpAngularComponent(panelState?: Draft<PanelState>) {
   if (panelState?.angularComponent) {
     panelState.angularComponent.destroy();
   }
@@ -73,14 +64,8 @@ export interface SetPanelInstanceStatePayload {
   value: any;
 }
 
-export const {
-  panelModelAndPluginReady,
-  setPanelAngularComponent,
-  setPanelInstanceState,
-  changePanelKey,
-  removePanel,
-  removePanels,
-} = panelsSlice.actions;
+export const { panelModelAndPluginReady, setPanelAngularComponent, setPanelInstanceState, cleanUpPanelState } =
+  panelsSlice.actions;
 
 export const panelsReducer = panelsSlice.reducer;
 

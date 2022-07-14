@@ -2,25 +2,24 @@ import { map } from 'lodash';
 import React, { PureComponent } from 'react';
 
 // Types
-import { CoreApp, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, LegacyForms, Select } from '@grafana/ui';
-
+import { CoreApp, SelectableValue } from '@grafana/data';
 import { PromQuery } from '../types';
 
-import { PromExemplarField } from './PromExemplarField';
-import PromLink from './PromLink';
 import PromQueryField from './PromQueryField';
+import PromLink from './PromLink';
+import { PromExemplarField } from './PromExemplarField';
 import { PromQueryEditorProps } from './types';
 
 const { Switch } = LegacyForms;
 
-export const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
+const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
   { label: 'Time series', value: 'time_series' },
   { label: 'Table', value: 'table' },
   { label: 'Heatmap', value: 'heatmap' },
 ];
 
-export const INTERVAL_FACTOR_OPTIONS: Array<SelectableValue<number>> = map([1, 2, 3, 4, 5, 10], (value: number) => ({
+const INTERVAL_FACTOR_OPTIONS: Array<SelectableValue<number>> = map([1, 2, 3, 4, 5, 10], (value: number) => ({
   value,
   label: '1/' + value,
 }));

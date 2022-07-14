@@ -1,7 +1,5 @@
-import { thunkTester } from 'test/core/thunk/thunkTester';
-
 import { setBackendSrv } from '@grafana/runtime';
-
+import { thunkTester } from 'test/core/thunk/thunkTester';
 import { importDashboard } from './actions';
 import { DataSourceInput, ImportDashboardDTO, initialImportDashboardState, InputType } from './reducers';
 

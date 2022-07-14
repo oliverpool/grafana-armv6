@@ -1,8 +1,4 @@
-import { css, cx } from '@emotion/css';
 import React, { ChangeEvent } from 'react';
-import { FixedSizeList } from 'react-window';
-
-import { GrafanaTheme } from '@grafana/data';
 import {
   Button,
   HorizontalGroup,
@@ -13,9 +9,12 @@ import {
   withTheme,
   BrowserLabel as PromLabel,
 } from '@grafana/ui';
-
 import PromQlLanguageProvider from '../language_provider';
 import { escapeLabelValueInExactSelector, escapeLabelValueInRegexSelector } from '../language_utils';
+import { css, cx } from '@emotion/css';
+import { FixedSizeList } from 'react-window';
+
+import { GrafanaTheme } from '@grafana/data';
 
 // Hard limit on labels to render
 const EMPTY_SELECTOR = '{}';

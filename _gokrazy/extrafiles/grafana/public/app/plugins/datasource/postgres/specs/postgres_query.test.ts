@@ -1,6 +1,5 @@
-import { TemplateSrv } from 'app/features/templating/template_srv';
-
 import PostgresQueryModel from '../postgres_query_model';
+import { TemplateSrv } from 'app/features/templating/template_srv';
 
 describe('PostgresQuery', () => {
   // @ts-ignore

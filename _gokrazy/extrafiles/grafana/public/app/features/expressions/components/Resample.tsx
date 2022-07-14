@@ -1,8 +1,6 @@
 import React, { ChangeEvent, FC } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { InlineField, InlineFieldRow, Input, Select } from '@grafana/ui';
-
 import { downsamplingTypes, ExpressionQuery, upsamplingTypes } from '../types';
 
 interface Props {

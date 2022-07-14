@@ -1,6 +1,5 @@
 import { from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -10,11 +9,10 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 
-import { getTimeSrv, TimeSrv } from '../../../features/dashboard/services/TimeSrv';
-
 import { PrometheusDatasource } from './datasource';
-import PrometheusMetricFindQuery from './metric_find_query';
 import { PromQuery } from './types';
+import PrometheusMetricFindQuery from './metric_find_query';
+import { getTimeSrv, TimeSrv } from '../../../features/dashboard/services/TimeSrv';
 
 export class PrometheusVariableSupport extends StandardVariableSupport<PrometheusDatasource> {
   constructor(

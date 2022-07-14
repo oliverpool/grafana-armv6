@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
-
-import { Icon } from '@grafana/ui';
 import { LdapPermissions } from 'app/types';
+import { Icon } from '@grafana/ui';
 
 interface Props {
   permissions: LdapPermissions;

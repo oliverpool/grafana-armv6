@@ -1,7 +1,6 @@
 import React from 'react';
-
-import { PermissionListItem } from './PermissionListItem';
 import { ResourcePermission } from './types';
+import { PermissionListItem } from './PermissionListItem';
 
 interface Props {
   title: string;

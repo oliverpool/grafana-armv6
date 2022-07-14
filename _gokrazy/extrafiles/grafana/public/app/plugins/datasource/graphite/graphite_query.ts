@@ -1,13 +1,11 @@
 import { compact, each, findIndex, flatten, get, join, keyBy, last, map, reduce, without } from 'lodash';
-
-import { ScopedVars } from '@grafana/data';
-import { TemplateSrv } from '@grafana/runtime';
 import { arrayMove } from 'app/core/utils/arrayMove';
-
-import { GraphiteDatasource } from './datasource';
-import { FuncInstance } from './gfunc';
 import { Parser } from './parser';
+import { TemplateSrv } from '@grafana/runtime';
+import { ScopedVars } from '@grafana/data';
+import { FuncInstance } from './gfunc';
 import { GraphiteSegment } from './types';
+import { GraphiteDatasource } from './datasource';
 
 export type GraphiteTagOperator = '=' | '=~' | '!=' | '!=~';
 

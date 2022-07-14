@@ -1,16 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
 import { ValueLinkConfig, applyFieldOverrides, TimeZone } from '@grafana/data';
 import { Collapse, Table } from '@grafana/ui';
-import { FilterItem } from '@grafana/ui/src/components/Table/types';
+import { ExploreId, ExploreItemState } from 'app/types/explore';
+import { StoreState } from 'app/types';
+import { splitOpen } from './state/main';
 import { config } from 'app/core/config';
 import { PANEL_BORDER } from 'app/core/constants';
-import { StoreState } from 'app/types';
-import { ExploreId, ExploreItemState } from 'app/types/explore';
-
 import { MetaInfoText } from './MetaInfoText';
-import { splitOpen } from './state/main';
+import { FilterItem } from '@grafana/ui/src/components/Table/types';
 import { getFieldLinksForExplore } from './utils/links';
 
 interface TableContainerProps {

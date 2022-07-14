@@ -1,17 +1,15 @@
 import { map as _map } from 'lodash';
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map, mapTo } from 'rxjs/operators';
-
-import { AnnotationEvent, DataSourceInstanceSettings, MetricFindValue, ScopedVars } from '@grafana/data';
 import { BackendDataSourceResponse, DataSourceWithBackend, FetchResponse, getBackendSrv } from '@grafana/runtime';
-import { toTestingStatus } from '@grafana/runtime/src/utils/queryResponse';
-import { getTemplateSrv, TemplateSrv } from 'app/features/templating/template_srv';
+import { AnnotationEvent, DataSourceInstanceSettings, MetricFindValue, ScopedVars } from '@grafana/data';
+
 import MySQLQueryModel from 'app/plugins/datasource/mysql/mysql_query_model';
-
-import { getSearchFilterScopedVar } from '../../../features/variables/utils';
-
 import ResponseParser from './response_parser';
 import { MySQLOptions, MySQLQuery, MysqlQueryForInterpolation } from './types';
+import { getTemplateSrv, TemplateSrv } from 'app/features/templating/template_srv';
+import { getSearchFilterScopedVar } from '../../../features/variables/utils';
+import { toTestingStatus } from '@grafana/runtime/src/utils/queryResponse';
 
 export class MysqlDatasource extends DataSourceWithBackend<MySQLQuery, MySQLOptions> {
   id: any;
@@ -207,6 +205,6 @@ export class MysqlDatasource extends DataSourceWithBackend<MySQLQuery, MySQLOpti
 
     rawSql = rawSql.replace('$__', '');
 
-    return this.templateSrv.containsTemplate(rawSql);
+    return this.templateSrv.variableExists(rawSql);
   }
 }

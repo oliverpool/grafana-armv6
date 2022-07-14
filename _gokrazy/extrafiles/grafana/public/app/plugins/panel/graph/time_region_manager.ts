@@ -1,6 +1,5 @@
 import 'vendor/flot/jquery.flot';
 import { map } from 'lodash';
-
 import { getColorForTheme, dateTime, DateTime, AbsoluteTimeRange, GrafanaTheme } from '@grafana/data';
 import { config } from 'app/core/config';
 

@@ -1,10 +1,9 @@
-import { css, cx } from '@emotion/css';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
-
+import { css, cx } from '@emotion/css';
+import { Icon, IconButton, stylesFactory } from '@grafana/ui';
 import { GrafanaTheme } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { Icon, IconButton, stylesFactory } from '@grafana/ui';
 
 import { LayerName } from './LayerName';
 import { LayerElement } from './types';

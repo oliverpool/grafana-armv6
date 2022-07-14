@@ -1,5 +1,4 @@
 import { find, get } from 'lodash';
-
 import TimeGrainConverter from '../time_grain_converter';
 import {
   AzureMonitorLocalizedValue,

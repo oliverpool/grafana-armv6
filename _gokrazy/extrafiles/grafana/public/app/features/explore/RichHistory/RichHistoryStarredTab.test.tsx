@@ -1,10 +1,7 @@
-import { mount } from 'enzyme';
 import React from 'react';
-
-import { SortOrder } from 'app/core/utils/richHistory';
-
+import { mount } from 'enzyme';
 import { ExploreId } from '../../../types/explore';
-
+import { SortOrder } from 'app/core/utils/richHistory';
 import { RichHistoryStarredTab, Props } from './RichHistoryStarredTab';
 
 jest.mock('../state/selectors', () => ({ getExploreDatasources: jest.fn() }));

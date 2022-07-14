@@ -1,12 +1,9 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-
 import { FolderDTO } from 'app/types';
-
+import { useDispatch } from 'react-redux';
+import { useUnifiedAlertingSelector } from './useUnifiedAlertingSelector';
+import { useEffect } from 'react';
 import { fetchFolderIfNotFetchedAction } from '../state/actions';
 import { initialAsyncRequestState } from '../utils/redux';
-
-import { useUnifiedAlertingSelector } from './useUnifiedAlertingSelector';
 
 interface ReturnBag {
   folder?: FolderDTO;

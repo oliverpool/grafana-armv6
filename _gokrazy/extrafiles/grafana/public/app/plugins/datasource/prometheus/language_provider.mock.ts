@@ -12,5 +12,4 @@ export class EmptyLanguageProviderMock {
   fetchSeries = jest.fn().mockReturnValue([]);
   fetchSeriesLabels = jest.fn().mockReturnValue([]);
   fetchLabels = jest.fn();
-  loadMetricsMetadata = jest.fn();
 }

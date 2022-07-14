@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
 import React, { MouseEvent, memo } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { stylesFactory, useTheme } from '@grafana/ui';
-
 import { NodesMarker } from './types';
+import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
+import { stylesFactory, useTheme } from '@grafana/ui';
 
 const nodeR = 40;
 

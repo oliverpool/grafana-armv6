@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-
 import { renderMarkdown } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 

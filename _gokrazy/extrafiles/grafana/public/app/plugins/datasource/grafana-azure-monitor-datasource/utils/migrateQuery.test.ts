@@ -1,5 +1,4 @@
 import { AzureMonitorQuery, AzureQueryType } from '../types';
-
 import migrateQuery from './migrateQuery';
 
 const modernMetricsQuery: AzureMonitorQuery = {

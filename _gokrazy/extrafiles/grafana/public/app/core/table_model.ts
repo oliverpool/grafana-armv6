@@ -1,5 +1,4 @@
 import { findIndex } from 'lodash';
-
 import { Column, TableData, QueryResultMeta } from '@grafana/data';
 
 /**

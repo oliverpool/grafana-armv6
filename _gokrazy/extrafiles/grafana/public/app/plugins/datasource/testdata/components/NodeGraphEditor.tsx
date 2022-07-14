@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { Input, InlineFieldRow, InlineField, Select } from '@grafana/ui';
-
 import { NodesQuery, TestDataQuery } from '../types';
 
 export interface Props {

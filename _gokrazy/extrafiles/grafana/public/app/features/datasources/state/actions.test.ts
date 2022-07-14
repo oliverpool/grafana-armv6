@@ -1,14 +1,3 @@
-import { of } from 'rxjs';
-import { thunkTester } from 'test/core/thunk/thunkTester';
-
-import { BackendSrvRequest, FetchResponse } from '@grafana/runtime';
-import { getBackendSrv } from 'app/core/services/backend_srv';
-import { ThunkResult, ThunkDispatch } from 'app/types';
-
-import { getMockPlugin, getMockPlugins } from '../../plugins/__mocks__/pluginMocks';
-import { GenericDataSourcePlugin } from '../settings/PluginSettings';
-import { initDataSourceSettings } from '../state/actions';
-
 import {
   findNewName,
   nameExits,
@@ -17,6 +6,8 @@ import {
   TestDataSourceDependencies,
   getDataSourceUsingUidOrId,
 } from './actions';
+import { getMockPlugin, getMockPlugins } from '../../plugins/__mocks__/pluginMocks';
+import { thunkTester } from 'test/core/thunk/thunkTester';
 import {
   initDataSourceSettingsSucceeded,
   initDataSourceSettingsFailed,
@@ -24,6 +15,12 @@ import {
   testDataSourceSucceeded,
   testDataSourceFailed,
 } from './reducers';
+import { initDataSourceSettings } from '../state/actions';
+import { ThunkResult, ThunkDispatch } from 'app/types';
+import { GenericDataSourcePlugin } from '../settings/PluginSettings';
+import { getBackendSrv } from 'app/core/services/backend_srv';
+import { BackendSrvRequest, FetchResponse } from '@grafana/runtime';
+import { of } from 'rxjs';
 
 jest.mock('app/core/services/backend_srv');
 jest.mock('@grafana/runtime', () => ({

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-
 import { DashboardModel } from '../../state/DashboardModel';
 import { LinkSettingsEdit, LinkSettingsList } from '../LinksSettings';
 import { newLink } from '../LinksSettings/LinkSettingsEdit';
-
 import { DashboardSettingsHeader } from './DashboardSettingsHeader';
 interface Props {
   dashboard: DashboardModel;

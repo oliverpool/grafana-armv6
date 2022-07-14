@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
-
-import { Button, CollapsableSection, FileUpload } from '@grafana/ui';
-import { getBackendSrv } from 'app/core/services/backend_srv';
+import { CollapsableSection, FileUpload } from '@grafana/ui';
 import { getThumbnailURL } from 'app/features/search/components/SearchCard';
 
 interface Props {
@@ -38,10 +36,6 @@ export class PreviewSettings extends PureComponent<Props, State> {
       });
   };
 
-  markAsStale = (isLight: boolean) => async () => {
-    return getBackendSrv().put(getThumbnailURL(this.props.uid, isLight), { state: 'stale' });
-  };
-
   render() {
     const { uid } = this.props;
     const imgstyle = { maxWidth: 300, maxHeight: 300 };
@@ -56,18 +50,6 @@ export class PreviewSettings extends PureComponent<Props, State> {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <Button type="button" variant="primary" onClick={this.markAsStale(false)} fill="outline">
-                  Mark as stale
-                </Button>
-              </td>
-              <td>
-                <Button type="button" variant="primary" onClick={this.markAsStale(true)} fill="outline">
-                  Mark as stale
-                </Button>
-              </td>
-            </tr>
             <tr>
               <td>
                 <img src={getThumbnailURL(uid, false)} style={imgstyle} />

@@ -1,10 +1,8 @@
 import React, { FunctionComponent, PropsWithChildren, ReactElement, useMemo } from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
-import { Tooltip } from '@grafana/ui';
-
-import { variableAdapters } from '../adapters';
 import { VariableHide, VariableModel } from '../types';
+import { selectors } from '@grafana/e2e-selectors';
+import { variableAdapters } from '../adapters';
+import { Tooltip } from '@grafana/ui';
 
 interface Props {
   variable: VariableModel;
@@ -34,14 +32,13 @@ function PickerLabel({ variable }: PropsWithChildren<Props>): ReactElement | nul
     return null;
   }
 
-  const elementId = `var-${variable.id}`;
   if (variable.description) {
     return (
       <Tooltip content={variable.description} placement={'bottom'}>
         <label
           className="gf-form-label gf-form-label--variable"
           data-testid={selectors.pages.Dashboard.SubMenu.submenuItemLabels(labelOrName)}
-          htmlFor={elementId}
+          htmlFor={variable.id}
         >
           {labelOrName}
         </label>
@@ -53,7 +50,7 @@ function PickerLabel({ variable }: PropsWithChildren<Props>): ReactElement | nul
     <label
       className="gf-form-label gf-form-label--variable"
       data-testid={selectors.pages.Dashboard.SubMenu.submenuItemLabels(labelOrName)}
-      htmlFor={elementId}
+      htmlFor={variable.id}
     >
       {labelOrName}
     </label>

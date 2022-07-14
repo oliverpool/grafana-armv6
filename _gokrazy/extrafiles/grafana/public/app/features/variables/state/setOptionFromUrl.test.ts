@@ -1,14 +1,13 @@
-import { reduxTester } from '../../../../test/core/redux/reduxTester';
 import { variableAdapters } from '../adapters';
-import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../constants';
 import { createCustomVariableAdapter } from '../custom/adapter';
 import { customBuilder } from '../shared/testing/builders';
-import { toKeyedVariableIdentifier, toVariablePayload } from '../utils';
-
-import { setOptionFromUrl } from './actions';
-import { getTemplatingRootReducer, TemplatingReducerType } from './helpers';
-import { toKeyedAction } from './keyedVariablesReducer';
+import { reduxTester } from '../../../../test/core/redux/reduxTester';
+import { TemplatingState } from './reducers';
+import { getTemplatingRootReducer } from './helpers';
 import { addVariable, setCurrentVariableValue } from './sharedReducer';
+import { toVariableIdentifier, toVariablePayload } from './types';
+import { setOptionFromUrl } from './actions';
+import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../constants';
 
 variableAdapters.setInit(() => [createCustomVariableAdapter()]);
 
@@ -29,31 +28,16 @@ describe('when setOptionFromUrl is dispatched with a custom variable (no refresh
     ${null}       | ${true}  | ${['']}
     ${undefined}  | ${true}  | ${['']}
   `('and urlValue is $urlValue then correct actions are dispatched', async ({ urlValue, expected, isMulti }) => {
-    const key = 'key';
-    const custom = customBuilder()
-      .withId('0')
-      .withRootStateKey(key)
-      .withMulti(isMulti)
-      .withOptions('A', 'B', 'C')
-      .withCurrent('A')
-      .build();
+    const custom = customBuilder().withId('0').withMulti(isMulti).withOptions('A', 'B', 'C').withCurrent('A').build();
 
-    const tester = await reduxTester<TemplatingReducerType>()
+    const tester = await reduxTester<{ templating: TemplatingState }>()
       .givenRootReducer(getTemplatingRootReducer())
-      .whenActionIsDispatched(
-        toKeyedAction(key, addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
-      )
-      .whenAsyncActionIsDispatched(setOptionFromUrl(toKeyedVariableIdentifier(custom), urlValue), true);
+      .whenActionIsDispatched(addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
+      .whenAsyncActionIsDispatched(setOptionFromUrl(toVariableIdentifier(custom), urlValue), true);
 
     await tester.thenDispatchedActionsShouldEqual(
-      toKeyedAction(
-        key,
-        setCurrentVariableValue(
-          toVariablePayload(
-            { type: 'custom', id: '0' },
-            { option: { text: expected, value: expected, selected: false } }
-          )
-        )
+      setCurrentVariableValue(
+        toVariablePayload({ type: 'custom', id: '0' }, { option: { text: expected, value: expected, selected: false } })
       )
     );
   });
@@ -63,10 +47,8 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
   it('and urlValue contains same all value then correct actions are dispatched', async () => {
     const allValue = '.*';
     const urlValue = allValue;
-    const key = 'key';
     const custom = customBuilder()
       .withId('0')
-      .withRootStateKey(key)
       .withMulti(false)
       .withIncludeAll()
       .withAllValue(allValue)
@@ -74,21 +56,16 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
       .withCurrent('A')
       .build();
 
-    const tester = await reduxTester<TemplatingReducerType>()
+    const tester = await reduxTester<{ templating: TemplatingState }>()
       .givenRootReducer(getTemplatingRootReducer())
-      .whenActionIsDispatched(
-        toKeyedAction(key, addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
-      )
-      .whenAsyncActionIsDispatched(setOptionFromUrl(toKeyedVariableIdentifier(custom), urlValue), true);
+      .whenActionIsDispatched(addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
+      .whenAsyncActionIsDispatched(setOptionFromUrl(toVariableIdentifier(custom), urlValue), true);
 
     await tester.thenDispatchedActionsShouldEqual(
-      toKeyedAction(
-        key,
-        setCurrentVariableValue(
-          toVariablePayload(
-            { type: 'custom', id: '0' },
-            { option: { text: ALL_VARIABLE_TEXT, value: ALL_VARIABLE_VALUE, selected: false } }
-          )
+      setCurrentVariableValue(
+        toVariablePayload(
+          { type: 'custom', id: '0' },
+          { option: { text: ALL_VARIABLE_TEXT, value: ALL_VARIABLE_VALUE, selected: false } }
         )
       )
     );
@@ -97,10 +74,8 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
   it('and urlValue differs from all value then correct actions are dispatched', async () => {
     const allValue = '.*';
     const urlValue = 'X';
-    const key = 'key';
     const custom = customBuilder()
       .withId('0')
-      .withRootStateKey(key)
       .withMulti(false)
       .withIncludeAll()
       .withAllValue(allValue)
@@ -108,19 +83,14 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
       .withCurrent('A')
       .build();
 
-    const tester = await reduxTester<TemplatingReducerType>()
+    const tester = await reduxTester<{ templating: TemplatingState }>()
       .givenRootReducer(getTemplatingRootReducer())
-      .whenActionIsDispatched(
-        toKeyedAction(key, addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
-      )
-      .whenAsyncActionIsDispatched(setOptionFromUrl(toKeyedVariableIdentifier(custom), urlValue), true);
+      .whenActionIsDispatched(addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
+      .whenAsyncActionIsDispatched(setOptionFromUrl(toVariableIdentifier(custom), urlValue), true);
 
     await tester.thenDispatchedActionsShouldEqual(
-      toKeyedAction(
-        key,
-        setCurrentVariableValue(
-          toVariablePayload({ type: 'custom', id: '0' }, { option: { text: 'X', value: 'X', selected: false } })
-        )
+      setCurrentVariableValue(
+        toVariablePayload({ type: 'custom', id: '0' }, { option: { text: 'X', value: 'X', selected: false } })
       )
     );
   });
@@ -128,10 +98,8 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
   it('and urlValue differs but matches an option then correct actions are dispatched', async () => {
     const allValue = '.*';
     const urlValue = 'B';
-    const key = 'key';
     const custom = customBuilder()
       .withId('0')
-      .withRootStateKey(key)
       .withMulti(false)
       .withIncludeAll()
       .withAllValue(allValue)
@@ -139,19 +107,14 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
       .withCurrent('A')
       .build();
 
-    const tester = await reduxTester<TemplatingReducerType>()
+    const tester = await reduxTester<{ templating: TemplatingState }>()
       .givenRootReducer(getTemplatingRootReducer())
-      .whenActionIsDispatched(
-        toKeyedAction(key, addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
-      )
-      .whenAsyncActionIsDispatched(setOptionFromUrl(toKeyedVariableIdentifier(custom), urlValue), true);
+      .whenActionIsDispatched(addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
+      .whenAsyncActionIsDispatched(setOptionFromUrl(toVariableIdentifier(custom), urlValue), true);
 
     await tester.thenDispatchedActionsShouldEqual(
-      toKeyedAction(
-        key,
-        setCurrentVariableValue(
-          toVariablePayload({ type: 'custom', id: '0' }, { option: { text: 'B', value: 'B', selected: false } })
-        )
+      setCurrentVariableValue(
+        toVariablePayload({ type: 'custom', id: '0' }, { option: { text: 'B', value: 'B', selected: false } })
       )
     );
   });
@@ -159,10 +122,8 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
   it('and custom all value matches an option', async () => {
     const allValue = '.*';
     const urlValue = allValue;
-    const key = 'key';
     const custom = customBuilder()
       .withId('0')
-      .withRootStateKey(key)
       .withMulti(false)
       .withIncludeAll()
       .withAllValue(allValue)
@@ -172,21 +133,16 @@ describe('when setOptionFromUrl is dispatched for a variable with a custom all v
 
     custom.options[2].value = 'special value for .*';
 
-    const tester = await reduxTester<TemplatingReducerType>()
+    const tester = await reduxTester<{ templating: TemplatingState }>()
       .givenRootReducer(getTemplatingRootReducer())
-      .whenActionIsDispatched(
-        toKeyedAction(key, addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
-      )
-      .whenAsyncActionIsDispatched(setOptionFromUrl(toKeyedVariableIdentifier(custom), urlValue), true);
+      .whenActionIsDispatched(addVariable(toVariablePayload(custom, { global: false, index: 0, model: custom })))
+      .whenAsyncActionIsDispatched(setOptionFromUrl(toVariableIdentifier(custom), urlValue), true);
 
     await tester.thenDispatchedActionsShouldEqual(
-      toKeyedAction(
-        key,
-        setCurrentVariableValue(
-          toVariablePayload(
-            { type: 'custom', id: '0' },
-            { option: { text: '.*', value: 'special value for .*', selected: false } }
-          )
+      setCurrentVariableValue(
+        toVariablePayload(
+          { type: 'custom', id: '0' },
+          { option: { text: '.*', value: 'special value for .*', selected: false } }
         )
       )
     );

@@ -1,8 +1,6 @@
 import { cloneDeep, each, map } from 'lodash';
-
-import TimeSeries from 'app/core/time_series2';
-
 import { describe, beforeEach, it, expect } from '../../../../../test/lib/common';
+import TimeSeries from 'app/core/time_series2';
 import {
   convertToHeatMap,
   convertToCards,

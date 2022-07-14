@@ -1,21 +1,18 @@
-import { css } from '@emotion/css';
-import React, { FC } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { Alert, Button, HorizontalGroup, LinkButton, useStyles2 } from '@grafana/ui';
 import { useCleanup } from 'app/core/hooks/useCleanup';
 import { AlertManagerCortexConfig } from 'app/plugins/datasource/alertmanager/types';
-
+import React, { FC } from 'react';
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
-import { updateAlertManagerConfigAction } from '../../state/actions';
+import { useForm, FormProvider } from 'react-hook-form';
 import { globalConfigOptions } from '../../utils/cloud-alertmanager-notifier-types';
-import { isVanillaPrometheusAlertManagerDataSource } from '../../utils/datasource';
-import { makeAMLink } from '../../utils/misc';
-import { omitEmptyValues } from '../../utils/receiver-form';
-
 import { OptionField } from './form/fields/OptionField';
+import { Alert, Button, HorizontalGroup, LinkButton, useStyles2 } from '@grafana/ui';
+import { makeAMLink } from '../../utils/misc';
+import { useDispatch } from 'react-redux';
+import { updateAlertManagerConfigAction } from '../../state/actions';
+import { omitEmptyValues } from '../../utils/receiver-form';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
+import { isVanillaPrometheusAlertManagerDataSource } from '../../utils/datasource';
 
 interface Props {
   config: AlertManagerCortexConfig;

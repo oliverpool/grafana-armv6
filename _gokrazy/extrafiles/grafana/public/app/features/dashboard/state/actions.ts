@@ -1,15 +1,16 @@
-import { TimeZone } from '@grafana/data';
+// Services & Utils
 import { getBackendSrv } from '@grafana/runtime';
-import { notifyApp } from 'app/core/actions';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
-import { updateTimeZoneForSession, updateWeekStartForSession } from 'app/features/profile/state/reducers';
-import { DashboardAcl, DashboardAclUpdateDTO, NewDashboardAclItem, PermissionLevel, ThunkResult } from 'app/types';
-
+// Actions
 import { loadPluginDashboards } from '../../plugins/admin/state/actions';
+import { cleanUpDashboard, loadDashboardPermissions } from './reducers';
+import { notifyApp } from 'app/core/actions';
+import { updateTimeZoneForSession, updateWeekStartForSession } from 'app/features/profile/state/reducers';
+// Types
+import { DashboardAcl, DashboardAclUpdateDTO, NewDashboardAclItem, PermissionLevel, ThunkResult } from 'app/types';
 import { cancelVariables } from '../../variables/state/actions';
 import { getTimeSrv } from '../services/TimeSrv';
-
-import { cleanUpDashboard, loadDashboardPermissions } from './reducers';
+import { TimeZone } from '@grafana/data';
 
 export function getDashboardPermissions(id: number): ThunkResult<void> {
   return async (dispatch) => {
@@ -118,24 +119,24 @@ export const cleanUpDashboardAndVariables = (): ThunkResult<void> => (dispatch, 
 
   if (dashboard) {
     dashboard.destroy();
-    dispatch(cancelVariables(dashboard.uid));
   }
 
   getTimeSrv().stopAutoRefresh();
 
   dispatch(cleanUpDashboard());
+  dispatch(cancelVariables());
 };
 
 export const updateTimeZoneDashboard =
   (timeZone: TimeZone): ThunkResult<void> =>
   (dispatch) => {
     dispatch(updateTimeZoneForSession(timeZone));
-    getTimeSrv().refreshTimeModel();
+    getTimeSrv().refreshDashboard();
   };
 
 export const updateWeekStartDashboard =
   (weekStart: string): ThunkResult<void> =>
   (dispatch) => {
     dispatch(updateWeekStartForSession(weekStart));
-    getTimeSrv().refreshTimeModel();
+    getTimeSrv().refreshDashboard();
   };

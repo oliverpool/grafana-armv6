@@ -1,9 +1,8 @@
 import { lastValueFrom, of } from 'rxjs';
-import { createFetchResponse } from 'test/helpers/createFetchResponse';
-
 import { DataSourceInstanceSettings, FieldType } from '@grafana/data';
-import { backendSrv } from 'app/core/services/backend_srv';
 
+import { backendSrv } from 'app/core/services/backend_srv';
+import { createFetchResponse } from 'test/helpers/createFetchResponse';
 import { ZipkinDatasource } from './datasource';
 import mockJson from './mockJsonResponse.json';
 import { traceFrameFields, zipkinResponse } from './utils/testData';

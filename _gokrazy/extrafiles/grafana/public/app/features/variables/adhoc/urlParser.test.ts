@@ -1,7 +1,6 @@
-import { UrlQueryValue } from '@grafana/data';
-import { AdHocVariableFilter } from 'app/features/variables/types';
-
 import { toFilters, toUrl } from './urlParser';
+import { AdHocVariableFilter } from 'app/features/variables/types';
+import { UrlQueryValue } from '@grafana/data';
 
 describe('urlParser', () => {
   describe('parsing toUrl with no filters', () => {

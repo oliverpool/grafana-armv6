@@ -1,6 +1,4 @@
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
-import { toVariablePayload } from '../utils';
-
 import {
   addVariableEditorError,
   changeVariableEditorExtended,
@@ -16,6 +14,7 @@ import {
   VariableEditorState,
   variableEditorUnMounted,
 } from './reducer';
+import { toVariablePayload } from '../state/types';
 
 describe('variableEditorReducer', () => {
   describe('when setIdInEditor is dispatched', () => {
@@ -63,7 +62,7 @@ describe('variableEditorReducer', () => {
         name: 'A name',
         isValid: false,
         errors: { update: 'Something wrong' },
-        extended: null,
+        extended: { prop: 1000 },
       };
       const payload = toVariablePayload({ id: '0', type: 'textbox' });
       reducerTester<VariableEditorState>()
@@ -182,15 +181,14 @@ describe('variableEditorReducer', () => {
 
   describe('when changeVariableEditorExtended is dispatched', () => {
     it('then state should be correct', () => {
-      const payload = { dataSourceTypes: [] };
-
+      const payload = { propName: 'someProp', propValue: [{}] };
       reducerTester<VariableEditorState>()
         .givenReducer(variableEditorReducer, { ...initialVariableEditorState })
         .whenActionIsDispatched(changeVariableEditorExtended(payload))
         .thenStateShouldEqual({
           ...initialVariableEditorState,
           extended: {
-            dataSourceTypes: [],
+            someProp: [{}],
           },
         });
     });

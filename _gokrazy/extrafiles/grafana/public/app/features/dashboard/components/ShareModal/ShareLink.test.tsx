@@ -1,16 +1,13 @@
-import { shallow, ShallowWrapper } from 'enzyme';
 import React from 'react';
-
-import { getDefaultTimeRange } from '@grafana/data';
+import { shallow, ShallowWrapper } from 'enzyme';
 import { setTemplateSrv } from '@grafana/runtime';
 import config from 'app/core/config';
-
+import { Props, ShareLink, State } from './ShareLink';
 import { initTemplateSrv } from '../../../../../test/helpers/initTemplateSrv';
 import { variableAdapters } from '../../../variables/adapters';
 import { createQueryVariableAdapter } from '../../../variables/query/adapter';
 import { DashboardModel, PanelModel } from '../../state';
-
-import { Props, ShareLink, State } from './ShareLink';
+import { getDefaultTimeRange } from '@grafana/data';
 
 jest.mock('app/features/dashboard/services/TimeSrv', () => ({
   getTimeSrv: () => ({
@@ -99,7 +96,7 @@ function shareLinkScenario(description: string, scenarioFn: (ctx: ScenarioContex
 }
 
 describe('ShareModal', () => {
-  let templateSrv = initTemplateSrv('key', []);
+  let templateSrv = initTemplateSrv([]);
 
   beforeAll(() => {
     variableAdapters.register(createQueryVariableAdapter());
@@ -113,7 +110,7 @@ describe('ShareModal', () => {
         user: {
           orgId: 1,
         },
-      } as any;
+      };
       ctx.mount({
         panel: new PanelModel({ id: 22, options: {}, fieldConfig: { defaults: {}, overrides: [] } }),
       });
@@ -205,7 +202,7 @@ describe('when default_home_dashboard_path is set in the grafana config', () => 
       user: {
         orgId: 1,
       },
-    } as any;
+    };
   });
 
   afterAll(() => {

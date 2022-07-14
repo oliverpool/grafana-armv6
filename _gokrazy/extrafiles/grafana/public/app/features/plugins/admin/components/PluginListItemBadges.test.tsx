@@ -1,12 +1,9 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
+import { render, screen } from '@testing-library/react';
 import { PluginErrorCode, PluginSignatureStatus } from '@grafana/data';
-import { config } from '@grafana/runtime';
-
-import { CatalogPlugin } from '../types';
-
 import { PluginListItemBadges } from './PluginListItemBadges';
+import { CatalogPlugin } from '../types';
+import { config } from '@grafana/runtime';
 
 describe('PluginListItemBadges', () => {
   const plugin: CatalogPlugin = {

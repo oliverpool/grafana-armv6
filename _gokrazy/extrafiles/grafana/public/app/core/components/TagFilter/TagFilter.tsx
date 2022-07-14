@@ -1,15 +1,13 @@
 // Libraries
-import { css } from '@emotion/css';
-import debounce from 'debounce-promise';
 import React, { FC } from 'react';
+import { css } from '@emotion/css';
 import { components } from 'react-select';
-
-import { escapeStringForRegex, GrafanaTheme } from '@grafana/data';
+import debounce from 'debounce-promise';
 import { stylesFactory, useTheme, Icon, AsyncMultiSelect } from '@grafana/ui';
-
+import { escapeStringForRegex, GrafanaTheme } from '@grafana/data';
 // Components
-import { TagBadge } from './TagBadge';
 import { TagOption } from './TagOption';
+import { TagBadge } from './TagBadge';
 
 export interface TermCount {
   term: string;

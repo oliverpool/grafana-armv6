@@ -1,12 +1,11 @@
 import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import { useMount } from 'react-use';
-
+import { connect, ConnectedProps } from 'react-redux';
 import { NavModel } from '@grafana/data';
-import Page from 'app/core/components/Page/Page';
-import { getNavModel } from 'app/core/selectors/navModel';
-import { StoreState } from 'app/types';
 
+import { StoreState } from 'app/types';
+import { getNavModel } from 'app/core/selectors/navModel';
+import Page from 'app/core/components/Page/Page';
 import { ChangePasswordForm } from './ChangePasswordForm';
 import { changePassword, loadUser } from './state/actions';
 

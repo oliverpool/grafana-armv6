@@ -1,5 +1,4 @@
 import { createAction } from '@reduxjs/toolkit';
-
 import { BucketAggregation, BucketAggregationType, BucketAggregationWithField } from '../aggregations';
 
 export const addBucketAggregation = createAction<BucketAggregation['id']>('@bucketAggs/add');

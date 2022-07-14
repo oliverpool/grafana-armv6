@@ -1,50 +1,48 @@
-import { render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { Provider } from 'react-redux';
-import { Router } from 'react-router-dom';
-import { byLabelText, byRole, byTestId } from 'testing-library-selector';
-
-import { locationService, setDataSourceSrv } from '@grafana/runtime';
-import { contextSrv } from 'app/core/services/context_srv';
-import store from 'app/core/store';
-import {
-  AlertManagerCortexConfig,
-  AlertManagerDataSourceJsonData,
-  AlertManagerImplementation,
-} from 'app/plugins/datasource/alertmanager/types';
-import { configureStore } from 'app/store/configureStore';
-
+import { typeAsJestMock } from 'test/helpers/typeAsJestMock';
+import { getAllDataSources } from '../../utils/config';
 import {
   fetchAlertManagerConfig,
   deleteAlertManagerConfig,
   updateAlertManagerConfig,
   fetchStatus,
 } from '../../api/alertmanager';
+import { configureStore } from 'app/store/configureStore';
+import { locationService, setDataSourceSrv } from '@grafana/runtime';
+import AlertmanagerConfig from './AlertmanagerConfig';
+import { Provider } from 'react-redux';
+import { Router } from 'react-router-dom';
+import { ALERTMANAGER_NAME_LOCAL_STORAGE_KEY, ALERTMANAGER_NAME_QUERY_KEY } from '../../utils/constants';
+import { render, waitFor } from '@testing-library/react';
+import { byLabelText, byRole, byTestId } from 'testing-library-selector';
 import {
   mockDataSource,
   MockDataSourceSrv,
   someCloudAlertManagerConfig,
   someCloudAlertManagerStatus,
 } from '../../mocks';
-import { getAllDataSources } from '../../utils/config';
-import { ALERTMANAGER_NAME_LOCAL_STORAGE_KEY, ALERTMANAGER_NAME_QUERY_KEY } from '../../utils/constants';
 import { DataSourceType } from '../../utils/datasource';
-
-import AlertmanagerConfig from './AlertmanagerConfig';
+import { contextSrv } from 'app/core/services/context_srv';
+import store from 'app/core/store';
+import userEvent from '@testing-library/user-event';
+import {
+  AlertManagerCortexConfig,
+  AlertManagerDataSourceJsonData,
+  AlertManagerImplementation,
+} from 'app/plugins/datasource/alertmanager/types';
 
 jest.mock('../../api/alertmanager');
 jest.mock('../../api/grafana');
 jest.mock('../../utils/config');
 
 const mocks = {
-  getAllDataSources: jest.mocked(getAllDataSources),
+  getAllDataSources: typeAsJestMock(getAllDataSources),
 
   api: {
-    fetchConfig: jest.mocked(fetchAlertManagerConfig),
-    deleteAlertManagerConfig: jest.mocked(deleteAlertManagerConfig),
-    updateAlertManagerConfig: jest.mocked(updateAlertManagerConfig),
-    fetchStatus: jest.mocked(fetchStatus),
+    fetchConfig: typeAsJestMock(fetchAlertManagerConfig),
+    deleteAlertManagerConfig: typeAsJestMock(deleteAlertManagerConfig),
+    updateAlertManagerConfig: typeAsJestMock(updateAlertManagerConfig),
+    fetchStatus: typeAsJestMock(fetchStatus),
   },
 };
 

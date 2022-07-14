@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { Input, InlineField, FieldSet } from '@grafana/ui';
-
 import { ElasticsearchOptions } from '../types';
 
 type Props = {

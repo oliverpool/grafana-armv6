@@ -1,10 +1,8 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-
-import { DataSourceInstanceSettings } from '@grafana/data';
-import { DataSourcePicker } from '@grafana/runtime';
-
+import { shallow } from 'enzyme';
 import { DerivedField } from './DerivedField';
+import { DataSourcePicker } from '@grafana/runtime';
+import { DataSourceInstanceSettings } from '@grafana/data';
 
 jest.mock('app/features/plugins/datasource_srv', () => ({
   getDatasourceSrv() {

@@ -1,25 +1,23 @@
-import { includes } from 'lodash';
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
-import { NavModel } from '@grafana/data';
-import { featureEnabled } from '@grafana/runtime';
+import { includes } from 'lodash';
 import { Themeable2, withTheme2 } from '@grafana/ui';
-import Page from 'app/core/components/Page/Page';
-import { UpgradeBox } from 'app/core/components/Upgrade/UpgradeBox';
 import config from 'app/core/config';
-import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
-import { getNavModel } from 'app/core/selectors/navModel';
-import { contextSrv } from 'app/core/services/context_srv';
-import { AccessControlAction, StoreState } from 'app/types';
-
-import TeamGroupSync, { TeamSyncUpgradeContent } from './TeamGroupSync';
+import Page from 'app/core/components/Page/Page';
 import TeamMembers from './TeamMembers';
 import TeamPermissions from './TeamPermissions';
 import TeamSettings from './TeamSettings';
+import TeamGroupSync from './TeamGroupSync';
+import { AccessControlAction, StoreState } from 'app/types';
 import { loadTeam, loadTeamMembers } from './state/actions';
-import { getTeamLoadingNav } from './state/navModel';
 import { getTeam, getTeamMembers, isSignedInUserTeamAdmin } from './state/selectors';
+import { getTeamLoadingNav } from './state/navModel';
+import { getNavModel } from 'app/core/selectors/navModel';
+import { contextSrv } from 'app/core/services/context_srv';
+import { NavModel } from '@grafana/data';
+import { featureEnabled, reportExperimentView } from '@grafana/runtime';
+import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { UpgradeBox, UpgradeContent } from 'app/core/components/Upgrade/UpgradeBox';
 
 interface TeamPageRouteParams {
   id: string;
@@ -86,6 +84,13 @@ export class TeamPages extends PureComponent<Props, State> {
 
   async componentDidMount() {
     await this.fetchTeam();
+
+    const { isSyncEnabled } = this.state;
+    const currentPage = this.getCurrentPage();
+
+    if (currentPage === PageTypes.GroupSync && !isSyncEnabled && config.featureToggles.featureHighlights) {
+      reportExperimentView('feature-highlights-team-sync', 'test', '');
+    }
   }
 
   async fetchTeam() {
@@ -136,7 +141,7 @@ export class TeamPages extends PureComponent<Props, State> {
 
   renderPage(isSignedInUserTeamAdmin: boolean): React.ReactNode {
     const { isSyncEnabled } = this.state;
-    const { members, team } = this.props;
+    const { members, team, theme } = this.props;
     const currentPage = this.getCurrentPage();
 
     const canReadTeam = contextSrv.hasAccessInMetadata(
@@ -172,8 +177,19 @@ export class TeamPages extends PureComponent<Props, State> {
         } else if (config.featureToggles.featureHighlights) {
           return (
             <>
-              <UpgradeBox featureName={'team sync'} featureId={'team-sync'} />
-              <TeamSyncUpgradeContent />
+              <UpgradeBox featureName={'team sync'} />
+              <UpgradeContent
+                listItems={[
+                  'Stop managing user access in two places - assign users to groups in SAML, LDAP or Oauth, and manage access at a Team level in Grafana',
+                  'Update users’ permissions immediately when you add or remove them from an LDAP group, with no need for them to sign out and back in',
+                ]}
+                image={`team-sync-${theme.isLight ? 'light' : 'dark'}.png`}
+                featureName={'team sync'}
+                featureUrl={'https://grafana.com/docs/grafana/latest/enterprise/team-sync'}
+                description={
+                  'Team Sync makes it easier for you to manage users’ access in Grafana, by immediately updating each user’s Grafana teams and permissions based on their single sign-on group membership, instead of when users sign in.'
+                }
+              />
             </>
           );
         }

@@ -1,7 +1,5 @@
 import React, { FC, useMemo } from 'react';
-
 import { rangeUtil } from '@grafana/data';
-
 import { ALIGNMENTS } from '../constants';
 import CloudMonitoringDatasource from '../datasource';
 import { CustomMetaData } from '../types';

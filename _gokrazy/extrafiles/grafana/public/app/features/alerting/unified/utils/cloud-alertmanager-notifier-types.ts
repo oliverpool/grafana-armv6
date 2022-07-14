@@ -17,7 +17,6 @@ function option(
     placeholder: '',
     validationRule: '',
     showWhen: { field: '', is: '' },
-    dependsOn: '',
     ...rest,
   };
 }

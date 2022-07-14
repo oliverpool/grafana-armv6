@@ -1,7 +1,6 @@
-import { FieldConfigSource, PanelModel } from '@grafana/data';
-
-import { TextMode, PanelOptions } from './models.gen';
 import { textPanelMigrationHandler } from './textPanelMigrationHandler';
+import { TextMode, PanelOptions } from './models.gen';
+import { FieldConfigSource, PanelModel } from '@grafana/data';
 
 describe('textPanelMigrationHandler', () => {
   describe('when invoked and previous version was old Angular text panel', () => {

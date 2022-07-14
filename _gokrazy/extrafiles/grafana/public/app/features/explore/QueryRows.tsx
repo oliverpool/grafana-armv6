@@ -1,15 +1,12 @@
-import { createSelector } from '@reduxjs/toolkit';
 import React, { useCallback, useMemo } from 'react';
+import { ExploreId } from 'app/types/explore';
 import { useDispatch, useSelector } from 'react-redux';
-
+import { getDatasourceSrv } from '../plugins/datasource_srv';
+import { runQueries, changeQueriesAction } from './state/query';
 import { CoreApp, DataQuery } from '@grafana/data';
 import { getNextRefIdChar } from 'app/core/utils/query';
-import { ExploreId } from 'app/types/explore';
-
-import { getDatasourceSrv } from '../plugins/datasource_srv';
 import { QueryEditorRows } from '../query/components/QueryEditorRows';
-
-import { runQueries, changeQueriesAction } from './state/query';
+import { createSelector } from '@reduxjs/toolkit';
 import { getExploreItemSelector } from './state/selectors';
 
 interface Props {

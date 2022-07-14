@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-
-import { getPlaylist } from './api';
 import { Playlist } from './types';
+import { getPlaylist } from './api';
 
 export function usePlaylist(playlistId?: number) {
   const [playlist, setPlaylist] = useState<Playlist>({ items: [], interval: '5m', name: '' });

@@ -1,14 +1,12 @@
-import { Observable, of, throwError } from 'rxjs';
-
 import { getDefaultTimeRange } from '@grafana/data';
 
+import { AnnotationsQueryRunner } from './AnnotationsQueryRunner';
+import { AnnotationQueryRunnerOptions } from './types';
 import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
 import * as store from '../../../../store/store';
 import * as annotationsSrv from '../../../annotations/executeAnnotationQuery';
-
-import { AnnotationsQueryRunner } from './AnnotationsQueryRunner';
+import { Observable, of, throwError } from 'rxjs';
 import { toAsyncOfResult } from './testHelpers';
-import { AnnotationQueryRunnerOptions } from './types';
 
 function getDefaultOptions(): AnnotationQueryRunnerOptions {
   const annotation: any = {};

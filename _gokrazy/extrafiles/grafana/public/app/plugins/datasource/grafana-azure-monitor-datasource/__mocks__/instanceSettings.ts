@@ -1,5 +1,4 @@
 import { DataSourcePluginMeta } from '@grafana/data';
-
 import { AzureDataSourceInstanceSettings } from '../types';
 
 export const createMockInstanceSetttings = (): AzureDataSourceInstanceSettings => ({

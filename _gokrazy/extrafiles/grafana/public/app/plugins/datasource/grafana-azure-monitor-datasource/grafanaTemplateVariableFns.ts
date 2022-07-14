@@ -1,6 +1,5 @@
-import { isGUIDish } from './components/ResourcePicker/utils';
-import DataSource from './datasource';
 import { AzureMonitorQuery, AzureQueryType } from './types';
+import DataSource from './datasource';
 import {
   AppInsightsGroupByQuery,
   AppInsightsMetricNameQuery,
@@ -13,6 +12,7 @@ import {
   SubscriptionsQuery,
   WorkspacesQuery,
 } from './types/templateVariables';
+import { isGUIDish } from './components/ResourcePicker/utils';
 
 /* 
   Grafana Template Variable Functions

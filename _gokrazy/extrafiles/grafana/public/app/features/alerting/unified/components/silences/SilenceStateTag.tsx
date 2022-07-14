@@ -1,7 +1,5 @@
-import React, { FC } from 'react';
-
 import { SilenceState } from 'app/plugins/datasource/alertmanager/types';
-
+import React, { FC } from 'react';
 import { State, StateTag } from '../StateTag';
 
 const silenceStateToState: Record<SilenceState, State> = {

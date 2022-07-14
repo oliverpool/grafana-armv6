@@ -1,5 +1,5 @@
 import { find } from 'lodash';
-
+import { colors } from '@grafana/ui';
 import {
   DataFrame,
   dateTime,
@@ -10,10 +10,9 @@ import {
   getTimeField,
   TimeRange,
 } from '@grafana/data';
-import { colors } from '@grafana/ui';
-import { applyNullInsertThreshold } from '@grafana/ui/src/components/GraphNG/nullInsertThreshold';
-import config from 'app/core/config';
 import TimeSeries from 'app/core/time_series2';
+import config from 'app/core/config';
+import { applyNullInsertThreshold } from '@grafana/ui/src/components/GraphNG/nullInsertThreshold';
 
 type Options = {
   dataList: DataFrame[];
@@ -39,7 +38,7 @@ export class DataProcessor {
         continue;
       }
 
-      series = applyNullInsertThreshold({ frame: series, refFieldName: timeField.name });
+      series = applyNullInsertThreshold(series, timeField.name);
       timeField = getTimeField(series).timeField!; // use updated length
 
       for (let j = 0; j < series.fields.length; j++) {

@@ -1,6 +1,5 @@
 import { CombinedRule, Rule, RuleIdentifier, RuleWithLocation } from 'app/types/unified-alerting';
 import { Annotations, Labels, RulerRuleDTO } from 'app/types/unified-alerting-dto';
-
 import { GRAFANA_RULES_SOURCE_NAME } from './datasource';
 import {
   isAlertingRule,
@@ -20,7 +19,7 @@ export function fromRulerRule(
   rule: RulerRuleDTO
 ): RuleIdentifier {
   if (isGrafanaRulerRule(rule)) {
-    return { uid: rule.grafana_alert.uid!, ruleSourceName: 'grafana' };
+    return { uid: rule.grafana_alert.uid! };
   }
   return {
     ruleSourceName,
@@ -100,7 +99,7 @@ export function parse(value: string, decodeFromUri = false): RuleIdentifier {
   const parts = source.split('$');
 
   if (parts.length === 1) {
-    return { uid: value, ruleSourceName: 'grafana' };
+    return { uid: value };
   }
 
   if (parts.length === 5) {

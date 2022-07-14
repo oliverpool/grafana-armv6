@@ -1,12 +1,10 @@
-import React from 'react';
-
 import { SelectableValue, toOption } from '@grafana/data';
 import { TemplateSrv } from '@grafana/runtime';
 import { LegacyForms } from '@grafana/ui';
+import React from 'react';
 
 import CloudMonitoringDatasource from '../datasource';
 import { AnnotationTarget, EditorMode, MetricDescriptor, MetricKind } from '../types';
-
 import { AnnotationsHelp, LabelFilter, Metrics, Project, QueryEditorRow } from './';
 
 const { Input } = LegacyForms;

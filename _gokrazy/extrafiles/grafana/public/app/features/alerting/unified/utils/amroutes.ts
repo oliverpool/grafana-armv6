@@ -1,17 +1,14 @@
-import { isUndefined, omitBy } from 'lodash';
-import { Validate } from 'react-hook-form';
-
 import { SelectableValue } from '@grafana/data';
+import { Validate } from 'react-hook-form';
 import { MatcherOperator, Route } from 'app/plugins/datasource/alertmanager/types';
-
 import { FormAmRoute } from '../types/amroutes';
+import { parseInterval, timeOptions } from './time';
+import { isUndefined, omitBy } from 'lodash';
 import { MatcherFieldValue } from '../types/silence-form';
-
 import { matcherToMatcherField, parseMatcher } from './alertmanager';
 import { GRAFANA_RULES_SOURCE_NAME } from './datasource';
-import { parseInterval, timeOptions } from './time';
 
-const defaultValueAndType: [string, string] = ['', ''];
+const defaultValueAndType: [string, string] = ['', timeOptions[0].value];
 
 const matchersToArrayFieldMatchers = (
   matchers: Record<string, string> | undefined,
@@ -29,12 +26,9 @@ const matchersToArrayFieldMatchers = (
     [] as MatcherFieldValue[]
   );
 
-const intervalToValueAndType = (
-  strValue: string | undefined,
-  defaultValue?: typeof defaultValueAndType
-): [string, string] => {
+const intervalToValueAndType = (strValue: string | undefined): [string, string] => {
   if (!strValue) {
-    return defaultValue ?? defaultValueAndType;
+    return defaultValueAndType;
   }
 
   const [value, valueType] = strValue ? parseInterval(strValue) : [undefined, undefined];
@@ -66,7 +60,6 @@ export const emptyRoute: FormAmRoute = {
   routes: [],
   continue: false,
   receiver: '',
-  overrideTimings: false,
   groupWaitValue: '',
   groupWaitValueType: timeOptions[0].value,
   groupIntervalValue: '',
@@ -82,9 +75,9 @@ export const amRouteToFormAmRoute = (route: Route | undefined): [FormAmRoute, Re
     return [emptyRoute, {}];
   }
 
-  const [groupWaitValue, groupWaitValueType] = intervalToValueAndType(route.group_wait, ['', 's']);
-  const [groupIntervalValue, groupIntervalValueType] = intervalToValueAndType(route.group_interval, ['', 'm']);
-  const [repeatIntervalValue, repeatIntervalValueType] = intervalToValueAndType(route.repeat_interval, ['', 'h']);
+  const [groupWaitValue, groupWaitValueType] = intervalToValueAndType(route.group_wait);
+  const [groupIntervalValue, groupIntervalValueType] = intervalToValueAndType(route.group_interval);
+  const [repeatIntervalValue, repeatIntervalValueType] = intervalToValueAndType(route.repeat_interval);
 
   const id = String(Math.random());
   const id2route = {
@@ -115,7 +108,6 @@ export const amRouteToFormAmRoute = (route: Route | undefined): [FormAmRoute, Re
       continue: route.continue ?? false,
       receiver: route.receiver ?? '',
       groupBy: route.group_by ?? [],
-      overrideTimings: [groupWaitValue, groupIntervalValue, repeatIntervalValue].some(Boolean),
       groupWaitValue,
       groupWaitValueType,
       groupIntervalValue,
@@ -135,26 +127,6 @@ export const formAmRouteToAmRoute = (
   id2ExistingRoute: Record<string, Route>
 ): Route => {
   const existing: Route | undefined = id2ExistingRoute[formAmRoute.id];
-
-  const {
-    overrideTimings,
-    groupWaitValue,
-    groupWaitValueType,
-    groupIntervalValue,
-    groupIntervalValueType,
-    repeatIntervalValue,
-    repeatIntervalValueType,
-  } = formAmRoute;
-
-  const overrideGroupWait = overrideTimings && groupWaitValue;
-  const group_wait = overrideGroupWait ? `${groupWaitValue}${groupWaitValueType}` : undefined;
-
-  const overrideGroupInterval = overrideTimings && groupIntervalValue;
-  const group_interval = overrideGroupInterval ? `${groupIntervalValue}${groupIntervalValueType}` : undefined;
-
-  const overrideRepeatInterval = overrideTimings && repeatIntervalValue;
-  const repeat_interval = overrideRepeatInterval ? `${repeatIntervalValue}${repeatIntervalValueType}` : undefined;
-
   const amRoute: Route = {
     ...(existing ?? {}),
     continue: formAmRoute.continue,
@@ -162,11 +134,17 @@ export const formAmRouteToAmRoute = (
     object_matchers: formAmRoute.object_matchers.length
       ? formAmRoute.object_matchers.map((matcher) => [matcher.name, matcher.operator, matcher.value])
       : undefined,
-    match: undefined, // DEPRECATED: Use matchers
-    match_re: undefined, // DEPRECATED: Use matchers
-    group_wait,
-    group_interval,
-    repeat_interval,
+    match: undefined,
+    match_re: undefined,
+    group_wait: formAmRoute.groupWaitValue
+      ? `${formAmRoute.groupWaitValue}${formAmRoute.groupWaitValueType}`
+      : undefined,
+    group_interval: formAmRoute.groupIntervalValue
+      ? `${formAmRoute.groupIntervalValue}${formAmRoute.groupIntervalValueType}`
+      : undefined,
+    repeat_interval: formAmRoute.repeatIntervalValue
+      ? `${formAmRoute.repeatIntervalValue}${formAmRoute.repeatIntervalValueType}`
+      : undefined,
     routes: formAmRoute.routes.map((subRoute) =>
       formAmRouteToAmRoute(alertManagerSourceName, subRoute, id2ExistingRoute)
     ),

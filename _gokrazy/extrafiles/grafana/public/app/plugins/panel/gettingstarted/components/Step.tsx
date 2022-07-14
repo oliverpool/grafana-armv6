@@ -1,13 +1,10 @@
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme } from '@grafana/data';
 import { stylesFactory, useTheme } from '@grafana/ui';
-
-import { Card, SetupStep, TutorialCardType } from '../types';
-
-import { DocsCard } from './DocsCard';
 import { TutorialCard } from './TutorialCard';
+import { Card, SetupStep, TutorialCardType } from '../types';
+import { DocsCard } from './DocsCard';
 
 interface Props {
   step: SetupStep;

@@ -1,13 +1,5 @@
-import { css } from '@emotion/css';
-import { localPoint } from '@visx/event';
-import { RadialGradient } from '@visx/gradient';
-import { Group } from '@visx/group';
-import Pie, { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
-import { UseTooltipParams } from '@visx/tooltip/lib/hooks/useTooltip';
 import React, { FC, useCallback } from 'react';
-import tinycolor from 'tinycolor2';
-
+import { VizTooltipOptions } from '@grafana/schema';
 import {
   FieldDisplay,
   FALLBACK_COLOR,
@@ -16,8 +8,6 @@ import {
   DataHoverClearEvent,
   DataHoverEvent,
 } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
-import { VizTooltipOptions } from '@grafana/schema';
 import {
   useTheme2,
   useStyles2,
@@ -26,10 +16,19 @@ import {
   SeriesTable,
   usePanelContext,
 } from '@grafana/ui';
-import { getTooltipContainerStyles } from '@grafana/ui/src/themes/mixins';
-import { useComponentInstanceId } from '@grafana/ui/src/utils/useComponetInstanceId';
-
 import { PieChartType, PieChartLabels } from './types';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import Pie, { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
+import { UseTooltipParams } from '@visx/tooltip/lib/hooks/useTooltip';
+import { RadialGradient } from '@visx/gradient';
+import { localPoint } from '@visx/event';
+import { Group } from '@visx/group';
+import tinycolor from 'tinycolor2';
+import { css } from '@emotion/css';
+
+import { useComponentInstanceId } from '@grafana/ui/src/utils/useComponetInstanceId';
+import { getTooltipContainerStyles } from '@grafana/ui/src/themes/mixins';
+import { selectors } from '@grafana/e2e-selectors';
 import { filterDisplayItems, sumDisplayItemsReducer } from './utils';
 
 /**

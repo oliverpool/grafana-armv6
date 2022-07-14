@@ -1,11 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
-
 import { AzureQueryEditorFieldProps } from '../../types';
 import { Field } from '../Field';
-
 import { setFormatAs } from './setQueryValue';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [

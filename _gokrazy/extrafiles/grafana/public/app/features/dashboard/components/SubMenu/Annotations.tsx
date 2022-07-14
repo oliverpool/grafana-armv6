@@ -1,7 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-
 import { AnnotationQuery, EventBus } from '@grafana/data';
-
 import { AnnotationPicker } from './AnnotationPicker';
 
 interface Props {

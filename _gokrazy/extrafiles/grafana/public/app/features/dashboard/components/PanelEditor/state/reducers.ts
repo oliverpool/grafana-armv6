@@ -1,10 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-import { getDefaultTimeRange, LoadingState, PanelData } from '@grafana/data';
-
-import store from '../../../../../core/store';
 import { PanelModel } from '../../../state/PanelModel';
+import { getDefaultTimeRange, LoadingState, PanelData } from '@grafana/data';
 import { DisplayMode } from '../types';
+import store from '../../../../../core/store';
 
 export const PANEL_EDITOR_UI_STATE_STORAGE_KEY = 'grafana.dashboard.editor.ui';
 

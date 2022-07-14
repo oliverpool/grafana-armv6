@@ -1,12 +1,10 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-
+import { shallow } from 'enzyme';
 import { toUtc } from '@grafana/data';
 
+import { LokiQueryEditor } from './LokiQueryEditor';
 import { LokiDatasource } from '../datasource';
 import { LokiQuery } from '../types';
-
-import { LokiQueryEditor } from './LokiQueryEditor';
 
 const createMockRequestRange = (from: string, to: string) => {
   return {

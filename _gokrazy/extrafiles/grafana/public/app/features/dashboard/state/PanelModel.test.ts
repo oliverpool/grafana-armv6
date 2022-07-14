@@ -1,5 +1,5 @@
-import { ComponentClass } from 'react';
-
+import { PanelModel } from './PanelModel';
+import { getPanelPlugin } from '../../plugins/__mocks__/pluginMocks';
 import {
   DataLinkBuiltInVars,
   FieldConfigProperty,
@@ -10,19 +10,16 @@ import {
   dateTime,
   TimeRange,
 } from '@grafana/data';
-import { setTemplateSrv } from '@grafana/runtime';
-import { queryBuilder } from 'app/features/variables/shared/testing/builders';
-
-import { mockStandardFieldConfigOptions } from '../../../../test/helpers/fieldConfig';
-import { getPanelPlugin } from '../../plugins/__mocks__/pluginMocks';
+import { ComponentClass } from 'react';
 import { PanelQueryRunner } from '../../query/state/PanelQueryRunner';
+import { setTimeSrv } from '../services/TimeSrv';
 import { TemplateSrv } from '../../templating/template_srv';
+import { setTemplateSrv } from '@grafana/runtime';
 import { variableAdapters } from '../../variables/adapters';
 import { createQueryVariableAdapter } from '../../variables/query/adapter';
-import { setTimeSrv } from '../services/TimeSrv';
+import { mockStandardFieldConfigOptions } from '../../../../test/helpers/fieldConfig';
+import { queryBuilder } from 'app/features/variables/shared/testing/builders';
 import { TimeOverrideResult } from '../utils/panel';
-
-import { PanelModel } from './PanelModel';
 
 standardFieldConfigEditorRegistry.setInit(() => mockStandardFieldConfigOptions());
 standardEditorsRegistry.setInit(() => mockStandardFieldConfigOptions());
@@ -197,6 +194,11 @@ describe('PanelModel', () => {
     it('getSaveModel should remove defaults', () => {
       const saveModel = model.getSaveModel();
       expect(saveModel.gridPos).toBe(undefined);
+    });
+
+    it('getSaveModel should not remove datasource default', () => {
+      const saveModel = model.getSaveModel();
+      expect(saveModel.datasource).toBe(null);
     });
 
     it('getSaveModel should remove nonPersistedProperties', () => {

@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
-
 import { GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
 
 export const getAlertTableStyles = (theme: GrafanaTheme2) => ({
   table: css`
@@ -33,7 +32,7 @@ export const getAlertTableStyles = (theme: GrafanaTheme2) => ({
     white-space: nowrap;
 
     & > * + * {
-      margin-left: ${theme.spacing(0.5)};
+      margin-left: ${theme.spacing(1)};
     }
   `,
 });

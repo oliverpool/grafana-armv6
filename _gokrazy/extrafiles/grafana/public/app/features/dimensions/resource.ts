@@ -1,5 +1,4 @@
 import { DataFrame } from '@grafana/data';
-
 import { DimensionSupplier, ResourceDimensionConfig, ResourceDimensionMode } from './types';
 import { findField, getLastNotNullFieldValue } from './utils';
 
@@ -48,14 +47,9 @@ export function getResourceDimension(
     };
   }
 
-  const getIcon = (value: any): string => {
-    const disp = field.display!;
-    return getPublicOrAbsoluteUrl(disp(value).icon ?? '');
-  };
-
   return {
     field,
-    get: (index: number): string => getIcon(field.values.get(index)),
-    value: () => getIcon(getLastNotNullFieldValue(field)),
+    get: field.values.get,
+    value: () => getLastNotNullFieldValue(field),
   };
 }

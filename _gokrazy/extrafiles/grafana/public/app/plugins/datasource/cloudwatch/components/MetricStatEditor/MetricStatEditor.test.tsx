@@ -1,11 +1,11 @@
-import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { cleanup, fireEvent, render, screen, act } from '@testing-library/react';
 import selectEvent from 'react-select-event';
-
-import { MetricStatEditor } from '..';
 import { setupMockedDataSource } from '../../__mocks__/CloudWatchDataSource';
+import '@testing-library/jest-dom';
 import { CloudWatchMetricsQuery } from '../../types';
+import userEvent from '@testing-library/user-event';
+import { MetricStatEditor } from '..';
 
 const ds = setupMockedDataSource({
   variables: [],
@@ -36,68 +36,68 @@ const props = {
   onRunQuery: jest.fn(),
 };
 
+afterEach(cleanup);
+
 describe('MetricStatEditor', () => {
   describe('statistics field', () => {
-    test.each([['Average', 'p23.23', 'p34', '$statistic']])('should accept valid values', async (statistic) => {
+    test.each([['Average', 'p23.23', 'p34', '$statistic']])('should accept valid values', (statistic) => {
       const onChange = jest.fn();
       const onRunQuery = jest.fn();
       props.datasource.getVariables = jest.fn().mockReturnValue(['$statistic']);
 
       render(<MetricStatEditor {...props} onChange={onChange} onRunQuery={onRunQuery} />);
 
-      const statisticElement = await screen.findByLabelText('Statistic');
+      const statisticElement = screen.getByLabelText('Statistic');
       expect(statisticElement).toBeInTheDocument();
 
-      userEvent.type(statisticElement, statistic);
-      fireEvent.keyDown(statisticElement, { keyCode: 13 });
+      userEvent.type(statisticElement!, statistic);
+      fireEvent.keyDown(statisticElement!, { keyCode: 13 });
       expect(onChange).toHaveBeenCalledWith({ ...props.query, statistic });
       expect(onRunQuery).toHaveBeenCalled();
     });
 
-    test.each([['CustomStat', 'p23,23', '$statistic']])('should not accept invalid values', async (statistic) => {
+    test.each([['CustomStat', 'p23,23', '$statistic']])('should not accept invalid values', (statistic) => {
       const onChange = jest.fn();
       const onRunQuery = jest.fn();
 
       render(<MetricStatEditor {...props} onChange={onChange} onRunQuery={onRunQuery} />);
 
-      const statisticElement = await screen.findByLabelText('Statistic');
+      const statisticElement = screen.getByLabelText('Statistic');
       expect(statisticElement).toBeInTheDocument();
 
-      userEvent.type(statisticElement, statistic);
-      fireEvent.keyDown(statisticElement, { keyCode: 13 });
+      userEvent.type(statisticElement!, statistic);
+      fireEvent.keyDown(statisticElement!, { keyCode: 13 });
       expect(onChange).not.toHaveBeenCalled();
       expect(onRunQuery).not.toHaveBeenCalled();
     });
   });
 
   describe('expressions', () => {
-    it('should display match exact switch is not set', async () => {
+    it('should display match exact switch is not set', () => {
       render(<MetricStatEditor {...props} />);
-      expect(await screen.findByText('Match exact')).toBeInTheDocument();
+      expect(screen.getByText('Match exact')).toBeInTheDocument();
     });
 
-    it('should display match exact switch if prop is set to false', async () => {
+    it('should display match exact switch if prop is set to false', () => {
       render(<MetricStatEditor {...props} disableExpressions={false} />);
-      expect(await screen.findByText('Match exact')).toBeInTheDocument();
+      expect(screen.getByText('Match exact')).toBeInTheDocument();
     });
 
     it('should not display match exact switch if prop is set to true', async () => {
       render(<MetricStatEditor {...props} disableExpressions={true} />);
-      await waitFor(() => {
-        expect(screen.queryByText('Match exact')).toBeNull();
-      });
+      expect(screen.queryByText('Match exact')).toBeNull();
     });
   });
 
   describe('match exact', () => {
-    it('should be checked when value is true', async () => {
+    it('should be checked when value is true', () => {
       render(<MetricStatEditor {...props} disableExpressions={false} />);
-      expect(await screen.findByLabelText('Match exact - optional')).toBeChecked();
+      expect(screen.getByLabelText('Match exact - optional')).toBeChecked();
     });
 
-    it('should be unchecked when value is false', async () => {
+    it('should be unchecked when value is false', () => {
       render(<MetricStatEditor {...props} query={{ ...props.query, matchExact: false }} disableExpressions={false} />);
-      expect(await screen.findByLabelText('Match exact - optional')).not.toBeChecked();
+      expect(screen.getByLabelText('Match exact - optional')).not.toBeChecked();
     });
   });
 

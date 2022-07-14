@@ -1,5 +1,4 @@
 import { CanvasGroupOptions, CanvasElementOptions } from 'app/features/canvas';
-
 import { GroupState } from './group';
 import { Scene } from './scene';
 
@@ -28,12 +27,12 @@ export class RootElement extends GroupState {
     this.changeCallback();
   }
 
-  getSaveModel(): CanvasGroupOptions {
+  getSaveModel() {
     const { placement, anchor, ...rest } = this.options;
 
     return {
       ...rest, // everything except placement & anchor
       elements: this.elements.map((v) => v.getSaveModel()),
-    };
+    } as CanvasGroupOptions;
   }
 }

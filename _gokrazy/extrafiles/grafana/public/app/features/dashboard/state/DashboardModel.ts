@@ -13,13 +13,18 @@ import {
   pull,
   some,
 } from 'lodash';
-import { Subscription } from 'rxjs';
-
+// Constants
+import { DEFAULT_ANNOTATION_COLOR } from '@grafana/ui';
+import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN, GRID_COLUMN_COUNT, REPEAT_DIR_VERTICAL } from 'app/core/constants';
+// Utils & Services
+import { contextSrv } from 'app/core/services/context_srv';
+// Types
+import { GridPos, PanelModel } from './PanelModel';
+import { DashboardMigrator } from './DashboardMigrator';
 import {
   AnnotationQuery,
   AppEvent,
   DashboardCursorSync,
-  dateTime,
   dateTimeFormat,
   dateTimeFormatTimeAgo,
   DateTimeInput,
@@ -30,33 +35,26 @@ import {
   TimeZone,
   UrlQueryValue,
 } from '@grafana/data';
-import { RefreshEvent, TimeRangeUpdatedEvent } from '@grafana/runtime';
-import { DEFAULT_ANNOTATION_COLOR } from '@grafana/ui';
-import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN, GRID_COLUMN_COUNT, REPEAT_DIR_VERTICAL } from 'app/core/constants';
-import { contextSrv } from 'app/core/services/context_srv';
-import { sortedDeepCloneWithoutNulls } from 'app/core/utils/object';
+import { CoreEvents, DashboardMeta, KioskMode } from 'app/types';
+import { GetVariables, getVariables } from 'app/features/variables/state/selectors';
 import { variableAdapters } from 'app/features/variables/adapters';
 import { onTimeRangeUpdated } from 'app/features/variables/state/actions';
-import { GetVariables, getVariablesByKey } from 'app/features/variables/state/selectors';
-import { CoreEvents, DashboardMeta, KioskMode } from 'app/types';
-import { DashboardPanelsChangedEvent, RenderEvent } from 'app/types/events';
-
-import { appEvents } from '../../../core/core';
 import { dispatch } from '../../../store/store';
+import { isAllVariable } from '../../variables/utils';
+import { DashboardPanelsChangedEvent, RenderEvent } from 'app/types/events';
+import { getTimeSrv } from '../services/TimeSrv';
+import { mergePanels, PanelMergeInfo } from '../utils/panelMerge';
+import { deleteScopeVars, isOnTheSameGridRow } from './utils';
+import { RefreshEvent, TimeRangeUpdatedEvent } from '@grafana/runtime';
+import { sortedDeepCloneWithoutNulls } from 'app/core/utils/object';
+import { Subscription } from 'rxjs';
+import { appEvents } from '../../../core/core';
 import {
   VariablesChanged,
   VariablesChangedEvent,
   VariablesChangedInUrl,
   VariablesTimeRangeProcessDone,
 } from '../../variables/types';
-import { isAllVariable } from '../../variables/utils';
-import { getTimeSrv } from '../services/TimeSrv';
-import { mergePanels, PanelMergeInfo } from '../utils/panelMerge';
-
-import { DashboardMigrator } from './DashboardMigrator';
-import { GridPos, PanelModel } from './PanelModel';
-import { TimeModel } from './TimeModel';
-import { deleteScopeVars, isOnTheSameGridRow } from './utils';
 
 export interface CloneOptions {
   saveVariables?: boolean;
@@ -80,7 +78,7 @@ export interface DashboardLink {
   includeVars: boolean;
 }
 
-export class DashboardModel implements TimeModel {
+export class DashboardModel {
   id: any;
   uid: string;
   title: string;
@@ -140,7 +138,7 @@ export class DashboardModel implements TimeModel {
     lastRefresh: true,
   };
 
-  constructor(data: any, meta?: DashboardMeta, private getVariablesFromState: GetVariables = getVariablesByKey) {
+  constructor(data: any, meta?: DashboardMeta, private getVariablesFromState: GetVariables = getVariables) {
     if (!data) {
       data = {};
     }
@@ -171,7 +169,6 @@ export class DashboardModel implements TimeModel {
     this.links = data.links ?? [];
     this.gnetId = data.gnetId || null;
     this.panels = map(data.panels ?? [], (panelData: any) => new PanelModel(panelData));
-    this.ensurePanelsHaveIds();
     this.formatDate = this.formatDate.bind(this);
 
     this.resetOriginalVariables(true);
@@ -208,7 +205,7 @@ export class DashboardModel implements TimeModel {
     }
 
     this.annotations.list.unshift({
-      datasource: { uid: '-- Grafana --', type: 'grafana' },
+      datasource: '-- Grafana --',
       name: 'Annotations & Alerts',
       type: 'dashboard',
       iconColor: DEFAULT_ANNOTATION_COLOR,
@@ -225,9 +222,7 @@ export class DashboardModel implements TimeModel {
     meta.canSave = meta.canSave !== false;
     meta.canStar = meta.canStar !== false;
     meta.canEdit = meta.canEdit !== false;
-    meta.canDelete = meta.canDelete !== false;
-
-    meta.showSettings = meta.canSave;
+    meta.showSettings = meta.canEdit;
     meta.canMakeEditable = meta.canSave && !this.editable;
     meta.hasUnsavedFolderChange = false;
 
@@ -350,7 +345,7 @@ export class DashboardModel implements TimeModel {
     defaults: { saveTimerange: boolean; saveVariables: boolean } & CloneOptions
   ) {
     const originalVariables = this.originalTemplating;
-    const currentVariables = this.getVariablesFromState(this.uid);
+    const currentVariables = this.getVariablesFromState();
 
     copy.templating = {
       list: currentVariables.map((variable) =>
@@ -378,7 +373,7 @@ export class DashboardModel implements TimeModel {
 
   timeRangeUpdated(timeRange: TimeRange) {
     this.events.publish(new TimeRangeUpdatedEvent(timeRange));
-    dispatch(onTimeRangeUpdated(this.uid, timeRange));
+    dispatch(onTimeRangeUpdated(timeRange));
   }
 
   startRefresh(event: VariablesChangedEvent = { refreshAll: true, panelIds: [] }) {
@@ -451,22 +446,6 @@ export class DashboardModel implements TimeModel {
 
     this.startRefresh({ panelIds: this.panelsAffectedByVariableChange, refreshAll: false });
     this.panelsAffectedByVariableChange = null;
-  }
-
-  private ensurePanelsHaveIds() {
-    for (const panel of this.panels) {
-      if (!panel.id) {
-        panel.id = this.getNextPanelId();
-      }
-
-      if (panel.panels) {
-        for (const rowPanel of panel.panels) {
-          if (!rowPanel.id) {
-            rowPanel.id = this.getNextPanelId();
-          }
-        }
-      }
-    }
   }
 
   private ensureListExist(data: any) {
@@ -1088,6 +1067,7 @@ export class DashboardModel implements TimeModel {
   private updateSchema(old: any) {
     const migrator = new DashboardMigrator(this);
     migrator.updateSchema(old);
+    migrator.syncQueryDataSources();
   }
 
   resetOriginalTime() {
@@ -1095,16 +1075,7 @@ export class DashboardModel implements TimeModel {
   }
 
   hasTimeChanged() {
-    const { time, originalTime } = this;
-    if (isEqual(time, originalTime)) {
-      return false;
-    }
-
-    // Compare momemt values vs strings values
-    return !(
-      isEqual(dateTime(time?.from), dateTime(originalTime?.from)) &&
-      isEqual(dateTime(time?.to), dateTime(originalTime?.to))
-    );
+    return !isEqual(this.time, this.originalTime);
   }
 
   resetOriginalVariables(initial = false) {
@@ -1113,11 +1084,11 @@ export class DashboardModel implements TimeModel {
       return;
     }
 
-    this.originalTemplating = this.cloneVariablesFrom(this.getVariablesFromState(this.uid));
+    this.originalTemplating = this.cloneVariablesFrom(this.getVariablesFromState());
   }
 
   hasVariableValuesChanged() {
-    return this.hasVariablesChanged(this.originalTemplating, this.getVariablesFromState(this.uid));
+    return this.hasVariablesChanged(this.originalTemplating, this.getVariablesFromState());
   }
 
   autoFitPanels(viewHeight: number, kioskMode?: UrlQueryValue) {
@@ -1192,35 +1163,10 @@ export class DashboardModel implements TimeModel {
   }
 
   getVariables = () => {
-    return this.getVariablesFromState(this.uid);
+    return this.getVariablesFromState();
   };
 
-  canEditAnnotations(dashboardId: number) {
-    let canEdit = true;
-
-    // if FGAC is enabled there are additional conditions to check
-    if (contextSrv.accessControlEnabled()) {
-      if (dashboardId === 0) {
-        canEdit = !!this.meta.annotationsPermissions?.organization.canEdit;
-      } else {
-        canEdit = !!this.meta.annotationsPermissions?.dashboard.canEdit;
-      }
-    }
-    return this.canEditDashboard() && canEdit;
-  }
-
   canAddAnnotations() {
-    let canAdd = true;
-
-    // if FGAC is enabled there are additional conditions to check
-    if (contextSrv.accessControlEnabled()) {
-      canAdd = !!this.meta.annotationsPermissions?.dashboard.canAdd;
-    }
-
-    return this.canEditDashboard() && canAdd;
-  }
-
-  canEditDashboard() {
     return this.meta.canEdit || this.meta.canMakeEditable;
   }
 
@@ -1232,7 +1178,7 @@ export class DashboardModel implements TimeModel {
   }
 
   private getPanelRepeatVariable(panel: PanelModel) {
-    return this.getVariablesFromState(this.uid).find((variable) => variable.name === panel.repeat);
+    return this.getVariablesFromState().find((variable) => variable.name === panel.repeat);
   }
 
   private isSnapshotTruthy() {
@@ -1240,7 +1186,7 @@ export class DashboardModel implements TimeModel {
   }
 
   private hasVariables() {
-    return this.getVariablesFromState(this.uid).length > 0;
+    return this.getVariablesFromState().length > 0;
   }
 
   private hasVariablesChanged(originalVariables: any[], currentVariables: any[]): boolean {

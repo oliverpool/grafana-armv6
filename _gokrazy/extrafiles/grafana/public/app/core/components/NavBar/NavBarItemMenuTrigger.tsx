@@ -1,20 +1,19 @@
+import React, { ReactElement, useEffect, useState } from 'react';
 import { css, cx } from '@emotion/css';
+import { Icon, IconName, Link, useTheme2 } from '@grafana/ui';
+import { GrafanaTheme2, NavModelItem } from '@grafana/data';
+import { MenuTriggerProps } from '@react-types/menu';
+import { useMenuTriggerState } from '@react-stately/menu';
+import { useMenuTrigger } from '@react-aria/menu';
+import { useFocusWithin, useHover, useKeyboard } from '@react-aria/interactions';
 import { useButton } from '@react-aria/button';
 import { useDialog } from '@react-aria/dialog';
-import { FocusScope } from '@react-aria/focus';
-import { useFocusWithin, useHover, useKeyboard } from '@react-aria/interactions';
-import { useMenuTrigger } from '@react-aria/menu';
 import { DismissButton, useOverlay } from '@react-aria/overlays';
-import { useMenuTriggerState } from '@react-stately/menu';
-import { MenuTriggerProps } from '@react-types/menu';
-import React, { ReactElement, useEffect, useState } from 'react';
+import { FocusScope } from '@react-aria/focus';
 
-import { GrafanaTheme2, NavModelItem } from '@grafana/data';
-import { reportExperimentView } from '@grafana/runtime';
-import { Icon, IconName, Link, useTheme2 } from '@grafana/ui';
-
-import { NavFeatureHighlight } from './NavFeatureHighlight';
 import { NavBarItemMenuContext } from './context';
+import { NavFeatureHighlight } from './NavFeatureHighlight';
+import { reportExperimentView } from '@grafana/runtime';
 
 export interface NavBarItemMenuTriggerProps extends MenuTriggerProps {
   children: ReactElement;
@@ -33,7 +32,7 @@ export function NavBarItemMenuTrigger(props: NavBarItemMenuTriggerProps): ReactE
   const state = useMenuTriggerState({ ...rest });
 
   // Get props for the menu trigger and menu elements
-  const ref = React.useRef<HTMLElement>(null);
+  const ref = React.useRef<HTMLButtonElement>(null);
   const { menuTriggerProps, menuProps } = useMenuTrigger({}, state, ref);
 
   useEffect(() => {
@@ -95,7 +94,7 @@ export function NavBarItemMenuTrigger(props: NavBarItemMenuTriggerProps): ReactE
       className={styles.element}
       {...buttonProps}
       {...keyboardProps}
-      ref={ref as React.RefObject<HTMLButtonElement>}
+      ref={ref}
       onClick={item?.onClick}
       aria-label={label}
     >
@@ -109,7 +108,7 @@ export function NavBarItemMenuTrigger(props: NavBarItemMenuTriggerProps): ReactE
         <Link
           {...buttonProps}
           {...keyboardProps}
-          ref={ref as React.RefObject<HTMLAnchorElement>}
+          ref={ref}
           href={item.url}
           target={item.target}
           onClick={item?.onClick}
@@ -125,7 +124,7 @@ export function NavBarItemMenuTrigger(props: NavBarItemMenuTriggerProps): ReactE
           onClick={item?.onClick}
           {...buttonProps}
           {...keyboardProps}
-          ref={ref as React.RefObject<HTMLAnchorElement>}
+          ref={ref}
           className={styles.element}
           aria-label={label}
         >

@@ -1,26 +1,3 @@
-import { EMPTY, interval, Observable, of } from 'rxjs';
-import { thunkTester } from 'test/core/thunk/thunkTester';
-
-import {
-  ArrayVector,
-  DataFrame,
-  DataQuery,
-  DataQueryResponse,
-  DataSourceApi,
-  DataSourceJsonData,
-  DataSourceWithLogsVolumeSupport,
-  LoadingState,
-  MutableDataFrame,
-  PanelData,
-  RawTimeRange,
-} from '@grafana/data';
-import { ExploreId, ExploreItemState, StoreState, ThunkDispatch } from 'app/types';
-
-import { reducerTester } from '../../../../test/core/redux/reducerTester';
-import { configureStore } from '../../../store/configureStore';
-import { setTimeSrv } from '../../dashboard/services/TimeSrv';
-
-import { createDefaultInitialState } from './helpers';
 import {
   addQueryRowAction,
   addResultsToCache,
@@ -35,11 +12,28 @@ import {
   scanStopAction,
   storeLogsVolumeDataProviderAction,
 } from './query';
+import { ExploreId, ExploreItemState, StoreState, ThunkDispatch } from 'app/types';
+import { EMPTY, interval, Observable, of } from 'rxjs';
+import {
+  ArrayVector,
+  DataFrame,
+  DataQuery,
+  DataQueryResponse,
+  DataSourceApi,
+  DataSourceJsonData,
+  DefaultTimeZone,
+  LoadingState,
+  MutableDataFrame,
+  PanelData,
+  RawTimeRange,
+  toUtc,
+} from '@grafana/data';
+import { thunkTester } from 'test/core/thunk/thunkTester';
 import { makeExplorePaneState } from './utils';
-
+import { reducerTester } from '../../../../test/core/redux/reducerTester';
+import { configureStore } from '../../../store/configureStore';
+import { setTimeSrv } from '../../dashboard/services/TimeSrv';
 import Mock = jest.Mock;
-
-const { testRange, defaultInitialState } = createDefaultInitialState();
 
 jest.mock('app/features/dashboard/services/TimeSrv', () => ({
   ...jest.requireActual('app/features/dashboard/services/TimeSrv'),
@@ -55,6 +49,44 @@ jest.mock('@grafana/runtime', () => ({
     updateTimeRange: jest.fn(),
   }),
 }));
+
+const t = toUtc();
+const testRange = {
+  from: t,
+  to: t,
+  raw: {
+    from: t,
+    to: t,
+  },
+};
+const defaultInitialState = {
+  user: {
+    orgId: '1',
+    timeZone: DefaultTimeZone,
+  },
+  explore: {
+    [ExploreId.left]: {
+      datasourceInstance: {
+        query: jest.fn(),
+        getRef: jest.fn(),
+        meta: {
+          id: 'something',
+        },
+      },
+      initialized: true,
+      containerWidth: 1920,
+      eventBridge: { emit: () => {} } as any,
+      queries: [{ expr: 'test' }] as any[],
+      range: testRange,
+      history: [],
+      refreshInterval: {
+        label: 'Off',
+        value: 0,
+      },
+      cache: [],
+    },
+  },
+};
 
 function setupQueryResponse(state: StoreState) {
   (state.explore[ExploreId.left].datasourceInstance?.query as Mock).mockReturnValueOnce(
@@ -82,24 +114,6 @@ describe('runQueries', () => {
     await dispatch(runQueries(ExploreId.left));
     expect(getState().explore[ExploreId.left].showMetrics).toBeTruthy();
     expect(getState().explore[ExploreId.left].graphResult).toBeDefined();
-  });
-
-  it('should modify the request-id for log-volume queries', async () => {
-    setTimeSrv({ init() {} } as any);
-    const { dispatch, getState } = configureStore({
-      ...(defaultInitialState as any),
-    });
-    setupQueryResponse(getState());
-    await dispatch(runQueries(ExploreId.left));
-
-    const state = getState().explore[ExploreId.left];
-    expect(state.queryResponse.request?.requestId).toBe('explore_left');
-    const datasource = state.datasourceInstance as any as DataSourceWithLogsVolumeSupport<DataQuery>;
-    expect(datasource.getLogsVolumeDataProvider).toBeCalledWith(
-      expect.objectContaining({
-        requestId: 'explore_left_log_volume',
-      })
-    );
   });
 
   it('should set state to done if query completes without emitting', async () => {

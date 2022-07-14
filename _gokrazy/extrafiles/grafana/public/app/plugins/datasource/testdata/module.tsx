@@ -1,9 +1,8 @@
 import { DataSourcePlugin } from '@grafana/data';
-
+import { TestDataDataSource } from './datasource';
+import { TestInfoTab } from './TestInfoTab';
 import { ConfigEditor } from './ConfigEditor';
 import { QueryEditor } from './QueryEditor';
-import { TestInfoTab } from './TestInfoTab';
-import { TestDataDataSource } from './datasource';
 
 class TestDataAnnotationsQueryCtrl {
   annotation: any;

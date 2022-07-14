@@ -1,15 +1,13 @@
-import { css } from '@emotion/css';
 import React, { useState, useMemo } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
 import { Modal, TabContent, TabsBar, Tab, Button, useStyles } from '@grafana/ui';
-
-import { RuleSettingsArray } from './RuleSettingsArray';
-import { RuleSettingsEditor } from './RuleSettingsEditor';
-import { RuleTest } from './RuleTest';
 import { Rule, RuleType, PipeLineEntitiesInfo, RuleSetting } from './types';
+import { getBackendSrv } from '@grafana/runtime';
+import { css } from '@emotion/css';
+import { GrafanaTheme } from '@grafana/data';
+import { RuleSettingsEditor } from './RuleSettingsEditor';
 import { getPipeLineEntities } from './utils';
+import { RuleSettingsArray } from './RuleSettingsArray';
+import { RuleTest } from './RuleTest';
 
 interface Props {
   rule: Rule;

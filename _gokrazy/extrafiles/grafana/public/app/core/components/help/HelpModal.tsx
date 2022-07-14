@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Modal, useStyles2 } from '@grafana/ui';
 

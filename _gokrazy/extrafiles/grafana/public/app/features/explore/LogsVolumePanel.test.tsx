@@ -1,9 +1,7 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
-import { DataQueryResponse, LoadingState } from '@grafana/data';
-
+import { render, screen } from '@testing-library/react';
 import { LogsVolumePanel } from './LogsVolumePanel';
+import { DataQueryResponse, LoadingState } from '@grafana/data';
 
 jest.mock('./ExploreGraph', () => {
   const ExploreGraph = () => <span>ExploreGraph</span>;

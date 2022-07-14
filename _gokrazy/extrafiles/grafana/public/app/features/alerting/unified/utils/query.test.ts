@@ -1,10 +1,9 @@
 import { DataSourceJsonData, PluginMeta } from '@grafana/data';
-import { ExpressionDatasourceUID } from 'app/features/expressions/ExpressionDatasource';
+import { alertRuleToQueries } from './query';
+import { GRAFANA_RULES_SOURCE_NAME } from './datasource';
 import { CombinedRule } from 'app/types/unified-alerting';
 import { GrafanaAlertStateDecision } from 'app/types/unified-alerting-dto';
-
-import { GRAFANA_RULES_SOURCE_NAME } from './datasource';
-import { alertRuleToQueries } from './query';
+import { ExpressionDatasourceUID } from 'app/features/expressions/ExpressionDatasource';
 
 describe('alertRuleToQueries', () => {
   it('it should convert grafana alert', () => {

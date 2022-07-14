@@ -1,9 +1,6 @@
-import { PanelMenuItem } from '@grafana/data';
+import { store } from 'app/store/store';
 import { AngularComponent, getDataSourceSrv, locationService } from '@grafana/runtime';
-import { PanelCtrl } from 'app/angular/panel/panel_ctrl';
-import config from 'app/core/config';
-import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
-import { PanelModel } from 'app/features/dashboard/state/PanelModel';
+import { PanelMenuItem } from '@grafana/data';
 import {
   addLibraryPanel,
   copyPanel,
@@ -13,12 +10,14 @@ import {
   unlinkLibraryPanel,
 } from 'app/features/dashboard/utils/panel';
 import { isPanelModelLibraryPanel } from 'app/features/library-panels/guard';
-import { store } from 'app/store/store';
-
+import { PanelModel } from 'app/features/dashboard/state/PanelModel';
+import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { contextSrv } from '../../../core/services/context_srv';
-import { getExploreUrl } from '../../../core/utils/explore';
 import { navigateToExplore } from '../../explore/state/main';
+import { getExploreUrl } from '../../../core/utils/explore';
 import { getTimeSrv } from '../services/TimeSrv';
+import { PanelCtrl } from 'app/angular/panel/panel_ctrl';
+import config from 'app/core/config';
 
 export function getPanelMenu(
   dashboard: DashboardModel,

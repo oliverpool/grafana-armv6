@@ -1,7 +1,5 @@
 import { EchoBackend, EchoMeta, EchoEvent, EchoSrv } from '@grafana/runtime';
-
 import { contextSrv } from '../context_srv';
-
 import { echoLog } from './utils';
 
 interface EchoConfig {

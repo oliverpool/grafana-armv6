@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import React, { FC, useState } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
 import { Form, Field, Input, Button, Legend, Container, useStyles, HorizontalGroup, LinkButton } from '@grafana/ui';
+import { getBackendSrv } from '@grafana/runtime';
+import { css } from '@emotion/css';
+import { GrafanaTheme } from '@grafana/data';
 import config from 'app/core/config';
 
 interface EmailDTO {

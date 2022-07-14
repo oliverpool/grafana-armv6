@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-
-import { FieldOverrideEditorProps, SelectableValue } from '@grafana/data';
 import { LineStyle } from '@grafana/schema';
+import { FieldOverrideEditorProps, SelectableValue } from '@grafana/data';
 import { HorizontalGroup, IconButton, RadioButtonGroup, Select } from '@grafana/ui';
 
 type LineFill = 'solid' | 'dash' | 'dot';

@@ -1,8 +1,8 @@
-import { css, cx } from '@emotion/css';
 import React from 'react';
+import { css, cx } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
 
 interface HorizontalGroupProps {
   children: React.ReactNode;

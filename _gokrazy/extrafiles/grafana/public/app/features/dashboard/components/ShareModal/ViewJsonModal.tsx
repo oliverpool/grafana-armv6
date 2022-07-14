@@ -1,11 +1,10 @@
 import React, { useCallback } from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-
 import { ClipboardButton, CodeEditor, Modal } from '@grafana/ui';
 
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { notifyApp } from '../../../../core/actions';
-import { createSuccessNotification } from '../../../../core/copy/appNotification';
 import { dispatch } from '../../../../store/store';
+import { createSuccessNotification } from '../../../../core/copy/appNotification';
 
 export interface ViewJsonModalProps {
   json: string;

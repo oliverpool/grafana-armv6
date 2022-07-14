@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Icon, HorizontalGroup } from '@grafana/ui';
 
 type Props = {

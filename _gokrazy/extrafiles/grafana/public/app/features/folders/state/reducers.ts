@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { processAclItems } from 'app/core/utils/acl';
 import { DashboardAclDTO, FolderDTO, FolderState } from 'app/types';
+import { processAclItems } from 'app/core/utils/acl';
 
 export const initialState: FolderState = {
   id: 0,
@@ -9,7 +9,6 @@ export const initialState: FolderState = {
   title: 'loading',
   url: '',
   canSave: false,
-  canDelete: false,
   hasChanged: false,
   version: 1,
   permissions: [],

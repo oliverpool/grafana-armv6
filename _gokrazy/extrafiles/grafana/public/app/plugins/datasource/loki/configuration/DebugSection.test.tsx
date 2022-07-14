@@ -1,12 +1,10 @@
-import { mount } from 'enzyme';
 import React from 'react';
-
+import { mount } from 'enzyme';
 import { dateTime, TimeRange } from '@grafana/data';
 import { setTemplateSrv } from '@grafana/runtime';
 
-import { getLinkSrv, LinkService, LinkSrv, setLinkSrv } from '../../../../features/panel/panellinks/link_srv';
-
 import { DebugSection } from './DebugSection';
+import { getLinkSrv, LinkService, LinkSrv, setLinkSrv } from '../../../../features/panel/panellinks/link_srv';
 
 // We do not need more here and TimeSrv is hard to setup fully.
 jest.mock('app/features/dashboard/services/TimeSrv', () => ({
@@ -36,9 +34,6 @@ describe('DebugSection', () => {
       },
       getVariables() {
         return [];
-      },
-      containsTemplate() {
-        return false;
       },
       updateTimeRange(timeRange: TimeRange) {},
     });

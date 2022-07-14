@@ -1,6 +1,5 @@
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
 import { OrgRole, TeamPermissionLevel } from '../../../types';
-
 import {
   initialUserState,
   orgsLoaded,

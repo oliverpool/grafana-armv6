@@ -1,11 +1,9 @@
 import React from 'react';
-
-import { Button, Input, Switch, Form, Field, InputControl, HorizontalGroup } from '@grafana/ui';
-import { FolderPicker } from 'app/core/components/Select/FolderPicker';
+import { Button, Input, Switch, Form, Field, InputControl, Modal } from '@grafana/ui';
 import { DashboardModel, PanelModel } from 'app/features/dashboard/state';
-import { validationSrv } from 'app/features/manage-dashboards/services/ValidationSrv';
-
+import { FolderPicker } from 'app/core/components/Select/FolderPicker';
 import { SaveDashboardFormProps } from '../types';
+import { validationSrv } from 'app/features/manage-dashboards/services/ValidationSrv';
 
 interface SaveDashboardAsFormDTO {
   title: string;
@@ -121,19 +119,17 @@ export const SaveDashboardAsForm: React.FC<SaveDashboardAsFormProps> = ({
               name="$folder"
             />
           </Field>
-          {!isNew && (
-            <Field label="Copy tags">
-              <Switch {...register('copyTags')} />
-            </Field>
-          )}
-          <HorizontalGroup>
+          <Field label="Copy tags">
+            <Switch {...register('copyTags')} />
+          </Field>
+          <Modal.ButtonRow>
             <Button type="button" variant="secondary" onClick={onCancel} fill="outline">
               Cancel
             </Button>
             <Button type="submit" aria-label="Save dashboard button">
               Save
             </Button>
-          </HorizontalGroup>
+          </Modal.ButtonRow>
         </>
       )}
     </Form>

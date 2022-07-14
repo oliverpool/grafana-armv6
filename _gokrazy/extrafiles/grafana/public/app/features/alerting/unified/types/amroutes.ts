@@ -6,7 +6,6 @@ export interface FormAmRoute {
   continue: boolean;
   receiver: string;
   groupBy: string[];
-  overrideTimings: boolean;
   groupWaitValue: string;
   groupWaitValueType: string;
   groupIntervalValue: string;

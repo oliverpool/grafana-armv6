@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -9,6 +7,7 @@ import {
   DataSourceRef,
   getDataSourceUID,
 } from '@grafana/data';
+import { Observable } from 'rxjs';
 
 export class DatasourceSrvMock {
   constructor(private defaultDS: DataSourceApi, private datasources: { [name: string]: DataSourceApi }) {

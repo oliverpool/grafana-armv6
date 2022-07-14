@@ -1,9 +1,7 @@
-import { render, screen } from '@testing-library/react';
 import React, { SyntheticEvent } from 'react';
-
-import { SelectableValue } from '@grafana/data';
+import { render, screen } from '@testing-library/react';
 import { EventsWithValidation } from '@grafana/ui';
-
+import { SelectableValue } from '@grafana/data';
 import { getValueFromEventItem, promSettingsValidationEvents, PromSettings } from './PromSettings';
 import { createDefaultConfigOptions } from './mocks';
 

@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
 import React, { ReactElement } from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
 import { Field, useStyles2 } from '@grafana/ui';
 
-import { LibraryPanelCard } from '../../library-panels/components/LibraryPanelCard/LibraryPanelCard';
 import { LibraryPanelInput, LibraryPanelInputState } from '../state/reducers';
+import { GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
+import { LibraryPanelCard } from '../../library-panels/components/LibraryPanelCard/LibraryPanelCard';
 
 interface ImportDashboardLibraryPanelsListProps {
   inputs: LibraryPanelInput[];

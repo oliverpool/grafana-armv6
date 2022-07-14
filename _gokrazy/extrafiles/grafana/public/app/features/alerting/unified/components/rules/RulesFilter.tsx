@@ -1,27 +1,20 @@
+import React, { FormEvent, useState } from 'react';
+import { Button, Icon, Input, Label, RadioButtonGroup, Tooltip, useStyles } from '@grafana/ui';
+import { DataSourceInstanceSettings, GrafanaTheme, SelectableValue } from '@grafana/data';
 import { css, cx } from '@emotion/css';
 import { debounce } from 'lodash';
-import React, { FormEvent, useState } from 'react';
 
-import { DataSourceInstanceSettings, GrafanaTheme, SelectableValue } from '@grafana/data';
-import { Stack } from '@grafana/experimental';
-import { DataSourcePicker } from '@grafana/runtime';
-import { Button, Field, Icon, Input, Label, RadioButtonGroup, Tooltip, useStyles } from '@grafana/ui';
-import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { PromAlertingRuleState, PromRuleType } from 'app/types/unified-alerting-dto';
-
+import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { getFiltersFromUrlParams } from '../../utils/misc';
+import { DataSourcePicker } from '@grafana/runtime';
 import { alertStateToReadable } from '../../utils/rules';
 
 const ViewOptions: SelectableValue[] = [
   {
-    icon: 'list-ul',
-    label: 'List',
-    value: 'list',
-  },
-  {
     icon: 'folder',
-    label: 'Grouped',
-    value: 'grouped',
+    label: 'Groups',
+    value: 'group',
   },
   {
     icon: 'heart-rate',
@@ -94,7 +87,8 @@ const RulesFilter = () => {
   const searchIcon = <Icon name={'search'} />;
   return (
     <div className={styles.container}>
-      <Field className={styles.inputWidth} label="Search by data source">
+      <div className={styles.inputWidth}>
+        <Label>Search by data source</Label>
         <DataSourcePicker
           key={dataSourceKey}
           alerting
@@ -104,29 +98,23 @@ const RulesFilter = () => {
           onChange={handleDataSourceChange}
           onClear={clearDataSource}
         />
-      </Field>
+      </div>
       <div className={cx(styles.flexRow, styles.spaceBetween)}>
         <div className={styles.flexRow}>
-          <Field
-            className={styles.rowChild}
-            label={
-              <Label>
-                <Stack gap={0.5}>
-                  <span>Search by label</span>
-                  <Tooltip
-                    content={
-                      <div>
-                        Filter rules and alerts using label querying, ex:
-                        <code>{`{severity="critical", instance=~"cluster-us-.+"}`}</code>
-                      </div>
-                    }
-                  >
-                    <Icon name="info-circle" size="sm" />
-                  </Tooltip>
-                </Stack>
-              </Label>
-            }
-          >
+          <div className={styles.rowChild}>
+            <Label>
+              <Tooltip
+                content={
+                  <div>
+                    Filter rules and alerts using label querying, ex:
+                    <pre>{`{severity="critical", instance=~"cluster-us-.+"}`}</pre>
+                  </div>
+                }
+              >
+                <Icon name="info-circle" className={styles.tooltip} />
+              </Tooltip>
+              Search by label
+            </Label>
             <Input
               key={queryStringKey}
               className={styles.inputWidth}
@@ -136,7 +124,7 @@ const RulesFilter = () => {
               placeholder="Search"
               data-testid="search-query-input"
             />
-          </Field>
+          </div>
           <div className={styles.rowChild}>
             <Label>State</Label>
             <RadioButtonGroup options={stateOptions} value={alertState} onChange={handleAlertStateChange} />
@@ -153,7 +141,7 @@ const RulesFilter = () => {
             <Label>View as</Label>
             <RadioButtonGroup
               options={ViewOptions}
-              value={String(queryParams['view'] ?? ViewOptions[0].value)}
+              value={String(queryParams['view'] || 'group')}
               onChange={handleViewChange}
             />
           </div>
@@ -181,8 +169,12 @@ const getStyles = (theme: GrafanaTheme) => {
     container: css`
       display: flex;
       flex-direction: column;
+      border-bottom: 1px solid ${theme.colors.border1};
       padding-bottom: ${theme.spacing.sm};
-      margin-bottom: ${theme.spacing.sm};
+
+      & > div {
+        margin-bottom: ${theme.spacing.sm};
+      }
     `,
     inputWidth: css`
       width: 340px;
@@ -199,7 +191,11 @@ const getStyles = (theme: GrafanaTheme) => {
       justify-content: space-between;
     `,
     rowChild: css`
-      margin: 0 ${theme.spacing.sm} 0 0;
+      margin-right: ${theme.spacing.sm};
+      margin-top: ${theme.spacing.sm};
+    `,
+    tooltip: css`
+      margin: 0 ${theme.spacing.xs};
     `,
     clearButton: css`
       margin-top: ${theme.spacing.sm};

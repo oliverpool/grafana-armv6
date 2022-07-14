@@ -1,7 +1,6 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
 import PageHeader from './PageHeader';
+import { render, screen } from '@testing-library/react';
 
 describe('PageHeader', () => {
   describe('when the nav tree has a node with a title', () => {

@@ -1,6 +1,3 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
-
 import { LoadingPlaceholder } from '@grafana/ui';
 import {
   AlertManagerCortexConfig,
@@ -8,7 +5,8 @@ import {
   Receiver,
   TestReceiversAlert,
 } from 'app/plugins/datasource/alertmanager/types';
-
+import React, { FC, useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useUnifiedAlertingSelector } from '../../../hooks/useUnifiedAlertingSelector';
 import {
   fetchGrafanaNotifiersAction,
@@ -23,7 +21,6 @@ import {
   grafanaReceiverToFormValues,
   updateConfigWithReceiver,
 } from '../../../utils/receiver-form';
-
 import { GrafanaCommonChannelSettings } from './GrafanaCommonChannelSettings';
 import { ReceiverForm } from './ReceiverForm';
 import { TestContactPointModal } from './TestContactPointModal';

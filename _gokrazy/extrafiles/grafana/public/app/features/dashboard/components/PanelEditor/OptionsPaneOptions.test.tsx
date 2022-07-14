@@ -1,8 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
-import { Provider } from 'react-redux';
-import configureMockStore from 'redux-mock-store';
-
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import {
   FieldConfigSource,
   FieldType,
@@ -12,14 +9,15 @@ import {
   standardFieldConfigEditorRegistry,
   toDataFrame,
 } from '@grafana/data';
+
 import { selectors } from '@grafana/e2e-selectors';
-import { getAllOptionEditors, getAllStandardFieldConfigs } from 'app/core/components/editors/registry';
-import { getPanelPlugin } from 'app/features/plugins/__mocks__/pluginMocks';
-
-import { DashboardModel, PanelModel } from '../../state';
-
 import { OptionsPaneOptions } from './OptionsPaneOptions';
+import { DashboardModel, PanelModel } from '../../state';
+import { Provider } from 'react-redux';
+import configureMockStore from 'redux-mock-store';
+import { getPanelPlugin } from 'app/features/plugins/__mocks__/pluginMocks';
 import { dataOverrideTooltipDescription, overrideRuleTooltipDescription } from './state/getOptionOverrides';
+import { getAllOptionEditors, getAllStandardFieldConfigs } from 'app/core/components/editors/registry';
 
 standardEditorsRegistry.setInit(getAllOptionEditors);
 standardFieldConfigEditorRegistry.setInit(getAllStandardFieldConfigs);

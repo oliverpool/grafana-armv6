@@ -1,12 +1,10 @@
+import { GraphiteQueryEditorState } from './store';
 import { clone } from 'lodash';
-
-import { createErrorNotification } from '../../../../core/copy/appNotification';
-import { notifyApp } from '../../../../core/reducers/appNotification';
 import { dispatch } from '../../../../store/store';
+import { notifyApp } from '../../../../core/reducers/appNotification';
+import { createErrorNotification } from '../../../../core/copy/appNotification';
 import { FuncInstance } from '../gfunc';
 import { GraphiteQuery, GraphiteTagOperator } from '../types';
-
-import { GraphiteQueryEditorState } from './store';
 
 /**
  * Helpers used by reducers and providers. They modify state object directly so should operate on a copy of the state.
@@ -174,6 +172,7 @@ export function handleMetricsAutoCompleteError(
   state: GraphiteQueryEditorState,
   error: Error
 ): GraphiteQueryEditorState {
+  console.error(error);
   if (!state.metricAutoCompleteErrorShown) {
     state.metricAutoCompleteErrorShown = true;
     dispatch(notifyApp(createErrorNotification(`Fetching metrics failed: ${error.message}.`)));
@@ -185,6 +184,7 @@ export function handleMetricsAutoCompleteError(
  * When tags autocomplete fails - the error is shown, but only once per page view
  */
 export function handleTagsAutoCompleteError(state: GraphiteQueryEditorState, error: Error): GraphiteQueryEditorState {
+  console.error(error);
   if (!state.tagsAutoCompleteErrorShown) {
     state.tagsAutoCompleteErrorShown = true;
     dispatch(notifyApp(createErrorNotification(`Fetching tags failed: ${error.message}.`)));

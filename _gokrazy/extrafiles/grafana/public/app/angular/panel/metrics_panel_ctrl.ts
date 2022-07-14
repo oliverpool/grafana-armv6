@@ -1,6 +1,7 @@
 import { isArray } from 'lodash';
-import { Unsubscribable } from 'rxjs';
-
+import { PanelCtrl } from 'app/angular/panel/panel_ctrl';
+import { applyPanelTimeOverrides } from 'app/features/dashboard/utils/panel';
+import { ContextSrv } from 'app/core/services/context_srv';
 import {
   DataFrame,
   DataQueryResponse,
@@ -13,11 +14,8 @@ import {
   toDataFrameDTO,
   toLegacyResponseData,
 } from '@grafana/data';
-import { PanelCtrl } from 'app/angular/panel/panel_ctrl';
-import { ContextSrv } from 'app/core/services/context_srv';
+import { Unsubscribable } from 'rxjs';
 import { PanelModel } from 'app/features/dashboard/state';
-import { applyPanelTimeOverrides } from 'app/features/dashboard/utils/panel';
-
 import { PanelQueryRunner } from '../../features/query/state/PanelQueryRunner';
 
 class MetricsPanelCtrl extends PanelCtrl {

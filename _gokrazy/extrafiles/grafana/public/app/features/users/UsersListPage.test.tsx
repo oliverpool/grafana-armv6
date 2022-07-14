@@ -1,11 +1,10 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { mockToolkitActionCreator } from 'test/core/redux/mocks';
-
-import { NavModel } from '@grafana/data';
-import { Invitee, OrgUser } from 'app/types';
-
+import { shallow } from 'enzyme';
 import { Props, UsersListPage } from './UsersListPage';
+import { Invitee, OrgUser } from 'app/types';
+// import { getMockUser } from './__mocks__/userMocks';
+import { NavModel } from '@grafana/data';
+import { mockToolkitActionCreator } from 'test/core/redux/mocks';
 import { setUsersSearchPage, setUsersSearchQuery } from './state/reducers';
 
 jest.mock('../../core/app_events', () => ({
@@ -27,7 +26,7 @@ const setup = (propOverrides?: object) => {
     searchQuery: '',
     searchPage: 1,
     externalUserMngInfo: '',
-    fetchInvitees: jest.fn(),
+    loadInvitees: jest.fn(),
     loadUsers: jest.fn(),
     updateUser: jest.fn(),
     removeUser: jest.fn(),

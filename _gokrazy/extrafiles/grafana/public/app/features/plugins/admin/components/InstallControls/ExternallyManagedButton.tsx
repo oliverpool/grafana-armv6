@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { HorizontalGroup, LinkButton } from '@grafana/ui';
-
 import { getExternalManageLink } from '../../helpers';
 import { PluginStatus } from '../../types';
 

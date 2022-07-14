@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import React, { ComponentProps } from 'react';
-
+import { render, screen } from '@testing-library/react';
 import { LogsNavigationPages } from './LogsNavigationPages';
 
 type LogsNavigationPagesProps = ComponentProps<typeof LogsNavigationPages>;

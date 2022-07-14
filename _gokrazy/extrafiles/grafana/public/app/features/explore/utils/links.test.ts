@@ -1,3 +1,4 @@
+import { getFieldLinksForExplore } from './links';
 import {
   ArrayVector,
   DataLink,
@@ -9,11 +10,8 @@ import {
   TimeRange,
 } from '@grafana/data';
 import { setTemplateSrv } from '@grafana/runtime';
-
-import { setContextSrv } from '../../../core/services/context_srv';
 import { setLinkSrv } from '../../panel/panellinks/link_srv';
-
-import { getFieldLinksForExplore } from './links';
+import { setContextSrv } from '../../../core/services/context_srv';
 
 describe('getFieldLinksForExplore', () => {
   beforeEach(() => {
@@ -23,9 +21,6 @@ describe('getFieldLinksForExplore', () => {
       },
       getVariables() {
         return [];
-      },
-      containsTemplate() {
-        return false;
       },
       updateTimeRange(timeRange: TimeRange) {},
     });

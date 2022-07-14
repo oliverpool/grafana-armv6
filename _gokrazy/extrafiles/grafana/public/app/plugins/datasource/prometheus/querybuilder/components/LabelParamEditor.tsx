@@ -1,22 +1,12 @@
-import React, { useState } from 'react';
-
-import { DataSourceApi, SelectableValue, toOption } from '@grafana/data';
+import { SelectableValue, toOption } from '@grafana/data';
 import { Select } from '@grafana/ui';
-
+import React, { useState } from 'react';
 import { PrometheusDatasource } from '../../datasource';
 import { promQueryModeller } from '../PromQueryModeller';
-import { getOperationParamId } from '../shared/operationUtils';
-import { QueryBuilderLabelFilter, QueryBuilderOperationParamEditorProps } from '../shared/types';
+import { QueryBuilderOperationParamEditorProps } from '../shared/types';
 import { PromVisualQuery } from '../types';
 
-export function LabelParamEditor({
-  onChange,
-  index,
-  operationIndex,
-  value,
-  query,
-  datasource,
-}: QueryBuilderOperationParamEditorProps) {
+export function LabelParamEditor({ onChange, index, value, query, datasource }: QueryBuilderOperationParamEditorProps) {
   const [state, setState] = useState<{
     options?: Array<SelectableValue<any>>;
     isLoading?: boolean;
@@ -24,13 +14,12 @@ export function LabelParamEditor({
 
   return (
     <Select
-      inputId={getOperationParamId(operationIndex, index)}
       menuShouldPortal
       autoFocus={value === '' ? true : undefined}
       openMenuOnFocus
       onOpenMenu={async () => {
         setState({ isLoading: true });
-        const options = await loadGroupByLabels(query, datasource);
+        const options = await loadGroupByLabels(query as PromVisualQuery, datasource as PrometheusDatasource);
         setState({ options, isLoading: undefined });
       }}
       isLoading={state.isLoading}
@@ -46,16 +35,11 @@ export function LabelParamEditor({
 
 async function loadGroupByLabels(
   query: PromVisualQuery,
-  datasource: DataSourceApi
+  datasource: PrometheusDatasource
 ): Promise<Array<SelectableValue<any>>> {
-  let labels: QueryBuilderLabelFilter[] = query.labels;
-
-  // This function is used by both Prometheus and Loki and this the only difference
-  if (datasource instanceof PrometheusDatasource) {
-    labels = [{ label: '__name__', op: '=', value: query.metric }, ...query.labels];
-  }
-
+  const labels = [{ label: '__name__', op: '=', value: query.metric }, ...query.labels];
   const expr = promQueryModeller.renderLabels(labels);
+
   const result = await datasource.languageProvider.fetchSeriesLabels(expr);
 
   return Object.keys(result).map((x) => ({

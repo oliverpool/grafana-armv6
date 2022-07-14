@@ -1,10 +1,9 @@
 import { getDefaultTimeRange } from '@grafana/data';
 
-import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
-import * as store from '../../../../store/store';
-
 import { LegacyAnnotationQueryRunner } from './LegacyAnnotationQueryRunner';
 import { AnnotationQueryRunnerOptions } from './types';
+import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
+import * as store from '../../../../store/store';
 
 function getDefaultOptions(annotationQuery?: jest.Mock): AnnotationQueryRunnerOptions {
   const annotation: any = {};

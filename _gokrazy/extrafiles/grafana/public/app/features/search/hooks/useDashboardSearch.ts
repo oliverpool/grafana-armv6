@@ -1,21 +1,18 @@
 import { KeyboardEvent, useReducer } from 'react';
-import { useDebounce } from 'react-use';
-
-import { locationUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
-
+import { DashboardQuery, DashboardSearchItemType, DashboardSection } from '../types';
 import { MOVE_SELECTION_DOWN, MOVE_SELECTION_UP } from '../reducers/actionTypes';
 import { dashboardsSearchState, DashboardsSearchState, searchReducer } from '../reducers/dashboardSearch';
-import { DashboardQuery, DashboardSearchItemType, DashboardSection } from '../types';
 import { findSelected } from '../utils';
-
-import { reportDashboardListViewed } from './useManageDashboards';
 import { useSearch } from './useSearch';
+import { locationUtil } from '@grafana/data';
 import { useShowDashboardPreviews } from './useShowDashboardPreviews';
+import { reportDashboardListViewed } from './useManageDashboards';
+import { useDebounce } from 'react-use';
 
 export const useDashboardSearch = (query: DashboardQuery, onCloseSearch: () => void) => {
   const reducer = useReducer(searchReducer, dashboardsSearchState);
-  const { showPreviews, setShowPreviews, previewFeatureEnabled } = useShowDashboardPreviews();
+  const { showPreviews, onShowPreviewsChange, previewFeatureEnabled } = useShowDashboardPreviews();
   const {
     state: { results, loading },
     onToggleSection,
@@ -75,6 +72,6 @@ export const useDashboardSearch = (query: DashboardQuery, onCloseSearch: () => v
     onToggleSection,
     onKeyDown,
     showPreviews,
-    setShowPreviews,
+    onShowPreviewsChange,
   };
 };

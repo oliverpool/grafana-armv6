@@ -1,15 +1,13 @@
-import { flatten } from 'lodash';
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
-
 import { SelectableValue, toOption } from '@grafana/data';
 import { Button, HorizontalGroup, Select, VerticalGroup } from '@grafana/ui';
 import { CustomControlProps } from '@grafana/ui/src/components/Select/types';
+import { flatten } from 'lodash';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 
+import { QueryEditorRow } from '.';
 import { SELECT_WIDTH } from '../constants';
 import { labelsToGroupedOptions, stringArrayToFilters } from '../functions';
 import { Filter } from '../types';
-
-import { QueryEditorRow } from '.';
 
 export interface Props {
   labels: { [key: string]: string[] };

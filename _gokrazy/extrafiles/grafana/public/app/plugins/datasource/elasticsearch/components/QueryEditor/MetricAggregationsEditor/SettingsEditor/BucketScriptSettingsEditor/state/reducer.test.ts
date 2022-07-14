@@ -1,7 +1,5 @@
 import { reducerTester } from 'test/core/redux/reducerTester';
-
 import { PipelineVariable } from '../../../aggregations';
-
 import {
   addPipelineVariable,
   changePipelineVariableMetric,

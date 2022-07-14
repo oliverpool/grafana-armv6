@@ -1,10 +1,8 @@
-import { AbstractLabelOperator, AbstractQuery, DataSourceInstanceSettings } from '@grafana/data';
-
-import { TemplateSrv } from '../../../features/templating/template_srv';
-
-import { ElasticDatasource } from './datasource';
 import LanguageProvider from './language_provider';
+import { ElasticDatasource } from './datasource';
+import { AbstractLabelOperator, AbstractQuery, DataSourceInstanceSettings } from '@grafana/data';
 import { ElasticsearchOptions, ElasticsearchQuery } from './types';
+import { TemplateSrv } from '../../../features/templating/template_srv';
 
 const templateSrvStub = {
   getAdhocFilters: jest.fn(() => [] as any[]),

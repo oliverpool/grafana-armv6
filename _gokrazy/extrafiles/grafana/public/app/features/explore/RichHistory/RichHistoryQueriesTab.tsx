@@ -1,10 +1,14 @@
+import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/css';
 import { uniqBy } from 'lodash';
-import React, { useState, useEffect } from 'react';
-import { useDebounce } from 'react-use';
 
-import { GrafanaTheme, SelectableValue } from '@grafana/data';
+// Types
+import { RichHistoryQuery, ExploreId } from 'app/types/explore';
+
+// Utils
 import { stylesFactory, useTheme, RangeSlider, MultiSelect, Select, FilterInput } from '@grafana/ui';
+import { GrafanaTheme, SelectableValue } from '@grafana/data';
+
 import {
   SortOrder,
   mapNumbertoTimeInSlider,
@@ -12,10 +16,11 @@ import {
   createDatasourcesList,
   filterAndSortQueries,
 } from 'app/core/utils/richHistory';
-import { RichHistoryQuery, ExploreId } from 'app/types/explore';
 
-import { sortOrderOptions } from './RichHistory';
+// Components
 import RichHistoryCard from './RichHistoryCard';
+import { sortOrderOptions } from './RichHistory';
+import { useDebounce } from 'react-use';
 
 export interface Props {
   queries: RichHistoryQuery[];
@@ -235,7 +240,7 @@ export function RichHistoryQueriesTab(props: Props) {
                 return (
                   <RichHistoryCard
                     query={q}
-                    key={q.id}
+                    key={q.ts}
                     exploreId={exploreId}
                     dsImg={listOfDatasources[idx].imgUrl}
                     isRemoved={listOfDatasources[idx].isRemoved}

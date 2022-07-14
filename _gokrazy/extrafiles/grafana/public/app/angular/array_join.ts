@@ -1,5 +1,4 @@
 import { isArray } from 'lodash';
-
 import coreModule from './core_module';
 
 export function arrayJoin() {

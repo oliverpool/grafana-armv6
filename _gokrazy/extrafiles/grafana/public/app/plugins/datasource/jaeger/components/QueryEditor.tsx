@@ -1,12 +1,9 @@
 import { css } from '@emotion/css';
-import React from 'react';
-
 import { QueryEditorProps } from '@grafana/data';
 import { FileDropzone, InlineField, InlineFieldRow, QueryField, RadioButtonGroup, useTheme2 } from '@grafana/ui';
-
+import React from 'react';
 import { JaegerDatasource } from '../datasource';
 import { JaegerQuery, JaegerQueryType } from '../types';
-
 import { SearchForm } from './SearchForm';
 
 type Props = QueryEditorProps<JaegerDatasource, JaegerQuery>;

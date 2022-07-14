@@ -1,12 +1,9 @@
-import './transferHandlers';
-
+import { CentrifugeService, CentrifugeSrvDeps } from './service';
 import * as comlink from 'comlink';
-
+import './transferHandlers';
+import { remoteObservableAsObservable } from './remoteObservable';
 import { LiveChannelAddress } from '@grafana/data';
 import { LiveDataStreamOptions, LiveQueryDataOptions } from '@grafana/runtime';
-
-import { remoteObservableAsObservable } from './remoteObservable';
-import { CentrifugeService, CentrifugeSrvDeps } from './service';
 
 let centrifuge: CentrifugeService;
 

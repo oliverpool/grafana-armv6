@@ -1,14 +1,11 @@
 import React, { memo } from 'react';
-
 import { CoreApp } from '@grafana/data';
-import { config } from '@grafana/runtime';
-
-import { PromQueryEditorSelector } from '../querybuilder/components/PromQueryEditorSelector';
-
-import { PromExploreQueryEditor } from './PromExploreQueryEditor';
+import { PromQueryEditorProps } from './types';
 import { PromQueryEditor } from './PromQueryEditor';
 import { PromQueryEditorForAlerting } from './PromQueryEditorForAlerting';
-import { PromQueryEditorProps } from './types';
+import { config } from '@grafana/runtime';
+import { PromQueryEditorSelector } from '../querybuilder/components/PromQueryEditorSelector';
+import { PromExploreQueryEditor } from './PromExploreQueryEditor';
 
 export function PromQueryEditorByApp(props: PromQueryEditorProps) {
   const { app } = props;

@@ -1,13 +1,10 @@
-import { css, cx } from '@emotion/css';
-import React, { FC } from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
 import { AlertmanagerAlert } from 'app/plugins/datasource/alertmanager/types';
-
+import React, { FC } from 'react';
 import { getAlertTableStyles } from '../../styles/table';
-
+import { useStyles2 } from '@grafana/ui';
 import { SilencedAlertsTableRow } from './SilencedAlertsTableRow';
+import { GrafanaTheme2 } from '@grafana/data';
+import { css, cx } from '@emotion/css';
 
 interface Props {
   silencedAlerts: AlertmanagerAlert[];

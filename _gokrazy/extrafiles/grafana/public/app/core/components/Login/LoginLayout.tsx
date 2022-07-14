@@ -1,10 +1,8 @@
-import { cx, css, keyframes } from '@emotion/css';
 import React, { FC, useEffect, useState } from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
+import { cx, css, keyframes } from '@emotion/css';
 import { useStyles2, styleMixins } from '@grafana/ui';
-
 import { Branding } from '../Branding/Branding';
+import { GrafanaTheme2 } from '@grafana/data';
 import { Footer } from '../Footer/Footer';
 
 interface InnerBoxProps {

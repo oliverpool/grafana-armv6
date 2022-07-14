@@ -1,6 +1,4 @@
 import React from 'react';
-
-import { DataFrame, FALLBACK_COLOR, FieldType, TimeRange } from '@grafana/data';
 import { LegendDisplayMode, VisibilityMode } from '@grafana/schema';
 import {
   PanelContext,
@@ -12,9 +10,9 @@ import {
   VizLegend,
   VizLegendItem,
 } from '@grafana/ui';
-
-import { TimelineMode, TimelineOptions, TimelineValueAlignment } from './types';
+import { DataFrame, FieldType, TimeRange } from '@grafana/data';
 import { preparePlotConfigBuilder } from './utils';
+import { TimelineMode, TimelineOptions, TimelineValueAlignment } from './types';
 
 /**
  * @alpha
@@ -36,19 +34,6 @@ export class TimelineChart extends React.Component<TimelineProps> {
   static contextType = PanelContextRoot;
   panelContext: PanelContext = {} as PanelContext;
 
-  getValueColor = (frameIdx: number, fieldIdx: number, value: any) => {
-    const field = this.props.frames[frameIdx].fields[fieldIdx];
-
-    if (field.display) {
-      const disp = field.display(value); // will apply color modes
-      if (disp.color) {
-        return disp.color;
-      }
-    }
-
-    return FALLBACK_COLOR;
-  };
-
   prepConfig = (alignedFrame: DataFrame, allFrames: DataFrame[], getTimeRange: () => TimeRange) => {
     this.panelContext = this.context as PanelContext;
     const { eventBus, sync } = this.panelContext;
@@ -63,7 +48,6 @@ export class TimelineChart extends React.Component<TimelineProps> {
 
       // When there is only one row, use the full space
       rowHeight: alignedFrame.fields.length > 2 ? this.props.rowHeight : 1,
-      getValueColor: this.getValueColor,
     });
   };
 

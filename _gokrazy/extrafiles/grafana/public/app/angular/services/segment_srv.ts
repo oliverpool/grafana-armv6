@@ -1,5 +1,4 @@
 import { each, isString, map } from 'lodash';
-
 import coreModule from '../core_module';
 
 /** @ngInject */

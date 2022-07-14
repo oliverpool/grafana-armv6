@@ -1,9 +1,8 @@
-import { uniq } from 'lodash';
-import React from 'react';
-
-import { SelectableValue } from '@grafana/data';
-import { Icon, Label, MultiSelect } from '@grafana/ui';
 import { AlertmanagerGroup } from 'app/plugins/datasource/alertmanager/types';
+import React from 'react';
+import { uniq } from 'lodash';
+import { Icon, Label, MultiSelect } from '@grafana/ui';
+import { SelectableValue } from '@grafana/data';
 
 interface Props {
   className?: string;
@@ -32,7 +31,6 @@ export const GroupBy = ({ className, groups, groupBy, onGroupingChange }: Props)
           onGroupingChange(items.map(({ value }) => value as string));
         }}
         options={labelKeyOptions}
-        menuShouldPortal
       />
     </div>
   );

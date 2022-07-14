@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-
 import { dateTimeFormat } from '@grafana/data';
 import { Button, Spinner } from '@grafana/ui';
 import { SyncInfo } from 'app/types';

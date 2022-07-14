@@ -1,5 +1,4 @@
 import React, { InputHTMLAttributes, FunctionComponent } from 'react';
-
 import { InlineFormLabel } from '@grafana/ui';
 
 export interface Props extends InputHTMLAttributes<HTMLInputElement> {

@@ -1,26 +1,23 @@
-import { css } from '@emotion/css';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { useDebounce } from 'react-use';
-
-import { dateTime, GrafanaTheme2 } from '@grafana/data';
+import { useDispatch } from 'react-redux';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 import { Badge, useStyles2 } from '@grafana/ui';
-import { Alert, AlertingRule } from 'app/types/unified-alerting';
-
-import { useCombinedRuleNamespaces } from '../../hooks/useCombinedRuleNamespaces';
-import { fetchAllPromAndRulerRulesAction } from '../../state/actions';
-import { MatcherFieldValue, SilenceFormFields } from '../../types/silence-form';
-import { findAlertInstancesWithMatchers } from '../../utils/matchers';
-import { isAlertingRule } from '../../utils/rules';
-import { AlertLabels } from '../AlertLabels';
 import { DynamicTable, DynamicTableColumnProps, DynamicTableItemProps } from '../DynamicTable';
-import { AlertStateTag } from '../rules/AlertStateTag';
+import { RuleState } from '../rules/RuleState';
+import { useCombinedRuleNamespaces } from '../../hooks/useCombinedRuleNamespaces';
+import { Annotation } from '../../utils/constants';
+import { findAlertRulesWithMatchers } from '../../utils/matchers';
+import { fetchAllPromAndRulerRulesAction } from '../../state/actions';
+import { CombinedRule } from 'app/types/unified-alerting';
+import { MatcherFieldValue, SilenceFormFields } from '../../types/silence-form';
 
 type MatchedRulesTableItemProps = DynamicTableItemProps<{
-  matchedInstance: Alert;
+  matchedRule: CombinedRule;
 }>;
-type MatchedRulesTableColumnProps = DynamicTableColumnProps<{ matchedInstance: Alert }>;
+type MatchedRulesTableColumnProps = DynamicTableColumnProps<{ matchedRule: CombinedRule }>;
 
 export const MatchedSilencedRules = () => {
   const [matchedAlertRules, setMatchedAlertRules] = useState<MatchedRulesTableItemProps[]>([]);
@@ -38,15 +35,12 @@ export const MatchedSilencedRules = () => {
   const combinedNamespaces = useCombinedRuleNamespaces();
   useDebounce(
     () => {
-      const matchedInstances = combinedNamespaces.flatMap((namespace) => {
+      const matchedRules = combinedNamespaces.flatMap((namespace) => {
         return namespace.groups.flatMap((group) => {
-          return group.rules
-            .map((combinedRule) => combinedRule.promRule)
-            .filter((rule): rule is AlertingRule => isAlertingRule(rule))
-            .flatMap((rule) => findAlertInstancesWithMatchers(rule.alerts ?? [], matchers));
+          return findAlertRulesWithMatchers(group.rules, matchers);
         });
       });
-      setMatchedAlertRules(matchedInstances);
+      setMatchedAlertRules(matchedRules);
     },
     500,
     [combinedNamespaces, matchers]
@@ -55,7 +49,7 @@ export const MatchedSilencedRules = () => {
   return (
     <div>
       <h4 className={styles.title}>
-        Affected alert instances
+        Affected alerts
         {matchedAlertRules.length > 0 ? (
           <Badge className={styles.badge} color="blue" text={matchedAlertRules.length} />
         ) : null}
@@ -81,30 +75,24 @@ function useColumns(): MatchedRulesTableColumnProps[] {
     {
       id: 'state',
       label: 'State',
-      renderCell: function renderStateTag({ data: { matchedInstance } }) {
-        return <AlertStateTag state={matchedInstance.state} />;
+      renderCell: function renderStateTag({ data: { matchedRule } }) {
+        return <RuleState rule={matchedRule} isCreating={false} isDeleting={false} />;
       },
       size: '160px',
     },
     {
-      id: 'labels',
-      label: 'Labels',
-      renderCell: function renderName({ data: { matchedInstance } }) {
-        return <AlertLabels labels={matchedInstance.labels} />;
+      id: 'name',
+      label: 'Name',
+      renderCell: function renderName({ data: { matchedRule } }) {
+        return matchedRule.name;
       },
       size: '250px',
     },
     {
-      id: 'created',
-      label: 'Created',
-      renderCell: function renderSummary({ data: { matchedInstance } }) {
-        return (
-          <>
-            {matchedInstance.activeAt.startsWith('0001')
-              ? '-'
-              : dateTime(matchedInstance.activeAt).format('YYYY-MM-DD HH:mm:ss')}
-          </>
-        );
+      id: 'summary',
+      label: 'Summary',
+      renderCell: function renderSummary({ data: { matchedRule } }) {
+        return matchedRule.annotations[Annotation.summary] ?? '';
       },
       size: '400px',
     },

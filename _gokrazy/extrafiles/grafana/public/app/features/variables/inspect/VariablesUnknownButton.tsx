@@ -1,9 +1,7 @@
 import React, { FC, useMemo } from 'react';
-
 import { IconButton } from '@grafana/ui';
-
-import { NetworkGraphModal } from './NetworkGraphModal';
 import { UsagesToNetwork } from './utils';
+import { NetworkGraphModal } from './NetworkGraphModal';
 
 interface Props {
   id: string;

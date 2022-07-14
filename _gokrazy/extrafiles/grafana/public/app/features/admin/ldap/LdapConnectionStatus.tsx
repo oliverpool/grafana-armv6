@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-
 import { Alert, Icon } from '@grafana/ui';
 import { AppNotificationSeverity, LdapConnectionInfo, LdapServerInfo } from 'app/types';
 

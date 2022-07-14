@@ -1,14 +1,12 @@
-import { css, cx } from '@emotion/css';
-import Prism from 'prismjs';
 import React from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
-import { EditorField, EditorFieldGroup } from '@grafana/experimental';
+import { LokiVisualQuery } from '../types';
 import { useTheme2 } from '@grafana/ui';
-
+import { GrafanaTheme2 } from '@grafana/data';
+import { css, cx } from '@emotion/css';
+import { EditorField, EditorFieldGroup } from '@grafana/experimental';
+import Prism from 'prismjs';
 import { lokiGrammar } from '../../syntax';
 import { lokiQueryModeller } from '../LokiQueryModeller';
-import { LokiVisualQuery } from '../types';
 
 export interface Props {
   query: LokiVisualQuery;

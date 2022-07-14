@@ -1,16 +1,14 @@
-import { within } from '@testing-library/dom';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
-
+import { render, screen, waitFor } from '@testing-library/react';
+import { within } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event';
 import { PanelPluginMeta, PluginType } from '@grafana/data';
 
-import { backendSrv } from '../../../../core/services/backend_srv';
-import * as panelUtils from '../../../panel/state/util';
+import { LibraryPanelsSearch, LibraryPanelsSearchProps } from './LibraryPanelsSearch';
 import * as api from '../../state/api';
 import { LibraryElementKind, LibraryElementsSearchResult } from '../../types';
-
-import { LibraryPanelsSearch, LibraryPanelsSearchProps } from './LibraryPanelsSearch';
+import { backendSrv } from '../../../../core/services/backend_srv';
+import * as panelUtils from '../../../panel/state/util';
 
 jest.mock('@grafana/runtime', () => ({
   ...(jest.requireActual('@grafana/runtime') as unknown as object),

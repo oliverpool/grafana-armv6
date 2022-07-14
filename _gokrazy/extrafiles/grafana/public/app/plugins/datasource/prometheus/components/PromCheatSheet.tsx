@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { QueryEditorHelpProps } from '@grafana/data';
-
 import { PromQuery } from '../types';
 
 const CHEAT_SHEET_ITEMS = [

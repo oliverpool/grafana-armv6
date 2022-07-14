@@ -1,7 +1,5 @@
-import { omit } from 'lodash';
 import React, { PureComponent, useState } from 'react';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
-
 import {
   DataQuery,
   DataSourceInstanceSettings,
@@ -12,14 +10,14 @@ import {
   ThresholdsMode,
 } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
+import { EmptyQueryWrapper, QueryWrapper } from './QueryWrapper';
+import { AlertDataQuery, AlertQuery } from 'app/types/unified-alerting-dto';
+import { isExpressionQuery } from 'app/features/expressions/guards';
+import { queriesWithUpdatedReferences } from './util';
 import { Button, Card, Icon } from '@grafana/ui';
 import { QueryOperationRow } from 'app/core/components/QueryOperationRow/QueryOperationRow';
-import { isExpressionQuery } from 'app/features/expressions/guards';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
-import { AlertDataQuery, AlertQuery } from 'app/types/unified-alerting-dto';
-
-import { EmptyQueryWrapper, QueryWrapper } from './QueryWrapper';
-import { queriesWithUpdatedReferences } from './util';
+import { omit } from 'lodash';
 
 interface Props {
   // The query configuration

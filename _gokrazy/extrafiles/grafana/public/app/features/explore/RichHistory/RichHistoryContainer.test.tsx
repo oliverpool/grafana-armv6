@@ -1,10 +1,10 @@
-import { render } from '@testing-library/react';
 import React from 'react';
+import { mount } from 'enzyme';
+import { Resizable } from 're-resizable';
 
 import { ExploreId } from '../../../types/explore';
-
-import { Tabs } from './RichHistory';
 import { RichHistoryContainer, Props } from './RichHistoryContainer';
+import { Tabs } from './RichHistory';
 
 jest.mock('../state/selectors', () => ({ getExploreDatasources: jest.fn() }));
 
@@ -16,33 +16,26 @@ const setup = (propOverrides?: Partial<Props>) => {
     richHistory: [],
     firstTab: Tabs.RichHistory,
     deleteRichHistory: jest.fn(),
-    loadRichHistory: jest.fn(),
     onClose: jest.fn(),
   };
 
   Object.assign(props, propOverrides);
 
-  return render(<RichHistoryContainer {...props} />);
+  const wrapper = mount(<RichHistoryContainer {...props} />);
+  return wrapper;
 };
 
 describe('RichHistoryContainer', () => {
+  it('should render reseizable component', () => {
+    const wrapper = setup();
+    expect(wrapper.find(Resizable)).toHaveLength(1);
+  });
   it('should render component with correct width', () => {
-    const { container } = setup();
-    expect(container.firstElementChild!.getAttribute('style')).toContain('width: 531.5px');
+    const wrapper = setup();
+    expect(wrapper.getDOMNode().getAttribute('style')).toContain('width: 531.5px');
   });
   it('should render component with correct height', () => {
-    const { container } = setup();
-    expect(container.firstElementChild!.getAttribute('style')).toContain('height: 400px');
-  });
-  it('should re-request rich history every time the component is mounted', () => {
-    const loadRichHistory = jest.fn();
-    const { unmount } = setup({ loadRichHistory });
-    expect(loadRichHistory).toBeCalledTimes(1);
-
-    unmount();
-    expect(loadRichHistory).toBeCalledTimes(1);
-
-    setup({ loadRichHistory });
-    expect(loadRichHistory).toBeCalledTimes(2);
+    const wrapper = setup();
+    expect(wrapper.getDOMNode().getAttribute('style')).toContain('height: 400px');
   });
 });

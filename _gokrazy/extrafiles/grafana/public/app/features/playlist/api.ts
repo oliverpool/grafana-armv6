@@ -1,10 +1,9 @@
 import { getBackendSrv } from '@grafana/runtime';
 
+import { Playlist, PlaylistDTO } from './types';
+import { dispatch } from '../../store/store';
 import { notifyApp } from '../../core/actions';
 import { createErrorNotification, createSuccessNotification } from '../../core/copy/appNotification';
-import { dispatch } from '../../store/store';
-
-import { Playlist, PlaylistDTO } from './types';
 
 export async function createPlaylist(playlist: Playlist) {
   await withErrorHandling(() => getBackendSrv().post('/api/playlists', playlist));

@@ -1,8 +1,8 @@
-import { flatten } from 'lodash';
 import React, { useMemo, useCallback, FC } from 'react';
+import { flatten } from 'lodash';
 
-import { SelectableValue } from '@grafana/data';
 import { LegacyForms } from '@grafana/ui';
+import { SelectableValue } from '@grafana/data';
 import { Variable } from 'app/types/templates';
 const { Select } = LegacyForms;
 

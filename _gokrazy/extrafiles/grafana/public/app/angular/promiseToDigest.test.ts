@@ -1,5 +1,4 @@
 import { IScope } from 'angular';
-
 import { promiseToDigest } from './promiseToDigest';
 
 describe('promiseToDigest', () => {

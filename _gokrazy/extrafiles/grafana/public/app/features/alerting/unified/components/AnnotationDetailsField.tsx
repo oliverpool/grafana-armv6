@@ -1,13 +1,10 @@
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { Tooltip, useStyles } from '@grafana/ui';
-
-import { Annotation, annotationLabels } from '../utils/constants';
-
-import { DetailsField } from './DetailsField';
 import { Well } from './Well';
+import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
+import { Tooltip, useStyles } from '@grafana/ui';
+import { DetailsField } from './DetailsField';
+import { Annotation, annotationLabels } from '../utils/constants';
 
 const wellableAnnotationKeys = ['message', 'description'];
 
@@ -34,22 +31,15 @@ export const AnnotationDetailsField: FC<Props> = ({ annotationKey, value }) => {
 
 const AnnotationValue: FC<Props> = ({ annotationKey, value }) => {
   const styles = useStyles(getStyles);
-
-  const needsWell = wellableAnnotationKeys.includes(annotationKey);
-  const needsLink = value && value.startsWith('http');
-
-  if (needsWell) {
-    return <Well className={styles.well}>{value}</Well>;
-  }
-
-  if (needsLink) {
+  if (wellableAnnotationKeys.includes(annotationKey)) {
+    return <Well>{value}</Well>;
+  } else if (value && value.startsWith('http')) {
     return (
       <a href={value} target="__blank" className={styles.link}>
         {value}
       </a>
     );
   }
-
   return <>{value}</>;
 };
 

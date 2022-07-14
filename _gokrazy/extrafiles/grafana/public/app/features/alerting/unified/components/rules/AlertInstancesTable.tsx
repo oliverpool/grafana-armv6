@@ -1,15 +1,12 @@
-import { css } from '@emotion/css';
-import React, { FC, useMemo } from 'react';
-
 import { GrafanaTheme2 } from '@grafana/data';
 import { Alert } from 'app/types/unified-alerting';
-
+import { css } from '@emotion/css';
+import React, { FC, useMemo } from 'react';
 import { alertInstanceKey } from '../../utils/rules';
 import { AlertLabels } from '../AlertLabels';
-import { DynamicTable, DynamicTableColumnProps, DynamicTableItemProps } from '../DynamicTable';
-
 import { AlertInstanceDetails } from './AlertInstanceDetails';
 import { AlertStateTag } from './AlertStateTag';
+import { DynamicTable, DynamicTableColumnProps, DynamicTableItemProps } from '../DynamicTable';
 
 interface Props {
   instances: Alert[];
@@ -80,7 +77,7 @@ const columns: AlertTableColumnProps[] = [
     label: 'Created',
     // eslint-disable-next-line react/display-name
     renderCell: ({ data: { activeAt } }) => (
-      <>{activeAt.startsWith('0001') ? '-' : activeAt.slice(0, 19).replace('T', ' ')}</>
+      <>{activeAt.startsWith('0001') ? '-' : activeAt.substr(0, 19).replace('T', ' ')}</>
     ),
     size: '150px',
   },

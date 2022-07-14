@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-
-import { SelectableValue } from '@grafana/data';
 import { CollapsableSection, TagsInput, Select, Field, Input, Checkbox } from '@grafana/ui';
-
+import { SelectableValue } from '@grafana/data';
 import { DashboardLink, DashboardModel } from '../../state/DashboardModel';
 
 export const newLink = {

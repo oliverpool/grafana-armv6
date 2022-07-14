@@ -1,6 +1,12 @@
-import { isNumber } from 'lodash';
 import React, { PureComponent } from 'react';
-
+import {
+  BigValue,
+  BigValueGraphMode,
+  DataLinksContextMenu,
+  VizRepeater,
+  VizRepeaterRenderValueProps,
+  BigValueTextMode,
+} from '@grafana/ui';
 import {
   DisplayValueAlignmentFactors,
   FieldDisplay,
@@ -10,19 +16,12 @@ import {
   NumericRange,
   PanelProps,
 } from '@grafana/data';
-import { findNumericFieldMinMax } from '@grafana/data/src/field/fieldOverrides';
-import {
-  BigValue,
-  BigValueGraphMode,
-  DataLinksContextMenu,
-  VizRepeater,
-  VizRepeaterRenderValueProps,
-  BigValueTextMode,
-} from '@grafana/ui';
-import { DataLinksContextMenuApi } from '@grafana/ui/src/components/DataLinks/DataLinksContextMenu';
-import { config } from 'app/core/config';
 
+import { config } from 'app/core/config';
 import { StatPanelOptions } from './types';
+import { DataLinksContextMenuApi } from '@grafana/ui/src/components/DataLinks/DataLinksContextMenu';
+import { findNumericFieldMinMax } from '@grafana/data/src/field/fieldOverrides';
+import { isNumber } from 'lodash';
 
 export class StatPanel extends PureComponent<PanelProps<StatPanelOptions>> {
   renderComponent = (

@@ -1,5 +1,4 @@
 import { config } from '@grafana/runtime';
-
 import {
   AzureAuthType,
   AzureCloud,
@@ -165,4 +164,8 @@ export function updateCredentials(
 
       return options;
   }
+}
+
+export function isAppInsightsConfigured(options: AzureDataSourceSettings) {
+  return !!(options.jsonData.appInsightsAppId && options.secureJsonFields.appInsightsApiKey);
 }

@@ -1,12 +1,10 @@
-import React, { FC } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useAsync } from 'react-use';
-
-import { urlUtil } from '@grafana/data';
-import { Alert, LinkButton, Button } from '@grafana/ui';
 import { DashboardModel, PanelModel } from 'app/features/dashboard/state';
-
+import React, { FC } from 'react';
+import { Alert, LinkButton, Button } from '@grafana/ui';
 import { panelToRuleFormValues } from '../../utils/rule-form';
+import { useLocation } from 'react-router-dom';
+import { urlUtil } from '@grafana/data';
+import { useAsync } from 'react-use';
 
 interface Props {
   panel: PanelModel;

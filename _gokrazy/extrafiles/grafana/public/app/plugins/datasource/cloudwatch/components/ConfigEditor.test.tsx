@@ -1,8 +1,6 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-
+import { shallow } from 'enzyme';
 import { AwsAuthType } from '@grafana/aws-sdk';
-
 import { ConfigEditor, Props } from './ConfigEditor';
 
 jest.mock('app/features/plugins/datasource_srv', () => ({

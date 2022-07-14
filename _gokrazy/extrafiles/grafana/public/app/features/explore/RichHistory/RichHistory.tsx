@@ -1,14 +1,17 @@
 import React, { PureComponent } from 'react';
 
-import { SelectableValue } from '@grafana/data';
-import { Themeable, withTheme, TabbedContainer, TabConfig } from '@grafana/ui';
-import { RICH_HISTORY_SETTING_KEYS } from 'app/core/history/richHistoryLocalStorageUtils';
+//Services & Utils
+import { RICH_HISTORY_SETTING_KEYS, SortOrder } from 'app/core/utils/richHistory';
 import store from 'app/core/store';
-import { SortOrder } from 'app/core/utils/richHistory';
-import { RichHistoryQuery, ExploreId } from 'app/types/explore';
+import { Themeable, withTheme, TabbedContainer, TabConfig } from '@grafana/ui';
 
-import { RichHistoryQueriesTab } from './RichHistoryQueriesTab';
+//Types
+import { RichHistoryQuery, ExploreId } from 'app/types/explore';
+import { SelectableValue } from '@grafana/data';
+
+//Components
 import { RichHistorySettings } from './RichHistorySettings';
+import { RichHistoryQueriesTab } from './RichHistoryQueriesTab';
 import { RichHistoryStarredTab } from './RichHistoryStarredTab';
 
 export enum Tabs {

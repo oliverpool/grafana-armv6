@@ -1,10 +1,7 @@
 import React, { FC, memo } from 'react';
-
-import { useUrlParams } from 'app/core/navigation/hooks';
-
-import { defaultQueryParams } from '../reducers/searchQueryReducer';
-
 import DashboardSearch from './DashboardSearch';
+import { useUrlParams } from 'app/core/navigation/hooks';
+import { defaultQueryParams } from '../reducers/searchQueryReducer';
 
 export const SearchWrapper: FC = memo(() => {
   const [params, updateUrlParams] = useUrlParams();

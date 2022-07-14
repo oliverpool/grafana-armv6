@@ -1,14 +1,12 @@
 import { Component } from 'react';
-import { Subscription } from 'rxjs';
-
 import { PanelProps } from '@grafana/data';
-import { PanelContext, PanelContextRoot } from '@grafana/ui';
-import { CanvasGroupOptions } from 'app/features/canvas';
-import { ElementState } from 'app/features/canvas/runtime/element';
-import { Scene } from 'app/features/canvas/runtime/scene';
-import { PanelEditEnteredEvent, PanelEditExitedEvent } from 'app/types/events';
-
 import { PanelOptions } from './models.gen';
+import { Subscription } from 'rxjs';
+import { PanelEditEnteredEvent, PanelEditExitedEvent } from 'app/types/events';
+import { CanvasGroupOptions } from 'app/features/canvas';
+import { Scene } from 'app/features/canvas/runtime/scene';
+import { PanelContext, PanelContextRoot } from '@grafana/ui';
+import { ElementState } from 'app/features/canvas/runtime/element';
 
 interface Props extends PanelProps<PanelOptions> {}
 

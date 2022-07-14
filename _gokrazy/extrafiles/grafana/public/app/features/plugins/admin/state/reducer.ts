@@ -1,11 +1,8 @@
 import { createSlice, createEntityAdapter, Reducer, AnyAction, PayloadAction } from '@reduxjs/toolkit';
-
-import { PanelPlugin } from '@grafana/data';
-
-import { STATE_PREFIX } from '../constants';
-import { CatalogPlugin, PluginListDisplayMode, ReducerState, RequestStatus } from '../types';
-
 import { fetchAll, fetchDetails, install, uninstall, loadPluginDashboards, panelPluginLoaded } from './actions';
+import { CatalogPlugin, PluginListDisplayMode, ReducerState, RequestStatus } from '../types';
+import { STATE_PREFIX } from '../constants';
+import { PanelPlugin } from '@grafana/data';
 
 export const pluginsAdapter = createEntityAdapter<CatalogPlugin>();
 

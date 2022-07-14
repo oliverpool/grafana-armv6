@@ -1,11 +1,9 @@
 import { sortedUniq } from 'lodash';
-import Prism, { Grammar } from 'prismjs';
 import { lastValueFrom } from 'rxjs';
-
+import Prism, { Grammar } from 'prismjs';
 import { AbsoluteTimeRange, HistoryItem, LanguageProvider } from '@grafana/data';
 import { CompletionItemGroup, SearchFunctionType, Token, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
 
-import { CloudWatchDatasource } from './datasource';
 import syntax, {
   AGGREGATION_FUNCTIONS_STATS,
   BOOLEAN_FUNCTIONS,
@@ -17,6 +15,7 @@ import syntax, {
   STRING_FUNCTIONS,
 } from './syntax';
 import { CloudWatchQuery, TSDBResponse } from './types';
+import { CloudWatchDatasource } from './datasource';
 
 export type CloudWatchHistoryItem = HistoryItem<CloudWatchQuery>;
 

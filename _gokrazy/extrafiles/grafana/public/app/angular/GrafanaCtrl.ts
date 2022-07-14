@@ -1,19 +1,23 @@
-import { IRootScopeService, IAngularEvent, auto } from 'angular';
+// Libraries
+// eslint-disable-next-line lodash/import-scope
+import _ from 'lodash';
 import $ from 'jquery';
-import _ from 'lodash'; // eslint-disable-line lodash/import-scope
 
-import { AppEvent } from '@grafana/data';
-import { setLegacyAngularInjector, setAppEvents, setAngularLoader } from '@grafana/runtime';
+// Utils and servies
 import { colors } from '@grafana/ui';
-import coreModule from 'app/angular/core_module';
-import { AngularLoader } from 'app/angular/services/AngularLoader';
-import appEvents from 'app/core/app_events';
+import { setLegacyAngularInjector, setAppEvents, setAngularLoader } from '@grafana/runtime';
 import config from 'app/core/config';
-import { ContextSrv } from 'app/core/services/context_srv';
-import { initGrafanaLive } from 'app/features/live';
-import { CoreEvents, AppEventEmitter, AppEventConsumer } from 'app/types';
+import coreModule from 'app/angular/core_module';
+import appEvents from 'app/core/app_events';
+import { AngularLoader } from 'app/angular/services/AngularLoader';
 
+// Types
+import { CoreEvents, AppEventEmitter, AppEventConsumer } from 'app/types';
 import { UtilSrv } from './services/UtilSrv';
+import { ContextSrv } from 'app/core/services/context_srv';
+import { IRootScopeService, IAngularEvent, auto } from 'angular';
+import { AppEvent } from '@grafana/data';
+import { initGrafanaLive } from 'app/features/live';
 
 export type GrafanaRootScope = IRootScopeService & AppEventEmitter & AppEventConsumer & { colors: string[] };
 

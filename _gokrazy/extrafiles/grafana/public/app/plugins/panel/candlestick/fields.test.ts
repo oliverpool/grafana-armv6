@@ -1,5 +1,4 @@
 import { createTheme, toDataFrame } from '@grafana/data';
-
 import { prepareCandlestickFields } from './fields';
 import { CandlestickOptions, VizDisplayMode } from './models.gen';
 

@@ -1,6 +1,6 @@
-import { css } from '@emotion/css';
 import React, { useCallback, useMemo, useRef, useLayoutEffect, useState } from 'react';
-
+import { css } from '@emotion/css';
+import { LogRows, CustomScrollbar, LogLabels, useStyles2, usePanelContext } from '@grafana/ui';
 import {
   PanelProps,
   Field,
@@ -11,14 +11,11 @@ import {
   DataHoverClearEvent,
   DataHoverEvent,
 } from '@grafana/data';
-import { LogRows, CustomScrollbar, LogLabels, useStyles2, usePanelContext } from '@grafana/ui';
+import { Options } from './types';
 import { dataFrameToLogsModel, dedupLogRows } from 'app/core/logs_model';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';
-import { PanelDataErrorView } from 'app/features/panel/components/PanelDataErrorView';
-
 import { COMMON_LABELS } from '../../../core/logs_model';
-
-import { Options } from './types';
+import { PanelDataErrorView } from 'app/features/panel/components/PanelDataErrorView';
 
 interface LogsPanelProps extends PanelProps<Options> {}
 

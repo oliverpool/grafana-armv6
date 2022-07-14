@@ -1,17 +1,13 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { useAsync } from 'react-use';
-
 import { CombinedRule, RuleIdentifier, RuleNamespace } from 'app/types/unified-alerting';
-import { RulerRulesConfigDTO } from 'app/types/unified-alerting-dto';
-
-import { fetchPromAndRulerRulesAction } from '../state/actions';
 import { AsyncRequestMapSlice, AsyncRequestState, initialAsyncRequestState } from '../utils/redux';
-import * as ruleId from '../utils/rule-id';
-import { isRulerNotSupportedResponse } from '../utils/rules';
-
 import { useCombinedRuleNamespaces } from './useCombinedRuleNamespaces';
 import { useUnifiedAlertingSelector } from './useUnifiedAlertingSelector';
+import { fetchPromRulesAction, fetchRulerRulesAction } from '../state/actions';
+import { RulerRulesConfigDTO } from 'app/types/unified-alerting-dto';
+import * as ruleId from '../utils/rule-id';
+import { isRulerNotSupportedResponse } from '../utils/rules';
 
 export function useCombinedRule(
   identifier: RuleIdentifier | undefined,
@@ -86,16 +82,17 @@ function useCombinedRulesLoader(rulesSourceName: string | undefined): AsyncReque
   const rulerRuleRequests = useUnifiedAlertingSelector((state) => state.rulerRules);
   const rulerRuleRequest = getRequestState(rulesSourceName, rulerRuleRequests);
 
-  const { loading } = useAsync(async () => {
+  useEffect(() => {
     if (!rulesSourceName) {
       return;
     }
 
-    await dispatch(fetchPromAndRulerRulesAction({ rulesSourceName }));
+    dispatch(fetchPromRulesAction({ rulesSourceName }));
+    dispatch(fetchRulerRulesAction({ rulesSourceName }));
   }, [dispatch, rulesSourceName]);
 
   return {
-    loading,
+    loading: promRuleRequest.loading || rulerRuleRequest.loading,
     error: promRuleRequest.error ?? isRulerNotSupportedResponse(rulerRuleRequest) ? undefined : rulerRuleRequest.error,
     dispatched: promRuleRequest.dispatched && rulerRuleRequest.dispatched,
   };

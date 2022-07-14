@@ -1,8 +1,7 @@
 import { each } from 'lodash';
+import coreModule from 'app/angular/core_module';
 // @ts-ignore
 import Drop from 'tether-drop';
-
-import coreModule from 'app/angular/core_module';
 
 export function infoPopover() {
   return {

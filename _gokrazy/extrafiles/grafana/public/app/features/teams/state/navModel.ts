@@ -1,10 +1,9 @@
-import { NavModelItem, NavModel } from '@grafana/data';
+import { AccessControlAction, Team, TeamPermissionLevel } from 'app/types';
 import { featureEnabled } from '@grafana/runtime';
-import { ProBadge } from 'app/core/components/Upgrade/ProBadge';
+import { NavModelItem, NavModel } from '@grafana/data';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
-import { highlightTrial } from 'app/features/admin/utils';
-import { AccessControlAction, Team, TeamPermissionLevel } from 'app/types';
+import { ProBadge } from 'app/core/components/Upgrade/ProBadge';
 
 const loadingTeam = {
   avatarUrl: 'public/img/user_profile.png',
@@ -52,7 +51,7 @@ export function buildNavModel(team: Team): NavModelItem {
     });
   }
 
-  const teamGroupSync: NavModelItem = {
+  const teamGroupSync = {
     active: false,
     icon: 'sync',
     id: `team-groupsync-${team.id}`,
@@ -61,11 +60,6 @@ export function buildNavModel(team: Team): NavModelItem {
   };
 
   const isLoadingTeam = team === loadingTeam;
-
-  if (highlightTrial()) {
-    teamGroupSync.tabSuffix = () =>
-      ProBadge({ experimentId: isLoadingTeam ? '' : 'feature-highlights-team-sync-badge', eventVariant: 'trial' });
-  }
 
   // With both Legacy and FGAC the tab is protected being featureEnabled
   // While team is loading we leave the teamsync tab

@@ -1,6 +1,5 @@
-import { css, cx } from '@emotion/css';
 import React, { FC, useState } from 'react';
-
+import { css, cx } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import {
   Button,
@@ -15,13 +14,8 @@ import {
   Select,
   Switch,
   useStyles2,
-  Badge,
-  VerticalGroup,
 } from '@grafana/ui';
-
-import { useMuteTimingOptions } from '../../hooks/useMuteTimingOptions';
 import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
-import { matcherFieldOptions } from '../../utils/alertmanager';
 import {
   emptyArrayFieldMatcher,
   mapMultiSelectValueToStrings,
@@ -31,8 +25,9 @@ import {
   stringsToSelectableValues,
 } from '../../utils/amroutes';
 import { timeOptions } from '../../utils/time';
-
 import { getFormStyles } from './formStyles';
+import { matcherFieldOptions } from '../../utils/alertmanager';
+import { useMuteTimingOptions } from '../../hooks/useMuteTimingOptions';
 
 export interface AmRoutesExpandedFormProps {
   onCancel: () => void;
@@ -45,12 +40,15 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
   const styles = useStyles2(getStyles);
   const formStyles = useStyles2(getFormStyles);
   const [overrideGrouping, setOverrideGrouping] = useState(routes.groupBy.length > 0);
+  const [overrideTimings, setOverrideTimings] = useState(
+    !!routes.groupWaitValue || !!routes.groupIntervalValue || !!routes.repeatIntervalValue
+  );
   const [groupByOptions, setGroupByOptions] = useState(stringsToSelectableValues(routes.groupBy));
   const muteTimingOptions = useMuteTimingOptions();
 
   return (
     <Form defaultValues={routes} onSubmit={onSave}>
-      {({ control, register, errors, setValue, watch }) => (
+      {({ control, register, errors, setValue }) => (
         <>
           {/* @ts-ignore-check: react-hook-form made me do this */}
           <input type="hidden" {...register('id')} />
@@ -58,85 +56,72 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
           <FieldArray name="object_matchers" control={control}>
             {({ fields, append, remove }) => (
               <>
-                <VerticalGroup justify="flex-start" spacing="md">
-                  <div>Matching labels</div>
-                  {fields.length === 0 && (
-                    <Badge
-                      color="orange"
-                      className={styles.noMatchersWarning}
-                      icon="exclamation-triangle"
-                      text="If no matchers are specified, this notification policy will handle all alert instances."
-                    />
-                  )}
-                  {fields.length > 0 && (
-                    <div className={styles.matchersContainer}>
-                      {fields.map((field, index) => {
-                        const localPath = `object_matchers[${index}]`;
-                        return (
-                          <HorizontalGroup key={field.id} align="flex-start" height="auto">
-                            <Field
-                              label="Label"
-                              invalid={!!errors.object_matchers?.[index]?.name}
-                              error={errors.object_matchers?.[index]?.name?.message}
-                            >
-                              <Input
-                                {...register(`${localPath}.name`, { required: 'Field is required' })}
-                                defaultValue={field.name}
-                                placeholder="label"
+                <div>Matching labels</div>
+                <div className={styles.matchersContainer}>
+                  {fields.map((field, index) => {
+                    const localPath = `object_matchers[${index}]`;
+                    return (
+                      <HorizontalGroup key={field.id} align="flex-start">
+                        <Field
+                          label="Label"
+                          invalid={!!errors.object_matchers?.[index]?.name}
+                          error={errors.object_matchers?.[index]?.name?.message}
+                        >
+                          <Input
+                            {...register(`${localPath}.name`, { required: 'Field is required' })}
+                            defaultValue={field.name}
+                            placeholder="label"
+                          />
+                        </Field>
+                        <Field label={'Operator'}>
+                          <InputControl
+                            render={({ field: { onChange, ref, ...field } }) => (
+                              <Select
+                                {...field}
+                                className={styles.matchersOperator}
+                                onChange={(value) => onChange(value?.value)}
+                                options={matcherFieldOptions}
+                                aria-label="Operator"
                               />
-                            </Field>
-                            <Field label={'Operator'}>
-                              <InputControl
-                                render={({ field: { onChange, ref, ...field } }) => (
-                                  <Select
-                                    {...field}
-                                    className={styles.matchersOperator}
-                                    onChange={(value) => onChange(value?.value)}
-                                    options={matcherFieldOptions}
-                                    aria-label="Operator"
-                                    menuShouldPortal
-                                  />
-                                )}
-                                defaultValue={field.operator}
-                                control={control}
-                                name={`${localPath}.operator` as const}
-                                rules={{ required: { value: true, message: 'Required.' } }}
-                              />
-                            </Field>
-                            <Field
-                              label="Value"
-                              invalid={!!errors.object_matchers?.[index]?.value}
-                              error={errors.object_matchers?.[index]?.value?.message}
-                            >
-                              <Input
-                                {...register(`${localPath}.value`, { required: 'Field is required' })}
-                                defaultValue={field.value}
-                                placeholder="value"
-                              />
-                            </Field>
-                            <IconButton
-                              className={styles.removeButton}
-                              tooltip="Remove matcher"
-                              name={'trash-alt'}
-                              onClick={() => remove(index)}
-                            >
-                              Remove
-                            </IconButton>
-                          </HorizontalGroup>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <Button
-                    className={styles.addMatcherBtn}
-                    icon="plus"
-                    onClick={() => append(emptyArrayFieldMatcher)}
-                    variant="secondary"
-                    type="button"
-                  >
-                    Add matcher
-                  </Button>
-                </VerticalGroup>
+                            )}
+                            defaultValue={field.operator}
+                            control={control}
+                            name={`${localPath}.operator` as const}
+                            rules={{ required: { value: true, message: 'Required.' } }}
+                          />
+                        </Field>
+                        <Field
+                          label="Value"
+                          invalid={!!errors.object_matchers?.[index]?.value}
+                          error={errors.object_matchers?.[index]?.value?.message}
+                        >
+                          <Input
+                            {...register(`${localPath}.value`, { required: 'Field is required' })}
+                            defaultValue={field.value}
+                            placeholder="value"
+                          />
+                        </Field>
+                        <IconButton
+                          className={styles.removeButton}
+                          tooltip="Remove matcher"
+                          name={'trash-alt'}
+                          onClick={() => remove(index)}
+                        >
+                          Remove
+                        </IconButton>
+                      </HorizontalGroup>
+                    );
+                  })}
+                </div>
+                <Button
+                  className={styles.addMatcherBtn}
+                  icon="plus"
+                  onClick={() => append(emptyArrayFieldMatcher)}
+                  variant="secondary"
+                  type="button"
+                >
+                  Add matcher
+                </Button>
               </>
             )}
           </FieldArray>
@@ -168,10 +153,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
             />
           </Field>
           {overrideGrouping && (
-            <Field
-              label="Group by"
-              description="Group alerts when you receive a notification based on labels. If empty it will be inherited from the parent policy."
-            >
+            <Field label="Group by" description="Group alerts when you receive a notification based on labels.">
               <InputControl
                 render={({ field: { onChange, ref, ...field } }) => (
                   <MultiSelect
@@ -196,13 +178,17 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
             </Field>
           )}
           <Field label="Override general timings">
-            <Switch id="override-timings-toggle" {...register('overrideTimings')} />
+            <Switch
+              id="override-timings-toggle"
+              value={overrideTimings}
+              onChange={() => setOverrideTimings((overrideTimings) => !overrideTimings)}
+            />
           </Field>
-          {watch().overrideTimings && (
+          {overrideTimings && (
             <>
               <Field
                 label="Group wait"
-                description="The waiting time until the initial notification is sent for a new group created by an incoming alert. If empty it will be inherited from the parent policy."
+                description="The waiting time until the initial notification is sent for a new group created by an incoming alert."
                 invalid={!!errors.groupWaitValue}
                 error={errors.groupWaitValue?.message}
               >
@@ -214,6 +200,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                           {...field}
                           className={formStyles.smallInput}
                           invalid={invalid}
+                          placeholder="Time"
                           aria-label="Group wait value"
                         />
                       )}
@@ -242,7 +229,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
               </Field>
               <Field
                 label="Group interval"
-                description="The waiting time to send a batch of new alerts for that group after the first notification was sent. If empty it will be inherited from the parent policy."
+                description="The waiting time to send a batch of new alerts for that group after the first notification was sent."
                 invalid={!!errors.groupIntervalValue}
                 error={errors.groupIntervalValue?.message}
               >
@@ -254,6 +241,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                           {...field}
                           className={formStyles.smallInput}
                           invalid={invalid}
+                          placeholder="Time"
                           aria-label="Group interval value"
                         />
                       )}
@@ -294,6 +282,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                           {...field}
                           className={formStyles.smallInput}
                           invalid={invalid}
+                          placeholder="Time"
                           aria-label="Repeat interval value"
                         />
                       )}
@@ -385,9 +374,6 @@ const getStyles = (theme: GrafanaTheme2) => {
       & > * + * {
         margin-left: ${theme.spacing(1.5)};
       }
-    `,
-    noMatchersWarning: css`
-      padding: ${theme.spacing(1)} ${theme.spacing(2)};
     `,
   };
 };

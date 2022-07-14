@@ -1,13 +1,10 @@
-import { css } from '@emotion/css';
 import React, { FC, MouseEvent } from 'react';
-
 import { GrafanaTheme } from '@grafana/data';
 import { Icon, stylesFactory, useTheme } from '@grafana/ui';
+import { css } from '@emotion/css';
 import store from 'app/core/store';
-
-import { TutorialCardType } from '../types';
-
 import { cardContent, cardStyle, iconStyle } from './sharedStyles';
+import { TutorialCardType } from '../types';
 
 interface Props {
   card: TutorialCardType;

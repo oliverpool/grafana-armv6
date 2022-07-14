@@ -1,7 +1,6 @@
 import { useAsync } from 'react-use';
-
-import { loadPlugin } from '../../utils';
 import { CatalogPlugin } from '../types';
+import { loadPlugin } from '../../utils';
 
 export const usePluginConfig = (plugin?: CatalogPlugin) => {
   return useAsync(async () => {

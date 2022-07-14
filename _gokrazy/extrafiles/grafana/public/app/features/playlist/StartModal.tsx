@@ -1,10 +1,8 @@
 import React, { FC, useState } from 'react';
-
 import { SelectableValue, urlUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
-import { Button, Checkbox, Field, FieldSet, Modal, RadioButtonGroup } from '@grafana/ui';
-
 import { PlaylistDTO, PlaylistMode } from './types';
+import { Button, Checkbox, Field, FieldSet, Modal, RadioButtonGroup } from '@grafana/ui';
 
 export interface StartModalProps {
   playlist: PlaylistDTO;

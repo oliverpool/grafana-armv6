@@ -1,5 +1,4 @@
 import { ArrayVector } from '@grafana/data';
-
 import { ZipkinSpan } from '../types';
 
 export const zipkinResponse: ZipkinSpan[] = [

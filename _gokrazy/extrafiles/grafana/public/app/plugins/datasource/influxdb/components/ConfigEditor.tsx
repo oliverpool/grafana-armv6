@@ -1,6 +1,5 @@
-import { uniqueId } from 'lodash';
 import React, { PureComponent } from 'react';
-
+import { uniqueId } from 'lodash';
 import {
   DataSourcePluginOptionsEditorProps,
   SelectableValue,
@@ -12,7 +11,6 @@ import {
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
 import { Alert, DataSourceHttpSettings, InfoBox, InlineField, InlineFormLabel, LegacyForms, Select } from '@grafana/ui';
-
 const { Input, SecretFormField } = LegacyForms;
 import { InfluxOptions, InfluxSecureJsonData, InfluxVersion } from '../types';
 

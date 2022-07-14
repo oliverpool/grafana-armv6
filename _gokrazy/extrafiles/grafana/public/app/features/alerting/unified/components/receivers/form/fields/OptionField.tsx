@@ -1,37 +1,23 @@
-import { css } from '@emotion/css';
-import { isEmpty } from 'lodash';
 import React, { FC, useEffect } from 'react';
-import { useFormContext, FieldError, DeepMap } from 'react-hook-form';
-
 import { Checkbox, Field, Input, InputControl, Select, TextArea } from '@grafana/ui';
 import { NotificationChannelOption } from 'app/types';
-
-import { KeyValueMapInput } from './KeyValueMapInput';
-import { StringArrayInput } from './StringArrayInput';
-import { SubformArrayField } from './SubformArrayField';
+import { useFormContext, FieldError, DeepMap } from 'react-hook-form';
 import { SubformField } from './SubformField';
+import { css } from '@emotion/css';
+import { KeyValueMapInput } from './KeyValueMapInput';
+import { SubformArrayField } from './SubformArrayField';
+import { StringArrayInput } from './StringArrayInput';
 
 interface Props {
   defaultValue: any;
   option: NotificationChannelOption;
   invalid?: boolean;
   pathPrefix: string;
-  pathSuffix?: string;
   error?: FieldError | DeepMap<any, FieldError>;
   readOnly?: boolean;
 }
 
-export const OptionField: FC<Props> = ({
-  option,
-  invalid,
-  pathPrefix,
-  pathSuffix = '',
-  error,
-  defaultValue,
-  readOnly = false,
-}) => {
-  const optionPath = `${pathPrefix}${pathSuffix}`;
-
+export const OptionField: FC<Props> = ({ option, invalid, pathPrefix, error, defaultValue, readOnly = false }) => {
   if (option.element === 'subform') {
     return (
       <SubformField
@@ -39,7 +25,7 @@ export const OptionField: FC<Props> = ({
         defaultValue={defaultValue}
         option={option}
         errors={error as DeepMap<any, FieldError> | undefined}
-        pathPrefix={optionPath}
+        pathPrefix={pathPrefix}
       />
     );
   }
@@ -49,7 +35,7 @@ export const OptionField: FC<Props> = ({
         readOnly={readOnly}
         defaultValues={defaultValue}
         option={option}
-        pathPrefix={optionPath}
+        pathPrefix={pathPrefix}
         errors={error as Array<DeepMap<any, FieldError>> | undefined}
       />
     );
@@ -62,27 +48,19 @@ export const OptionField: FC<Props> = ({
       error={error?.message}
     >
       <OptionInput
-        id={`${optionPath}${option.propertyName}`}
+        id={`${pathPrefix}${option.propertyName}`}
         defaultValue={defaultValue}
         option={option}
         invalid={invalid}
-        pathPrefix={optionPath}
+        pathPrefix={pathPrefix}
         readOnly={readOnly}
-        pathIndex={pathPrefix}
       />
     </Field>
   );
 };
 
-const OptionInput: FC<Props & { id: string; pathIndex?: string }> = ({
-  option,
-  invalid,
-  id,
-  pathPrefix = '',
-  pathIndex = '',
-  readOnly = false,
-}) => {
-  const { control, register, unregister, getValues } = useFormContext();
+const OptionInput: FC<Props & { id: string }> = ({ option, invalid, id, pathPrefix = '', readOnly = false }) => {
+  const { control, register, unregister } = useFormContext();
   const name = `${pathPrefix}${option.propertyName}`;
 
   // workaround for https://github.com/react-hook-form/react-hook-form/issues/4993#issuecomment-829012506
@@ -109,11 +87,11 @@ const OptionInput: FC<Props & { id: string; pathIndex?: string }> = ({
       return (
         <Input
           id={id}
-          readOnly={readOnly || determineReadOnly(option, getValues, pathIndex)}
+          readOnly={readOnly}
           invalid={invalid}
           type={option.inputType}
           {...register(name, {
-            required: determineRequired(option, getValues, pathIndex),
+            required: option.required ? 'Required' : false,
             validate: (v) => (option.validationRule !== '' ? validateOption(v, option.validationRule) : true),
           })}
           placeholder={option.placeholder}
@@ -179,34 +157,10 @@ const OptionInput: FC<Props & { id: string; pathIndex?: string }> = ({
 
 const styles = {
   checkbox: css`
-    height: auto; // native checkbox has fixed height which does not take into account description
+    height: auto; // native chekbox has fixed height which does not take into account description
   `,
 };
 
 const validateOption = (value: string, validationRule: string) => {
   return RegExp(validationRule).test(value) ? true : 'Invalid format';
-};
-
-const determineRequired = (option: NotificationChannelOption, getValues: any, pathIndex: string) => {
-  if (!option.dependsOn) {
-    return option.required ? 'Required' : false;
-  }
-  if (isEmpty(getValues(`${pathIndex}secureFields`))) {
-    const dependentOn = getValues(`${pathIndex}secureSettings.${option.dependsOn}`);
-    return !Boolean(dependentOn) && option.required ? 'Required' : false;
-  } else {
-    const dependentOn: boolean = getValues(`${pathIndex}secureFields.${option.dependsOn}`);
-    return !dependentOn && option.required ? 'Required' : false;
-  }
-};
-
-const determineReadOnly = (option: NotificationChannelOption, getValues: any, pathIndex: string) => {
-  if (!option.dependsOn) {
-    return false;
-  }
-  if (isEmpty(getValues(`${pathIndex}secureFields`))) {
-    return getValues(`${pathIndex}secureSettings.${option.dependsOn}`);
-  } else {
-    return getValues(`${pathIndex}secureFields.${option.dependsOn}`);
-  }
 };

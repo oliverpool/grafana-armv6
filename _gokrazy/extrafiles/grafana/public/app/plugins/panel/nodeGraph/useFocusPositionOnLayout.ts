@@ -1,5 +1,4 @@
 import usePrevious from 'react-use/lib/usePrevious';
-
 import { Config } from './layout';
 import { NodeDatum } from './types';
 

@@ -1,12 +1,9 @@
 import React, { FC, useState } from 'react';
-import { FieldError, DeepMap, useFormContext } from 'react-hook-form';
-
-import { Button, useStyles2 } from '@grafana/ui';
 import { NotificationChannelOption } from 'app/types';
-
-import { ActionIcon } from '../../../rules/ActionIcon';
-
+import { FieldError, DeepMap, useFormContext } from 'react-hook-form';
 import { OptionField } from './OptionField';
+import { Button, useStyles2 } from '@grafana/ui';
+import { ActionIcon } from '../../../rules/ActionIcon';
 import { getReceiverFormFieldStyles } from './styles';
 
 interface Props {

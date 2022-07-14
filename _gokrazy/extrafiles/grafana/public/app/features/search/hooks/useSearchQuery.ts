@@ -1,9 +1,8 @@
-import { debounce } from 'lodash';
 import { FormEvent, useCallback, useReducer } from 'react';
-
+import { debounce } from 'lodash';
 import { SelectableValue } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
-
+import { defaultQuery, defaultQueryParams, queryReducer } from '../reducers/searchQueryReducer';
 import {
   ADD_TAG,
   CLEAR_FILTERS,
@@ -12,9 +11,7 @@ import {
   SET_TAGS,
   TOGGLE_SORT,
   TOGGLE_STARRED,
-  DATASOURCE_CHANGE,
 } from '../reducers/actionTypes';
-import { defaultQuery, defaultQueryParams, queryReducer } from '../reducers/searchQueryReducer';
 import { DashboardQuery, SearchLayout } from '../types';
 import { hasFilters, parseRouteParams } from '../utils';
 
@@ -33,11 +30,6 @@ export const useSearchQuery = (defaults: Partial<DashboardQuery>) => {
   const onTagFilterChange = (tags: string[]) => {
     dispatch({ type: SET_TAGS, payload: tags });
     updateLocation({ tag: tags });
-  };
-
-  const onDatasourceChange = (datasource?: string) => {
-    dispatch({ type: DATASOURCE_CHANGE, payload: datasource });
-    updateLocation({ datasource });
   };
 
   const onTagAdd = useCallback(
@@ -83,6 +75,5 @@ export const useSearchQuery = (defaults: Partial<DashboardQuery>) => {
     onTagAdd,
     onSortChange,
     onLayoutChange,
-    onDatasourceChange,
   };
 };

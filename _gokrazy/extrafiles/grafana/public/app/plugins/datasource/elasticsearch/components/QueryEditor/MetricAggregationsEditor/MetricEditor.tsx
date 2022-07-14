@@ -1,17 +1,15 @@
-import { cx } from '@emotion/css';
-import React, { useCallback } from 'react';
-import { satisfies } from 'semver';
-
 import { SelectableValue } from '@grafana/data';
 import { InlineSegmentGroup, Segment, SegmentAsync, useTheme2 } from '@grafana/ui';
-
-import { useFields } from '../../../hooks/useFields';
-import { useDispatch } from '../../../hooks/useStatelessReducer';
-import { MetricPicker } from '../../MetricPicker';
+import { cx } from '@emotion/css';
+import React, { useCallback } from 'react';
 import { useDatasource, useQuery } from '../ElasticsearchQueryContext';
-import { segmentStyles } from '../styles';
-
+import { useDispatch } from '../../../hooks/useStatelessReducer';
+import { getStyles } from './styles';
 import { SettingsEditor } from './SettingsEditor';
+import { metricAggregationConfig } from './utils';
+import { changeMetricField, changeMetricType } from './state/actions';
+import { MetricPicker } from '../../MetricPicker';
+import { segmentStyles } from '../styles';
 import {
   isMetricAggregationWithField,
   isMetricAggregationWithInlineScript,
@@ -21,9 +19,8 @@ import {
   MetricAggregation,
   MetricAggregationType,
 } from './aggregations';
-import { changeMetricField, changeMetricType } from './state/actions';
-import { getStyles } from './styles';
-import { metricAggregationConfig } from './utils';
+import { useFields } from '../../../hooks/useFields';
+import { satisfies } from 'semver';
 
 const toOption = (metric: MetricAggregation) => ({
   label: metricAggregationConfig[metric.type].label,

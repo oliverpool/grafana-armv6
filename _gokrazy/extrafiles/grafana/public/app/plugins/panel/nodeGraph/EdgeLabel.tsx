@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
 import React, { memo } from 'react';
-
+import { EdgeDatum, NodeDatum } from './types';
+import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
-
-import { EdgeDatum, NodeDatum } from './types';
 import { shortenLine } from './utils';
 
 const getStyles = (theme: GrafanaTheme2) => {

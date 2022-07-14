@@ -1,6 +1,5 @@
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
 import { OrganizationState, OrgRole } from '../../../types';
-
 import {
   initialState,
   organizationLoaded,

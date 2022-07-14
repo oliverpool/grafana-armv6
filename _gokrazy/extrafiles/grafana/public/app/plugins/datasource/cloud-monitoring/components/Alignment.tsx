@@ -1,12 +1,10 @@
+import { SelectableValue } from '@grafana/data';
 import React, { FC } from 'react';
 
-import { SelectableValue } from '@grafana/data';
-
+import { AlignmentFunction, AlignmentPeriod, AlignmentPeriodLabel, QueryEditorField, QueryEditorRow } from '.';
 import { SELECT_WIDTH } from '../constants';
 import CloudMonitoringDatasource from '../datasource';
 import { CustomMetaData, MetricQuery, SLOQuery } from '../types';
-
-import { AlignmentFunction, AlignmentPeriod, AlignmentPeriodLabel, QueryEditorField, QueryEditorRow } from '.';
 
 export interface Props {
   refId: string;

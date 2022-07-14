@@ -1,5 +1,4 @@
 import { DataSourcePlugin } from '@grafana/data';
-
 import { ConfigEditor } from './ConfigEditor';
 import { AlertManagerDatasource } from './DataSource';
 

@@ -1,15 +1,11 @@
 import React, { useEffect } from 'react';
-
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { Alert, DataSourceHttpSettings } from '@grafana/ui';
-import { config } from 'app/core/config';
-
+import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { ElasticsearchOptions } from '../types';
-import { isDeprecatedVersion } from '../utils';
-
-import { DataLinks } from './DataLinks';
 import { ElasticDetails } from './ElasticDetails';
 import { LogsConfig } from './LogsConfig';
+import { DataLinks } from './DataLinks';
+import { config } from 'app/core/config';
 import { coerceOptions, isValidOptions } from './utils';
 
 export type Props = DataSourcePluginOptionsEditorProps<ElasticsearchOptions>;
@@ -27,18 +23,11 @@ export const ConfigEditor = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const deprecatedVersion = isDeprecatedVersion(options.jsonData.esVersion);
-
   return (
     <>
       {options.access === 'direct' && (
         <Alert title="Deprecation Notice" severity="warning">
           Browser access mode in the Elasticsearch datasource is deprecated and will be removed in a future release.
-        </Alert>
-      )}
-      {deprecatedVersion && (
-        <Alert title="Deprecation notice" severity="warning">
-          {`Support for Elasticsearch versions after their end-of-life (currently versions < 7.10) is deprecated and will be removed in a future release.`}
         </Alert>
       )}
 

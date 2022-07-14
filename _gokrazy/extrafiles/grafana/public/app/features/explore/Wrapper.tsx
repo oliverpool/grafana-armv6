@@ -1,17 +1,16 @@
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
-import { locationService } from '@grafana/runtime';
-import { ErrorBoundaryAlert } from '@grafana/ui';
-import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
-import { StoreState } from 'app/types';
 import { ExploreId, ExploreQueryParams } from 'app/types/explore';
-
-import { Branding } from '../../core/components/Branding/Branding';
-import { getNavModel } from '../../core/selectors/navModel';
-
-import { ExplorePaneContainer } from './ExplorePaneContainer';
+import { ErrorBoundaryAlert } from '@grafana/ui';
 import { lastSavedUrl, resetExploreAction, richHistoryUpdatedAction } from './state/main';
+import { getRichHistory } from '../../core/utils/richHistory';
+import { ExplorePaneContainer } from './ExplorePaneContainer';
+import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { Branding } from '../../core/components/Branding/Branding';
+
+import { getNavModel } from '../../core/selectors/navModel';
+import { StoreState } from 'app/types';
+import { locationService } from '@grafana/runtime';
 
 interface RouteProps extends GrafanaRouteComponentProps<{}, ExploreQueryParams> {}
 interface OwnProps {}
@@ -53,6 +52,9 @@ class WrapperUnconnected extends PureComponent<Props> {
     if (searchParams.from || searchParams.to) {
       locationService.partial({ from: undefined, to: undefined }, true);
     }
+
+    const richHistory = getRichHistory();
+    this.props.richHistoryUpdatedAction({ richHistory });
   }
 
   componentDidUpdate(prevProps: Props) {

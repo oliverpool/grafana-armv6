@@ -1,5 +1,4 @@
 import { defaultsDeep } from 'lodash';
-
 import { CloudWatchAnnotationQuery } from './types';
 
 export class CloudWatchAnnotationsQueryCtrl {

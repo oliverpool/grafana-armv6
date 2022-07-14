@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
-
-import { NavModel, NavModelItem, NavModelBreadcrumb, GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
 import { Tab, TabsBar, Icon, IconName, useStyles2 } from '@grafana/ui';
+import { NavModel, NavModelItem, NavModelBreadcrumb, GrafanaTheme2 } from '@grafana/data';
 import { PanelHeaderMenuItem } from 'app/features/dashboard/dashgrid/PanelHeader/PanelHeaderMenuItem';
-
 import { ProBadge } from '../Upgrade/ProBadge';
 
 export interface Props {

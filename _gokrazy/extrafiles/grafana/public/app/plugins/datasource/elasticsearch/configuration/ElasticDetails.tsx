@@ -1,11 +1,8 @@
 import React from 'react';
-import { gte, lt, valid } from 'semver';
-
-import { DataSourceSettings, SelectableValue } from '@grafana/data';
 import { FieldSet, InlineField, Input, Select, InlineSwitch } from '@grafana/ui';
-
 import { ElasticsearchOptions, Interval } from '../types';
-
+import { DataSourceSettings, SelectableValue } from '@grafana/data';
+import { gte, lt, valid } from 'semver';
 import { isTruthy } from './utils';
 
 const indexPatternTypes: Array<SelectableValue<'none' | Interval>> = [

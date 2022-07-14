@@ -1,9 +1,7 @@
-import { render } from '@testing-library/react';
 import React from 'react';
-
-import InfluxDatasource from '../../datasource';
 import { InfluxQuery } from '../../types';
-
+import InfluxDatasource from '../../datasource';
+import { render } from '@testing-library/react';
 import { Editor } from './Editor';
 
 // we mock the @grafana/ui components we use to make sure they just show their "value".

@@ -1,13 +1,12 @@
-import { css } from '@emotion/css';
-import { useFocus, useKeyboard } from '@react-aria/interactions';
-import { useMenuItem } from '@react-aria/menu';
-import { mergeProps } from '@react-aria/utils';
-import { TreeState } from '@react-stately/tree';
-import { Node } from '@react-types/shared';
 import React, { ReactElement, useRef, useState } from 'react';
-
-import { GrafanaTheme2, NavModelItem } from '@grafana/data';
+import { css } from '@emotion/css';
 import { useTheme2 } from '@grafana/ui';
+import { GrafanaTheme2, NavModelItem } from '@grafana/data';
+import { useMenuItem } from '@react-aria/menu';
+import { useFocus, useKeyboard } from '@react-aria/interactions';
+import { TreeState } from '@react-stately/tree';
+import { mergeProps } from '@react-aria/utils';
+import { Node } from '@react-types/shared';
 
 import { useNavBarItemMenuContext } from './context';
 

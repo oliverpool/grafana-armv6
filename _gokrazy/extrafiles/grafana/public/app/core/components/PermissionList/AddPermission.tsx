@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
 import React, { Component } from 'react';
-
-import { GrafanaTheme, SelectableValue } from '@grafana/data';
-import { Button, Form, HorizontalGroup, Select, stylesFactory } from '@grafana/ui';
-import { TeamPicker } from 'app/core/components/Select/TeamPicker';
-import { UserPicker } from 'app/core/components/Select/UserPicker';
+import { css } from '@emotion/css';
 import config from 'app/core/config';
+import { UserPicker } from 'app/core/components/Select/UserPicker';
+import { TeamPicker } from 'app/core/components/Select/TeamPicker';
+import { Button, Form, HorizontalGroup, Select, stylesFactory } from '@grafana/ui';
+import { GrafanaTheme, SelectableValue } from '@grafana/data';
 import { OrgUser, Team } from 'app/types';
 import {
   dashboardPermissionLevels,
@@ -15,7 +14,6 @@ import {
   NewDashboardAclItem,
   OrgRole,
 } from 'app/types/acl';
-
 import { CloseButton } from '../CloseButton/CloseButton';
 
 export interface Props {
@@ -43,8 +41,8 @@ class AddPermissions extends Component<Props, NewDashboardAclItem> {
     };
   }
 
-  onTypeChanged = (item: SelectableValue<AclTarget>) => {
-    const type = item.value;
+  onTypeChanged = (item: any) => {
+    const type = item.value as AclTarget;
 
     switch (type) {
       case AclTarget.User:

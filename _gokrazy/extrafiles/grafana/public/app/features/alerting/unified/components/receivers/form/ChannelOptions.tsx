@@ -1,12 +1,9 @@
 import React from 'react';
-import { useFormContext, FieldError, FieldErrors, DeepMap } from 'react-hook-form';
-
 import { Button, Field, Input } from '@grafana/ui';
-import { NotificationChannelOption, NotificationChannelSecureFields } from 'app/types';
-
-import { ChannelValues, ReceiverFormValues } from '../../../types/receiver-form';
-
 import { OptionField } from './fields/OptionField';
+import { ChannelValues, ReceiverFormValues } from '../../../types/receiver-form';
+import { useFormContext, FieldError, FieldErrors, DeepMap } from 'react-hook-form';
+import { NotificationChannelOption, NotificationChannelSecureFields } from 'app/types';
 
 export interface Props<R extends ChannelValues> {
   defaultValues: R;
@@ -50,7 +47,12 @@ export function ChannelOptions<R extends ChannelValues>({
                 value="Configured"
                 suffix={
                   readOnly ? null : (
-                    <Button onClick={() => onResetSecureField(option.propertyName)} fill="text" type="button" size="sm">
+                    <Button
+                      onClick={() => onResetSecureField(option.propertyName)}
+                      variant="link"
+                      type="button"
+                      size="sm"
+                    >
                       Clear
                     </Button>
                   )
@@ -72,8 +74,7 @@ export function ChannelOptions<R extends ChannelValues>({
             readOnly={readOnly}
             key={key}
             error={error}
-            pathPrefix={pathPrefix}
-            pathSuffix={option.secure ? 'secureSettings.' : 'settings.'}
+            pathPrefix={option.secure ? `${pathPrefix}secureSettings.` : `${pathPrefix}settings.`}
             option={option}
           />
         );

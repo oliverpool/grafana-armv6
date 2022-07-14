@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-
 import { Button, FilterInput } from '@grafana/ui';
 
 interface Props {

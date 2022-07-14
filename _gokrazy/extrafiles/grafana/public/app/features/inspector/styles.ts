@@ -1,7 +1,6 @@
 import { css } from '@emotion/css';
-
-import { stylesFactory } from '@grafana/ui';
 import { config } from 'app/core/config';
+import { stylesFactory } from '@grafana/ui';
 
 export const getPanelInspectorStyles = stylesFactory(() => {
   return {
@@ -26,6 +25,11 @@ export const getPanelInspectorStyles = stylesFactory(() => {
     content: css`
       flex-grow: 1;
       height: 100%;
+      padding-bottom: 16px;
+    `,
+    contentQueryInspector: css`
+      flex-grow: 1;
+      padding: ${config.theme.spacing.md} 0;
     `,
     editor: css`
       font-family: monospace;
@@ -37,6 +41,20 @@ export const getPanelInspectorStyles = stylesFactory(() => {
     `,
     dataFrameSelect: css`
       flex-grow: 2;
+    `,
+    tabContent: css`
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    `,
+    dataTabContent: css`
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    `,
+    actionsWrapper: css`
+      display: flex;
     `,
     leftActions: css`
       display: flex;

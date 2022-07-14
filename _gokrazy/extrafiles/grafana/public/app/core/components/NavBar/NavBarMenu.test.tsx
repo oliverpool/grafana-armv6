@@ -1,10 +1,7 @@
-import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { render } from 'test/redux-rtl';
-
 import { NavModelItem } from '@grafana/data';
-
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NavBarMenu } from './NavBarMenu';
 
 describe('NavBarMenu', () => {

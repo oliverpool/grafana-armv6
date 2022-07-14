@@ -1,5 +1,4 @@
 import React, { FC } from 'react';
-
 import { Tooltip, Icon } from '@grafana/ui';
 import { LdapRole } from 'app/types';
 

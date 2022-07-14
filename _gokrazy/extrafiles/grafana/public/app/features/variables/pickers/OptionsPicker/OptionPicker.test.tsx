@@ -1,18 +1,15 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
-
-import { LoadingState } from '@grafana/data';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { selectors } from '@grafana/e2e-selectors';
+import { LoadingState } from '@grafana/data';
 
-import { queryBuilder } from '../../shared/testing/builders';
-import { getPreloadedState } from '../../state/helpers';
-import { QueryVariableModel, VariableWithMultiSupport, VariableWithOptions } from '../../types';
 import { VariablePickerProps } from '../types';
-
+import { QueryVariableModel, VariableWithMultiSupport, VariableWithOptions } from '../../types';
+import { queryBuilder } from '../../shared/testing/builders';
 import { optionPickerFactory } from './OptionsPicker';
-import { initialOptionPickerState, OptionsPickerState } from './reducer';
+import { initialState, OptionsPickerState } from './reducer';
 
 interface Args {
   pickerState?: Partial<OptionsPickerState>;
@@ -21,7 +18,6 @@ interface Args {
 
 const defaultVariable = queryBuilder()
   .withId('query0')
-  .withRootStateKey('key')
   .withName('query0')
   .withMulti()
   .withCurrent(['A', 'C'])
@@ -39,16 +35,17 @@ function setupTestContext({ pickerState = {}, variable = {} }: Args = {}) {
     onVariableChange,
   };
   const Picker = optionPickerFactory();
-  const optionsPicker: OptionsPickerState = { ...initialOptionPickerState, ...pickerState };
+  const optionsPicker: OptionsPickerState = { ...initialState, ...pickerState };
   const dispatch = jest.fn();
   const subscribe = jest.fn();
-  const templatingState = {
-    variables: {
-      [v.id]: { ...v },
+  const getState = jest.fn().mockReturnValue({
+    templating: {
+      variables: {
+        [v.id]: { ...v },
+      },
+      optionsPicker,
     },
-    optionsPicker,
-  };
-  const getState = jest.fn().mockReturnValue(getPreloadedState('key', templatingState));
+  });
   const store: any = { getState, dispatch, subscribe };
   const { rerender } = render(
     <Provider store={store}>

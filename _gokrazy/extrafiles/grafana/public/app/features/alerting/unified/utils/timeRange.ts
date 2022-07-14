@@ -1,6 +1,5 @@
 import { RelativeTimeRange } from '@grafana/data';
 import { AlertQuery } from 'app/types/unified-alerting-dto';
-
 import { ExpressionQuery, ExpressionQueryType } from '../../../expressions/types';
 
 const FALL_BACK_TIME_RANGE = { from: 21600, to: 0 };

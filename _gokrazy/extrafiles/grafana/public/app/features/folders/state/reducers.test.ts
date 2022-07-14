@@ -1,7 +1,4 @@
 import { FolderDTO, FolderState, OrgRole, PermissionLevel } from 'app/types';
-
-import { reducerTester } from '../../../../test/core/redux/reducerTester';
-
 import {
   folderReducer,
   initialState,
@@ -10,6 +7,7 @@ import {
   setCanViewFolderPermissions,
   setFolderTitle,
 } from './reducers';
+import { reducerTester } from '../../../../test/core/redux/reducerTester';
 
 function getTestFolder(): FolderDTO {
   return {
@@ -20,7 +18,6 @@ function getTestFolder(): FolderDTO {
     canSave: true,
     canEdit: true,
     canAdmin: true,
-    canDelete: true,
     version: 0,
   };
 }

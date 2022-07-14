@@ -1,9 +1,9 @@
 // Libraries
-import { isString, map as isArray } from 'lodash';
 import { from, merge, Observable, of, timer } from 'rxjs';
+import { isString, map as isArray } from 'lodash';
 import { catchError, map, mapTo, share, takeUntil, tap } from 'rxjs/operators';
-
 // Utils & Services
+import { backendSrv } from 'app/core/services/backend_srv';
 // Types
 import {
   DataFrame,
@@ -21,13 +21,11 @@ import {
   toDataFrame,
 } from '@grafana/data';
 import { toDataQueryError } from '@grafana/runtime';
-import { isExpressionReference } from '@grafana/runtime/src/utils/DataSourceWithBackend';
-import { backendSrv } from 'app/core/services/backend_srv';
+import { emitDataRequestEvent } from './queryAnalytics';
 import { dataSource as expressionDatasource } from 'app/features/expressions/ExpressionDatasource';
 import { ExpressionQuery } from 'app/features/expressions/types';
-
 import { cancelNetworkRequestsOnUnsubscribe } from './processing/canceler';
-import { emitDataRequestEvent } from './queryAnalytics';
+import { isExpressionReference } from '@grafana/runtime/src/utils/DataSourceWithBackend';
 
 type MapOfResponsePackets = { [str: string]: DataQueryResponse };
 
@@ -45,9 +43,7 @@ export function processResponsePacket(packet: DataQueryResponse, state: RunningQ
     ...state.packets,
   };
 
-  // updates to the same key will replace previous values
-  const key = packet.key ?? packet.data?.[0]?.refId ?? 'A';
-  packets[key] = packet;
+  packets[packet.key || 'A'] = packet;
 
   let loadingState = packet.state || LoadingState.Done;
   let error: DataQueryError | undefined = undefined;

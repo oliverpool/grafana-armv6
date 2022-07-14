@@ -1,12 +1,10 @@
 import { cloneDeep } from 'lodash';
 
-import { reducerTester } from '../../../../test/core/redux/reducerTester';
 import { getVariableTestContext } from '../state/helpers';
-import { VariablesState } from '../state/types';
-import { IntervalVariableModel } from '../types';
-import { toVariablePayload } from '../utils';
-
+import { toVariablePayload, VariablesState } from '../state/types';
 import { createIntervalVariableAdapter } from './adapter';
+import { IntervalVariableModel } from '../types';
+import { reducerTester } from '../../../../test/core/redux/reducerTester';
 import { createIntervalOptions, intervalVariableReducer } from './reducer';
 
 describe('intervalVariableReducer', () => {

@@ -1,9 +1,7 @@
 import React from 'react';
-
 import { Permissions } from 'app/core/components/AccessControl';
-import { contextSrv } from 'app/core/services/context_srv';
-
 import { AccessControlAction, Team } from '../../types';
+import { contextSrv } from 'app/core/services/context_srv';
 
 type TeamPermissionsProps = {
   team: Team;

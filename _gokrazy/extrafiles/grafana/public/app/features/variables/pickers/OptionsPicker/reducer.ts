@@ -1,11 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { cloneDeep, isString, trim } from 'lodash';
-
-import { applyStateChanges } from '../../../../core/utils/applyStateChanges';
-import { ALL_VARIABLE_VALUE } from '../../constants';
-import { isMulti, isQuery } from '../../guard';
 import { VariableOption, VariableWithOptions } from '../../types';
+import { isMulti, isQuery } from '../../guard';
+import { applyStateChanges } from '../../../../core/utils/applyStateChanges';
 import { containsSearchFilter } from '../../utils';
+import { ALL_VARIABLE_VALUE } from '../../constants';
 
 export interface ToggleOption {
   option?: VariableOption;
@@ -22,7 +21,7 @@ export interface OptionsPickerState {
   multi: boolean;
 }
 
-export const initialOptionPickerState: OptionsPickerState = {
+export const initialState: OptionsPickerState = {
   id: '',
   highlightIndex: -1,
   queryValue: '',
@@ -107,7 +106,7 @@ const updateAllSelection = (state: OptionsPickerState): OptionsPickerState => {
 
 const optionsPickerSlice = createSlice({
   name: 'templating/optionsPicker',
-  initialState: initialOptionPickerState,
+  initialState,
   reducers: {
     showOptions: (state, action: PayloadAction<VariableWithOptions>): OptionsPickerState => {
       const { query, options } = action.payload;
@@ -132,7 +131,7 @@ const optionsPickerSlice = createSlice({
       return applyStateChanges(state, updateDefaultSelection, updateOptions);
     },
     hideOptions: (state, action: PayloadAction): OptionsPickerState => {
-      return { ...initialOptionPickerState };
+      return { ...initialState };
     },
     toggleOption: (state, action: PayloadAction<ToggleOption>): OptionsPickerState => {
       const { option, clearOthers, forceSelect } = action.payload;
@@ -213,7 +212,7 @@ const optionsPickerSlice = createSlice({
 
       return applyStateChanges(state, updateDefaultSelection, updateOptions);
     },
-    cleanPickerState: () => initialOptionPickerState,
+    cleanPickerState: () => initialState,
   },
 });
 

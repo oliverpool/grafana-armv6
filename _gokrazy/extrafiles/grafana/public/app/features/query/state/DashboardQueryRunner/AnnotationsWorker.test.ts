@@ -1,17 +1,15 @@
 import { Subject, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
-
-import { AnnotationQuery } from '@grafana/data';
 import { setDataSourceSrv } from '@grafana/runtime';
 
-import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
-import * as annotationsSrv from '../../../annotations/executeAnnotationQuery';
-
 import { AnnotationsWorker } from './AnnotationsWorker';
-import { createDashboardQueryRunner, setDashboardQueryRunnerFactory } from './DashboardQueryRunner';
+import * as annotationsSrv from '../../../annotations/executeAnnotationQuery';
 import { getDefaultOptions, LEGACY_DS_NAME, NEXT_GEN_DS_NAME, toAsyncOfResult } from './testHelpers';
-import { DashboardQueryRunnerOptions, DashboardQueryRunnerWorkerResult } from './types';
+import { silenceConsoleOutput } from '../../../../../test/core/utils/silenceConsoleOutput';
+import { createDashboardQueryRunner, setDashboardQueryRunnerFactory } from './DashboardQueryRunner';
 import { emptyResult } from './utils';
+import { DashboardQueryRunnerOptions, DashboardQueryRunnerWorkerResult } from './types';
+import { AnnotationQuery } from '@grafana/data';
+import { delay } from 'rxjs/operators';
 
 function getTestContext(dataSourceSrvRejects = false) {
   jest.clearAllMocks();
@@ -69,7 +67,7 @@ function expectOnResults(args: {
         done();
       } catch (err) {
         subscription.unsubscribe();
-        done(err);
+        done.fail(err);
       }
     },
   });

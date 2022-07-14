@@ -2,9 +2,8 @@
  * Shared types that can be reused by Loki and other data sources
  */
 
-import { ComponentType } from 'react';
-
 import { DataSourceApi, RegistryItem, SelectableValue } from '@grafana/data';
+import { ComponentType } from 'react';
 
 export interface QueryBuilderLabelFilter {
   label: string;
@@ -28,13 +27,10 @@ export interface QueryBuilderOperationDef<T = any> extends RegistryItem {
   category: string;
   hideFromList?: boolean;
   alternativesKey?: string;
-  /** Can be used to control operation placement when adding a new operations, lower are placed first */
-  orderRank?: number;
   renderer: QueryBuilderOperationRenderer;
   addOperationHandler: QueryBuilderAddOperationHandler<T>;
   paramChangedHandler?: QueryBuilderOnParamChangedHandler;
-  explainHandler?: QueryBuilderExplainOperationHandler;
-  changeTypeHandler?: (op: QueryBuilderOperation, newDef: QueryBuilderOperationDef<T>) => QueryBuilderOperation;
+  explainHandler?: (op: QueryBuilderOperation, def: QueryBuilderOperationDef<T>) => string;
 }
 
 export type QueryBuilderAddOperationHandler<T> = (
@@ -42,8 +38,6 @@ export type QueryBuilderAddOperationHandler<T> = (
   query: T,
   modeller: VisualQueryModeller
 ) => T;
-
-export type QueryBuilderExplainOperationHandler = (op: QueryBuilderOperation, def: QueryBuilderOperationDef) => string;
 
 export type QueryBuilderOnParamChangedHandler = (
   index: number,
@@ -57,18 +51,14 @@ export type QueryBuilderOperationRenderer = (
   innerExpr: string
 ) => string;
 
-export type QueryBuilderOperationParamValue = string | number | boolean;
+export type QueryBuilderOperationParamValue = string | number;
 
 export interface QueryBuilderOperationParamDef {
   name: string;
-  type: 'string' | 'number' | 'boolean';
+  type: string;
   options?: string[] | number[] | Array<SelectableValue<string>>;
-  hideName?: boolean;
   restParam?: boolean;
   optional?: boolean;
-  placeholder?: string;
-  description?: string;
-  minWidth?: number;
   editor?: ComponentType<QueryBuilderOperationParamEditorProps>;
 }
 
@@ -85,10 +75,8 @@ export interface QueryBuilderOperationEditorProps {
 export interface QueryBuilderOperationParamEditorProps {
   value?: QueryBuilderOperationParamValue;
   paramDef: QueryBuilderOperationParamDef;
-  /** Parameter index */
   index: number;
   operation: QueryBuilderOperation;
-  operationIndex: number;
   query: any;
   datasource: DataSourceApi;
   onChange: (index: number, value: QueryBuilderOperationParamValue) => void;
@@ -96,14 +84,14 @@ export interface QueryBuilderOperationParamEditorProps {
 }
 
 export enum QueryEditorMode {
-  Code = 'code',
-  Builder = 'builder',
-  Explain = 'explain',
+  Builder,
+  Code,
+  Explain,
 }
 
 export interface VisualQueryModeller {
   getOperationsForCategory(category: string): QueryBuilderOperationDef[];
   getAlternativeOperations(key: string): QueryBuilderOperationDef[];
   getCategories(): string[];
-  getOperationDef(id: string): QueryBuilderOperationDef | undefined;
+  getOperationDef(id: string): QueryBuilderOperationDef;
 }

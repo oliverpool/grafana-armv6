@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
+import { render, screen } from '@testing-library/react';
 import { LokiOptionFieldsProps, LokiOptionFields } from './LokiOptionFields';
 
 const setup = (propOverrides?: LokiOptionFieldsProps) => {

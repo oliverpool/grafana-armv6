@@ -1,21 +1,18 @@
-import { css } from '@emotion/css';
 import React, { useEffect, useState, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Alert, Button, ConfirmModal, TextArea, HorizontalGroup, Field, Form, useStyles2 } from '@grafana/ui';
-
 import { useAlertManagerSourceName } from '../../hooks/useAlertManagerSourceName';
-import { useAlertManagersByPermission } from '../../hooks/useAlertManagerSources';
-import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
+import { AlertManagerPicker } from '../AlertManagerPicker';
+import { GRAFANA_RULES_SOURCE_NAME, isVanillaPrometheusAlertManagerDataSource } from '../../utils/datasource';
+import { useDispatch } from 'react-redux';
 import {
   deleteAlertManagerConfigAction,
   fetchAlertManagerConfigAction,
   updateAlertManagerConfigAction,
 } from '../../state/actions';
-import { GRAFANA_RULES_SOURCE_NAME, isVanillaPrometheusAlertManagerDataSource } from '../../utils/datasource';
+import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
 import { initialAsyncRequestState } from '../../utils/redux';
-import { AlertManagerPicker } from '../AlertManagerPicker';
 
 interface FormValues {
   configJSON: string;
@@ -23,9 +20,7 @@ interface FormValues {
 
 export default function AlertmanagerConfig(): JSX.Element {
   const dispatch = useDispatch();
-  const alertManagers = useAlertManagersByPermission('notification');
-  const [alertManagerSourceName, setAlertManagerSourceName] = useAlertManagerSourceName(alertManagers);
-
+  const [alertManagerSourceName, setAlertManagerSourceName] = useAlertManagerSourceName();
   const [showConfirmDeleteAMConfig, setShowConfirmDeleteAMConfig] = useState(false);
   const { loading: isDeleting } = useUnifiedAlertingSelector((state) => state.deleteAMConfig);
   const { loading: isSaving } = useUnifiedAlertingSelector((state) => state.saveAMConfig);
@@ -78,11 +73,7 @@ export default function AlertmanagerConfig(): JSX.Element {
 
   return (
     <div className={styles.container}>
-      <AlertManagerPicker
-        current={alertManagerSourceName}
-        onChange={setAlertManagerSourceName}
-        dataSources={alertManagers}
-      />
+      <AlertManagerPicker current={alertManagerSourceName} onChange={setAlertManagerSourceName} />
       {loadingError && !loading && (
         <Alert severity="error" title="Error loading Alertmanager configuration">
           {loadingError.message || 'Unknown error.'}

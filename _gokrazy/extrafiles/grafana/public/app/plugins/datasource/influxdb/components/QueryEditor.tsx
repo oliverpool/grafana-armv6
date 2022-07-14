@@ -1,16 +1,13 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
+import { css } from '@emotion/css';
 import { QueryEditorProps } from '@grafana/data';
-
-import InfluxDatasource from '../datasource';
-import { buildRawQuery } from '../queryUtils';
 import { InfluxOptions, InfluxQuery } from '../types';
-
+import InfluxDatasource from '../datasource';
 import { FluxQueryEditor } from './FluxQueryEditor';
-import { QueryEditorModeSwitcher } from './QueryEditorModeSwitcher';
 import { RawInfluxQLEditor } from './RawInfluxQLEditor';
 import { Editor as VisualInfluxQLEditor } from './VisualInfluxQLEditor/Editor';
+import { QueryEditorModeSwitcher } from './QueryEditorModeSwitcher';
+import { buildRawQuery } from '../queryUtils';
 
 type Props = QueryEditorProps<InfluxDatasource, InfluxQuery, InfluxOptions>;
 

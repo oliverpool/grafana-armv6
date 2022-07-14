@@ -1,8 +1,6 @@
-import { TestScheduler } from 'rxjs/testing';
-
 import { AlertState, getDefaultTimeRange, LoadingState, PanelData, toDataFrame } from '@grafana/data';
-
 import { mergePanelAndDashData } from './mergePanelAndDashData';
+import { TestScheduler } from 'rxjs/testing';
 
 function getTestContext() {
   const timeRange = getDefaultTimeRange();

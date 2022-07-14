@@ -1,5 +1,4 @@
 import { PanelModel } from 'app/features/dashboard/state';
-
 import { timelinePanelChangedHandler } from './migrations';
 
 describe('Timeline Migrations', () => {

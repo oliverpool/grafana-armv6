@@ -1,5 +1,4 @@
 import { PanelModel } from '@grafana/data';
-
 import { DashboardModel } from '../state/DashboardModel';
 
 describe('Merge dashbaord panels', () => {

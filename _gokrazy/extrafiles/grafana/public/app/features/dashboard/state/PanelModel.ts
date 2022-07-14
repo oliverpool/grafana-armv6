@@ -1,6 +1,10 @@
+// Libraries
 import { cloneDeep, defaultsDeep, isArray, isEqual, keys } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-
+// Utils
+import { getTemplateSrv, RefreshEvent } from '@grafana/runtime';
+import { getNextRefIdChar } from 'app/core/utils/query';
+// Types
 import {
   DataConfigSource,
   DataFrameDTO,
@@ -17,29 +21,24 @@ import {
   PanelModel as IPanelModel,
   DataSourceRef,
 } from '@grafana/data';
-import { getTemplateSrv, RefreshEvent } from '@grafana/runtime';
 import config from 'app/core/config';
-import { getNextRefIdChar } from 'app/core/utils/query';
-import { QueryGroupOptions } from 'app/types';
+import { PanelQueryRunner } from '../../query/state/PanelQueryRunner';
 import {
   PanelOptionsChangedEvent,
   PanelQueriesChangedEvent,
   PanelTransformationsChangedEvent,
   RenderEvent,
 } from 'app/types/events';
-
-import { PanelModelLibraryPanel } from '../../library-panels/types';
-import { PanelQueryRunner } from '../../query/state/PanelQueryRunner';
-import { getVariablesUrlParams } from '../../variables/getAllVariableValuesForUrl';
 import { getTimeSrv } from '../services/TimeSrv';
-import { TimeOverrideResult } from '../utils/panel';
-
+import { getVariablesUrlParams } from '../../variables/getAllVariableValuesForUrl';
 import {
   filterFieldConfigOverrides,
   getPanelOptionsWithDefaults,
   isStandardFieldProp,
   restoreCustomOverrideRules,
 } from './getPanelOptionsWithDefaults';
+import { QueryGroupOptions } from 'app/types';
+import { PanelModelLibraryPanel } from '../../library-panels/types';
 
 export interface GridPos {
   x: number;
@@ -48,6 +47,8 @@ export interface GridPos {
   h: number;
   static?: boolean;
 }
+
+import { TimeOverrideResult } from '../utils/panel';
 
 const notPersistedProperties: { [str: string]: boolean } = {
   events: true,
@@ -120,6 +121,7 @@ const defaults: any = {
     defaults: {},
     overrides: [],
   },
+  datasource: null,
   title: '',
 };
 
@@ -282,6 +284,12 @@ export class PanelModel implements DataConfigSource, IPanelModel {
       model[property] = cloneDeep(this[property]);
     }
 
+    if (model.datasource === undefined) {
+      // This is part of defaults as defaults are removed in save model and
+      // this should not be removed in save model as exporter needs to templatize it
+      model.datasource = null;
+    }
+
     return model;
   }
 
@@ -435,10 +443,12 @@ export class PanelModel implements DataConfigSource, IPanelModel {
 
   updateQueries(options: QueryGroupOptions) {
     const { dataSource } = options;
-    this.datasource = {
-      uid: dataSource.uid,
-      type: dataSource.type,
-    };
+    this.datasource = dataSource.default
+      ? null
+      : {
+          uid: dataSource.uid,
+          type: dataSource.type,
+        };
     this.cacheTimeout = options.cacheTimeout;
     this.timeFrom = options.timeRange?.from;
     this.timeShift = options.timeRange?.shift;

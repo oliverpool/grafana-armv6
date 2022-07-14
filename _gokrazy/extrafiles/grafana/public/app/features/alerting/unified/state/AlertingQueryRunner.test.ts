@@ -1,7 +1,3 @@
-import { Observable, of, throwError } from 'rxjs';
-import { delay, take } from 'rxjs/operators';
-import { createFetchResponse } from 'test/helpers/createFetchResponse';
-
 import {
   ArrayVector,
   DataFrame,
@@ -16,7 +12,9 @@ import {
 import { DataSourceSrv, FetchResponse } from '@grafana/runtime';
 import { BackendSrv } from 'app/core/services/backend_srv';
 import { AlertQuery } from 'app/types/unified-alerting-dto';
-
+import { Observable, of, throwError } from 'rxjs';
+import { delay, take } from 'rxjs/operators';
+import { createFetchResponse } from 'test/helpers/createFetchResponse';
 import { AlertingQueryResponse, AlertingQueryRunner } from './AlertingQueryRunner';
 
 describe('AlertingQueryRunner', () => {

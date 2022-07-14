@@ -1,17 +1,14 @@
-import { css } from '@emotion/css';
 import React from 'react';
-import { connect, ConnectedProps } from 'react-redux';
 import { useToggle } from 'react-use';
-
-import { applyFieldOverrides, DataFrame, GrafanaTheme2 } from '@grafana/data';
 import { Badge, Collapse, useStyles2, useTheme2 } from '@grafana/ui';
-
+import { applyFieldOverrides, DataFrame, GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
+import { ExploreId, StoreState } from '../../types';
+import { splitOpen } from './state/main';
+import { connect, ConnectedProps } from 'react-redux';
+import { useLinks } from './utils/links';
 import { NodeGraph } from '../../plugins/panel/nodeGraph';
 import { useCategorizeFrames } from '../../plugins/panel/nodeGraph/useCategorizeFrames';
-import { ExploreId, StoreState } from '../../types';
-
-import { splitOpen } from './state/main';
-import { useLinks } from './utils/links';
 
 const getStyles = (theme: GrafanaTheme2) => ({
   warningText: css`

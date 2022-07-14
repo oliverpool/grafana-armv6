@@ -1,12 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { useAsync, useDebounce } from 'react-use';
-
 import { Button, Icon, Input, Modal, useStyles } from '@grafana/ui';
-
-import { getConnectedDashboards } from '../../state/api';
-import { getModalStyles } from '../../styles';
-import { PanelModelWithLibraryPanel } from '../../types';
+import { useAsync, useDebounce } from 'react-use';
 import { usePanelSave } from '../../utils/usePanelSave';
+import { getConnectedDashboards } from '../../state/api';
+import { PanelModelWithLibraryPanel } from '../../types';
+import { getModalStyles } from '../../styles';
 
 interface Props {
   panel: PanelModelWithLibraryPanel;

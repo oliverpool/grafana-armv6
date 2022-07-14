@@ -1,16 +1,14 @@
 import { css } from '@emotion/css';
-import { startCase, uniqBy } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react';
-
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { TemplateSrv } from '@grafana/runtime';
 import { getSelectStyles, Select, useStyles2, useTheme2 } from '@grafana/ui';
+import { startCase, uniqBy } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
 
+import { QueryEditorField, QueryEditorRow } from '.';
 import { INNER_LABEL_WIDTH, LABEL_WIDTH, SELECT_WIDTH } from '../constants';
 import CloudMonitoringDatasource from '../datasource';
 import { MetricDescriptor } from '../types';
-
-import { QueryEditorField, QueryEditorRow } from '.';
 
 export interface Props {
   refId: string;

@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import React, { FunctionComponent } from 'react';
-
 import { DataQueryError } from '@grafana/data';
 import { Alert, useTheme2 } from '@grafana/ui';
 import { FadeIn } from 'app/core/components/Animations/FadeIn';
+import { css } from '@emotion/css';
 
 export interface ErrorContainerProps {
   queryError?: DataQueryError;

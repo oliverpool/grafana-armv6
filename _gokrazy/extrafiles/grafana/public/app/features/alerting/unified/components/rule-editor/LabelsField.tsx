@@ -1,9 +1,8 @@
-import { css, cx } from '@emotion/css';
 import React, { FC } from 'react';
-import { useFormContext } from 'react-hook-form';
-
-import { GrafanaTheme } from '@grafana/data';
 import { Button, Field, FieldArray, Input, InlineLabel, Label, useStyles } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { css, cx } from '@emotion/css';
+import { useFormContext } from 'react-hook-form';
 
 interface Props {
   className?: string;

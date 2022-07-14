@@ -1,43 +1,20 @@
-import { CombinedState, combineReducers, Reducer } from 'redux';
-
-import { initialVariableEditorState, variableEditorReducer, VariableEditorState } from '../editor/reducer';
-import { initialVariableInspectState, variableInspectReducer, VariableInspectState } from '../inspect/reducer';
-import { initialOptionPickerState, optionsPickerReducer, OptionsPickerState } from '../pickers/OptionsPicker/reducer';
-
-import { initialTransactionState, transactionReducer, TransactionState } from './transactionReducer';
-import { initialVariablesState, VariablesState } from './types';
+import { combineReducers } from '@reduxjs/toolkit';
+import { optionsPickerReducer } from '../pickers/OptionsPicker/reducer';
+import { variableEditorReducer } from '../editor/reducer';
 import { variablesReducer } from './variablesReducer';
+import { transactionReducer } from './transactionReducer';
+import { variableInspectReducer } from '../inspect/reducer';
 
-export interface TemplatingState {
-  editor: VariableEditorState;
-  variables: VariablesState;
-  optionsPicker: OptionsPickerState;
-  transaction: TransactionState;
-  inspect: VariableInspectState;
-}
+export const templatingReducers = combineReducers({
+  editor: variableEditorReducer,
+  variables: variablesReducer,
+  optionsPicker: optionsPickerReducer,
+  transaction: transactionReducer,
+  inspect: variableInspectReducer,
+});
 
-let templatingReducers: Reducer<CombinedState<TemplatingState>>;
+export type TemplatingState = ReturnType<typeof templatingReducers>;
 
-export function getTemplatingReducers() {
-  if (!templatingReducers) {
-    templatingReducers = combineReducers({
-      editor: variableEditorReducer,
-      variables: variablesReducer,
-      optionsPicker: optionsPickerReducer,
-      transaction: transactionReducer,
-      inspect: variableInspectReducer,
-    });
-  }
-
-  return templatingReducers;
-}
-
-export function getInitialTemplatingState() {
-  return {
-    editor: initialVariableEditorState,
-    variables: initialVariablesState,
-    optionsPicker: initialOptionPickerState,
-    transaction: initialTransactionState,
-    inspect: initialVariableInspectState,
-  };
-}
+export default {
+  templating: templatingReducers,
+};

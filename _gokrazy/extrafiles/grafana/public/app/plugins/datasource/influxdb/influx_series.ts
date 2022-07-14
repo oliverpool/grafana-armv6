@@ -1,7 +1,6 @@
 import { each, map, includes, flatten, keys } from 'lodash';
-
-import { FieldType, QueryResultMeta, TimeSeries, TableData } from '@grafana/data';
 import TableModel from 'app/core/table_model';
+import { FieldType, QueryResultMeta, TimeSeries, TableData } from '@grafana/data';
 
 export default class InfluxSeries {
   refId?: string;

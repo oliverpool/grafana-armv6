@@ -1,12 +1,9 @@
 import React, { PureComponent } from 'react';
-
 import { QueryEditorProps, ExploreMode } from '@grafana/data';
-
-import { CloudWatchDatasource } from '../datasource';
 import { CloudWatchJsonData, CloudWatchQuery } from '../types';
-
-import LogsQueryEditor from './LogsQueryEditor';
+import { CloudWatchDatasource } from '../datasource';
 import { MetricsQueryEditor } from './MetricsQueryEditor';
+import LogsQueryEditor from './LogsQueryEditor';
 
 export type Props = QueryEditorProps<CloudWatchDatasource, CloudWatchQuery, CloudWatchJsonData>;
 

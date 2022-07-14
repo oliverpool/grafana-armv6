@@ -1,6 +1,6 @@
 import { capitalize, groupBy, isEmpty } from 'lodash';
-import { of } from 'rxjs';
 import { v5 as uuidv5 } from 'uuid';
+import { of } from 'rxjs';
 
 import {
   FieldType,
@@ -19,11 +19,9 @@ import {
   ScopedVars,
   toDataFrame,
 } from '@grafana/data';
+
 import { getTemplateSrv, getDataSourceSrv } from '@grafana/runtime';
 import TableModel from 'app/core/table_model';
-
-import { renderLegendFormat } from '../prometheus/legend';
-
 import { formatQuery, getHighlighterExpressionsFromQuery } from './query_utils';
 import {
   LokiRangeQueryRequest,
@@ -40,6 +38,7 @@ import {
   LokiStreamResponse,
   LokiStats,
 } from './types';
+import { renderLegendFormat } from '../prometheus/legend';
 
 const UUID_NAMESPACE = '6ec946da-0f49-47a8-983a-1d76d17e7c92';
 
@@ -63,7 +62,7 @@ export function lokiStreamResultToDataFrame(stream: LokiStreamResult, reverse?: 
 
   for (const [ts, line] of stream.values) {
     // num ns epoch in string, we convert it to iso string here so it matches old format
-    times.add(new Date(parseInt(ts.slice(0, -6), 10)).toISOString());
+    times.add(new Date(parseInt(ts.substr(0, ts.length - 6), 10)).toISOString());
     timesNs.add(ts);
     lines.add(line);
     uids.add(createUid(ts, labelsString, line, usedUids, refId));
@@ -149,7 +148,7 @@ export function appendResponseToBufferedData(response: LokiTailResponse, data: M
 
     // Add each line
     for (const [ts, line] of stream.values) {
-      tsField.values.add(new Date(parseInt(ts.slice(0, -6), 10)).toISOString());
+      tsField.values.add(new Date(parseInt(ts.substr(0, ts.length - 6), 10)).toISOString());
       tsNsField.values.add(ts);
       lineField.values.add(line);
       labelsField.values.add(unique);
@@ -193,22 +192,11 @@ function lokiMatrixToTimeSeries(matrixResult: LokiMatrixResult, options: Transfo
   };
 }
 
-function parsePrometheusFormatSampleValue(value: string): number {
-  switch (value) {
-    case '+Inf':
-      return Number.POSITIVE_INFINITY;
-    case '-Inf':
-      return Number.NEGATIVE_INFINITY;
-    default:
-      return parseFloat(value);
-  }
-}
-
 export function lokiPointsToTimeseriesPoints(data: Array<[number, string]>): TimeSeriesValue[][] {
   const datapoints: TimeSeriesValue[][] = [];
 
   for (const [time, value] of data) {
-    let datapointValue: TimeSeriesValue = parsePrometheusFormatSampleValue(value);
+    let datapointValue: TimeSeriesValue = parseFloat(value);
 
     if (isNaN(datapointValue)) {
       datapointValue = null;
@@ -291,10 +279,12 @@ export function createMetricLabel(labelData: { [key: string]: string }, options?
 }
 
 function getOriginalMetricName(labelData: { [key: string]: string }) {
+  const metricName = labelData.__name__ || '';
+  delete labelData.__name__;
   const labelPart = Object.entries(labelData)
     .map((label) => `${label[0]}="${label[1]}"`)
     .join(',');
-  return `{${labelPart}}`;
+  return `${metricName}{${labelPart}}`;
 }
 
 export function decamelize(s: string): string {

@@ -1,9 +1,7 @@
-import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
 import React from 'react';
-
-import { InfluxQueryTag } from '../../types';
-
+import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
 import { TagsSection } from './TagsSection';
+import { InfluxQueryTag } from '../../types';
 
 function getTagKeys() {
   return Promise.resolve(['t1', 't2', 't3', 't4', 't5', 't6']);

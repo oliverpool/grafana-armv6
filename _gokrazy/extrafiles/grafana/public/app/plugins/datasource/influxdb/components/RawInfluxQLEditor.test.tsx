@@ -1,12 +1,9 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
-
 import { selectOptionInTest } from '@grafana/ui';
-
-import { InfluxQuery } from '../types';
-
 import { RawInfluxQLEditor } from './RawInfluxQLEditor';
+import { InfluxQuery } from '../types';
 
 const query: InfluxQuery = {
   refId: 'A',

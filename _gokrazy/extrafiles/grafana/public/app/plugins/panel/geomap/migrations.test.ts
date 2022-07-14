@@ -1,5 +1,4 @@
 import { PanelModel, FieldConfigSource } from '@grafana/data';
-
 import { mapMigrationHandler, mapPanelChangedHandler } from './migrations';
 describe('Worldmap Migrations', () => {
   let prevFieldConfig: FieldConfigSource;

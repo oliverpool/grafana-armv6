@@ -1,5 +1,4 @@
 import { invalidNamespaceError } from '../__mocks__/errors';
-
 import messageFromError from './messageFromError';
 
 describe('AzureMonitor: messageFromError', () => {

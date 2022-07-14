@@ -1,10 +1,7 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
+import { css } from '@emotion/css';
 import { Checkbox, Button, Tag, ModalsController } from '@grafana/ui';
-
 import { DecoratedRevisionModel } from '../DashboardSettings/VersionsSettings';
-
 import { RevertDashboardModal } from './RevertDashboardModal';
 
 type VersionsTableProps = {

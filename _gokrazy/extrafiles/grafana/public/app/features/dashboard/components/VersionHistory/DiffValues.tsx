@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
-import { isArray, isObject, isUndefined } from 'lodash';
 import React from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
+import { isArray, isObject, isUndefined } from 'lodash';
 import { useStyles2, Icon } from '@grafana/ui';
-
+import { GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
 import { Diff } from './utils';
 
 type DiffProps = {

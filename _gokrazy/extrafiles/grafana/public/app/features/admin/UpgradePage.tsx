@@ -1,15 +1,12 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import { connect } from 'react-redux';
-
-import { GrafanaTheme2, NavModel } from '@grafana/data';
+import { css } from '@emotion/css';
 import { LinkButton, useStyles2 } from '@grafana/ui';
-
+import { GrafanaTheme2, NavModel } from '@grafana/data';
 import Page from '../../core/components/Page/Page';
 import { getNavModel } from '../../core/selectors/navModel';
-import { StoreState } from '../../types';
-
 import { LicenseChrome } from './LicenseChrome';
+import { StoreState } from '../../types';
 import { ServerStats } from './ServerStats';
 
 interface Props {

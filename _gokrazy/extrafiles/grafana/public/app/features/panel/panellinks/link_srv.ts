@@ -1,5 +1,7 @@
 import { chain } from 'lodash';
-
+import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
+import { getTemplateSrv } from '@grafana/runtime';
+import { getConfig } from 'app/core/config';
 import {
   DataFrame,
   DataLink,
@@ -19,10 +21,6 @@ import {
   VariableSuggestion,
   VariableSuggestionsScope,
 } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
-import { getConfig } from 'app/core/config';
-import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
-
 import { getVariablesUrlParams } from '../../variables/getAllVariableValuesForUrl';
 
 const timeRangeVars = [

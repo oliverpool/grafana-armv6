@@ -1,8 +1,6 @@
-﻿import { ApiKeysState } from 'app/types';
-
+﻿import { getApiKeys, getApiKeysCount, getIncludeExpired, getIncludeExpiredDisabled } from './selectors';
 import { getMultipleMockKeys } from '../__mocks__/apiKeysMock';
-
-import { getApiKeys, getApiKeysCount, getIncludeExpired, getIncludeExpiredDisabled } from './selectors';
+import { ApiKeysState } from 'app/types';
 
 describe('API Keys selectors', () => {
   const mockKeys = getMultipleMockKeys(5);

@@ -1,19 +1,17 @@
-import { css } from '@emotion/css';
 import React, { useState } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
-import { useQueryParams } from 'app/core/hooks/useQueryParams';
-import { AlertmanagerGroup, AlertState } from 'app/plugins/datasource/alertmanager/types';
-
-import { useAlertManagerSourceName } from '../../hooks/useAlertManagerSourceName';
-import { useAlertManagersByPermission } from '../../hooks/useAlertManagerSources';
-import { getFiltersFromUrlParams } from '../../utils/misc';
 import { AlertManagerPicker } from '../AlertManagerPicker';
-
+import { MatcherFilter } from './MatcherFilter';
 import { AlertStateFilter } from './AlertStateFilter';
 import { GroupBy } from './GroupBy';
-import { MatcherFilter } from './MatcherFilter';
+import { AlertmanagerGroup, AlertState } from 'app/plugins/datasource/alertmanager/types';
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, useStyles2 } from '@grafana/ui';
+
+import { useAlertManagerSourceName } from '../../hooks/useAlertManagerSourceName';
+import { css } from '@emotion/css';
+import { getFiltersFromUrlParams } from '../../utils/misc';
+import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 interface Props {
   groups: AlertmanagerGroup[];
@@ -25,8 +23,7 @@ export const AlertGroupFilter = ({ groups }: Props) => {
   const { groupBy = [], queryString, alertState } = getFiltersFromUrlParams(queryParams);
   const matcherFilterKey = `matcher-${filterKey}`;
 
-  const alertManagers = useAlertManagersByPermission('instance');
-  const [alertManagerSourceName, setAlertManagerSourceName] = useAlertManagerSourceName(alertManagers);
+  const [alertManagerSourceName, setAlertManagerSourceName] = useAlertManagerSourceName();
   const styles = useStyles2(getStyles);
 
   const clearFilters = () => {
@@ -42,11 +39,7 @@ export const AlertGroupFilter = ({ groups }: Props) => {
 
   return (
     <div className={styles.wrapper}>
-      <AlertManagerPicker
-        current={alertManagerSourceName}
-        onChange={setAlertManagerSourceName}
-        dataSources={alertManagers}
-      />
+      <AlertManagerPicker current={alertManagerSourceName} onChange={setAlertManagerSourceName} />
       <div className={styles.filterSection}>
         <MatcherFilter
           className={styles.filterInput}

@@ -1,34 +1,26 @@
-import { useCallback } from 'react';
-
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import store from 'app/core/store';
-
+import { useCallback } from 'react';
 import { ALERTMANAGER_NAME_LOCAL_STORAGE_KEY, ALERTMANAGER_NAME_QUERY_KEY } from '../utils/constants';
-import { AlertManagerDataSource, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
+import { getAlertManagerDataSources, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
 
-function useIsAlertManagerAvailable(availableAlertManagers: AlertManagerDataSource[]) {
-  return useCallback(
-    (alertManagerName: string) => {
-      const availableAlertManagersNames = availableAlertManagers.map((am) => am.name);
-      return availableAlertManagersNames.includes(alertManagerName);
-    },
-    [availableAlertManagers]
+function isAlertManagerSource(alertManagerSourceName: string): boolean {
+  return (
+    alertManagerSourceName === GRAFANA_RULES_SOURCE_NAME ||
+    !!getAlertManagerDataSources().find((ds) => ds.name === alertManagerSourceName)
   );
 }
 
-/* This will return am name either from query params or from local storage or a default (grafana).
- * Due to RBAC permissions Grafana Managed Alert manager or external alert managers may not be available
- * In the worst case neihter GMA nor external alert manager is available
+/* this will return am name either from query params or from local storage or a default (grafana).
+ *
+ * fallbackUrl - if provided, will redirect to this url if alertmanager provided in query no longer
  */
-export function useAlertManagerSourceName(
-  availableAlertManagers: AlertManagerDataSource[]
-): [string | undefined, (alertManagerSourceName: string) => void] {
+export function useAlertManagerSourceName(): [string | undefined, (alertManagerSourceName: string) => void] {
   const [queryParams, updateQueryParams] = useQueryParams();
-  const isAlertManagerAvailable = useIsAlertManagerAvailable(availableAlertManagers);
 
   const update = useCallback(
     (alertManagerSourceName: string) => {
-      if (!isAlertManagerAvailable(alertManagerSourceName)) {
+      if (!isAlertManagerSource(alertManagerSourceName)) {
         return;
       }
       if (alertManagerSourceName === GRAFANA_RULES_SOURCE_NAME) {
@@ -39,29 +31,24 @@ export function useAlertManagerSourceName(
         updateQueryParams({ [ALERTMANAGER_NAME_QUERY_KEY]: alertManagerSourceName });
       }
     },
-    [updateQueryParams, isAlertManagerAvailable]
+    [updateQueryParams]
   );
 
   const querySource = queryParams[ALERTMANAGER_NAME_QUERY_KEY];
 
   if (querySource && typeof querySource === 'string') {
-    if (isAlertManagerAvailable(querySource)) {
+    if (isAlertManagerSource(querySource)) {
       return [querySource, update];
     } else {
       // non existing alertmanager
       return [undefined, update];
     }
   }
-
   const storeSource = store.get(ALERTMANAGER_NAME_LOCAL_STORAGE_KEY);
-  if (storeSource && typeof storeSource === 'string' && isAlertManagerAvailable(storeSource)) {
+  if (storeSource && typeof storeSource === 'string' && isAlertManagerSource(storeSource)) {
     update(storeSource);
     return [storeSource, update];
   }
 
-  if (isAlertManagerAvailable(GRAFANA_RULES_SOURCE_NAME)) {
-    return [GRAFANA_RULES_SOURCE_NAME, update];
-  }
-
-  return [undefined, update];
+  return [GRAFANA_RULES_SOURCE_NAME, update];
 }

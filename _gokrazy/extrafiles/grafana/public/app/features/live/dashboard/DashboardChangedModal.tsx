@@ -1,12 +1,10 @@
-import { css } from '@emotion/css';
 import React, { PureComponent } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
-import { config } from '@grafana/runtime';
 import { Modal, stylesFactory } from '@grafana/ui';
-
+import { css } from '@emotion/css';
 import { dashboardWatcher } from './dashboardWatcher';
+import { config } from '@grafana/runtime';
 import { DashboardEvent, DashboardEventAction } from './types';
+import { GrafanaTheme } from '@grafana/data';
 
 interface Props {
   event?: DashboardEvent;

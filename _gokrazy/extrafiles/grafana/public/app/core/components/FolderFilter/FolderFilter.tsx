@@ -1,11 +1,11 @@
+import React, { useCallback, useMemo, useState } from 'react';
 import { css } from '@emotion/css';
 import debounce from 'debounce-promise';
-import React, { useCallback, useMemo, useState } from 'react';
-
+import { AsyncMultiSelect, Icon, useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { AsyncMultiSelect, Icon, Button, useStyles2 } from '@grafana/ui';
-import { getBackendSrv } from 'app/core/services/backend_srv';
+
 import { FolderInfo, PermissionLevelString } from 'app/types';
+import { getBackendSrv } from 'app/core/services/backend_srv';
 
 export interface FolderFilterProps {
   onChange: (folder: FolderInfo[]) => void;
@@ -44,16 +44,9 @@ export function FolderFilter({ onChange: propsOnChange, maxMenuHeight }: FolderF
   return (
     <div className={styles.container}>
       {value.length > 0 && (
-        <Button
-          size="xs"
-          icon="trash-alt"
-          variant="link"
-          className={styles.clear}
-          onClick={() => onChange([])}
-          aria-label="Clear folders"
-        >
+        <span className={styles.clear} onClick={() => onChange([])}>
           Clear folders
-        </Button>
+        </span>
       )}
       <AsyncMultiSelect
         menuShouldPortal
@@ -97,10 +90,17 @@ function getStyles(theme: GrafanaTheme2) {
     `,
     clear: css`
       label: clear;
+      text-decoration: underline;
       font-size: ${theme.spacing(1.5)};
       position: absolute;
-      top: -${theme.spacing(4.5)};
+      top: -${theme.spacing(2.75)};
       right: 0;
+      cursor: pointer;
+      color: ${theme.colors.text.link};
+
+      &:hover {
+        color: ${theme.colors.text.maxContrast};
+      }
     `,
   };
 }

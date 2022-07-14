@@ -1,10 +1,7 @@
-import React, { FC, useMemo } from 'react';
-
 import { SelectableValue } from '@grafana/data';
-
-import { Annotation, annotationLabels } from '../../utils/constants';
-
+import React, { FC, useMemo } from 'react';
 import { SelectWithAdd } from './SelectWIthAdd';
+import { Annotation, annotationLabels } from '../../utils/constants';
 
 interface Props {
   onChange: (value: string) => void;

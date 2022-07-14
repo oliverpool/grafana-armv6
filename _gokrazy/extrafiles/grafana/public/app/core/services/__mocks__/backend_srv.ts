@@ -1,9 +1,7 @@
 import 'whatwg-fetch'; // fetch polyfill needed for Headers
 
-import { of } from 'rxjs';
-
 import { BackendSrvRequest, FetchResponse } from '@grafana/runtime';
-
+import { of } from 'rxjs';
 import { BackendSrv } from '../backend_srv';
 
 /**

@@ -1,14 +1,12 @@
-import { css } from '@emotion/css';
 import React, { ReactElement, useEffect, useState } from 'react';
+import { css } from '@emotion/css';
 import { useAsync } from 'react-use';
-
+import { CollapsableSection, HorizontalGroup, Icon, Spinner, Tooltip, useStyles, VerticalGroup } from '@grafana/ui';
 import { GrafanaTheme } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
-import { CollapsableSection, HorizontalGroup, Icon, Spinner, Tooltip, useStyles, VerticalGroup } from '@grafana/ui';
 
-import { DashboardModel } from '../../dashboard/state';
 import { VariableModel } from '../types';
-
+import { DashboardModel } from '../../dashboard/state';
 import { VariablesUnknownButton } from './VariablesUnknownButton';
 import { getUnknownsNetwork, UsagesToNetwork } from './utils';
 

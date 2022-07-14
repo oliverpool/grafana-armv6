@@ -1,12 +1,10 @@
-import React, { FC, useMemo } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
-
-import { getAggregationOptionsByMetric } from '../functions';
-import { MetricDescriptor, MetricKind, ValueTypes } from '../types';
+import React, { FC, useMemo } from 'react';
 
 import { QueryEditorField } from '.';
+import { getAggregationOptionsByMetric } from '../functions';
+import { MetricDescriptor, MetricKind, ValueTypes } from '../types';
 
 export interface Props {
   refId: string;

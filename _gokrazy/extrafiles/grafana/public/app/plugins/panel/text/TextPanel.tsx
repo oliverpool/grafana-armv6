@@ -1,16 +1,14 @@
 // Libraries
-import { css, cx } from '@emotion/css';
-import DangerouslySetHtmlContent from 'dangerously-set-html-content';
-import { debounce } from 'lodash';
 import React, { PureComponent } from 'react';
-
+import { debounce } from 'lodash';
 import { PanelProps, renderTextPanelMarkdown, textUtil } from '@grafana/data';
 // Utils
-import { CustomScrollbar, stylesFactory } from '@grafana/ui';
 import config from 'app/core/config';
-
 // Types
 import { PanelOptions, TextMode } from './models.gen';
+import { CustomScrollbar, stylesFactory } from '@grafana/ui';
+import { css, cx } from '@emotion/css';
+import DangerouslySetHtmlContent from 'dangerously-set-html-content';
 
 interface Props extends PanelProps<PanelOptions> {}
 

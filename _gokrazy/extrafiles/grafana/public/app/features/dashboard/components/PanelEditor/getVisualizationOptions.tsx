@@ -1,6 +1,4 @@
-import { get as lodashGet } from 'lodash';
 import React from 'react';
-
 import {
   EventBus,
   InterpolateFunction,
@@ -8,19 +6,19 @@ import {
   StandardEditorContext,
   VariableSuggestionsScope,
 } from '@grafana/data';
-import { PanelOptionsSupplier } from '@grafana/data/src/panel/PanelPlugin';
+import { get as lodashGet } from 'lodash';
+import { getDataLinksVariableSuggestions } from 'app/features/panel/panellinks/link_srv';
+import { OptionPaneRenderProps } from './types';
+import { setOptionImmutably, updateDefaultFieldConfigValue } from './utils';
+import { OptionsPaneItemDescriptor } from './OptionsPaneItemDescriptor';
+import { OptionsPaneCategoryDescriptor } from './OptionsPaneCategoryDescriptor';
 import {
   isNestedPanelOptions,
   NestedValueAccess,
   PanelOptionsEditorBuilder,
 } from '@grafana/data/src/utils/OptionsUIBuilders';
-import { getDataLinksVariableSuggestions } from 'app/features/panel/panellinks/link_srv';
-
-import { OptionsPaneCategoryDescriptor } from './OptionsPaneCategoryDescriptor';
-import { OptionsPaneItemDescriptor } from './OptionsPaneItemDescriptor';
+import { PanelOptionsSupplier } from '@grafana/data/src/panel/PanelPlugin';
 import { getOptionOverrides } from './state/getOptionOverrides';
-import { OptionPaneRenderProps } from './types';
-import { setOptionImmutably, updateDefaultFieldConfigValue } from './utils';
 
 type categoryGetter = (categoryNames?: string[]) => OptionsPaneCategoryDescriptor;
 

@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Seg } from './Seg';
 import { toSelectableValue } from './toSelectableValue';
 

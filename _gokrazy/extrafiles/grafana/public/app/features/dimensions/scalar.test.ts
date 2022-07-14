@@ -1,8 +1,6 @@
 import { ArrayVector, DataFrame, FieldType } from '@grafana/data';
-
-import { getScalarDimension } from './scalar';
-
 import { ScalarDimensionMode } from '.';
+import { getScalarDimension } from './scalar';
 
 describe('scalar dimensions', () => {
   it('handles string field', () => {

@@ -1,9 +1,7 @@
-import { DataSourceSettings } from '@grafana/data';
-
-import { createDatasourceSettings } from '../../../features/datasources/mocks';
-
 import { LokiDatasource, LOKI_ENDPOINT } from './datasource';
+import { DataSourceSettings } from '@grafana/data';
 import { LokiOptions } from './types';
+import { createDatasourceSettings } from '../../../features/datasources/mocks';
 
 interface Labels {
   [label: string]: string[];
@@ -45,7 +43,6 @@ export function makeMockLokiDatasource(labelsAndValues: Labels, series?: SeriesF
         }
       }
     },
-    interpolateString: (string: string) => string,
   } as any;
 }
 

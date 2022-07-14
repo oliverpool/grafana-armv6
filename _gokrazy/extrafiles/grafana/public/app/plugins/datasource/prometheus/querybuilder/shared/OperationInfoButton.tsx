@@ -1,11 +1,10 @@
 import { css } from '@emotion/css';
-import React, { useState } from 'react';
-import { usePopperTooltip } from 'react-popper-tooltip';
-
 import { GrafanaTheme2, renderMarkdown } from '@grafana/data';
 import { FlexItem } from '@grafana/experimental';
 import { Button, Portal, useStyles2 } from '@grafana/ui';
-
+import React, { useState } from 'react';
+import { usePopper } from 'react-popper';
+import { useToggle } from 'react-use';
 import { QueryBuilderOperation, QueryBuilderOperationDef } from './types';
 
 export interface Props {
@@ -15,39 +14,41 @@ export interface Props {
 
 export const OperationInfoButton = React.memo<Props>(({ def, operation }) => {
   const styles = useStyles2(getStyles);
-  const [show, setShow] = useState(false);
-  const { getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({
+  const [popperTrigger, setPopperTrigger] = useState<HTMLButtonElement | null>(null);
+  const [popover, setPopover] = useState<HTMLDivElement | null>(null);
+  const [isOpen, toggleIsOpen] = useToggle(false);
+
+  const popper = usePopper(popperTrigger, popover, {
     placement: 'top',
-    visible: show,
-    offset: [0, 16],
-    onVisibleChange: setShow,
-    interactive: true,
-    trigger: ['click'],
+    modifiers: [
+      { name: 'arrow', enabled: true },
+      {
+        name: 'preventOverflow',
+        enabled: true,
+        options: {
+          rootBoundary: 'viewport',
+        },
+      },
+    ],
   });
 
   return (
     <>
       <Button
-        title="Click to show description"
-        ref={setTriggerRef}
+        ref={setPopperTrigger}
         icon="info-circle"
         size="sm"
         variant="secondary"
         fill="text"
+        onClick={toggleIsOpen}
       />
-      {visible && (
+      {isOpen && (
         <Portal>
-          <div ref={setTooltipRef} {...getTooltipProps()} className={styles.docBox}>
+          <div ref={setPopover} style={popper.styles.popper} {...popper.attributes.popper} className={styles.docBox}>
             <div className={styles.docBoxHeader}>
               <span>{def.renderer(operation, def, '<expr>')}</span>
               <FlexItem grow={1} />
-              <Button
-                icon="times"
-                onClick={() => setShow(false)}
-                fill="text"
-                variant="secondary"
-                title="Remove operation"
-              />
+              <Button icon="times" onClick={toggleIsOpen} fill="text" variant="secondary" title="Remove operation" />
             </div>
             <div
               className={styles.docBoxBody}
@@ -66,9 +67,9 @@ const getStyles = (theme: GrafanaTheme2) => {
   return {
     docBox: css({
       overflow: 'hidden',
-      background: theme.colors.background.primary,
+      background: theme.colors.background.canvas,
       border: `1px solid ${theme.colors.border.strong}`,
-      boxShadow: theme.shadows.z3,
+      boxShadow: theme.shadows.z2,
       maxWidth: '600px',
       padding: theme.spacing(1),
       borderRadius: theme.shape.borderRadius(),

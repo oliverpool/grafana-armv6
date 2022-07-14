@@ -1,14 +1,12 @@
 import React, { FC, useMemo } from 'react';
 import { Provider } from 'react-redux';
-
-import { reportInteraction } from '@grafana/runtime';
 import { Button } from '@grafana/ui';
+import { reportInteraction } from '@grafana/runtime';
 
+import { createDependencyEdges, createDependencyNodes, filterNodesWithDependencies } from './utils';
 import { store } from '../../../store/store';
 import { VariableModel } from '../types';
-
 import { NetworkGraphModal } from './NetworkGraphModal';
-import { createDependencyEdges, createDependencyNodes, filterNodesWithDependencies } from './utils';
 
 interface OwnProps {
   variables: VariableModel[];

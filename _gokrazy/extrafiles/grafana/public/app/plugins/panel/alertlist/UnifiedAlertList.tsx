@@ -1,30 +1,28 @@
-import { css } from '@emotion/css';
-import { sortBy } from 'lodash';
 import React, { useEffect, useMemo } from 'react';
+import { sortBy } from 'lodash';
 import { useDispatch } from 'react-redux';
-
 import { GrafanaTheme2, PanelProps } from '@grafana/data';
-import { Alert, CustomScrollbar, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
-import { contextSrv } from 'app/core/services/context_srv';
+import { CustomScrollbar, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { css } from '@emotion/css';
+
 import alertDef from 'app/features/alerting/state/alertDef';
-import { useUnifiedAlertingSelector } from 'app/features/alerting/unified/hooks/useUnifiedAlertingSelector';
+import { GroupMode, SortOrder, UnifiedAlertListOptions } from './types';
+
+import { flattenRules, getFirstActiveAt } from 'app/features/alerting/unified/utils/rules';
+import { PromRuleWithLocation } from 'app/types/unified-alerting';
 import { fetchAllPromRulesAction } from 'app/features/alerting/unified/state/actions';
-import { labelsMatchMatchers, parseMatchers } from 'app/features/alerting/unified/utils/alertmanager';
-import { Annotation, RULE_LIST_POLL_INTERVAL_MS } from 'app/features/alerting/unified/utils/constants';
+import { useUnifiedAlertingSelector } from 'app/features/alerting/unified/hooks/useUnifiedAlertingSelector';
 import {
   getAllRulesSourceNames,
   GRAFANA_DATASOURCE_NAME,
   GRAFANA_RULES_SOURCE_NAME,
 } from 'app/features/alerting/unified/utils/datasource';
-import { flattenRules, getFirstActiveAt } from 'app/features/alerting/unified/utils/rules';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
-import { AccessControlAction } from 'app/types';
-import { PromRuleWithLocation } from 'app/types/unified-alerting';
+import { Annotation, RULE_LIST_POLL_INTERVAL_MS } from 'app/features/alerting/unified/utils/constants';
 import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
-
-import { GroupMode, SortOrder, UnifiedAlertListOptions } from './types';
-import GroupedModeView from './unified-alerting/GroupedView';
+import { labelsMatchMatchers, parseMatchers } from 'app/features/alerting/unified/utils/alertmanager';
 import UngroupedModeView from './unified-alerting/UngroupedView';
+import GroupedModeView from './unified-alerting/GroupedView';
 
 export function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
   const dispatch = useDispatch();
@@ -51,25 +49,16 @@ export function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
   const rules = useMemo(
     () =>
       filterRules(
-        props,
+        props.options,
         sortRules(
           props.options.sortOrder,
           Object.values(promRulesRequests).flatMap(({ result = [] }) => flattenRules(result))
         )
       ),
-    [props, promRulesRequests]
+    [props.options, promRulesRequests]
   );
 
-  const noAlertsMessage = rules.length === 0 ? 'No alerts matching filters' : undefined;
-
-  if (
-    !contextSrv.hasPermission(AccessControlAction.AlertingRuleRead) &&
-    !contextSrv.hasPermission(AccessControlAction.AlertingRuleExternalRead)
-  ) {
-    return (
-      <Alert title="Permission required">Sorry, you do not have the required permissions to read alert rules</Alert>
-    );
-  }
+  const noAlertsMessage = rules.length ? '' : 'No alerts';
 
   return (
     <CustomScrollbar autoHeightMin="100%" autoHeightMax="100%">
@@ -106,9 +95,7 @@ function sortRules(sortOrder: SortOrder, rules: PromRuleWithLocation[]) {
   return result;
 }
 
-function filterRules(props: PanelProps<UnifiedAlertListOptions>, rules: PromRuleWithLocation[]) {
-  const { options, replaceVariables } = props;
-
+function filterRules(options: PanelProps<UnifiedAlertListOptions>['options'], rules: PromRuleWithLocation[]) {
   let filteredRules = [...rules];
   if (options.dashboardAlerts) {
     const dashboardUid = getDashboardSrv().getCurrent()?.uid;
@@ -117,23 +104,21 @@ function filterRules(props: PanelProps<UnifiedAlertListOptions>, rules: PromRule
     );
   }
   if (options.alertName) {
-    const replacedName = replaceVariables(options.alertName);
     filteredRules = filteredRules.filter(({ rule: { name } }) =>
-      name.toLocaleLowerCase().includes(replacedName.toLocaleLowerCase())
+      name.toLocaleLowerCase().includes(options.alertName.toLocaleLowerCase())
     );
   }
-
-  filteredRules = filteredRules.filter((rule) => {
-    return (
-      (options.stateFilter.firing && rule.rule.state === PromAlertingRuleState.Firing) ||
-      (options.stateFilter.pending && rule.rule.state === PromAlertingRuleState.Pending) ||
-      (options.stateFilter.inactive && rule.rule.state === PromAlertingRuleState.Inactive)
-    );
-  });
-
+  if (Object.values(options.stateFilter).some((value) => value)) {
+    filteredRules = filteredRules.filter((rule) => {
+      return (
+        (options.stateFilter.firing && rule.rule.state === PromAlertingRuleState.Firing) ||
+        (options.stateFilter.pending && rule.rule.state === PromAlertingRuleState.Pending) ||
+        (options.stateFilter.inactive && rule.rule.state === PromAlertingRuleState.Inactive)
+      );
+    });
+  }
   if (options.alertInstanceLabelFilter) {
-    const replacedLabelFilter = replaceVariables(options.alertInstanceLabelFilter);
-    const matchers = parseMatchers(replacedLabelFilter);
+    const matchers = parseMatchers(options.alertInstanceLabelFilter);
     // Reduce rules and instances to only those that match
     filteredRules = filteredRules.reduce((rules, rule) => {
       const filteredAlerts = (rule.rule.alerts ?? []).filter(({ labels }) => labelsMatchMatchers(labels, matchers));

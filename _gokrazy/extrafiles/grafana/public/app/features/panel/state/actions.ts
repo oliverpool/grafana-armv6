@@ -1,20 +1,13 @@
-import { DataTransformerConfig, FieldConfigSource } from '@grafana/data';
-import { PanelModel } from 'app/features/dashboard/state/PanelModel';
-import { getPanelOptionsWithDefaults } from 'app/features/dashboard/state/getPanelOptionsWithDefaults';
-import { LibraryElementDTO } from 'app/features/library-panels/types';
-import { toPanelModelLibraryPanel } from 'app/features/library-panels/utils';
 import { getPanelPluginNotFound } from 'app/features/panel/components/PanelPluginError';
+import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { loadPanelPlugin } from 'app/features/plugins/admin/state/actions';
 import { ThunkResult } from 'app/types';
+import { panelModelAndPluginReady } from './reducers';
+import { LibraryElementDTO } from 'app/features/library-panels/types';
+import { toPanelModelLibraryPanel } from 'app/features/library-panels/utils';
 import { PanelOptionsChangedEvent, PanelQueriesChangedEvent } from 'app/types/events';
-
-import {
-  changePanelKey,
-  cleanUpAngularComponent,
-  panelModelAndPluginReady,
-  removePanel,
-  removePanels,
-} from './reducers';
+import { DataTransformerConfig, FieldConfigSource } from '@grafana/data';
+import { getPanelOptionsWithDefaults } from 'app/features/dashboard/state/getPanelOptionsWithDefaults';
 
 export function initPanelState(panel: PanelModel): ThunkResult<void> {
   return async (dispatch, getStore) => {
@@ -35,24 +28,6 @@ export function initPanelState(panel: PanelModel): ThunkResult<void> {
     }
 
     dispatch(panelModelAndPluginReady({ key: panel.key, plugin }));
-  };
-}
-
-export function cleanUpPanelState(panelKey: string): ThunkResult<void> {
-  return (dispatch, getStore) => {
-    const store = getStore().panels;
-    cleanUpAngularComponent(store[panelKey]);
-    dispatch(removePanel({ key: panelKey }));
-  };
-}
-
-export function cleanAndRemoveMany(panelKeys: string[]): ThunkResult<void> {
-  return (dispatch, getStore) => {
-    const store = getStore().panels;
-    for (const key of panelKeys) {
-      cleanUpAngularComponent(store[key]);
-    }
-    dispatch(removePanels({ keys: panelKeys }));
   };
 }
 
@@ -139,12 +114,6 @@ export function changeToLibraryPanel(panel: PanelModel, libraryPanel: LibraryEle
       panel.generateNewKey();
 
       await dispatch(panelModelAndPluginReady({ key: panel.key, plugin, cleanUpKey: oldKey }));
-    } else {
-      // Even if the plugin is the same, we want to change the key
-      // to force a rerender
-      const oldKey = panel.key;
-      panel.generateNewKey();
-      dispatch(changePanelKey({ oldKey, newKey: panel.key }));
     }
 
     panel.configRev = 0;

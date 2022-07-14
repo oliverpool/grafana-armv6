@@ -1,12 +1,10 @@
-import { screen, render } from '@testing-library/react';
 import React from 'react';
-
 import { dateTime, CoreApp } from '@grafana/data';
-
-import { PrometheusDatasource } from '../datasource';
-import { PromQuery } from '../types';
+import { screen, render } from '@testing-library/react';
 
 import { PromQueryEditor, testIds } from './PromQueryEditor';
+import { PrometheusDatasource } from '../datasource';
+import { PromQuery } from '../types';
 
 jest.mock('app/features/dashboard/services/TimeSrv', () => {
   return {

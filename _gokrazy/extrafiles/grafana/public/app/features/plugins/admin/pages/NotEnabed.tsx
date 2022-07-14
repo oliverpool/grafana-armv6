@@ -1,10 +1,8 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
+import { css } from '@emotion/css';
 import { NavModel, NavModelItem } from '@grafana/data';
-import { Page } from 'app/core/components/Page/Page';
-
 import { Page as PluginPage } from '../components/Page';
+import { Page } from 'app/core/components/Page/Page';
 
 const node: NavModelItem = {
   id: 'not-found',

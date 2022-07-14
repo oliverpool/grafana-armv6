@@ -1,24 +1,22 @@
-import { css, cx } from '@emotion/css';
 import React, { HTMLAttributes, useEffect } from 'react';
-
+import { css, cx } from '@emotion/css';
+import { useStyles2 } from '@grafana/ui';
 import { GrafanaTheme2 } from '@grafana/data';
 import { reportExperimentView } from '@grafana/runtime';
-import { useStyles2 } from '@grafana/ui';
 
 export interface Props extends HTMLAttributes<HTMLSpanElement> {
   text?: string;
   experimentId?: string;
-  eventVariant?: string;
 }
 
-export const ProBadge = ({ text = 'PRO', className, experimentId, eventVariant = '', ...htmlProps }: Props) => {
+export const ProBadge = ({ text = 'PRO', className, experimentId, ...htmlProps }: Props) => {
   const styles = useStyles2(getStyles);
 
   useEffect(() => {
     if (experimentId) {
-      reportExperimentView(experimentId, 'test', eventVariant);
+      reportExperimentView(experimentId, 'test', '');
     }
-  }, [experimentId, eventVariant]);
+  }, [experimentId]);
 
   return (
     <span className={cx(styles.badge, className)} {...htmlProps}>

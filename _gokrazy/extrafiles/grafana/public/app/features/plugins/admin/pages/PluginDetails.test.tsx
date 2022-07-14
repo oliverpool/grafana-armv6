@@ -1,19 +1,13 @@
-import { getDefaultNormalizer, render, RenderResult, SelectorMatcherOptions, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-
-import { PluginErrorCode, PluginSignatureStatus, PluginType, dateTimeFormatTimeAgo } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
+import { getDefaultNormalizer, render, RenderResult, SelectorMatcherOptions, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { config } from '@grafana/runtime';
-import { getRouteComponentProps } from 'app/core/navigation/__mocks__/routeProps';
-import { configureStore } from 'app/store/configureStore';
-
 import { mockPluginApis, getCatalogPluginMock, getPluginsStateMock, mockUserPermissions } from '../__mocks__';
-import * as api from '../api';
-import { usePluginConfig } from '../hooks/usePluginConfig';
-import { fetchRemotePlugins } from '../state/actions';
+import { configureStore } from 'app/store/configureStore';
+import PluginDetailsPage from './PluginDetails';
+import { getRouteComponentProps } from 'app/core/navigation/__mocks__/routeProps';
 import {
   CatalogPlugin,
   CatalogPluginDetails,
@@ -22,8 +16,11 @@ import {
   ReducerState,
   RequestStatus,
 } from '../types';
-
-import PluginDetailsPage from './PluginDetails';
+import * as api from '../api';
+import { fetchRemotePlugins } from '../state/actions';
+import { usePluginConfig } from '../hooks/usePluginConfig';
+import { PluginErrorCode, PluginSignatureStatus, PluginType, dateTimeFormatTimeAgo } from '@grafana/data';
+import { selectors } from '@grafana/e2e-selectors';
 
 jest.mock('@grafana/runtime', () => {
   const original = jest.requireActual('@grafana/runtime');
@@ -38,11 +35,6 @@ jest.mock('../hooks/usePluginConfig.tsx', () => ({
       meta: {},
     },
   })),
-}));
-
-jest.mock('../helpers.ts', () => ({
-  ...jest.requireActual('../helpers.ts'),
-  updatePanels: jest.fn(),
 }));
 
 const renderPluginDetails = (

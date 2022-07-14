@@ -1,13 +1,10 @@
-import { getCenter } from 'ol/extent';
-import { Geometry, Point } from 'ol/geom';
-
 import { DataFrame, Field, FieldType, KeyValue, toDataFrame } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-
+import { loadWorldmapPoints } from './worldmap';
+import { Geometry, Point } from 'ol/geom';
 import { frameFromGeoJSON } from '../format/geojson';
 import { pointFieldFromLonLat, pointFieldFromGeohash } from '../format/utils';
-
-import { loadWorldmapPoints } from './worldmap';
+import { getCenter } from 'ol/extent';
 
 export interface PlacenameInfo {
   point: () => Point | undefined; // lon, lat (WGS84)

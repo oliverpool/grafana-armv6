@@ -1,11 +1,8 @@
 import React, { ReactElement } from 'react';
-
 import { PluginType } from '@grafana/data';
-
 import { CatalogPlugin } from '../../types';
-
-import { GetStartedWithApp } from './GetStartedWithApp';
 import { GetStartedWithDataSource } from './GetStartedWithDataSource';
+import { GetStartedWithApp } from './GetStartedWithApp';
 
 type Props = {
   plugin: CatalogPlugin;

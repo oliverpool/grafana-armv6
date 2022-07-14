@@ -1,11 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit';
-
 import { LoadingState } from '@grafana/data';
-import { dashboardReducer } from 'app/features/dashboard/state/reducers';
 
-import { DashboardState, StoreState } from '../../../types';
-import { VariableAdapter } from '../adapters';
-import { NEW_VARIABLE_ID } from '../constants';
+import { VariablesState } from './types';
 import {
   DashboardVariableModel,
   initialVariableModelState,
@@ -15,9 +11,11 @@ import {
   VariableModel,
 } from '../types';
 
-import { keyedVariablesReducer, KeyedVariablesState } from './keyedVariablesReducer';
-import { getInitialTemplatingState, TemplatingState } from './reducers';
-import { VariablesState } from './types';
+import { VariableAdapter } from '../adapters';
+import { dashboardReducer } from 'app/features/dashboard/state/reducers';
+import { templatingReducers, TemplatingState } from './reducers';
+import { DashboardState } from '../../../types';
+import { NEW_VARIABLE_ID } from '../constants';
 
 export const getVariableState = (
   noOfVariables: number,
@@ -88,7 +86,6 @@ export const getVariableState = (
   for (let index = 0; index < noOfVariables; index++) {
     variables[index] = {
       id: index.toString(),
-      rootStateKey: 'key',
       type: 'query',
       name: `Name-${index}`,
       hide: VariableHide.dontHide,
@@ -105,7 +102,6 @@ export const getVariableState = (
   if (includeEmpty) {
     variables[NEW_VARIABLE_ID] = {
       id: NEW_VARIABLE_ID,
-      rootStateKey: 'key',
       type: 'query',
       name: `Name-${NEW_VARIABLE_ID}`,
       hide: VariableHide.dontHide,
@@ -126,15 +122,11 @@ export const getVariableTestContext = <Model extends VariableModel>(
   adapter: VariableAdapter<Model>,
   variableOverrides: Partial<Model> = {}
 ) => {
-  const defaults: Partial<VariableModel> = {
-    id: '0',
-    rootStateKey: 'key',
-    index: 0,
-    name: '0',
-  };
   const defaultVariable = {
     ...adapter.initialState,
-    ...defaults,
+    id: '0',
+    index: 0,
+    name: '0',
   };
 
   const initialState: VariablesState = {
@@ -147,31 +139,14 @@ export const getVariableTestContext = <Model extends VariableModel>(
 export const getRootReducer = () =>
   combineReducers({
     dashboard: dashboardReducer,
-    templating: keyedVariablesReducer,
+    templating: templatingReducers,
   });
 
-export type RootReducerType = { dashboard: DashboardState; templating: KeyedVariablesState };
+export type RootReducerType = { dashboard: DashboardState; templating: TemplatingState };
 
 export const getTemplatingRootReducer = () =>
   combineReducers({
-    templating: keyedVariablesReducer,
+    templating: templatingReducers,
   });
 
-export type TemplatingReducerType = { templating: KeyedVariablesState };
-
-export function getPreloadedState(
-  key: string,
-  templatingState: Partial<TemplatingState>
-): Pick<StoreState, 'templating'> {
-  return {
-    templating: {
-      lastKey: key,
-      keys: {
-        [key]: {
-          ...getInitialTemplatingState(),
-          ...templatingState,
-        },
-      },
-    },
-  };
-}
+export type TemplatingReducerType = { templating: TemplatingState };

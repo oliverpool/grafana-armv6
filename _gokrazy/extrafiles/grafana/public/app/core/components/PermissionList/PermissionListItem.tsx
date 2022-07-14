@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-
-import { SelectableValue } from '@grafana/data';
 import { Select, Icon, Button } from '@grafana/ui';
-import { FolderInfo } from 'app/types';
+import { SelectableValue } from '@grafana/data';
 import { dashboardPermissionLevels, DashboardAcl, PermissionLevel } from 'app/types/acl';
+import { FolderInfo } from 'app/types';
 
 const setClassNameHelper = (inherited: boolean) => {
   return inherited ? 'gf-form-disabled' : '';

@@ -1,14 +1,13 @@
-import { debounce } from 'lodash';
 import React, { PureComponent } from 'react';
-
+import { debounce } from 'lodash';
+import { AsyncSelect } from '@grafana/ui';
 import { AppEvents, SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { AsyncSelect } from '@grafana/ui';
+
+import appEvents from '../../app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 import { createFolder, getFolderById, searchFolders } from 'app/features/manage-dashboards/state/actions';
-
-import { AccessControlAction, PermissionLevelString } from '../../../types';
-import appEvents from '../../app_events';
+import { PermissionLevelString } from '../../../types';
 
 export interface Props {
   onChange: ($folder: { title: string; id: number }) => void;
@@ -82,12 +81,7 @@ export class FolderPicker extends PureComponent<Props, State> {
     const searchHits = await searchFolders(query, permissionLevel);
 
     const options: Array<SelectableValue<number>> = searchHits.map((hit) => ({ label: hit.title, value: hit.id }));
-
-    const hasAccess =
-      contextSrv.hasAccess(AccessControlAction.DashboardsWrite, contextSrv.isEditor) ||
-      contextSrv.hasAccess(AccessControlAction.DashboardsCreate, contextSrv.isEditor);
-
-    if (hasAccess && rootName?.toLowerCase().startsWith(query.toLowerCase()) && showRoot) {
+    if (contextSrv.isEditor && rootName?.toLowerCase().startsWith(query.toLowerCase()) && showRoot) {
       options.unshift({ label: rootName, value: 0 });
     }
 

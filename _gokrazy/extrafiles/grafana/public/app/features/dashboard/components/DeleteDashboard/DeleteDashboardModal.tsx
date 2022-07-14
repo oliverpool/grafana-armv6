@@ -1,14 +1,11 @@
+import React from 'react';
 import { css } from '@emotion/css';
 import { sumBy } from 'lodash';
-import React from 'react';
-import useAsyncFn from 'react-use/lib/useAsyncFn';
-
 import { Modal, ConfirmModal, Button } from '@grafana/ui';
-import { config } from 'app/core/config';
-
 import { DashboardModel, PanelModel } from '../../state';
-
 import { useDashboardDelete } from './useDashboardDelete';
+import useAsyncFn from 'react-use/lib/useAsyncFn';
+import { config } from 'app/core/config';
 
 type DeleteDashboardModalProps = {
   hideModal(): void;

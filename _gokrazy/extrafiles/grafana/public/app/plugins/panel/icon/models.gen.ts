@@ -18,9 +18,6 @@ export const defaultPanelOptions: PanelOptions = {
         mode: ResourceDimensionMode.Fixed,
         fixed: 'img/icons/unicons/analysis.svg',
       },
-      fill: {
-        fixed: 'green'
-      }
     },
   },
 };

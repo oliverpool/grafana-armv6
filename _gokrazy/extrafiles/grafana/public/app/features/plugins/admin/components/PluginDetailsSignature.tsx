@@ -1,9 +1,7 @@
 import React from 'react';
-
-import { PluginErrorCode, PluginSignatureStatus } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
+import { PluginErrorCode, PluginSignatureStatus } from '@grafana/data';
 import { Alert } from '@grafana/ui';
-
 import { CatalogPlugin } from '../types';
 
 type Props = {

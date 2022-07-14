@@ -1,13 +1,8 @@
 import { cloneDeep } from 'lodash';
-
-import { reducerTester } from '../../../../../test/core/redux/reducerTester';
-import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../../constants';
-import { QueryVariableModel, VariableOption } from '../../types';
-
 import {
   cleanPickerState,
   hideOptions,
-  initialOptionPickerState as optionsPickerInitialState,
+  initialState as optionsPickerInitialState,
   moveOptionsHighlight,
   OPTIONS_LIMIT,
   optionsPickerReducer,
@@ -19,6 +14,9 @@ import {
   updateOptionsFromSearch,
   updateSearchQuery,
 } from './reducer';
+import { reducerTester } from '../../../../../test/core/redux/reducerTester';
+import { QueryVariableModel, VariableOption } from '../../types';
+import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../../constants';
 
 const getVariableTestContext = (extend: Partial<OptionsPickerState>) => {
   return {

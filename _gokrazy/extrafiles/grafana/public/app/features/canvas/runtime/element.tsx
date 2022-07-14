@@ -1,7 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { OnDrag, OnResize } from 'react-moveable/declaration/types';
 
-import { LayerElement } from 'app/core/components/Layers/types';
 import {
   BackgroundImageSize,
   CanvasElementItem,
@@ -10,10 +9,10 @@ import {
   Placement,
   Anchor,
 } from 'app/features/canvas';
-import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { DimensionContext } from 'app/features/dimensions';
-
+import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { GroupState } from './group';
+import { LayerElement } from 'app/core/components/Layers/types';
 import { Scene } from './scene';
 
 let counter = 0;

@@ -1,5 +1,4 @@
 import React, { FC, HTMLAttributes, MouseEvent, ReactElement, useCallback, useState } from 'react';
-
 import { CartesianCoords2D } from '@grafana/data';
 
 interface PanelHeaderMenuTriggerApi {

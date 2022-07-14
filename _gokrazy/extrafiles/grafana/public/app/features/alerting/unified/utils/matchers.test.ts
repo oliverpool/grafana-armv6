@@ -1,8 +1,6 @@
 import { MatcherOperator } from 'app/plugins/datasource/alertmanager/types';
-
-import { mockPromAlert } from '../mocks';
-
-import { getMatcherQueryParams, findAlertInstancesWithMatchers, parseQueryParamMatchers } from './matchers';
+import { getMatcherQueryParams, findAlertRulesWithMatchers, parseQueryParamMatchers } from './matchers';
+import { mockCombinedRule } from '../mocks';
 
 describe('Unified Alerting matchers', () => {
   describe('getMatcherQueryParams tests', () => {
@@ -29,7 +27,7 @@ describe('Unified Alerting matchers', () => {
       expect(matchers[1].value).toBe('YNZBpGJnk');
     });
 
-    it('Should create one matcher, using the first occurrence when duplicated labels exists', () => {
+    it('Should create one matcher, using the first occurence when duplicated labels exists', () => {
       const matchers = parseQueryParamMatchers(['alertname=TestData 1', 'alertname=TestData 2']);
 
       expect(matchers).toHaveLength(1);
@@ -41,42 +39,42 @@ describe('Unified Alerting matchers', () => {
   describe('matchLabelsToMatchers', () => {
     it('should match for equal', () => {
       const matchers = [{ name: 'foo', value: 'bar', operator: MatcherOperator.equal }];
-      const alerts = [mockPromAlert({ labels: { foo: 'bar' } }), mockPromAlert({ labels: { foo: 'baz' } })];
-      const matchedAlerts = findAlertInstancesWithMatchers(alerts, matchers);
+      const rules = [mockCombinedRule({ labels: { foo: 'bar' } }), mockCombinedRule({ labels: { foo: 'baz' } })];
+      const matchedRules = findAlertRulesWithMatchers(rules, matchers);
 
-      expect(matchedAlerts).toHaveLength(1);
+      expect(matchedRules).toHaveLength(1);
     });
 
     it('should match for not equal', () => {
       const matchers = [{ name: 'foo', value: 'bar', operator: MatcherOperator.notEqual }];
-      const alerts = [mockPromAlert({ labels: { foo: 'bar' } }), mockPromAlert({ labels: { foo: 'baz' } })];
+      const rules = [mockCombinedRule({ labels: { foo: 'bar' } }), mockCombinedRule({ labels: { foo: 'baz' } })];
 
-      const matchedAlerts = findAlertInstancesWithMatchers(alerts, matchers);
-      expect(matchedAlerts).toHaveLength(1);
+      const matchedRules = findAlertRulesWithMatchers(rules, matchers);
+      expect(matchedRules).toHaveLength(1);
     });
 
     it('should match for regex', () => {
       const matchers = [{ name: 'foo', value: 'bar', operator: MatcherOperator.regex }];
-      const alerts = [
-        mockPromAlert({ labels: { foo: 'bar' } }),
-        mockPromAlert({ labels: { foo: 'baz' } }),
-        mockPromAlert({ labels: { foo: 'bas' } }),
+      const rules = [
+        mockCombinedRule({ labels: { foo: 'bar' } }),
+        mockCombinedRule({ labels: { foo: 'baz' } }),
+        mockCombinedRule({ labels: { foo: 'bas' } }),
       ];
 
-      const matchedAlerts = findAlertInstancesWithMatchers(alerts, matchers);
-      expect(matchedAlerts).toHaveLength(1);
+      const matchedRules = findAlertRulesWithMatchers(rules, matchers);
+      expect(matchedRules).toHaveLength(1);
     });
 
     it('should not match regex', () => {
       const matchers = [{ name: 'foo', value: 'bar', operator: MatcherOperator.notRegex }];
-      const alerts = [
-        mockPromAlert({ labels: { foo: 'bar' } }),
-        mockPromAlert({ labels: { foo: 'baz' } }),
-        mockPromAlert({ labels: { foo: 'bas' } }),
+      const rules = [
+        mockCombinedRule({ labels: { foo: 'bar' } }),
+        mockCombinedRule({ labels: { foo: 'baz' } }),
+        mockCombinedRule({ labels: { foo: 'bas' } }),
       ];
 
-      const matchedAlerts = findAlertInstancesWithMatchers(alerts, matchers);
-      expect(matchedAlerts).toHaveLength(2);
+      const matchedRules = findAlertRulesWithMatchers(rules, matchers);
+      expect(matchedRules).toHaveLength(2);
     });
   });
 });

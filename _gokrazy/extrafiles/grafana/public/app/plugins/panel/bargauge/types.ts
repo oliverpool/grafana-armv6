@@ -1,11 +1,9 @@
-import { SelectableValue } from '@grafana/data';
 import { SingleStatBaseOptions, BarGaugeDisplayMode } from '@grafana/ui';
+import { SelectableValue } from '@grafana/data';
 
 export interface BarGaugeOptions extends SingleStatBaseOptions {
   displayMode: BarGaugeDisplayMode;
   showUnfilled: boolean;
-  minVizWidth: number;
-  minVizHeight: number;
 }
 
 export const displayModes: Array<SelectableValue<string>> = [

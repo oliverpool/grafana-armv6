@@ -1,22 +1,18 @@
 import { rangeUtil } from '@grafana/data';
 
+import { toVariablePayload, VariableIdentifier } from '../state/types';
 import { ThunkResult } from '../../../types';
+import { createIntervalOptions } from './reducer';
+import { validateVariableSelectionState } from '../state/actions';
+import { getVariable } from '../state/selectors';
+import { IntervalVariableModel } from '../types';
 import { getTimeSrv } from '../../dashboard/services/TimeSrv';
 import { getTemplateSrv, TemplateSrv } from '../../templating/template_srv';
-import { validateVariableSelectionState } from '../state/actions';
-import { toKeyedAction } from '../state/keyedVariablesReducer';
-import { getVariable } from '../state/selectors';
-import { KeyedVariableIdentifier } from '../state/types';
-import { IntervalVariableModel } from '../types';
-import { toVariablePayload } from '../utils';
-
-import { createIntervalOptions } from './reducer';
 
 export const updateIntervalVariableOptions =
-  (identifier: KeyedVariableIdentifier): ThunkResult<void> =>
+  (identifier: VariableIdentifier): ThunkResult<void> =>
   async (dispatch) => {
-    const { rootStateKey } = identifier;
-    await dispatch(toKeyedAction(rootStateKey, createIntervalOptions(toVariablePayload(identifier))));
+    await dispatch(createIntervalOptions(toVariablePayload(identifier)));
     await dispatch(updateAutoValue(identifier));
     await dispatch(validateVariableSelectionState(identifier));
   };
@@ -29,7 +25,7 @@ export interface UpdateAutoValueDependencies {
 
 export const updateAutoValue =
   (
-    identifier: KeyedVariableIdentifier,
+    identifier: VariableIdentifier,
     dependencies: UpdateAutoValueDependencies = {
       calculateInterval: rangeUtil.calculateInterval,
       getTimeSrv: getTimeSrv,
@@ -37,7 +33,7 @@ export const updateAutoValue =
     }
   ): ThunkResult<void> =>
   (dispatch, getState) => {
-    const variableInState = getVariable<IntervalVariableModel>(identifier, getState());
+    const variableInState = getVariable<IntervalVariableModel>(identifier.id, getState());
     if (variableInState.auto) {
       const res = dependencies.calculateInterval(
         dependencies.getTimeSrv().timeRange(),

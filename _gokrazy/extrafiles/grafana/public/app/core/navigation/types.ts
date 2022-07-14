@@ -1,7 +1,6 @@
+import { UrlQueryMap } from '@grafana/data';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-
-import { UrlQueryMap } from '@grafana/data';
 
 export interface GrafanaRouteComponentProps<T = {}, Q = UrlQueryMap> extends RouteComponentProps<T> {
   route: RouteDescriptor;

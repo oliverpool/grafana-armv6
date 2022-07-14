@@ -1,7 +1,6 @@
-import { mount } from 'enzyme';
 import React from 'react';
-
 import { TimeSyncButton } from './TimeSyncButton';
+import { mount } from 'enzyme';
 
 const setup = (isSynced: boolean) => {
   const onClick = () => {};

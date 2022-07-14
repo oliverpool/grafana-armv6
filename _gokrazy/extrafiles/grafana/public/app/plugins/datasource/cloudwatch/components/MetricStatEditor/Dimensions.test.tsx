@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, act, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
-
-import { Dimensions } from '..';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { setupMockedDataSource } from '../../__mocks__/CloudWatchDataSource';
+import '@testing-library/jest-dom';
 import { CloudWatchMetricsQuery } from '../../types';
+import userEvent from '@testing-library/user-event';
+import { Dimensions } from '..';
+import { within } from '@testing-library/dom';
 
 const ds = setupMockedDataSource({
   variables: [],
@@ -35,6 +36,7 @@ const props = {
   onChange: jest.fn(),
   onRunQuery: jest.fn(),
 };
+afterEach(cleanup);
 
 describe('Dimensions', () => {
   describe('when rendered with two existing dimensions', () => {
@@ -95,25 +97,20 @@ describe('Dimensions', () => {
         <Dimensions {...props} query={props.query} onChange={onChange} dimensionKeys={[]} />
       );
 
-      const label = await screen.findByLabelText('Add');
-      userEvent.click(label);
+      userEvent.click(screen.getByLabelText('Add'));
       const filterItemElement = screen.getByTestId('cloudwatch-dimensions-filter-item');
       expect(filterItemElement).toBeInTheDocument();
 
       const keyElement = container.querySelector('#cloudwatch-dimensions-filter-item-key');
       expect(keyElement).toBeInTheDocument();
-      await act(async () => {
-        userEvent.type(keyElement!, 'my-key');
-        fireEvent.keyDown(keyElement!, { keyCode: 13 });
-      });
+      userEvent.type(keyElement!, 'my-key');
+      fireEvent.keyDown(keyElement!, { keyCode: 13 });
       expect(onChange).not.toHaveBeenCalled();
 
       const valueElement = container.querySelector('#cloudwatch-dimensions-filter-item-value');
       expect(valueElement).toBeInTheDocument();
-      await act(async () => {
-        userEvent.type(valueElement!, 'my-value');
-        fireEvent.keyDown(valueElement!, { keyCode: 13 });
-      });
+      userEvent.type(valueElement!, 'my-value');
+      fireEvent.keyDown(valueElement!, { keyCode: 13 });
       expect(onChange).not.toHaveBeenCalledWith({
         ...props.query,
         dimensions: {

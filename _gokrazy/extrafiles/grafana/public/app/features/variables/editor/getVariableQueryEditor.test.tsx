@@ -1,7 +1,6 @@
 import { VariableSupportType } from '@grafana/data';
-
-import { LegacyVariableQueryEditor } from './LegacyVariableQueryEditor';
 import { getVariableQueryEditor, StandardVariableQueryEditor } from './getVariableQueryEditor';
+import { LegacyVariableQueryEditor } from './LegacyVariableQueryEditor';
 
 describe('getVariableQueryEditor', () => {
   describe('happy cases', () => {

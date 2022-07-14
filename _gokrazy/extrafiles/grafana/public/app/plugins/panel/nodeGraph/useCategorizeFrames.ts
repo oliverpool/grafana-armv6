@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-
 import { DataFrame } from '@grafana/data';
 
 /**

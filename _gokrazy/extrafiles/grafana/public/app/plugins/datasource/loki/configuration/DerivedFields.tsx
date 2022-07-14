@@ -1,13 +1,10 @@
-import { css } from '@emotion/css';
 import React, { useState } from 'react';
-
-import { GrafanaTheme2, VariableOrigin, DataLinkBuiltInVars } from '@grafana/data';
+import { css } from '@emotion/css';
 import { Button, useTheme2 } from '@grafana/ui';
-
+import { GrafanaTheme2, VariableOrigin, DataLinkBuiltInVars } from '@grafana/data';
 import { DerivedFieldConfig } from '../types';
-
-import { DebugSection } from './DebugSection';
 import { DerivedField } from './DerivedField';
+import { DebugSection } from './DebugSection';
 
 const getStyles = (theme: GrafanaTheme2) => ({
   infoText: css`

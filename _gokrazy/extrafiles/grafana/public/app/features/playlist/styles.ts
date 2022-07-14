@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
-
 import { GrafanaTheme2 } from '@grafana/data';
+import { css } from '@emotion/css';
 
 export function getPlaylistStyles(theme: GrafanaTheme2) {
   return {

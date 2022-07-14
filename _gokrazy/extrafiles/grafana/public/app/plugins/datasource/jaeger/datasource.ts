@@ -1,7 +1,6 @@
 import { identity, omit, pick, pickBy } from 'lodash';
 import { lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -14,15 +13,15 @@ import {
   MutableDataFrame,
 } from '@grafana/data';
 import { BackendSrvRequest, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
-import { NodeGraphOptions } from 'app/core/components/NodeGraphSettings';
+
 import { serializeParams } from 'app/core/utils/fetch';
 import { getTimeSrv, TimeSrv } from 'app/features/dashboard/services/TimeSrv';
-
-import { ALL_OPERATIONS_KEY } from './components/SearchForm';
-import { createGraphFrames } from './graphTransform';
 import { createTableFrame, createTraceFrame } from './responseTransform';
+import { createGraphFrames } from './graphTransform';
 import { JaegerQuery } from './types';
 import { convertTagsLogfmt } from './util';
+import { ALL_OPERATIONS_KEY } from './components/SearchForm';
+import { NodeGraphOptions } from 'app/core/components/NodeGraphSettings';
 
 export interface JaegerJsonData extends DataSourceJsonData {
   nodeGraph?: NodeGraphOptions;
@@ -53,9 +52,7 @@ export class JaegerDatasource extends DataSourceApi<JaegerQuery, JaegerJsonData>
     }
 
     if (target.queryType !== 'search' && target.query) {
-      return this._request(
-        `/api/traces/${encodeURIComponent(getTemplateSrv().replace(target.query, options.scopedVars))}`
-      ).pipe(
+      return this._request(`/api/traces/${encodeURIComponent(target.query)}`).pipe(
         map((response) => {
           const traceData = response?.data?.data?.[0];
           if (!traceData) {

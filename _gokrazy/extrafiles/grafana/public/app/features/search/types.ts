@@ -1,8 +1,6 @@
 import { Dispatch } from 'react';
 import { Action } from 'redux';
-
 import { SelectableValue } from '@grafana/data';
-
 import { FolderInfo } from '../../types';
 
 export enum DashboardSearchItemType {
@@ -70,7 +68,6 @@ export interface DashboardQuery {
   skipRecent: boolean;
   skipStarred: boolean;
   folderIds: number[];
-  datasource?: string;
   sort: SelectableValue | null;
   // Save sorting data between layouts
   prevSort: SelectableValue | null;

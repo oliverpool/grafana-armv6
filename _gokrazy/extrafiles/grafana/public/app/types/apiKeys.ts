@@ -6,9 +6,6 @@ export interface ApiKey {
   role: OrgRole;
   secondsToLive: number | null;
   expiration?: string;
-  secondsUntilExpiration?: number;
-  hasExpired?: boolean;
-  created?: string;
 }
 
 export interface NewApiKey {

@@ -1,7 +1,5 @@
 import { concat, forEach, isEmpty, isEqual, isNumber, sortBy } from 'lodash';
-
 import { TimeSeries } from 'app/core/core';
-
 import { Bucket, HeatmapCard, HeatmapCardStats, YBucket, XBucket } from './types';
 
 const VALUE_INDEX = 0;

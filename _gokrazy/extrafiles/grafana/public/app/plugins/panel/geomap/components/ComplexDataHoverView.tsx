@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 
-import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
-
 import { GeomapLayerHover } from '../event';
-
-import { DataHoverRows } from './DataHoverRows';
 import { DataHoverTabs } from './DataHoverTabs';
+import { DataHoverRows } from './DataHoverRows';
+import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
 
 export interface Props {
   layers?: GeomapLayerHover[];

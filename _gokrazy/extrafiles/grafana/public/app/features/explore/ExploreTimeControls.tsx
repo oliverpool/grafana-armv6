@@ -1,11 +1,18 @@
+// Libaries
 import React, { Component } from 'react';
 
-import { TimeRange, TimeZone, RawTimeRange, dateTimeForTimeZone, dateMath } from '@grafana/data';
-import { TimePickerWithHistory } from 'app/core/components/TimePicker/TimePickerWithHistory';
-import { getShiftedTimeRange, getZoomedTimeRange } from 'app/core/utils/timePicker';
+// Types
 import { ExploreId } from 'app/types';
+import { TimeRange, TimeZone, RawTimeRange, dateTimeForTimeZone, dateMath } from '@grafana/data';
 
+// State
+
+// Components
 import { TimeSyncButton } from './TimeSyncButton';
+import { TimePickerWithHistory } from 'app/core/components/TimePicker/TimePickerWithHistory';
+
+// Utils & Services
+import { getShiftedTimeRange, getZoomedTimeRange } from 'app/core/utils/timePicker';
 
 export interface Props {
   exploreId: ExploreId;

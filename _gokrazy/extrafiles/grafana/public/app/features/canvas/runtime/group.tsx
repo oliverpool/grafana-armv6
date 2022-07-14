@@ -1,16 +1,13 @@
-import { cloneDeep } from 'lodash';
 import React from 'react';
-
 import { CanvasGroupOptions, canvasElementRegistry } from 'app/features/canvas';
-import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { DimensionContext } from 'app/features/dimensions';
-import { LayerActionID } from 'app/plugins/panel/canvas/types';
-
-import { CanvasElementItem } from '../element';
-
+import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { ElementState } from './element';
-import { RootElement } from './root';
+import { CanvasElementItem } from '../element';
+import { LayerActionID } from 'app/plugins/panel/canvas/types';
+import { cloneDeep } from 'lodash';
 import { Scene } from './scene';
+import { RootElement } from './root';
 
 export const groupItemDummy: CanvasElementItem = {
   id: 'group',

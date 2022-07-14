@@ -1,8 +1,4 @@
 import { CircularDataFrame, FieldCache, FieldType, MutableDataFrame } from '@grafana/data';
-import { setTemplateSrv } from '@grafana/runtime';
-import { TemplateSrv } from 'app/features/templating/template_srv';
-
-import * as ResultTransformer from './result_transformer';
 import {
   LokiStreamResult,
   LokiTailResponse,
@@ -11,6 +7,9 @@ import {
   TransformerOptions,
   LokiMatrixResult,
 } from './types';
+import * as ResultTransformer from './result_transformer';
+import { setTemplateSrv } from '@grafana/runtime';
+import { TemplateSrv } from 'app/features/templating/template_srv';
 
 const streamResult: LokiStreamResult[] = [
   {
@@ -296,9 +295,6 @@ describe('enhanceDataFrame', () => {
       [1, '1'],
       [2, '0'],
       [4, '1'],
-      [7, 'NaN'],
-      [8, '+Inf'],
-      [9, '-Inf'],
     ];
 
     it('returns data as is if step, start, and end align', () => {
@@ -307,9 +303,6 @@ describe('enhanceDataFrame', () => {
         [1, 1000],
         [0, 2000],
         [1, 4000],
-        [null, 7000],
-        [Infinity, 8000],
-        [-Infinity, 9000],
       ]);
     });
   });

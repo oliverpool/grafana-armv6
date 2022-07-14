@@ -1,15 +1,12 @@
-import { css } from '@emotion/css';
 import React, { FC } from 'react';
-import { useFormContext } from 'react-hook-form';
-
+import { css } from '@emotion/css';
 import { GrafanaTheme } from '@grafana/data';
 import { Field, Input, InputControl, Select, useStyles } from '@grafana/ui';
-
+import { useFormContext } from 'react-hook-form';
 import { RuleFormType, RuleFormValues } from '../../types/rule-form';
 import { timeOptions } from '../../utils/time';
-
-import { PreviewRule } from './PreviewRule';
 import { RuleEditorSection } from './RuleEditorSection';
+import { PreviewRule } from './PreviewRule';
 
 export const CloudConditionsStep: FC = () => {
   const styles = useStyles(getStyles);

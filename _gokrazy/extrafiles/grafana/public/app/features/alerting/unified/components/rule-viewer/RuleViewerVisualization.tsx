@@ -1,18 +1,14 @@
-import { css } from '@emotion/css';
 import React, { useCallback, useState } from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
-
+import { css } from '@emotion/css';
 import { DataSourceInstanceSettings, DateTime, dateTime, GrafanaTheme2, PanelData, urlUtil } from '@grafana/data';
 import { config, getDataSourceSrv, PanelRenderer } from '@grafana/runtime';
 import { Alert, CodeEditor, DateTimePicker, LinkButton, useStyles2, useTheme2 } from '@grafana/ui';
 import { isExpressionQuery } from 'app/features/expressions/guards';
 import { PanelOptions } from 'app/plugins/panel/table/models.gen';
-import { AccessControlAction } from 'app/types';
 import { AlertQuery } from 'app/types/unified-alerting-dto';
-
-import { TABLE, TIMESERIES } from '../../utils/constants';
-import { Authorize } from '../Authorize';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { PanelPluginsButtonGroup, SupportedPanelPlugins } from '../PanelPluginsButtonGroup';
+import { TABLE, TIMESERIES } from '../../utils/constants';
 
 type RuleViewerVisualizationProps = {
   data?: PanelData;
@@ -95,22 +91,20 @@ export function RuleViewerVisualization(props: RuleViewerVisualizationProps): JS
                     />
                   ) : null}
                   <PanelPluginsButtonGroup onChange={setPanel} value={panel} size="md" />
-                  <Authorize actions={[AccessControlAction.DataSourcesExplore]}>
-                    {!isExpressionQuery(query.model) && (
-                      <>
-                        <div className={styles.spacing} />
-                        <LinkButton
-                          size="md"
-                          variant="secondary"
-                          icon="compass"
-                          target="_blank"
-                          href={createExploreLink(dsSettings, query)}
-                        >
-                          View in Explore
-                        </LinkButton>
-                      </>
-                    )}
-                  </Authorize>
+                  {!isExpressionQuery(query.model) && (
+                    <>
+                      <div className={styles.spacing} />
+                      <LinkButton
+                        size="md"
+                        variant="secondary"
+                        icon="compass"
+                        target="_blank"
+                        href={createExploreLink(dsSettings, query)}
+                      >
+                        View in Explore
+                      </LinkButton>
+                    </>
+                  )}
                 </div>
               </div>
               <PanelRenderer

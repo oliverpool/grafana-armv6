@@ -1,11 +1,9 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-
-import createMockDatasource from '../../__mocks__/datasource';
-import createMockQuery from '../../__mocks__/query';
-import { AzureMonitorOption } from '../../types';
-
+import { render, screen } from '@testing-library/react';
 import MetricNamespaceField from './MetricNamespaceField';
+import createMockQuery from '../../__mocks__/query';
+import createMockDatasource from '../../__mocks__/datasource';
+import { AzureMonitorOption } from '../../types';
 
 const props = {
   metricNamespaces: [],

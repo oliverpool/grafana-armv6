@@ -1,11 +1,8 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
-import { GrafanaTheme2, VariableOrigin, DataLinkBuiltInVars } from '@grafana/data';
+import { css } from '@emotion/css';
 import { Button, useStyles2 } from '@grafana/ui';
-
+import { GrafanaTheme2, VariableOrigin, DataLinkBuiltInVars } from '@grafana/data';
 import { DataLinkConfig } from '../types';
-
 import { DataLink } from './DataLink';
 
 const getStyles = (theme: GrafanaTheme2) => {
@@ -69,7 +66,6 @@ export const DataLinks = (props: Props) => {
       )}
 
       <Button
-        type="button"
         variant={'secondary'}
         className={css`
           margin-right: 10px;

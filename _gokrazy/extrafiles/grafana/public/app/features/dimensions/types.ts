@@ -127,8 +127,3 @@ export enum PickerTabType {
   Folder = 'folder',
   URL = 'url',
 }
-
-export enum ResourcePickerSize {
-  SMALL = 'small',
-  NORMAL = 'normal',
-}

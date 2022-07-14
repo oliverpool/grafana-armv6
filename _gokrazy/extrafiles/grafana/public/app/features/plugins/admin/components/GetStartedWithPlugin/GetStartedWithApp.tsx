@@ -1,10 +1,8 @@
-import React from 'react';
-
 import { PluginMeta } from '@grafana/data';
 import { Button } from '@grafana/ui';
-
-import { updatePluginSettings } from '../../api';
 import { usePluginConfig } from '../../hooks/usePluginConfig';
+import { updatePluginSettings } from '../../api';
+import React from 'react';
 import { CatalogPlugin } from '../../types';
 
 type Props = {

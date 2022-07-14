@@ -1,9 +1,8 @@
-import { css } from '@emotion/css';
 import React from 'react';
-
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { RadioButtonGroup, Label, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { AlertState } from 'app/plugins/datasource/alertmanager/types';
+import { css } from '@emotion/css';
 
 interface Props {
   stateFilter?: AlertState;

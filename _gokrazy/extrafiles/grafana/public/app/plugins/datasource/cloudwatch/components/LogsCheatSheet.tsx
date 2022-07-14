@@ -1,12 +1,10 @@
-import { css, cx } from '@emotion/css';
-import { stripIndent, stripIndents } from 'common-tags';
-import Prism from 'prismjs';
 import React, { PureComponent } from 'react';
-
+import { stripIndent, stripIndents } from 'common-tags';
 import { QueryEditorHelpProps } from '@grafana/data';
-import { flattenTokens } from '@grafana/ui/src/slate-plugins/slate-prism';
-
+import Prism from 'prismjs';
 import tokenizer from '../syntax';
+import { flattenTokens } from '@grafana/ui/src/slate-plugins/slate-prism';
+import { css, cx } from '@emotion/css';
 import { CloudWatchQuery } from '../types';
 
 interface QueryExample {
@@ -229,15 +227,8 @@ export default class LogsCheatSheet extends PureComponent<
       <div
         className="cheat-sheet-item__example"
         key={expr}
-        onClick={() =>
-          this.onClickExample({
-            refId: this.props.query.refId ?? 'A',
-            expression: expr,
-            queryMode: 'Logs',
-            region: this.props.query.region,
-            id: this.props.query.refId ?? 'A',
-            logGroupNames: 'logGroupNames' in this.props.query ? this.props.query.logGroupNames : [],
-          })
+        onClick={(e) =>
+          this.onClickExample({ refId: 'A', expression: expr, queryMode: 'Logs', region: 'default', id: 'A' })
         }
       >
         <pre>{renderHighlightedMarkup(expr, keyPrefix)}</pre>

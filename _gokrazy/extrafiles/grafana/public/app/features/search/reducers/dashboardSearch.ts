@@ -1,6 +1,5 @@
 import { DashboardSection, SearchAction } from '../types';
 import { getFlattenedSections, getLookupField, markSelected } from '../utils';
-
 import {
   FETCH_ITEMS,
   FETCH_RESULTS,

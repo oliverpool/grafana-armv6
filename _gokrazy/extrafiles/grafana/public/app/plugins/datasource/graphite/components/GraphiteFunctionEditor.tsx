@@ -1,16 +1,13 @@
-import { css, cx } from '@emotion/css';
 import React, { useState } from 'react';
-
-import { GrafanaTheme2 } from '@grafana/data';
 import { HorizontalGroup, InlineLabel, useStyles2 } from '@grafana/ui';
-
+import { GrafanaTheme2 } from '@grafana/data';
+import { css, cx } from '@emotion/css';
 import { FuncInstance } from '../gfunc';
-import { actions } from '../state/actions';
-import { useDispatch } from '../state/context';
-
-import { FunctionEditor } from './FunctionEditor';
 import { EditableParam, FunctionParamEditor } from './FunctionParamEditor';
+import { actions } from '../state/actions';
+import { FunctionEditor } from './FunctionEditor';
 import { mapFuncInstanceToParams } from './helpers';
+import { useDispatch } from '../state/context';
 
 export type FunctionEditorProps = {
   func: FuncInstance;

@@ -1,7 +1,6 @@
-import { AnyAction } from '@reduxjs/toolkit';
-import { Dispatch } from 'react';
-
 import { PanelModel } from '../dashboard/state';
+import { Dispatch } from 'react';
+import { AnyAction } from '@reduxjs/toolkit';
 
 export enum LibraryElementKind {
   Panel = 1,

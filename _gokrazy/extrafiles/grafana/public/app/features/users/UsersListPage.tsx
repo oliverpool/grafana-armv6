@@ -1,30 +1,25 @@
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
 import { renderMarkdown } from '@grafana/data';
 import { HorizontalGroup, Pagination, VerticalGroup } from '@grafana/ui';
+
 import Page from 'app/core/components/Page/Page';
-import { getNavModel } from 'app/core/selectors/navModel';
-import { OrgUser, OrgRole, StoreState } from 'app/types';
-
-import InviteesTable from '../invites/InviteesTable';
-import { fetchInvitees } from '../invites/state/actions';
-import { selectInvitesMatchingQuery } from '../invites/state/selectors';
-
 import UsersActionBar from './UsersActionBar';
 import UsersTable from './UsersTable';
-import { loadUsers, removeUser, updateUser } from './state/actions';
+import InviteesTable from './InviteesTable';
+import { OrgUser, OrgRole, StoreState } from 'app/types';
+import { loadInvitees, loadUsers, removeUser, updateUser } from './state/actions';
+import { getNavModel } from 'app/core/selectors/navModel';
+import { getInvitees, getUsers, getUsersSearchQuery, getUsersSearchPage } from './state/selectors';
 import { setUsersSearchQuery, setUsersSearchPage } from './state/reducers';
-import { getUsers, getUsersSearchQuery, getUsersSearchPage } from './state/selectors';
 
 function mapStateToProps(state: StoreState) {
-  const searchQuery = getUsersSearchQuery(state.users);
   return {
     navModel: getNavModel(state.navIndex, 'users'),
     users: getUsers(state.users),
     searchQuery: getUsersSearchQuery(state.users),
     searchPage: getUsersSearchPage(state.users),
-    invitees: selectInvitesMatchingQuery(state.invites, searchQuery),
+    invitees: getInvitees(state.users),
     externalUserMngInfo: state.users.externalUserMngInfo,
     hasFetched: state.users.hasFetched,
   };
@@ -32,7 +27,7 @@ function mapStateToProps(state: StoreState) {
 
 const mapDispatchToProps = {
   loadUsers,
-  fetchInvitees,
+  loadInvitees,
   setUsersSearchQuery,
   setUsersSearchPage,
   updateUser,
@@ -74,7 +69,7 @@ export class UsersListPage extends PureComponent<Props, State> {
   }
 
   async fetchInvitees() {
-    return await this.props.fetchInvitees();
+    return await this.props.loadInvitees();
   }
 
   onRoleChange = (role: OrgRole, user: OrgUser) => {

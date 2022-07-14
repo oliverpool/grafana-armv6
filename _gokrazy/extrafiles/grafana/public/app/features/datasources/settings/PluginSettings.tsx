@@ -1,6 +1,5 @@
-import { cloneDeep } from 'lodash';
 import React, { PureComponent } from 'react';
-
+import { cloneDeep } from 'lodash';
 import {
   DataQuery,
   DataSourceApi,

@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-
 import {
   Field,
   LinkModel,
@@ -12,9 +11,8 @@ import {
   SplitOpen,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-import { contextSrv } from 'app/core/services/context_srv';
-
 import { getLinkSrv } from '../../panel/panellinks/link_srv';
+import { contextSrv } from 'app/core/services/context_srv';
 
 /**
  * Get links from the field of a dataframe and in addition check if there is associated

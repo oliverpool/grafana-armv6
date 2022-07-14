@@ -1,14 +1,10 @@
-import { createAction } from '@reduxjs/toolkit';
-
-import { VariableType } from '@grafana/data';
-
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
-import { VariableAdapter, variableAdapters } from '../adapters';
 import { initialVariableModelState, QueryVariableModel } from '../types';
-import { toVariablePayload } from '../utils';
-
-import { VariablePayload, VariablesState } from './types';
+import { VariableAdapter, variableAdapters } from '../adapters';
+import { createAction } from '@reduxjs/toolkit';
 import { cleanVariables, variablesReducer } from './variablesReducer';
+import { VariablesState, toVariablePayload, VariablePayload } from './types';
+import { VariableType } from '@grafana/data';
 
 const variableAdapter: VariableAdapter<QueryVariableModel> = {
   id: 'mock' as unknown as VariableType,

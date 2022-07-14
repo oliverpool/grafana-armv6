@@ -1,7 +1,6 @@
-import React, { useMemo } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
+import React, { useMemo } from 'react';
 
 import { ALIGNMENT_PERIODS } from '../constants';
 import { MetricQuery, SLOQuery } from '../types';

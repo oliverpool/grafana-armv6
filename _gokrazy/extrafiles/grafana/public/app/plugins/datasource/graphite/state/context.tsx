@@ -1,15 +1,12 @@
-import { AnyAction } from '@reduxjs/toolkit';
 import React, { createContext, Dispatch, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
-import { usePrevious } from 'react-use';
-
+import { AnyAction } from '@reduxjs/toolkit';
 import { QueryEditorProps } from '@grafana/data';
-import { getTemplateSrv } from 'app/features/templating/template_srv';
-
 import { GraphiteDatasource } from '../datasource';
 import { GraphiteOptions, GraphiteQuery } from '../types';
-
-import { actions } from './actions';
 import { createStore, GraphiteQueryEditorState } from './store';
+import { getTemplateSrv } from 'app/features/templating/template_srv';
+import { actions } from './actions';
+import { usePrevious } from 'react-use';
 
 const DispatchContext = createContext<Dispatch<AnyAction>>({} as Dispatch<AnyAction>);
 const GraphiteStateContext = createContext<GraphiteQueryEditorState>({} as GraphiteQueryEditorState);

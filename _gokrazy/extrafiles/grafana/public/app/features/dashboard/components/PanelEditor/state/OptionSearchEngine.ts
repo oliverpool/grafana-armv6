@@ -1,5 +1,5 @@
-import { OptionsPaneCategoryDescriptor } from '../OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemDescriptor } from '../OptionsPaneItemDescriptor';
+import { OptionsPaneCategoryDescriptor } from '../OptionsPaneCategoryDescriptor';
 
 export interface OptionSearchResults {
   optionHits: OptionsPaneItemDescriptor[];

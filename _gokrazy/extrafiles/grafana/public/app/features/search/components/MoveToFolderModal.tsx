@@ -1,15 +1,13 @@
-import { css } from '@emotion/css';
 import React, { FC, useState } from 'react';
-
-import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
 import { Button, HorizontalGroup, Modal, stylesFactory, useTheme } from '@grafana/ui';
-import { FolderPicker } from 'app/core/components/Select/FolderPicker';
-import { useAppNotification } from 'app/core/copy/appNotification';
-import { moveDashboards } from 'app/features/manage-dashboards/state/actions';
+import { AppEvents, GrafanaTheme } from '@grafana/data';
 import { FolderInfo } from 'app/types';
-
+import { FolderPicker } from 'app/core/components/Select/FolderPicker';
+import appEvents from 'app/core/app_events';
 import { DashboardSection, OnMoveItems } from '../types';
 import { getCheckedDashboards } from '../utils';
+import { moveDashboards } from 'app/features/manage-dashboards/state/actions';
 
 interface Props {
   onMoveItems: OnMoveItems;
@@ -23,7 +21,6 @@ export const MoveToFolderModal: FC<Props> = ({ results, onMoveItems, isOpen, onD
   const theme = useTheme();
   const styles = getStyles(theme);
   const selectedDashboards = getCheckedDashboards(results);
-  const notifyApp = useAppNotification();
 
   const moveTo = () => {
     if (folder && selectedDashboards.length) {
@@ -34,11 +31,11 @@ export const MoveToFolderModal: FC<Props> = ({ results, onMoveItems, isOpen, onD
           const ending = result.successCount === 1 ? '' : 's';
           const header = `Dashboard${ending} Moved`;
           const msg = `${result.successCount} dashboard${ending} moved to ${folderTitle}`;
-          notifyApp.success(header, msg);
+          appEvents.emit(AppEvents.alertSuccess, [header, msg]);
         }
 
         if (result.totalCount === result.alreadyInFolderCount) {
-          notifyApp.error('Error', `Dashboard already belongs to folder ${folderTitle}`);
+          appEvents.emit(AppEvents.alertError, ['Error', `Dashboard already belongs to folder ${folderTitle}`]);
         } else {
           onMoveItems(selectedDashboards, folder);
         }

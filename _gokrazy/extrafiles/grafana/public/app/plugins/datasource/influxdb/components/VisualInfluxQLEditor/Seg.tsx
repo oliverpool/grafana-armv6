@@ -1,11 +1,9 @@
-import { cx, css } from '@emotion/css';
-import debouncePromise from 'debounce-promise';
 import React, { useState, useEffect } from 'react';
-import { useAsyncFn } from 'react-use';
-
+import debouncePromise from 'debounce-promise';
+import { cx, css } from '@emotion/css';
 import { SelectableValue } from '@grafana/data';
+import { useAsyncFn } from 'react-use';
 import { InlineLabel, Select, AsyncSelect, Input } from '@grafana/ui';
-
 import { useShadowedState } from '../useShadowedState';
 
 // this file is a simpler version of `grafana-ui / SegmentAsync.tsx`

@@ -1,5 +1,4 @@
 import { UserPreferencesDTO } from 'app/types';
-
 import { backendSrv } from './backend_srv';
 
 export class PreferencesService {

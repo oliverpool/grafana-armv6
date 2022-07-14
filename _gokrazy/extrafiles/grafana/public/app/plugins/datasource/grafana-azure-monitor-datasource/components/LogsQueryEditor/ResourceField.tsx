@@ -1,17 +1,14 @@
 import { css } from '@emotion/css';
-import React, { useCallback, useEffect, useState } from 'react';
-
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Icon, Modal, useStyles2 } from '@grafana/ui';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import Datasource from '../../datasource';
 import { AzureQueryEditorFieldProps, AzureResourceSummaryItem } from '../../types';
 import { Field } from '../Field';
 import ResourcePicker from '../ResourcePicker';
-import { ResourceRowType } from '../ResourcePicker/types';
 import { parseResourceURI } from '../ResourcePicker/utils';
 import { Space } from '../Space';
-
 import { setResource } from './setQueryValue';
 
 function parseResourceDetails(resourceURI: string) {
@@ -49,6 +46,8 @@ const ResourceField: React.FC<AzureQueryEditorFieldProps> = ({ query, datasource
     [closePicker, onQueryChange, query]
   );
 
+  const templateVariables = datasource.getVariables();
+
   return (
     <>
       <Modal
@@ -63,14 +62,9 @@ const ResourceField: React.FC<AzureQueryEditorFieldProps> = ({ query, datasource
         <ResourcePicker
           resourcePickerData={datasource.resourcePickerData}
           resourceURI={resource}
+          templateVariables={templateVariables}
           onApply={handleApply}
           onCancel={closePicker}
-          selectableEntryTypes={[
-            ResourceRowType.Subscription,
-            ResourceRowType.ResourceGroup,
-            ResourceRowType.Resource,
-            ResourceRowType.Variable,
-          ]}
         />
       </Modal>
 

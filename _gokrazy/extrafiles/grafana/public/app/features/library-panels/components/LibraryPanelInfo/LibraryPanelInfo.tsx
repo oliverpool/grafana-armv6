@@ -1,11 +1,9 @@
-import { css } from '@emotion/css';
-import React from 'react';
-
 import { DateTimeInput, GrafanaTheme } from '@grafana/data';
 import { useStyles } from '@grafana/ui';
-
-import { isPanelModelLibraryPanel } from '../../guard';
+import { css } from '@emotion/css';
+import React from 'react';
 import { PanelModelWithLibraryPanel } from '../../types';
+import { isPanelModelLibraryPanel } from '../../guard';
 
 interface Props {
   panel: PanelModelWithLibraryPanel;

@@ -1,6 +1,7 @@
-import { auto } from 'angular';
 import { isString } from 'lodash';
-
+import config from 'app/core/config';
+import { profiler } from 'app/core/core';
+import { auto } from 'angular';
 import {
   AppEvent,
   PanelEvents,
@@ -9,11 +10,8 @@ import {
   EventBusExtended,
   EventBusSrv,
 } from '@grafana/data';
-import { AngularLocationWrapper } from 'app/angular/AngularLocationWrapper';
-import config from 'app/core/config';
-import { profiler } from 'app/core/core';
-
 import { DashboardModel } from '../../features/dashboard/state';
+import { AngularLocationWrapper } from 'app/angular/AngularLocationWrapper';
 
 export class PanelCtrl {
   panel: any;

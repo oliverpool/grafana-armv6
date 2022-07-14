@@ -1,14 +1,11 @@
-import { css, cx } from '@emotion/css';
 import React, { FC, ReactNode, useCallback, useEffect, useState, useRef } from 'react';
-import { useLocalStorage } from 'react-use';
-
+import { css, cx } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
-import { Counter, useStyles2 } from '@grafana/ui';
-import { useQueryParams } from 'app/core/hooks/useQueryParams';
-import { CollapseToggle } from 'app/features/alerting/unified/components/CollapseToggle';
-
+import { Counter, Icon, useStyles2 } from '@grafana/ui';
 import { PANEL_EDITOR_UI_STATE_STORAGE_KEY } from './state/reducers';
+import { useLocalStorage } from 'react-use';
+import { selectors } from '@grafana/e2e-selectors';
+import { useQueryParams } from 'app/core/hooks/useQueryParams';
 
 export interface OptionsPaneCategoryProps {
   id: string;
@@ -104,16 +101,12 @@ export const OptionsPaneCategory: FC<OptionsPaneCategoryProps> = React.memo(
         ref={ref}
       >
         <div className={headerStyles} onClick={onToggle} aria-label={selectors.components.OptionsGroup.toggle(id)}>
-          <CollapseToggle isCollapsed={!isExpanded} idControlled={id} onToggle={onToggle} />
-          <h6 id={`button-${id}`} className={styles.title}>
-            {renderTitle(isExpanded)}
-          </h6>
-        </div>
-        {isExpanded && (
-          <div className={bodyStyles} id={id} aria-labelledby={`button-${id}`}>
-            {children}
+          <div className={cx(styles.toggle, 'editor-options-group-toggle')}>
+            <Icon name={isExpanded ? 'angle-down' : 'angle-right'} />
           </div>
-        )}
+          <h6 className={styles.title}>{renderTitle(isExpanded)}</h6>
+        </div>
+        {isExpanded && <div className={bodyStyles}>{children}</div>}
       </div>
     );
   }
@@ -129,6 +122,10 @@ const getStyles = (theme: GrafanaTheme2) => {
     boxNestedExpanded: css`
       margin-bottom: ${theme.spacing(2)};
     `,
+    toggle: css`
+      color: ${theme.colors.text.secondary};
+      margin-right: ${theme.spacing(1)};
+    `,
     title: css`
       flex-grow: 1;
       overflow: hidden;
@@ -141,7 +138,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       display: flex;
       cursor: pointer;
       align-items: baseline;
-      padding: ${theme.spacing(0.5)};
+      padding: ${theme.spacing(1)};
       color: ${theme.colors.text.primary};
       font-weight: ${theme.typography.fontWeightMedium};
 

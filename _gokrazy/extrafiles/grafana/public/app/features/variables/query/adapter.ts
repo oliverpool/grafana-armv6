@@ -1,16 +1,16 @@
 import { cloneDeep } from 'lodash';
 
-import { dispatch } from '../../../store/store';
-import { VariableAdapter } from '../adapters';
-import { ALL_VARIABLE_TEXT } from '../constants';
-import { optionPickerFactory } from '../pickers';
-import { setOptionAsCurrent, setOptionFromUrl } from '../state/actions';
 import { QueryVariableModel, VariableRefresh } from '../types';
-import { containsVariable, isAllVariable, toKeyedVariableIdentifier } from '../utils';
-
+import { initialQueryVariableModelState, queryVariableReducer } from './reducer';
+import { dispatch } from '../../../store/store';
+import { setOptionAsCurrent, setOptionFromUrl } from '../state/actions';
+import { VariableAdapter } from '../adapters';
 import { QueryVariableEditor } from './QueryVariableEditor';
 import { updateQueryVariableOptions } from './actions';
-import { initialQueryVariableModelState, queryVariableReducer } from './reducer';
+import { toVariableIdentifier } from '../state/types';
+import { containsVariable, isAllVariable } from '../utils';
+import { optionPickerFactory } from '../pickers';
+import { ALL_VARIABLE_TEXT } from '../constants';
 
 export const createQueryVariableAdapter = (): VariableAdapter<QueryVariableModel> => {
   return {
@@ -25,16 +25,16 @@ export const createQueryVariableAdapter = (): VariableAdapter<QueryVariableModel
       return containsVariable(variable.query, variable.datasource?.uid, variable.regex, variableToTest.name);
     },
     setValue: async (variable, option, emitChanges = false) => {
-      await dispatch(setOptionAsCurrent(toKeyedVariableIdentifier(variable), option, emitChanges));
+      await dispatch(setOptionAsCurrent(toVariableIdentifier(variable), option, emitChanges));
     },
     setValueFromUrl: async (variable, urlValue) => {
-      await dispatch(setOptionFromUrl(toKeyedVariableIdentifier(variable), urlValue));
+      await dispatch(setOptionFromUrl(toVariableIdentifier(variable), urlValue));
     },
     updateOptions: async (variable, searchFilter) => {
-      await dispatch(updateQueryVariableOptions(toKeyedVariableIdentifier(variable), searchFilter));
+      await dispatch(updateQueryVariableOptions(toVariableIdentifier(variable), searchFilter));
     },
     getSaveModel: (variable) => {
-      const { index, id, state, global, queryValue, rootStateKey, ...rest } = cloneDeep(variable);
+      const { index, id, state, global, queryValue, ...rest } = cloneDeep(variable);
       // remove options
       if (variable.refresh !== VariableRefresh.never) {
         return { ...rest, options: [] };

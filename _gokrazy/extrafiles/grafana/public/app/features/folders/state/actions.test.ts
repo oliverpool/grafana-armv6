@@ -1,13 +1,11 @@
 import { Observable, of, throwError } from 'rxjs';
 import { thunkTester } from 'test/core/thunk/thunkTester';
-
-import { FetchResponse } from '@grafana/runtime';
-import { notifyApp } from 'app/core/actions';
-import { createWarningNotification } from 'app/core/copy/appNotification';
-import { backendSrv } from 'app/core/services/backend_srv';
-
 import { checkFolderPermissions } from './actions';
 import { setCanViewFolderPermissions } from './reducers';
+import { backendSrv } from 'app/core/services/backend_srv';
+import { notifyApp } from 'app/core/actions';
+import { createWarningNotification } from 'app/core/copy/appNotification';
+import { FetchResponse } from '@grafana/runtime';
 
 describe('folder actions', () => {
   let fetchSpy: jest.SpyInstance<Observable<FetchResponse<unknown>>>;
@@ -57,7 +55,6 @@ describe('folder actions', () => {
         createWarningNotification('Error checking folder permissions', 'Server error')
       );
       notificationAction.payload.id = expect.any(String);
-      notificationAction.payload.timestamp = expect.any(Number);
 
       expect(dispatchedActions).toEqual([
         expect.objectContaining(notificationAction),

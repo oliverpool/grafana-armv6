@@ -1,5 +1,4 @@
 import { backendSrv } from 'app/core/services/backend_srv';
-
 import { buildNavModel } from '../folders/state/navModel';
 
 export const loadFolderPage = (uid: string) => {

@@ -1,8 +1,6 @@
-import $ from 'jquery';
 import { debounce, each, map, partial, escape, unescape } from 'lodash';
-
+import $ from 'jquery';
 import coreModule from 'app/angular/core_module';
-
 import { promiseToDigest } from '../promiseToDigest';
 
 const template = `

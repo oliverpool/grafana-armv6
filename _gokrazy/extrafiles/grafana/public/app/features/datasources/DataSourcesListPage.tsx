@@ -1,23 +1,27 @@
+// Libraries
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-
-import { IconName } from '@grafana/ui';
-import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
+// Services & Utils
+import { contextSrv } from 'app/core/core';
+// Components
 import Page from 'app/core/components/Page/Page';
 import PageActionBar from 'app/core/components/PageActionBar/PageActionBar';
-import { contextSrv } from 'app/core/core';
-import { getNavModel } from 'app/core/selectors/navModel';
-import { StoreState, AccessControlAction } from 'app/types';
-
+import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
 import DataSourcesList from './DataSourcesList';
+// Types
+import { IconName } from '@grafana/ui';
+import { StoreState, AccessControlAction } from 'app/types';
+// Actions
 import { loadDataSources } from './state/actions';
-import { setDataSourcesLayoutMode, setDataSourcesSearchQuery } from './state/reducers';
+import { getNavModel } from 'app/core/selectors/navModel';
+
 import {
   getDataSources,
   getDataSourcesCount,
   getDataSourcesLayoutMode,
   getDataSourcesSearchQuery,
 } from './state/selectors';
+import { setDataSourcesLayoutMode, setDataSourcesSearchQuery } from './state/reducers';
 
 function mapStateToProps(state: StoreState) {
   return {

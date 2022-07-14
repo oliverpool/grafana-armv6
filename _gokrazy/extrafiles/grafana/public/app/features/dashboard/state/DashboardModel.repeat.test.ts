@@ -1,12 +1,9 @@
 import { compact, flattenDeep, map, uniq } from 'lodash';
-import { expect } from 'test/lib/common';
-
-import { DashboardPanelsChangedEvent } from 'app/types/events';
-
-import { getDashboardModel } from '../../../../test/helpers/getDashboardModel';
 import { DashboardModel } from '../state/DashboardModel';
-
+import { expect } from 'test/lib/common';
+import { getDashboardModel } from '../../../../test/helpers/getDashboardModel';
 import { PanelModel } from './PanelModel';
+import { DashboardPanelsChangedEvent } from 'app/types/events';
 
 jest.mock('app/core/services/context_srv', () => ({}));
 

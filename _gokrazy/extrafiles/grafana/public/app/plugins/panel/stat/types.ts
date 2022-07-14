@@ -1,4 +1,11 @@
 import {
+  SingleStatBaseOptions,
+  BigValueColorMode,
+  BigValueGraphMode,
+  BigValueJustifyMode,
+  BigValueTextMode,
+} from '@grafana/ui';
+import {
   ReducerID,
   standardEditorsRegistry,
   FieldOverrideContext,
@@ -7,13 +14,6 @@ import {
   VizOrientation,
   PanelOptionsEditorBuilder,
 } from '@grafana/data';
-import {
-  SingleStatBaseOptions,
-  BigValueColorMode,
-  BigValueGraphMode,
-  BigValueJustifyMode,
-  BigValueTextMode,
-} from '@grafana/ui';
 
 // Structure copied from angular
 export interface StatPanelOptions extends SingleStatBaseOptions {

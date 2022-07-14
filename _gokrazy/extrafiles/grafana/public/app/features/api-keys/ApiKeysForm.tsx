@@ -1,11 +1,9 @@
 import React, { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
-
-import { rangeUtil, SelectableValue } from '@grafana/data';
 import { EventsWithValidation, LegacyForms, ValidationEvents, Button, Select, InlineField } from '@grafana/ui';
-import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
-
-import { SlideDown } from '../../core/components/Animations/SlideDown';
 import { NewApiKey, OrgRole } from '../../types';
+import { rangeUtil, SelectableValue } from '@grafana/data';
+import { SlideDown } from '../../core/components/Animations/SlideDown';
+import { CloseButton } from 'app/core/components/CloseButton/CloseButton';
 
 const { Input } = LegacyForms;
 const ROLE_OPTIONS: Array<SelectableValue<OrgRole>> = Object.keys(OrgRole).map((role) => ({
@@ -17,7 +15,6 @@ interface Props {
   show: boolean;
   onClose: () => void;
   onKeyAdded: (apiKey: NewApiKey) => void;
-  disabled: boolean;
 }
 
 function isValidInterval(value: string): boolean {
@@ -43,7 +40,7 @@ const timeRangeValidationEvents: ValidationEvents = {
 const tooltipText =
   'The API key life duration. For example, 1d if your key is going to last for one day. Supported units are: s,m,h,d,w,M,y';
 
-export const ApiKeysForm: FC<Props> = ({ show, onClose, onKeyAdded, disabled }) => {
+export const ApiKeysForm: FC<Props> = ({ show, onClose, onKeyAdded }) => {
   const [name, setName] = useState<string>('');
   const [role, setRole] = useState<OrgRole>(OrgRole.Viewer);
   const [secondsToLive, setSecondsToLive] = useState<string>('');
@@ -105,7 +102,7 @@ export const ApiKeysForm: FC<Props> = ({ show, onClose, onKeyAdded, disabled }) 
               </InlineField>
             </div>
             <div className="gf-form">
-              <Button disabled={disabled}>Add</Button>
+              <Button>Add</Button>
             </div>
           </div>
         </form>

@@ -1,29 +1,22 @@
-import { render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { locationService, setDataSourceSrv } from '@grafana/runtime';
+import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
-import { byRole, byTestId, byText } from 'testing-library-selector';
-
-import { locationService, setDataSourceSrv } from '@grafana/runtime';
-import { configureStore } from 'app/store/configureStore';
-
-import AlertGroups from './AlertGroups';
 import { fetchAlertGroups } from './api/alertmanager';
+import { byRole, byTestId, byText } from 'testing-library-selector';
+import { configureStore } from 'app/store/configureStore';
+import { typeAsJestMock } from 'test/helpers/typeAsJestMock';
+import AlertGroups from './AlertGroups';
 import { mockAlertGroup, mockAlertmanagerAlert, mockDataSource, MockDataSourceSrv } from './mocks';
 import { DataSourceType } from './utils/datasource';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('./api/alertmanager');
-jest.mock('app/core/services/context_srv', () => ({
-  contextSrv: {
-    isEditor: true,
-    hasAccess: () => true,
-    hasPermission: () => true,
-  },
-}));
+
 const mocks = {
   api: {
-    fetchAlertGroups: jest.mocked(fetchAlertGroups),
+    fetchAlertGroups: typeAsJestMock(fetchAlertGroups),
   },
 };
 

@@ -1,11 +1,8 @@
+import React from 'react';
 import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 
 import { createTheme } from '@grafana/data';
-
-import LokiLanguageProvider from '../language_provider';
-
 import {
   buildSelector,
   facetLabels,
@@ -13,6 +10,7 @@ import {
   UnthemedLokiLabelBrowser,
   BrowserProps,
 } from './LokiLabelBrowser';
+import LokiLanguageProvider from '../language_provider';
 
 describe('buildSelector()', () => {
   it('returns an empty selector for no labels', () => {

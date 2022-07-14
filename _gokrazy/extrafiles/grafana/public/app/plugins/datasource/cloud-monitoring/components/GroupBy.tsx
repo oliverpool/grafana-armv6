@@ -1,13 +1,11 @@
-import React, { FunctionComponent, useMemo } from 'react';
-
 import { SelectableValue } from '@grafana/data';
 import { MultiSelect } from '@grafana/ui';
+import React, { FunctionComponent, useMemo } from 'react';
 
+import { Aggregation, QueryEditorRow } from '.';
 import { INPUT_WIDTH, SYSTEM_LABELS } from '../constants';
 import { labelsToGroupedOptions } from '../functions';
 import { MetricDescriptor, MetricQuery } from '../types';
-
-import { Aggregation, QueryEditorRow } from '.';
 
 export interface Props {
   refId: string;

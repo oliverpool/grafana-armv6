@@ -1,9 +1,7 @@
-import { User } from 'app/core/services/context_srv';
-
-import { Team, TeamGroup, TeamsState, TeamState, OrgRole } from '../../../types';
-import { getMockTeam, getMockTeamMembers, getMultipleMockTeams } from '../__mocks__/teamMocks';
-
 import { getTeam, getTeamMembers, getTeams, isSignedInUserTeamAdmin, Config } from './selectors';
+import { getMockTeam, getMockTeamMembers, getMultipleMockTeams } from '../__mocks__/teamMocks';
+import { Team, TeamGroup, TeamsState, TeamState, OrgRole } from '../../../types';
+import { User } from 'app/core/services/context_srv';
 
 describe('Teams selectors', () => {
   describe('Get teams', () => {

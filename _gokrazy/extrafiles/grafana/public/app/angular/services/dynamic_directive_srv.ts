@@ -1,5 +1,4 @@
 import angular from 'angular';
-
 import coreModule from '../core_module';
 
 class DynamicDirectiveSrv {

@@ -1,19 +1,15 @@
 import React, { PureComponent } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
-
-import { DataSourceSettings, urlUtil } from '@grafana/data';
-import { selectors } from '@grafana/e2e-selectors';
-import { Alert, Button } from '@grafana/ui';
-import { cleanUpAction } from 'app/core/actions/cleanUp';
-import appEvents from 'app/core/app_events';
+// Components
 import Page from 'app/core/components/Page/Page';
+import { PluginSettings } from './PluginSettings';
+import BasicSettings from './BasicSettings';
+import ButtonRow from './ButtonRow';
+// Services & Utils
+import appEvents from 'app/core/app_events';
 import { contextSrv } from 'app/core/core';
-import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
-import { getNavModel } from 'app/core/selectors/navModel';
-import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
-import { StoreState, AccessControlAction } from 'app/types/';
 
-import { ShowConfirmModalEvent } from '../../../types/events';
+// Actions & selectors
+import { getDataSource, getDataSourceMeta } from '../state/selectors';
 import {
   deleteDataSource,
   initDataSourceSettings,
@@ -21,14 +17,21 @@ import {
   testDataSource,
   updateDataSource,
 } from '../state/actions';
-import { getDataSourceLoadingNav, buildNavModel, getDataSourceNav } from '../state/navModel';
-import { dataSourceLoaded, setDataSourceName, setIsDefault } from '../state/reducers';
-import { getDataSource, getDataSourceMeta } from '../state/selectors';
+import { getNavModel } from 'app/core/selectors/navModel';
 
-import BasicSettings from './BasicSettings';
-import ButtonRow from './ButtonRow';
+// Types
+import { StoreState, AccessControlAction } from 'app/types/';
+import { DataSourceSettings, urlUtil } from '@grafana/data';
+import { Alert, Button } from '@grafana/ui';
+import { getDataSourceLoadingNav, buildNavModel, getDataSourceNav } from '../state/navModel';
+import { PluginStateInfo } from 'app/features/plugins/components/PluginStateInfo';
+import { dataSourceLoaded, setDataSourceName, setIsDefault } from '../state/reducers';
+import { selectors } from '@grafana/e2e-selectors';
 import { CloudInfoBox } from './CloudInfoBox';
-import { PluginSettings } from './PluginSettings';
+import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { connect, ConnectedProps } from 'react-redux';
+import { cleanUpAction } from 'app/core/actions/cleanUp';
+import { ShowConfirmModalEvent } from '../../../types/events';
 
 export interface OwnProps extends GrafanaRouteComponentProps<{ uid: string }> {}
 

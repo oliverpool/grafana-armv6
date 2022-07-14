@@ -1,9 +1,7 @@
 import { sortBy as _sortBy } from 'lodash';
 import React, { PureComponent } from 'react';
-
-import { CustomScrollbar, Icon } from '@grafana/ui';
 import { TimeSeries } from 'app/core/core';
-
+import { CustomScrollbar, Icon } from '@grafana/ui';
 import { LegendStat, LegendItem, LEGEND_STATS } from './LegendSeriesItem';
 
 interface LegendProps {

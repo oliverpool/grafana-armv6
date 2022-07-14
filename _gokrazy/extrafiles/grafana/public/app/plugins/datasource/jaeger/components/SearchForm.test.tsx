@@ -1,17 +1,14 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import React from 'react';
-import { of } from 'rxjs';
-import { createFetchResponse } from 'test/helpers/createFetchResponse';
-
-import { DataQueryRequest, DataSourceInstanceSettings, dateTime, PluginType } from '@grafana/data';
 import { backendSrv } from 'app/core/services/backend_srv';
-
+import { createFetchResponse } from 'test/helpers/createFetchResponse';
+import { DataQueryRequest, DataSourceInstanceSettings, dateTime, PluginType } from '@grafana/data';
+import { of } from 'rxjs';
 import { JaegerDatasource, JaegerJsonData } from '../datasource';
-import { testResponse } from '../testResponse';
 import { JaegerQuery } from '../types';
-
+import React from 'react';
 import SearchForm from './SearchForm';
+import { testResponse } from '../testResponse';
+import userEvent from '@testing-library/user-event';
 
 describe('SearchForm', () => {
   it('should call the `onChange` function on click of the Input', async () => {

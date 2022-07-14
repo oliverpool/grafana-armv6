@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-
-import { arrayUtils } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
 import { DeleteButton, Icon, IconButton, VerticalGroup } from '@grafana/ui';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
-
 import { DashboardModel } from '../../state/DashboardModel';
 import { ListNewButton } from '../DashboardSettings/ListNewButton';
+import { arrayUtils } from '@grafana/data';
 
 type Props = {
   dashboard: DashboardModel;
@@ -29,7 +26,6 @@ export const AnnotationSettingsList: React.FC<Props> = ({ dashboard, onNew, onEd
 
   const showEmptyListCTA = annotations.length === 0 || (annotations.length === 1 && annotations[0].builtIn);
 
-  const dataSourceSrv = getDataSourceSrv();
   return (
     <VerticalGroup>
       {annotations.length > 0 && (
@@ -54,7 +50,7 @@ export const AnnotationSettingsList: React.FC<Props> = ({ dashboard, onNew, onEd
                   </td>
                 )}
                 <td className="pointer" onClick={() => onEdit(idx)}>
-                  {dataSourceSrv.getInstanceSettings(annotation.datasource)?.name || annotation.datasource?.uid}
+                  {annotation.datasource || 'Default'}
                 </td>
                 <td style={{ width: '1%' }}>
                   {idx !== 0 && (

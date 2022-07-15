@@ -1,12 +1,17 @@
 import React from 'react';
-import { LokiVisualQuery } from '../types';
-import { LokiDatasource } from '../../datasource';
+
+import { DataSourceApi, SelectableValue } from '@grafana/data';
+import { EditorRow } from '@grafana/experimental';
 import { LabelFilters } from 'app/plugins/datasource/prometheus/querybuilder/shared/LabelFilters';
 import { OperationList } from 'app/plugins/datasource/prometheus/querybuilder/shared/OperationList';
+import { OperationsEditorRow } from 'app/plugins/datasource/prometheus/querybuilder/shared/OperationsEditorRow';
 import { QueryBuilderLabelFilter } from 'app/plugins/datasource/prometheus/querybuilder/shared/types';
+
+import { LokiDatasource } from '../../datasource';
 import { lokiQueryModeller } from '../LokiQueryModeller';
-import { DataSourceApi } from '@grafana/data';
-import { EditorRow, EditorRows } from '@grafana/experimental';
+import { LokiVisualQuery } from '../types';
+
+import { NestedQueryList } from './NestedQueryList';
 import { QueryPreview } from './QueryPreview';
 
 export interface Props {
@@ -22,6 +27,11 @@ export const LokiQueryBuilder = React.memo<Props>(({ datasource, query, nested, 
     onChange({ ...query, labels });
   };
 
+  const withTemplateVariableOptions = async (optionsPromise: Promise<string[]>): Promise<SelectableValue[]> => {
+    const options = await optionsPromise;
+    return [...datasource.getVariables(), ...options].map((value) => ({ label: value, value }));
+  };
+
   const onGetLabelNames = async (forLabel: Partial<QueryBuilderLabelFilter>): Promise<any> => {
     const labelsToConsider = query.labels.filter((x) => x !== forLabel);
 
@@ -31,7 +41,8 @@ export const LokiQueryBuilder = React.memo<Props>(({ datasource, query, nested, 
     }
 
     const expr = lokiQueryModeller.renderLabels(labelsToConsider);
-    return await datasource.languageProvider.fetchSeriesLabels(expr);
+    const series = await datasource.languageProvider.fetchSeriesLabels(expr);
+    return Object.keys(series).sort();
   };
 
   const onGetLabelValues = async (forLabel: Partial<QueryBuilderLabelFilter>) => {
@@ -46,20 +57,25 @@ export const LokiQueryBuilder = React.memo<Props>(({ datasource, query, nested, 
 
     const expr = lokiQueryModeller.renderLabels(labelsToConsider);
     const result = await datasource.languageProvider.fetchSeriesLabels(expr);
-    return result[forLabel.label] ?? [];
+    const forLabelInterpolated = datasource.interpolateString(forLabel.label);
+    return result[forLabelInterpolated] ?? [];
   };
 
   return (
-    <EditorRows>
+    <>
       <EditorRow>
         <LabelFilters
-          onGetLabelNames={onGetLabelNames}
-          onGetLabelValues={onGetLabelValues}
+          onGetLabelNames={(forLabel: Partial<QueryBuilderLabelFilter>) =>
+            withTemplateVariableOptions(onGetLabelNames(forLabel))
+          }
+          onGetLabelValues={(forLabel: Partial<QueryBuilderLabelFilter>) =>
+            withTemplateVariableOptions(onGetLabelValues(forLabel))
+          }
           labelsFilters={query.labels}
           onChange={onChangeLabels}
         />
       </EditorRow>
-      <EditorRow>
+      <OperationsEditorRow>
         <OperationList
           queryModeller={lokiQueryModeller}
           query={query}
@@ -67,13 +83,16 @@ export const LokiQueryBuilder = React.memo<Props>(({ datasource, query, nested, 
           onRunQuery={onRunQuery}
           datasource={datasource as DataSourceApi}
         />
-      </EditorRow>
+      </OperationsEditorRow>
+      {query.binaryQueries && query.binaryQueries.length > 0 && (
+        <NestedQueryList query={query} datasource={datasource} onChange={onChange} onRunQuery={onRunQuery} />
+      )}
       {!nested && (
         <EditorRow>
           <QueryPreview query={query} />
         </EditorRow>
       )}
-    </EditorRows>
+    </>
   );
 });
 

@@ -1,16 +1,19 @@
-import React, { FC, useState } from 'react';
 import { css } from '@emotion/css';
+import React, { FC, useState } from 'react';
+import { useFormContext, RegisterOptions } from 'react-hook-form';
+
 import { parseDuration, durationToMilliseconds, GrafanaTheme2 } from '@grafana/data';
 import { Field, InlineLabel, Input, InputControl, useStyles2 } from '@grafana/ui';
-import { useFormContext, RegisterOptions } from 'react-hook-form';
+
 import { RuleFormValues } from '../../types/rule-form';
 import { positiveDurationValidationPattern, durationValidationPattern } from '../../utils/time';
+import { CollapseToggle } from '../CollapseToggle';
+
 import { ConditionField } from './ConditionField';
 import { GrafanaAlertStatePicker } from './GrafanaAlertStatePicker';
-import { RuleEditorSection } from './RuleEditorSection';
-import { PreviewRule } from './PreviewRule';
 import { GrafanaConditionEvalWarning } from './GrafanaConditionEvalWarning';
-import { CollapseToggle } from '../CollapseToggle';
+import { PreviewRule } from './PreviewRule';
+import { RuleEditorSection } from './RuleEditorSection';
 
 const MIN_TIME_RANGE_STEP_S = 10; // 10 seconds
 
@@ -43,7 +46,11 @@ const evaluateEveryValidationOptions: RegisterOptions = {
   },
 };
 
-export const GrafanaConditionsStep: FC = () => {
+interface Props {
+  existing?: boolean;
+}
+
+export const GrafanaConditionsStep: FC<Props> = ({ existing = false }) => {
   const styles = useStyles2(getStyles);
   const [showErrorHandling, setShowErrorHandling] = useState(false);
   const {
@@ -56,8 +63,11 @@ export const GrafanaConditionsStep: FC = () => {
 
   return (
     <RuleEditorSection stepNo={3} title="Define alert conditions">
-      <ConditionField />
-      <Field label="Evaluate">
+      <ConditionField existing={existing} />
+      <Field
+        label="Evaluate"
+        description="Evaluation interval applies to every rule within a group. It can overwrite the interval of an existing alert rule."
+      >
         <div className={styles.flexRow}>
           <InlineLabel
             htmlFor={evaluateEveryId}
@@ -66,14 +76,7 @@ export const GrafanaConditionsStep: FC = () => {
           >
             Evaluate every
           </InlineLabel>
-          <Field
-            className={styles.inlineField}
-            error={errors.evaluateEvery?.message}
-            invalid={!!errors.evaluateEvery?.message}
-            validationMessageHorizontalOverflow={true}
-          >
-            <Input id={evaluateEveryId} width={8} {...register('evaluateEvery', evaluateEveryValidationOptions)} />
-          </Field>
+          <Input id={evaluateEveryId} width={8} {...register('evaluateEvery', evaluateEveryValidationOptions)} />
           <InlineLabel
             htmlFor={evaluateForId}
             width={7}

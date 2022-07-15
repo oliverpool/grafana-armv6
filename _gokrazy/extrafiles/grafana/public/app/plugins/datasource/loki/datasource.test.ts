@@ -1,5 +1,8 @@
 import { lastValueFrom, of, throwError } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { createFetchResponse } from 'test/helpers/createFetchResponse';
+import { getQueryOptions } from 'test/helpers/getQueryOptions';
+
 import {
   AbstractLabelOperator,
   AnnotationQueryRequest,
@@ -12,29 +15,22 @@ import {
   MutableDataFrame,
   toUtc,
 } from '@grafana/data';
-import { BackendSrvRequest, FetchResponse, config } from '@grafana/runtime';
-
-import LokiDatasource, { RangeQueryOptions } from './datasource';
-import { LokiQuery, LokiResponse, LokiResultType } from './types';
-import { getQueryOptions } from 'test/helpers/getQueryOptions';
-import { TemplateSrv } from 'app/features/templating/template_srv';
-import { TimeSrv } from 'app/features/dashboard/services/TimeSrv';
+import { BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
-import { CustomVariableModel } from '../../../features/variables/types';
+import { TimeSrv } from 'app/features/dashboard/services/TimeSrv';
+import { TemplateSrv } from 'app/features/templating/template_srv';
+
 import { initialCustomVariableModelState } from '../../../features/variables/custom/reducer';
+import { CustomVariableModel } from '../../../features/variables/types';
+
+import { isMetricsQuery, LokiDatasource, RangeQueryOptions } from './datasource';
 import { makeMockLokiDatasource } from './mocks';
-import { createFetchResponse } from 'test/helpers/createFetchResponse';
+import { LokiQuery, LokiResponse, LokiResultType } from './types';
 
 jest.mock('@grafana/runtime', () => ({
   // @ts-ignore
   ...jest.requireActual('@grafana/runtime'),
   getBackendSrv: () => backendSrv,
-  config: {
-    ...(jest.requireActual('@grafana/runtime') as unknown as any).config,
-    featureToggles: {
-      fullRangeLogsVolume: true,
-    },
-  },
 }));
 
 const rawRange = {
@@ -972,55 +968,34 @@ describe('LokiDatasource', () => {
   });
 
   describe('logs volume data provider', () => {
-    describe('when feature toggle is enabled', () => {
-      beforeEach(() => {
-        config.featureToggles.fullRangeLogsVolume = true;
+    it('creates provider for logs query', () => {
+      const ds = createLokiDSForTests();
+      const options = getQueryOptions<LokiQuery>({
+        targets: [{ expr: '{label=value}', refId: 'A' }],
       });
 
-      it('creates provider for logs query', () => {
-        const ds = createLokiDSForTests();
-        const options = getQueryOptions<LokiQuery>({
-          targets: [{ expr: '{label=value}', refId: 'A' }],
-        });
-
-        expect(ds.getLogsVolumeDataProvider(options)).toBeDefined();
-      });
-
-      it('does not create provider for metrics query', () => {
-        const ds = createLokiDSForTests();
-        const options = getQueryOptions<LokiQuery>({
-          targets: [{ expr: 'rate({label=value}[1m])', refId: 'A' }],
-        });
-
-        expect(ds.getLogsVolumeDataProvider(options)).not.toBeDefined();
-      });
-
-      it('creates provider if at least one query is a logs query', () => {
-        const ds = createLokiDSForTests();
-        const options = getQueryOptions<LokiQuery>({
-          targets: [
-            { expr: 'rate({label=value}[1m])', refId: 'A' },
-            { expr: '{label=value}', refId: 'B' },
-          ],
-        });
-
-        expect(ds.getLogsVolumeDataProvider(options)).toBeDefined();
-      });
+      expect(ds.getLogsVolumeDataProvider(options)).toBeDefined();
     });
 
-    describe('when feature toggle is disabled', () => {
-      beforeEach(() => {
-        config.featureToggles.fullRangeLogsVolume = false;
+    it('does not create provider for metrics query', () => {
+      const ds = createLokiDSForTests();
+      const options = getQueryOptions<LokiQuery>({
+        targets: [{ expr: 'rate({label=value}[1m])', refId: 'A' }],
       });
 
-      it('does not create a provider for logs query', () => {
-        const ds = createLokiDSForTests();
-        const options = getQueryOptions<LokiQuery>({
-          targets: [{ expr: '{label=value}', refId: 'A' }],
-        });
+      expect(ds.getLogsVolumeDataProvider(options)).not.toBeDefined();
+    });
 
-        expect(ds.getLogsVolumeDataProvider(options)).not.toBeDefined();
+    it('creates provider if at least one query is a logs query', () => {
+      const ds = createLokiDSForTests();
+      const options = getQueryOptions<LokiQuery>({
+        targets: [
+          { expr: 'rate({label=value}[1m])', refId: 'A' },
+          { expr: '{label=value}', refId: 'B' },
+        ],
       });
+
+      expect(ds.getLogsVolumeDataProvider(options)).toBeDefined();
     });
   });
 
@@ -1054,6 +1029,23 @@ describe('LokiDatasource', () => {
       ]);
       expect(queries[0].expr).toBe('{foo="bar"}');
     });
+  });
+});
+
+describe('isMetricsQuery', () => {
+  it('should return true for metrics query', () => {
+    const query = 'rate({label=value}[1m])';
+    expect(isMetricsQuery(query)).toBeTruthy();
+  });
+
+  it('should return false for logs query', () => {
+    const query = '{label=value}';
+    expect(isMetricsQuery(query)).toBeFalsy();
+  });
+
+  it('should not blow up on empty query', () => {
+    const query = '';
+    expect(isMetricsQuery(query)).toBeFalsy();
   });
 });
 

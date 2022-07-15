@@ -1,23 +1,30 @@
-import { Alert } from '@grafana/ui';
-import { QueryEditorProps } from '@grafana/data';
+import { debounce } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
+
+import { QueryEditorProps } from '@grafana/data';
+import { config } from '@grafana/runtime';
+import { Alert } from '@grafana/ui';
+
 import AzureMonitorDatasource from '../../datasource';
 import {
+  AzureDataSourceJsonData,
+  AzureMonitorErrorish,
+  AzureMonitorOption,
   AzureMonitorQuery,
   AzureQueryType,
-  AzureMonitorOption,
-  AzureMonitorErrorish,
-  AzureDataSourceJsonData,
+  DeprecatedAzureQueryType,
 } from '../../types';
-import MetricsQueryEditor from '../MetricsQueryEditor';
-import QueryTypeField from './QueryTypeField';
 import useLastError from '../../utils/useLastError';
-import LogsQueryEditor from '../LogsQueryEditor';
 import ArgQueryEditor from '../ArgQueryEditor';
-import ApplicationInsightsEditor from '../ApplicationInsightsEditor';
-import InsightsAnalyticsEditor from '../InsightsAnalyticsEditor';
+import LogsQueryEditor from '../LogsQueryEditor';
+import MetricsQueryEditor from '../MetricsQueryEditor';
+import NewMetricsQueryEditor from '../NewMetricsQueryEditor/MetricsQueryEditor';
 import { Space } from '../Space';
-import { debounce } from 'lodash';
+import ApplicationInsightsEditor from '../deprecated/components/ApplicationInsightsEditor';
+import InsightsAnalyticsEditor from '../deprecated/components/InsightsAnalyticsEditor';
+import { gtGrafana9 } from '../deprecated/utils';
+
+import QueryTypeField from './QueryTypeField';
 import usePreparedQuery from './usePreparedQuery';
 
 export type AzureMonitorQueryEditorProps = QueryEditorProps<
@@ -31,6 +38,7 @@ const QueryEditor: React.FC<AzureMonitorQueryEditorProps> = ({
   datasource,
   onChange,
   onRunQuery: baseOnRunQuery,
+  data,
 }) => {
   const [errorMessage, setError] = useLastError();
   const onRunQuery = useMemo(() => debounce(baseOnRunQuery, 500), [baseOnRunQuery]);
@@ -56,6 +64,7 @@ const QueryEditor: React.FC<AzureMonitorQueryEditorProps> = ({
       <QueryTypeField query={query} onQueryChange={onQueryChange} />
 
       <EditorForQueryType
+        data={data}
         subscriptionId={subscriptionId}
         query={query}
         datasource={datasource}
@@ -83,6 +92,7 @@ interface EditorForQueryTypeProps extends Omit<AzureMonitorQueryEditorProps, 'on
 }
 
 const EditorForQueryType: React.FC<EditorForQueryTypeProps> = ({
+  data,
   subscriptionId,
   query,
   datasource,
@@ -92,8 +102,12 @@ const EditorForQueryType: React.FC<EditorForQueryTypeProps> = ({
 }) => {
   switch (query.queryType) {
     case AzureQueryType.AzureMonitor:
+      if (config.featureToggles.azureMonitorResourcePickerForMetrics) {
+        return <NewMetricsQueryEditor />;
+      }
       return (
         <MetricsQueryEditor
+          data={data}
           subscriptionId={subscriptionId}
           query={query}
           datasource={datasource}
@@ -115,12 +129,6 @@ const EditorForQueryType: React.FC<EditorForQueryTypeProps> = ({
         />
       );
 
-    case AzureQueryType.ApplicationInsights:
-      return <ApplicationInsightsEditor query={query} />;
-
-    case AzureQueryType.InsightsAnalytics:
-      return <InsightsAnalyticsEditor query={query} />;
-
     case AzureQueryType.AzureResourceGraph:
       return (
         <ArgQueryEditor
@@ -132,6 +140,44 @@ const EditorForQueryType: React.FC<EditorForQueryTypeProps> = ({
           setError={setError}
         />
       );
+
+    /** Remove with Grafana 9 */
+    case DeprecatedAzureQueryType.ApplicationInsights:
+      if (gtGrafana9()) {
+        return (
+          <Alert title="Deprecated">
+            Application Insights has been deprecated.{' '}
+            <a
+              href="https://grafana.com/docs/grafana/latest/datasources/azuremonitor/deprecated-application-insights/#application-insights"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Use the Metrics service instead
+            </a>
+            .
+          </Alert>
+        );
+      }
+      return <ApplicationInsightsEditor query={query} />;
+
+    case DeprecatedAzureQueryType.InsightsAnalytics:
+      if (gtGrafana9()) {
+        return (
+          <Alert title="Deprecated">
+            Insight Analytics has been deprecated.{' '}
+            <a
+              href="https://grafana.com/docs/grafana/latest/datasources/azuremonitor/deprecated-application-insights/#insights-analytics"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Queries can be written with Kusto in the Logs query type by selecting your Application Insights resource
+            </a>
+            .
+          </Alert>
+        );
+      }
+      return <InsightsAnalyticsEditor query={query} />;
+    /** ===================== */
 
     default:
       return <Alert title="Unknown query type" />;

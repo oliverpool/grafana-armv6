@@ -1,12 +1,16 @@
-import React, { FC, memo } from 'react';
 import { css } from '@emotion/css';
-import { CustomScrollbar, IconButton, stylesFactory, useTheme2 } from '@grafana/ui';
+import React, { FC, memo } from 'react';
+
 import { GrafanaTheme2 } from '@grafana/data';
-import { useSearchQuery } from '../hooks/useSearchQuery';
+import { CustomScrollbar, IconButton, stylesFactory, useTheme2 } from '@grafana/ui';
+
 import { useDashboardSearch } from '../hooks/useDashboardSearch';
+import { useSearchQuery } from '../hooks/useSearchQuery';
+
+import { ActionRow } from './ActionRow';
+import { PreviewsSystemRequirements } from './PreviewsSystemRequirements';
 import { SearchField } from './SearchField';
 import { SearchResults } from './SearchResults';
-import { ActionRow } from './ActionRow';
 
 export interface Props {
   onCloseSearch: () => void;
@@ -14,7 +18,7 @@ export interface Props {
 
 export const DashboardSearch: FC<Props> = memo(({ onCloseSearch }) => {
   const { query, onQueryChange, onTagFilterChange, onTagAdd, onSortChange, onLayoutChange } = useSearchQuery({});
-  const { results, loading, onToggleSection, onKeyDown, showPreviews, onShowPreviewsChange } = useDashboardSearch(
+  const { results, loading, onToggleSection, onKeyDown, showPreviews, setShowPreviews } = useDashboardSearch(
     query,
     onCloseSearch
   );
@@ -34,12 +38,17 @@ export const DashboardSearch: FC<Props> = memo(({ onCloseSearch }) => {
           <ActionRow
             {...{
               onLayoutChange,
-              onShowPreviewsChange: (ev) => onShowPreviewsChange(ev.target.checked),
+              setShowPreviews,
               onSortChange,
               onTagFilterChange,
               query,
               showPreviews,
             }}
+          />
+          <PreviewsSystemRequirements
+            bottomSpacing={3}
+            showPreviews={showPreviews}
+            onRemove={() => setShowPreviews(false)}
           />
           <CustomScrollbar>
             <SearchResults

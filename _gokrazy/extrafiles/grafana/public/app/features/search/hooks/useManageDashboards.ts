@@ -1,14 +1,17 @@
 import { useCallback, useMemo, useReducer } from 'react';
-import { FolderDTO } from 'app/types';
+import { useDebounce } from 'react-use';
+
+import { reportInteraction } from '@grafana/runtime/src';
 import { contextSrv } from 'app/core/services/context_srv';
-import { DashboardQuery, DashboardSection, OnDeleteItems, OnMoveItems, OnToggleChecked, SearchLayout } from '../types';
+import { FolderDTO } from 'app/types';
+
+import { GENERAL_FOLDER_ID } from '../constants';
 import { DELETE_ITEMS, MOVE_ITEMS, TOGGLE_ALL_CHECKED, TOGGLE_CHECKED } from '../reducers/actionTypes';
 import { manageDashboardsReducer, manageDashboardsState, ManageDashboardsState } from '../reducers/manageDashboards';
+import { DashboardQuery, DashboardSection, OnDeleteItems, OnMoveItems, OnToggleChecked, SearchLayout } from '../types';
+
 import { useSearch } from './useSearch';
-import { GENERAL_FOLDER_ID } from '../constants';
 import { useShowDashboardPreviews } from './useShowDashboardPreviews';
-import { reportInteraction } from '@grafana/runtime/src';
-import { useDebounce } from 'react-use';
 
 const hasChecked = (section: DashboardSection) => {
   return section.checked || section.items.some((item) => item.checked);
@@ -47,7 +50,7 @@ export const useManageDashboards = (
     ...state,
   });
 
-  const { showPreviews, onShowPreviewsChange, previewFeatureEnabled } = useShowDashboardPreviews();
+  const { showPreviews, setShowPreviews, previewFeatureEnabled } = useShowDashboardPreviews();
   useDebounce(
     () => {
       reportDashboardListViewed('manage_dashboards', showPreviews, previewFeatureEnabled, {
@@ -123,6 +126,6 @@ export const useManageDashboards = (
     onMoveItems,
     noFolders,
     showPreviews,
-    onShowPreviewsChange,
+    setShowPreviews,
   };
 };

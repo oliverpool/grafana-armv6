@@ -1,10 +1,12 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+
+import { selectOptionInTest } from '../../../../../../../packages/grafana-ui';
+import { getLabelSelects } from '../testUtils';
+
 import { LabelFilters } from './LabelFilters';
 import { QueryBuilderLabelFilter } from './types';
-import { getLabelSelects } from '../testUtils';
-import { selectOptionInTest } from '../../../../../../../packages/grafana-ui';
 
 describe('LabelFilters', () => {
   it('renders empty input without labels', async () => {
@@ -47,17 +49,37 @@ describe('LabelFilters', () => {
     userEvent.click(screen.getByLabelText(/remove/));
     expect(onChange).toBeCalledWith([]);
   });
+
+  it('renders empty input when labels are deleted from outside ', async () => {
+    const { rerender } = setup([{ label: 'foo', op: '=', value: 'bar' }]);
+    expect(screen.getByText(/foo/)).toBeInTheDocument();
+    expect(screen.getByText(/bar/)).toBeInTheDocument();
+    rerender(
+      <LabelFilters onChange={jest.fn()} onGetLabelNames={jest.fn()} onGetLabelValues={jest.fn()} labelsFilters={[]} />
+    );
+    expect(screen.getAllByText(/Choose/)).toHaveLength(2);
+    expect(screen.getByText(/=/)).toBeInTheDocument();
+    expect(getAddButton()).toBeInTheDocument();
+  });
 });
 
 function setup(labels: QueryBuilderLabelFilter[] = []) {
   const props = {
     onChange: jest.fn(),
-    onGetLabelNames: async () => ['foo', 'bar', 'baz'],
-    onGetLabelValues: async () => ['bar', 'qux', 'quux'],
+    onGetLabelNames: async () => [
+      { label: 'foo', value: 'foo' },
+      { label: 'bar', value: 'bar' },
+      { label: 'baz', value: 'baz' },
+    ],
+    onGetLabelValues: async () => [
+      { label: 'bar', value: 'bar' },
+      { label: 'qux', value: 'qux' },
+      { label: 'quux', value: 'quux' },
+    ],
   };
 
-  render(<LabelFilters {...props} labelsFilters={labels} />);
-  return props;
+  const { rerender } = render(<LabelFilters {...props} labelsFilters={labels} />);
+  return { ...props, rerender };
 }
 
 function getAddButton() {

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 
 import { renderMarkdown, LinkModelSupplier, ScopedVars } from '@grafana/data';
-import { Tooltip, PopoverContent } from '@grafana/ui';
-import { locationService, getTemplateSrv } from '@grafana/runtime';
-
-import { PanelModel } from 'app/features/dashboard/state/PanelModel';
-import { getTimeSrv, TimeSrv } from 'app/features/dashboard/services/TimeSrv';
-import { InspectTab } from 'app/features/inspector/types';
 import { selectors } from '@grafana/e2e-selectors';
+import { locationService, getTemplateSrv } from '@grafana/runtime';
+import { Tooltip, PopoverContent } from '@grafana/ui';
+import { getTimeSrv, TimeSrv } from 'app/features/dashboard/services/TimeSrv';
+import { PanelModel } from 'app/features/dashboard/state/PanelModel';
+import { InspectTab } from 'app/features/inspector/types';
 
 enum InfoMode {
   Error = 'Error',
@@ -86,7 +85,7 @@ export class PanelHeaderCorner extends Component<Props> {
     const ariaLabel = selectors.components.Panels.Panel.headerCornerInfo(infoMode.toLowerCase());
 
     return (
-      <Tooltip content={content} placement="top-start" theme={theme}>
+      <Tooltip content={content} placement="top-start" theme={theme} interactive>
         <section className={className} onClick={onClick} aria-label={ariaLabel}>
           <i aria-hidden className="fa" />
           <span className="panel-info-corner-inner" />

@@ -1,20 +1,21 @@
-import { css } from '@emotion/css';
-import { GrafanaTheme2 } from '@grafana/data';
-import { Alert, Button, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { cx } from '@emotion/css';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { Alert, Button, Icon, Input, LoadingPlaceholder, Tooltip, useStyles2, Collapse, Label } from '@grafana/ui';
 
 import ResourcePickerData from '../../resourcePicker/resourcePickerData';
 import messageFromError from '../../utils/messageFromError';
 import { Space } from '../Space';
-import NestedResourceTable from './NestedResourceTable';
+
+import NestedRow from './NestedRow';
+import getStyles from './styles';
 import { ResourceRow, ResourceRowGroup, ResourceRowType } from './types';
 import { addResources, findRow, parseResourceURI } from './utils';
 
-const TEMPLATE_VARIABLE_GROUP_ID = '$$grafana-templateVariables$$';
 interface ResourcePickerProps {
   resourcePickerData: ResourcePickerData;
   resourceURI: string | undefined;
-  templateVariables: string[];
+  selectableEntryTypes: ResourceRowType[];
 
   onApply: (resourceURI: string | undefined) => void;
   onCancel: () => void;
@@ -23,9 +24,9 @@ interface ResourcePickerProps {
 const ResourcePicker = ({
   resourcePickerData,
   resourceURI,
-  templateVariables,
   onApply,
   onCancel,
+  selectableEntryTypes,
 }: ResourcePickerProps) => {
   const styles = useStyles2(getStyles);
 
@@ -34,7 +35,7 @@ const ResourcePicker = ({
   const [azureRows, setAzureRows] = useState<ResourceRowGroup>([]);
   const [internalSelectedURI, setInternalSelectedURI] = useState<string | undefined>(resourceURI);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(resourceURI?.includes('$'));
   // Sync the resourceURI prop to internal state
   useEffect(() => {
     setInternalSelectedURI(resourceURI);
@@ -83,14 +84,10 @@ const ResourcePicker = ({
     }
   }, [resourcePickerData, internalSelectedURI, azureRows, loadingStatus]);
 
-  const rows = useMemo(() => {
-    const templateVariableRow = transformVariablesToRow(templateVariables);
-    return templateVariables.length ? [...azureRows, templateVariableRow] : azureRows;
-  }, [azureRows, templateVariables]);
-
   // Map the selected item into an array of rows
   const selectedResourceRows = useMemo(() => {
-    const found = internalSelectedURI && findRow(rows, internalSelectedURI);
+    const found = internalSelectedURI && findRow(azureRows, internalSelectedURI);
+
     return found
       ? [
           {
@@ -99,7 +96,7 @@ const ResourcePicker = ({
           },
         ]
       : [];
-  }, [internalSelectedURI, rows]);
+  }, [internalSelectedURI, azureRows]);
 
   // Request resources for a expanded resource group
   const requestNestedRows = useCallback(
@@ -107,12 +104,8 @@ const ResourcePicker = ({
       // clear error message (also when loading cached resources)
       setErrorMessage(undefined);
 
-      // If we already have children, we don't need to re-fetch them. Also abort if we're expanding the special
-      // template variable group, though that shouldn't happen in practice
-      if (
-        resourceGroupOrSubscription.children?.length ||
-        resourceGroupOrSubscription.uri === TEMPLATE_VARIABLE_GROUP_ID
-      ) {
+      // If we already have children, we don't need to re-fetch them.
+      if (resourceGroupOrSubscription.children?.length) {
         return;
       }
 
@@ -149,34 +142,106 @@ const ResourcePicker = ({
         </div>
       ) : (
         <>
-          <NestedResourceTable
-            rows={rows}
-            requestNestedRows={requestNestedRows}
-            onRowSelectedChange={handleSelectionChanged}
-            selectedRows={selectedResourceRows}
-          />
+          <table className={styles.table}>
+            <thead>
+              <tr className={cx(styles.row, styles.header)}>
+                <td className={styles.cell}>Scope</td>
+                <td className={styles.cell}>Type</td>
+                <td className={styles.cell}>Location</td>
+              </tr>
+            </thead>
+          </table>
+
+          <div className={styles.tableScroller}>
+            <table className={styles.table}>
+              <tbody>
+                {azureRows.map((row) => (
+                  <NestedRow
+                    key={row.uri}
+                    row={row}
+                    selectedRows={selectedResourceRows}
+                    level={0}
+                    requestNestedRows={requestNestedRows}
+                    onRowSelectedChange={handleSelectionChanged}
+                    selectableEntryTypes={selectableEntryTypes}
+                    scrollIntoView={true}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <div className={styles.selectionFooter}>
             {selectedResourceRows.length > 0 && (
               <>
-                <Space v={2} />
                 <h5>Selection</h5>
-                <NestedResourceTable
-                  rows={selectedResourceRows}
-                  requestNestedRows={requestNestedRows}
-                  onRowSelectedChange={handleSelectionChanged}
-                  selectedRows={selectedResourceRows}
-                  noHeader={true}
-                />
+
+                <div className={styles.tableScroller}>
+                  <table className={styles.table}>
+                    <tbody>
+                      {selectedResourceRows.map((row) => (
+                        <NestedRow
+                          key={row.uri}
+                          row={row}
+                          selectedRows={selectedResourceRows}
+                          level={0}
+                          requestNestedRows={requestNestedRows}
+                          onRowSelectedChange={handleSelectionChanged}
+                          selectableEntryTypes={selectableEntryTypes}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Space v={2} />
               </>
             )}
 
+            <Collapse
+              collapsible
+              label="Advanced"
+              isOpen={isAdvancedOpen}
+              onToggle={() => setIsAdvancedOpen(!isAdvancedOpen)}
+            >
+              <Label htmlFor={`input-${internalSelectedURI}`}>
+                <h6>
+                  Resource URI{' '}
+                  <Tooltip
+                    content={
+                      <>
+                        Manually edit the{' '}
+                        <a
+                          href="https://docs.microsoft.com/en-us/azure/azure-monitor/logs/log-standard-columns#_resourceid"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          resource uri.{' '}
+                        </a>
+                        Supports the use of multiple template variables (ex: /subscriptions/$subId/resourceGroups/$rg)
+                      </>
+                    }
+                    placement="right"
+                    interactive={true}
+                  >
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </h6>
+              </Label>
+              <Input
+                id={`input-${internalSelectedURI}`}
+                value={internalSelectedURI}
+                onChange={(event) => setInternalSelectedURI(event.currentTarget.value)}
+                placeholder="ex: /subscriptions/$subId"
+              />
+            </Collapse>
             <Space v={2} />
 
             <Button disabled={!!errorMessage} onClick={handleApply}>
               Apply
             </Button>
+
             <Space layout="inline" h={1} />
+
             <Button onClick={onCancel} variant="secondary">
               Cancel
             </Button>
@@ -196,35 +261,3 @@ const ResourcePicker = ({
 };
 
 export default ResourcePicker;
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  selectionFooter: css({
-    position: 'sticky',
-    bottom: 0,
-    background: theme.colors.background.primary,
-    paddingTop: theme.spacing(2),
-  }),
-  loadingWrapper: css({
-    textAlign: 'center',
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    color: theme.colors.text.secondary,
-  }),
-});
-
-function transformVariablesToRow(templateVariables: string[]): ResourceRow {
-  return {
-    id: TEMPLATE_VARIABLE_GROUP_ID,
-    uri: TEMPLATE_VARIABLE_GROUP_ID,
-    name: 'Template variables',
-    type: ResourceRowType.VariableGroup,
-    typeLabel: 'Variables',
-    children: templateVariables.map((v) => ({
-      id: v,
-      uri: v,
-      name: v,
-      type: ResourceRowType.Variable,
-      typeLabel: 'Variable',
-    })),
-  };
-}

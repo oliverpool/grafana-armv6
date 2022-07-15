@@ -1,16 +1,20 @@
-import Plain from 'slate-plain-serializer';
 import { Editor as SlateEditor } from 'slate';
-import LanguageProvider from './language_provider';
-import { PrometheusDatasource } from './datasource';
+import Plain from 'slate-plain-serializer';
+
 import { AbstractLabelOperator, HistoryItem } from '@grafana/data';
-import { PromQuery } from './types';
-import Mock = jest.Mock;
 import { SearchFunctionType } from '@grafana/ui';
+
+import { PrometheusDatasource } from './datasource';
+import LanguageProvider from './language_provider';
+import { PromQuery } from './types';
+
+import Mock = jest.Mock;
 
 describe('Language completion provider', () => {
   const datasource: PrometheusDatasource = {
     metadataRequest: () => ({ data: { data: [] as any[] } }),
     getTimeRangeParams: () => ({ start: '0', end: '1' }),
+    interpolateString: (string: string) => string,
   } as any as PrometheusDatasource;
 
   describe('cleanText', () => {
@@ -76,6 +80,41 @@ describe('Language completion provider', () => {
         {},
         { end: '1', 'match[]': '{job="grafana"}', start: '0' }
       );
+    });
+  });
+
+  describe('fetchSeriesLabels', () => {
+    it('should interpolate variable in series', () => {
+      const languageProvider = new LanguageProvider({
+        ...datasource,
+        interpolateString: (string: string) => string.replace(/\$/, 'interpolated-'),
+      } as PrometheusDatasource);
+      const fetchSeriesLabels = languageProvider.fetchSeriesLabels;
+      const requestSpy = jest.spyOn(languageProvider, 'request');
+      fetchSeriesLabels('$metric');
+      expect(requestSpy).toHaveBeenCalled();
+      expect(requestSpy).toHaveBeenCalledWith('/api/v1/series', [], {
+        end: '1',
+        'match[]': 'interpolated-metric',
+        start: '0',
+      });
+    });
+  });
+
+  describe('fetchLabelValues', () => {
+    it('should interpolate variable in series', () => {
+      const languageProvider = new LanguageProvider({
+        ...datasource,
+        interpolateString: (string: string) => string.replace(/\$/, 'interpolated-'),
+      } as PrometheusDatasource);
+      const fetchLabelValues = languageProvider.fetchLabelValues;
+      const requestSpy = jest.spyOn(languageProvider, 'request');
+      fetchLabelValues('$job');
+      expect(requestSpy).toHaveBeenCalled();
+      expect(requestSpy).toHaveBeenCalledWith('/api/v1/label/interpolated-job/values', [], {
+        end: '1',
+        start: '0',
+      });
     });
   });
 
@@ -266,6 +305,7 @@ describe('Language completion provider', () => {
       const datasources: PrometheusDatasource = {
         metadataRequest: () => ({ data: { data: [{ __name__: 'metric', bar: 'bazinga' }] as any[] } }),
         getTimeRangeParams: () => ({ start: '0', end: '1' }),
+        interpolateString: (string: string) => string,
       } as any as PrometheusDatasource;
       const instance = new LanguageProvider(datasources);
       const value = Plain.deserialize('metric{}');
@@ -299,6 +339,7 @@ describe('Language completion provider', () => {
           },
         }),
         getTimeRangeParams: () => ({ start: '0', end: '1' }),
+        interpolateString: (string: string) => string,
       } as any as PrometheusDatasource;
       const instance = new LanguageProvider(datasource);
       const value = Plain.deserialize('{job1="foo",job2!="foo",job3=~"foo",__name__="metric",}');
@@ -344,6 +385,7 @@ describe('Language completion provider', () => {
     });
 
     it('returns a refresher on label context and unavailable metric', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
       const instance = new LanguageProvider(datasource);
       const value = Plain.deserialize('metric{}');
       const ed = new SlateEditor({ value });
@@ -356,6 +398,7 @@ describe('Language completion provider', () => {
       });
       expect(result.context).toBeUndefined();
       expect(result.suggestions).toEqual([]);
+      expect(console.warn).toHaveBeenCalledWith('Server did not return any values for selector = {__name__="metric"}');
     });
 
     it('returns label values on label context when given a metric and a label key', async () => {
@@ -536,6 +579,7 @@ describe('Language completion provider', () => {
       const datasource: PrometheusDatasource = {
         metadataRequest: jest.fn(() => ({ data: { data: [] as any[] } })),
         getTimeRangeParams: jest.fn(() => ({ start: '0', end: '1' })),
+        interpolateString: (string: string) => string,
       } as any as PrometheusDatasource;
 
       const instance = new LanguageProvider(datasource);
@@ -559,6 +603,7 @@ describe('Language completion provider', () => {
   });
   describe('disabled metrics lookup', () => {
     it('does not issue any metadata requests when lookup is disabled', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
       const datasource: PrometheusDatasource = {
         metadataRequest: jest.fn(() => ({ data: { data: ['foo', 'bar'] as string[] } })),
         getTimeRangeParams: jest.fn(() => ({ start: '0', end: '1' })),
@@ -580,12 +625,14 @@ describe('Language completion provider', () => {
       expect((datasource.metadataRequest as Mock).mock.calls.length).toBe(0);
       await instance.provideCompletionItems(args);
       expect((datasource.metadataRequest as Mock).mock.calls.length).toBe(0);
+      expect(console.warn).toHaveBeenCalledWith('Server did not return any values for selector = {}');
     });
     it('issues metadata requests when lookup is not disabled', async () => {
       const datasource: PrometheusDatasource = {
         metadataRequest: jest.fn(() => ({ data: { data: ['foo', 'bar'] as string[] } })),
         getTimeRangeParams: jest.fn(() => ({ start: '0', end: '1' })),
         lookupsDisabled: false,
+        interpolateString: (string: string) => string,
       } as any as PrometheusDatasource;
       const instance = new LanguageProvider(datasource);
 

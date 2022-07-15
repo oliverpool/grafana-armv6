@@ -1,3 +1,5 @@
+import { lastValueFrom } from 'rxjs';
+
 import { urlUtil } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import {
@@ -13,10 +15,11 @@ import {
   TestReceiversAlert,
   TestReceiversPayload,
   TestReceiversResult,
+  ExternalAlertmanagerConfig,
 } from 'app/plugins/datasource/alertmanager/types';
-import { lastValueFrom } from 'rxjs';
-import { getDatasourceAPIId, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
+
 import { isFetchError } from '../utils/alertmanager';
+import { getDatasourceAPIId, GRAFANA_RULES_SOURCE_NAME } from '../utils/datasource';
 
 // "grafana" for grafana-managed, otherwise a datasource name
 export async function fetchAlertManagerConfig(alertManagerSourceName: string): Promise<AlertManagerCortexConfig> {
@@ -222,11 +225,11 @@ function getReceiverResultError(receiversResult: TestReceiversResult) {
     .join('; ');
 }
 
-export async function addAlertManagers(alertManagers: string[]): Promise<void> {
+export async function addAlertManagers(alertManagerConfig: ExternalAlertmanagerConfig): Promise<void> {
   await lastValueFrom(
     getBackendSrv().fetch({
       method: 'POST',
-      data: { alertmanagers: alertManagers },
+      data: alertManagerConfig,
       url: '/api/v1/ngalert/admin_config',
       showErrorAlert: false,
       showSuccessAlert: false,
@@ -247,9 +250,9 @@ export async function fetchExternalAlertmanagers(): Promise<ExternalAlertmanager
   return result.data;
 }
 
-export async function fetchExternalAlertmanagerConfig(): Promise<{ alertmanagers: string[] }> {
+export async function fetchExternalAlertmanagerConfig(): Promise<ExternalAlertmanagerConfig> {
   const result = await lastValueFrom(
-    getBackendSrv().fetch<{ alertmanagers: string[] }>({
+    getBackendSrv().fetch<ExternalAlertmanagerConfig>({
       method: 'GET',
       url: '/api/v1/ngalert/admin_config',
       showErrorAlert: false,

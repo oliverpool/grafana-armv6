@@ -1,6 +1,8 @@
-import React, { FC, useState } from 'react';
 import { cx } from '@emotion/css';
+import React, { FC, useState } from 'react';
+
 import { Button, Collapse, Field, Form, Input, InputControl, Link, MultiSelect, Select, useStyles2 } from '@grafana/ui';
+
 import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
 import {
   mapMultiSelectValueToStrings,
@@ -11,6 +13,7 @@ import {
 } from '../../utils/amroutes';
 import { makeAMLink } from '../../utils/misc';
 import { timeOptions } from '../../utils/time';
+
 import { getFormStyles } from './formStyles';
 
 export interface AmRootRouteFormProps {
@@ -33,7 +36,7 @@ export const AmRootRouteForm: FC<AmRootRouteFormProps> = ({
   const [groupByOptions, setGroupByOptions] = useState(stringsToSelectableValues(routes.groupBy));
 
   return (
-    <Form defaultValues={routes} onSubmit={onSave}>
+    <Form defaultValues={{ ...routes, overrideTimings: true }} onSubmit={onSave}>
       {({ control, errors, setValue }) => (
         <>
           <Field label="Default contact point" invalid={!!errors.receiver} error={errors.receiver?.message}>
@@ -110,12 +113,7 @@ export const AmRootRouteForm: FC<AmRootRouteFormProps> = ({
                 <div className={cx(styles.container, styles.timingContainer)}>
                   <InputControl
                     render={({ field, fieldState: { invalid } }) => (
-                      <Input
-                        {...field}
-                        className={styles.smallInput}
-                        invalid={invalid}
-                        placeholder={'Default 30 seconds'}
-                      />
+                      <Input {...field} className={styles.smallInput} invalid={invalid} placeholder={'30'} />
                     )}
                     control={control}
                     name="groupWaitValue"
@@ -151,12 +149,7 @@ export const AmRootRouteForm: FC<AmRootRouteFormProps> = ({
                 <div className={cx(styles.container, styles.timingContainer)}>
                   <InputControl
                     render={({ field, fieldState: { invalid } }) => (
-                      <Input
-                        {...field}
-                        className={styles.smallInput}
-                        invalid={invalid}
-                        placeholder={'Default 5 minutes'}
-                      />
+                      <Input {...field} className={styles.smallInput} invalid={invalid} placeholder={'5'} />
                     )}
                     control={control}
                     name="groupIntervalValue"
@@ -192,7 +185,7 @@ export const AmRootRouteForm: FC<AmRootRouteFormProps> = ({
                 <div className={cx(styles.container, styles.timingContainer)}>
                   <InputControl
                     render={({ field, fieldState: { invalid } }) => (
-                      <Input {...field} className={styles.smallInput} invalid={invalid} placeholder="Default 4 hours" />
+                      <Input {...field} className={styles.smallInput} invalid={invalid} placeholder="4" />
                     )}
                     control={control}
                     name="repeatIntervalValue"

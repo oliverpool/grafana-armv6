@@ -1,18 +1,21 @@
-import React, { FC, memo, useState } from 'react';
 import { css } from '@emotion/css';
-import { FilterInput, Spinner, stylesFactory, useTheme } from '@grafana/ui';
+import React, { FC, memo, useState } from 'react';
+
 import { GrafanaTheme } from '@grafana/data';
-import { contextSrv } from 'app/core/services/context_srv';
+import { FilterInput, Spinner, stylesFactory, useTheme } from '@grafana/ui';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
+import { contextSrv } from 'app/core/services/context_srv';
 import { FolderDTO } from 'app/types';
+
 import { useManageDashboards } from '../hooks/useManageDashboards';
-import { SearchLayout } from '../types';
-import { ConfirmDeleteModal } from './ConfirmDeleteModal';
-import { MoveToFolderModal } from './MoveToFolderModal';
 import { useSearchQuery } from '../hooks/useSearchQuery';
-import { SearchResultsFilter } from './SearchResultsFilter';
-import { SearchResults } from './SearchResults';
+import { SearchLayout } from '../types';
+
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 import { DashboardActions } from './DashboardActions';
+import { MoveToFolderModal } from './MoveToFolderModal';
+import { SearchResults } from './SearchResults';
+import { SearchResultsFilter } from './SearchResultsFilter';
 
 export interface Props {
   folder?: FolderDTO;
@@ -62,7 +65,7 @@ export const ManageDashboards: FC<Props> = memo(({ folder }) => {
     onMoveItems,
     noFolders,
     showPreviews,
-    onShowPreviewsChange,
+    setShowPreviews,
   } = useManageDashboards(query, {}, folder);
 
   const onMoveTo = () => {
@@ -108,7 +111,7 @@ export const ManageDashboards: FC<Props> = memo(({ folder }) => {
           canMove={hasEditPermissionInFolders && canMove}
           deleteItem={onItemDelete}
           moveTo={onMoveTo}
-          onShowPreviewsChange={(ev) => onShowPreviewsChange(ev.target.checked)}
+          setShowPreviews={setShowPreviews}
           onToggleAllChecked={onToggleAllChecked}
           onStarredFilterChange={onStarredFilterChange}
           onSortChange={onSortChange}

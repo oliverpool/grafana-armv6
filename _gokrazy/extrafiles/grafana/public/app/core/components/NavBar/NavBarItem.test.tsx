@@ -1,9 +1,11 @@
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+
 import { locationUtil } from '@grafana/data';
 import { config, setLocationService } from '@grafana/runtime';
+
 import TestProvider from '../../../../test/helpers/TestProvider';
 
 import NavBarItem, { Props } from './NavBarItem';
@@ -53,8 +55,9 @@ describe('NavBarItem', () => {
       it('then the onClick handler should be called', () => {
         getTestContext();
 
-        userEvent.click(screen.getByRole('button'));
-
+        act(() => {
+          userEvent.click(screen.getByRole('button'));
+        });
         expect(onClickMock).toHaveBeenCalledTimes(1);
       });
     });
@@ -194,7 +197,9 @@ describe('NavBarItem', () => {
           expect(screen.getByText('New')).toBeInTheDocument();
         });
 
-        userEvent.click(screen.getByText('New'));
+        act(() => {
+          userEvent.click(screen.getByText('New'));
+        });
         await waitFor(() => {
           expect(pushMock).toHaveBeenCalledTimes(1);
           expect(pushMock).toHaveBeenCalledWith('/dashboard/new');
@@ -218,7 +223,9 @@ describe('NavBarItem', () => {
           expect(screen.getByText('New')).toBeInTheDocument();
         });
 
-        userEvent.click(screen.getByText('New'));
+        act(() => {
+          userEvent.click(screen.getByText('New'));
+        });
         await waitFor(() => {
           expect(pushMock).toHaveBeenCalledTimes(1);
           expect(pushMock).toHaveBeenCalledWith('/grafana/dashboard/new');

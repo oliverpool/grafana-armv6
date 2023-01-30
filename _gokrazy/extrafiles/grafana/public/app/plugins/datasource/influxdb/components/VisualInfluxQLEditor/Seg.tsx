@@ -1,10 +1,10 @@
-import { cx, css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import debouncePromise from 'debounce-promise';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAsyncFn } from 'react-use';
 
 import { SelectableValue } from '@grafana/data';
-import { InlineLabel, Select, AsyncSelect, Input } from '@grafana/ui';
+import { AsyncSelect, InlineLabel, Input, Select } from '@grafana/ui';
 
 import { useShadowedState } from '../useShadowedState';
 
@@ -78,7 +78,6 @@ const SelReload = ({ loadOptions, allowCustomValue, onChange, onClose }: SelRelo
   return (
     <div className={selectClass}>
       <AsyncSelect
-        menuShouldPortal
         formatCreateLabel={formatCreateLabel}
         defaultOptions
         autoFocus
@@ -87,6 +86,7 @@ const SelReload = ({ loadOptions, allowCustomValue, onChange, onClose }: SelRelo
         allowCustomValue={allowCustomValue}
         loadOptions={debouncedLoadOptions}
         onChange={onChange}
+        createOptionPosition="first"
       />
     </div>
   );
@@ -109,15 +109,15 @@ const SelSingleLoad = ({ loadOptions, allowCustomValue, onChange, onClose }: Sel
   return (
     <div className={selectClass}>
       <Select
-        menuShouldPortal
         isLoading={loadState.loading}
         formatCreateLabel={formatCreateLabel}
         autoFocus
-        isOpen
+        isOpen={!loadState.loading}
         onCloseMenu={onClose}
         allowCustomValue={allowCustomValue}
         options={loadState.value ?? []}
         onChange={onChange}
+        createOptionPosition="first"
       />
     </div>
   );

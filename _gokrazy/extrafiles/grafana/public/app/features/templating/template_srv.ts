@@ -1,16 +1,23 @@
 import { escape, isString, property } from 'lodash';
 
-import { deprecationWarning, ScopedVars, TimeRange } from '@grafana/data';
+import {
+  deprecationWarning,
+  ScopedVars,
+  TimeRange,
+  AdHocVariableFilter,
+  AdHocVariableModel,
+  TypedVariableModel,
+} from '@grafana/data';
 import { getDataSourceSrv, setTemplateSrv, TemplateSrv as BaseTemplateSrv } from '@grafana/runtime';
+import { sceneGraph, FormatRegistryID, formatRegistry, CustomFormatterFn } from '@grafana/scenes';
 
 import { variableAdapters } from '../variables/adapters';
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
 import { isAdHoc } from '../variables/guard';
 import { getFilteredVariables, getVariables, getVariableWithName } from '../variables/state/selectors';
-import { AdHocVariableFilter, AdHocVariableModel, VariableModel } from '../variables/types';
 import { variableRegex } from '../variables/utils';
 
-import { FormatOptions, formatRegistry, FormatRegistryID } from './formatRegistry';
+import { getVariableWrapper } from './LegacyVariableWrapper';
 
 interface FieldAccessorCache {
   [key: string]: (obj: any) => any;
@@ -32,7 +39,7 @@ export class TemplateSrv implements BaseTemplateSrv {
   private _variables: any[];
   private regex = variableRegex;
   private index: any = {};
-  private grafanaVariables: any = {};
+  private grafanaVariables = new Map<string, any>();
   private timeRange?: TimeRange | null = null;
   private fieldAccessorCache: FieldAccessorCache = {};
 
@@ -56,7 +63,7 @@ export class TemplateSrv implements BaseTemplateSrv {
     return this.getVariables();
   }
 
-  getVariables(): VariableModel[] {
+  getVariables(): TypedVariableModel[] {
     return this.dependencies.getVariables();
   }
 
@@ -143,29 +150,28 @@ export class TemplateSrv implements BaseTemplateSrv {
       format = FormatRegistryID.glob;
     }
 
-    const formats = format.split('|');
-    for (let fmt of formats) {
-      // some formats have arguments that come after ':' character
-      let args = fmt.split(':');
-      if (args.length > 1) {
-        fmt = args[0];
-        args = args.slice(1);
-      } else {
-        args = [];
-      }
-      let formatItem = formatRegistry.getIfExists(fmt);
-      if (!formatItem) {
-        console.error(`Variable format ${fmt} not found. Using glob format as fallback.`);
-        formatItem = formatRegistry.get(FormatRegistryID.glob);
-      }
-      const options: FormatOptions = { value, args, text: text ?? value };
-      value = formatItem.formatter(options, variable);
+    // some formats have arguments that come after ':' character
+    let args = format.split(':');
+    if (args.length > 1) {
+      format = args[0];
+      args = args.slice(1);
+    } else {
+      args = [];
     }
-    return value;
+
+    let formatItem = formatRegistry.getIfExists(format);
+
+    if (!formatItem) {
+      console.error(`Variable format ${format} not found. Using glob format as fallback.`);
+      formatItem = formatRegistry.get(FormatRegistryID.glob);
+    }
+
+    const formatVariable = getVariableWrapper(variable, value, text ?? value);
+    return formatItem.formatter(value, args, formatVariable);
   }
 
   setGrafanaVariable(name: string, value: any) {
-    this.grafanaVariables[name] = value;
+    this.grafanaVariables.set(name, value);
   }
 
   /**
@@ -270,6 +276,15 @@ export class TemplateSrv implements BaseTemplateSrv {
   }
 
   replace(target?: string, scopedVars?: ScopedVars, format?: string | Function): string {
+    if (scopedVars && scopedVars.__sceneObject) {
+      return sceneGraph.interpolate(
+        scopedVars.__sceneObject.value,
+        target,
+        scopedVars,
+        format as string | CustomFormatterFn | undefined
+      );
+    }
+
     if (!target) {
       return target ?? '';
     }
@@ -301,7 +316,7 @@ export class TemplateSrv implements BaseTemplateSrv {
         return this.formatValue(value, fmt, variable, text);
       }
 
-      const systemValue = this.grafanaVariables[variable.current.value];
+      const systemValue = this.grafanaVariables.get(variable.current.value);
       if (systemValue) {
         return this.formatValue(systemValue, fmt, variable);
       }

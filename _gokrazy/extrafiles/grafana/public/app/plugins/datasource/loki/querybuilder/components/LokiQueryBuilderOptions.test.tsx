@@ -27,7 +27,7 @@ describe('LokiQueryBuilderOptions', () => {
     screen.getByTitle('Click to edit options').click();
 
     const element = screen.getByLabelText('Legend');
-    userEvent.type(element, 'asd');
+    await userEvent.type(element, 'asd');
     fireEvent.keyDown(element, { key: 'Enter', code: 'Enter', charCode: 13 });
 
     expect(props.onChange).toHaveBeenCalledWith({
@@ -46,6 +46,7 @@ function setup(queryOverrides: Partial<LokiQuery> = {}) {
     },
     onRunQuery: jest.fn(),
     onChange: jest.fn(),
+    maxLines: 20,
   };
 
   const { container } = render(<LokiQueryBuilderOptions {...props} />);

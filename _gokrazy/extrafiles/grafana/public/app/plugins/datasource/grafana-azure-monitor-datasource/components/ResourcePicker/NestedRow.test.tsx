@@ -17,6 +17,8 @@ const defaultProps = {
   requestNestedRows: jest.fn(),
   onRowSelectedChange: jest.fn(),
   selectableEntryTypes: [],
+  scrollIntoView: false,
+  disableRow: jest.fn().mockReturnValue(false),
 };
 
 describe('NestedRow', () => {
@@ -54,5 +56,17 @@ describe('NestedRow', () => {
     );
     const box = screen.queryByRole('checkbox');
     expect(box).not.toBeInTheDocument();
+  });
+
+  it('should disable a checkbox if specified', () => {
+    render(
+      <table>
+        <tbody>
+          <NestedRow {...defaultProps} selectableEntryTypes={[ResourceRowType.Resource]} disableRow={() => true} />
+        </tbody>
+      </table>
+    );
+    const box = screen.queryByRole('checkbox');
+    expect(box).toBeDisabled();
   });
 });

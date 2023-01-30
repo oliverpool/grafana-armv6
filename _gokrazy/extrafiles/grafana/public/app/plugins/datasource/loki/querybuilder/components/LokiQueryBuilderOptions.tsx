@@ -1,28 +1,34 @@
 import React from 'react';
 
-import { SelectableValue } from '@grafana/data';
-import { EditorRow, EditorField } from '@grafana/experimental';
-import { RadioButtonGroup, Select } from '@grafana/ui';
-import { AutoSizeInput } from 'app/plugins/datasource/prometheus/querybuilder/shared/AutoSizeInput';
+import { CoreApp, SelectableValue } from '@grafana/data';
+import { EditorField, EditorRow } from '@grafana/experimental';
+import { reportInteraction } from '@grafana/runtime';
+import { RadioButtonGroup, Select, AutoSizeInput } from '@grafana/ui';
 import { QueryOptionGroup } from 'app/plugins/datasource/prometheus/querybuilder/shared/QueryOptionGroup';
 
 import { preprocessMaxLines, queryTypeOptions, RESOLUTION_OPTIONS } from '../../components/LokiOptionFields';
-import { isMetricsQuery } from '../../datasource';
+import { isLogsQuery } from '../../queryUtils';
 import { LokiQuery, LokiQueryType } from '../../types';
 
 export interface Props {
   query: LokiQuery;
   onChange: (update: LokiQuery) => void;
   onRunQuery: () => void;
+  maxLines: number;
+  app?: CoreApp;
 }
 
-export const LokiQueryBuilderOptions = React.memo<Props>(({ query, onChange, onRunQuery }) => {
+export const LokiQueryBuilderOptions = React.memo<Props>(({ app, query, onChange, onRunQuery, maxLines }) => {
   const onQueryTypeChange = (value: LokiQueryType) => {
     onChange({ ...query, queryType: value });
     onRunQuery();
   };
 
   const onResolutionChange = (option: SelectableValue<number>) => {
+    reportInteraction('grafana_loki_resolution_clicked', {
+      app,
+      resolution: option.value,
+    });
     onChange({ ...query, resolution: option.value });
     onRunQuery();
   };
@@ -41,11 +47,11 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ query, onChange, onR
   }
 
   let queryType = query.queryType ?? (query.instant ? LokiQueryType.Instant : LokiQueryType.Range);
-  let showMaxLines = !isMetricsQuery(query.expr);
+  let showMaxLines = isLogsQuery(query.expr);
 
   return (
     <EditorRow>
-      <QueryOptionGroup title="Options" collapsedInfo={getCollapsedInfo(query, queryType, showMaxLines)}>
+      <QueryOptionGroup title="Options" collapsedInfo={getCollapsedInfo(query, queryType, showMaxLines, maxLines)}>
         <EditorField
           label="Legend"
           tooltip="Series name override or template. Ex. {{hostname}} will be replaced with label value for hostname."
@@ -66,7 +72,7 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ query, onChange, onR
           <EditorField label="Line limit" tooltip="Upper limit for number of log lines returned by query.">
             <AutoSizeInput
               className="width-4"
-              placeholder="auto"
+              placeholder={maxLines.toString()}
               type="number"
               min={0}
               defaultValue={query.maxLines?.toString() ?? ''}
@@ -81,7 +87,6 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ query, onChange, onR
             options={RESOLUTION_OPTIONS}
             value={query.resolution || 1}
             aria-label="Select resolution"
-            menuShouldPortal
           />
         </EditorField>
       </QueryOptionGroup>
@@ -89,7 +94,12 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ query, onChange, onR
   );
 });
 
-function getCollapsedInfo(query: LokiQuery, queryType: LokiQueryType, showMaxLines: boolean): string[] {
+function getCollapsedInfo(
+  query: LokiQuery,
+  queryType: LokiQueryType,
+  showMaxLines: boolean,
+  maxLines: number
+): string[] {
   const queryTypeLabel = queryTypeOptions.find((x) => x.value === queryType);
   const resolutionLabel = RESOLUTION_OPTIONS.find((x) => x.value === (query.resolution ?? 1));
 
@@ -105,8 +115,8 @@ function getCollapsedInfo(query: LokiQuery, queryType: LokiQueryType, showMaxLin
 
   items.push(`Type: ${queryTypeLabel?.label}`);
 
-  if (showMaxLines && query.maxLines) {
-    items.push(`Line limit: ${query.maxLines}`);
+  if (showMaxLines) {
+    items.push(`Line limit: ${query.maxLines ?? maxLines}`);
   }
 
   return items;

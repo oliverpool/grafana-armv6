@@ -147,8 +147,10 @@ const optionsPickerSlice = createSlice({
           } else {
             state.selectedValues = [];
           }
+
           return applyStateChanges(state, updateDefaultSelection, updateAllSelection, updateOptions);
         }
+
         if (forceSelect || selected) {
           state.selectedValues.push({ ...option, selected: true });
           return applyStateChanges(state, updateDefaultSelection, updateAllSelection, updateOptions);
@@ -165,7 +167,7 @@ const optionsPickerSlice = createSlice({
       let nextIndex = state.highlightIndex + action.payload;
 
       if (nextIndex < 0) {
-        nextIndex = 0;
+        nextIndex = -1;
       } else if (nextIndex >= state.options.length) {
         nextIndex = state.options.length - 1;
       }
@@ -203,7 +205,7 @@ const optionsPickerSlice = createSlice({
         return text.toLowerCase().indexOf(searchQuery) !== -1;
       });
 
-      state.highlightIndex = 0;
+      state.highlightIndex = -1;
 
       return applyStateChanges(state, updateDefaultSelection, updateOptions);
     },

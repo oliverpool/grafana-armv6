@@ -1,31 +1,55 @@
 import React, { FC } from 'react';
 
-import { HorizontalGroup, LinkButton } from '@grafana/ui';
+import { config } from '@grafana/runtime';
+import { Menu, Dropdown, Button, Icon } from '@grafana/ui';
+import { t } from 'app/core/internationalization';
 
 export interface Props {
-  folderId?: number;
-  isEditor: boolean;
-  canEdit?: boolean;
+  folderUid?: string;
+  canCreateFolders?: boolean;
+  canCreateDashboards?: boolean;
 }
 
-export const DashboardActions: FC<Props> = ({ folderId, isEditor, canEdit }) => {
+export const DashboardActions: FC<Props> = ({ folderUid, canCreateFolders = false, canCreateDashboards = false }) => {
   const actionUrl = (type: string) => {
     let url = `dashboard/${type}`;
+    const isTypeNewFolder = type === 'new_folder';
 
-    if (folderId) {
-      url += `?folderId=${folderId}`;
+    if (isTypeNewFolder) {
+      url = `dashboards/folder/new/`;
+    }
+
+    if (folderUid) {
+      url += `?folderUid=${folderUid}`;
     }
 
     return url;
   };
 
+  const MenuActions = () => {
+    return (
+      <Menu>
+        {canCreateDashboards && (
+          <Menu.Item url={actionUrl('new')} label={t('search.dashboard-actions.new-dashboard', 'New Dashboard')} />
+        )}
+        {canCreateFolders && (config.featureToggles.nestedFolders || !folderUid) && (
+          <Menu.Item url={actionUrl('new_folder')} label={t('search.dashboard-actions.new-folder', 'New Folder')} />
+        )}
+        {canCreateDashboards && (
+          <Menu.Item url={actionUrl('import')} label={t('search.dashboard-actions.import', 'Import')} />
+        )}
+      </Menu>
+    );
+  };
+
   return (
     <div>
-      <HorizontalGroup spacing="md" align="center">
-        {canEdit && <LinkButton href={actionUrl('new')}>New Dashboard</LinkButton>}
-        {!folderId && isEditor && <LinkButton href="dashboards/folder/new">New Folder</LinkButton>}
-        {canEdit && <LinkButton href={actionUrl('import')}>Import</LinkButton>}
-      </HorizontalGroup>
+      <Dropdown overlay={MenuActions} placement="bottom-start">
+        <Button variant="primary">
+          {t('search.dashboard-actions.new', 'New')}
+          <Icon name="angle-down" />
+        </Button>
+      </Dropdown>
     </div>
   );
 };

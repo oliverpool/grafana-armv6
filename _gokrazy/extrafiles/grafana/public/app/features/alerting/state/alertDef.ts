@@ -82,12 +82,6 @@ function createReducerPart(model: any) {
   return new QueryPart(model, def);
 }
 
-// state can also contain a "Reason", ie. "Alerting (NoData)" which indicates that the actual state is "Alerting" but
-// the reason it is set to "Alerting" is "NoData"; a lack of data points to evaluate.
-function normalizeAlertState(state: string) {
-  return state.toLowerCase().replace(/_/g, '').split(' ')[0];
-}
-
 interface AlertStateDisplayModel {
   text: string;
   iconClass: IconName;
@@ -95,7 +89,7 @@ interface AlertStateDisplayModel {
 }
 
 function getStateDisplayModel(state: string): AlertStateDisplayModel {
-  const normalizedState = normalizeAlertState(state);
+  const normalizedState = state.toLowerCase().replace(/_/g, '');
 
   switch (normalizedState) {
     case 'normal':
@@ -134,6 +128,13 @@ function getStateDisplayModel(state: string): AlertStateDisplayModel {
         stateClass: 'alert-state-warning',
       };
     }
+    case 'unknown': {
+      return {
+        text: 'UNKNOWN',
+        iconClass: 'question-circle',
+        stateClass: '.alert-state-paused',
+      };
+    }
 
     case 'firing': {
       return {
@@ -158,16 +159,9 @@ function getStateDisplayModel(state: string): AlertStateDisplayModel {
         stateClass: 'alert-state-critical',
       };
     }
-
-    case 'unknown':
-    default: {
-      return {
-        text: 'UNKNOWN',
-        iconClass: 'question-circle',
-        stateClass: '.alert-state-paused',
-      };
-    }
   }
+
+  throw { message: 'Unknown alert state' };
 }
 
 function joinEvalMatches(matches: any, separator: string) {

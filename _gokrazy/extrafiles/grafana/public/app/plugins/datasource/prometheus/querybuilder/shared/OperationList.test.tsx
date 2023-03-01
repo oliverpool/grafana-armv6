@@ -2,12 +2,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import { DataSourceApi, DataSourceInstanceSettings } from '@grafana/data';
+import { DataSourceApi } from '@grafana/data';
 
 import { PrometheusDatasource } from '../../datasource';
 import PromQlLanguageProvider from '../../language_provider';
 import { EmptyLanguageProviderMock } from '../../language_provider.mock';
-import { PromOptions } from '../../types';
 import { promQueryModeller } from '../PromQueryModeller';
 import { PromVisualQuery } from '../types';
 
@@ -40,7 +39,7 @@ describe('OperationList', () => {
     const { onChange } = setup();
     const removeOperationButtons = screen.getAllByTitle('Remove operation');
     expect(removeOperationButtons).toHaveLength(2);
-    await userEvent.click(removeOperationButtons[1]);
+    userEvent.click(removeOperationButtons[1]);
     expect(onChange).toBeCalledWith({
       labels: [{ label: 'instance', op: '=', value: 'localhost:9090' }],
       metric: 'random_metric',
@@ -50,7 +49,7 @@ describe('OperationList', () => {
 
   it('adds an operation', async () => {
     const { onChange } = setup();
-    await addOperation('Aggregations', 'Min');
+    addOperation('Aggregations', 'Min');
     expect(onChange).toBeCalledWith({
       labels: [{ label: 'instance', op: '=', value: 'localhost:9090' }],
       metric: 'random_metric',
@@ -70,8 +69,8 @@ function setup(query: PromVisualQuery = defaultQuery) {
       {
         url: '',
         jsonData: {},
-        meta: {},
-      } as DataSourceInstanceSettings<PromOptions>,
+        meta: {} as any,
+      } as any,
       undefined,
       undefined,
       languageProvider

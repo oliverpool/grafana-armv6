@@ -1,26 +1,24 @@
 import React from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
-import { Button, ButtonVariant, ComponentSize, ModalsController } from '@grafana/ui';
+import { Button, ButtonVariant, ModalsController, FullWidthButtonContainer } from '@grafana/ui';
 import { DashboardModel } from 'app/features/dashboard/state';
 
-import { SaveDashboardDrawer } from './SaveDashboardDrawer';
+import { SaveDashboardProxy } from './SaveDashboardProxy';
 
 interface SaveDashboardButtonProps {
   dashboard: DashboardModel;
   onSaveSuccess?: () => void;
-  size?: ComponentSize;
 }
 
-export const SaveDashboardButton: React.FC<SaveDashboardButtonProps> = ({ dashboard, onSaveSuccess, size }) => {
+export const SaveDashboardButton: React.FC<SaveDashboardButtonProps> = ({ dashboard, onSaveSuccess }) => {
   return (
     <ModalsController>
       {({ showModal, hideModal }) => {
         return (
           <Button
-            size={size}
             onClick={() => {
-              showModal(SaveDashboardDrawer, {
+              showModal(SaveDashboardProxy, {
                 dashboard,
                 onSaveSuccess,
                 onDismiss: hideModal,
@@ -40,27 +38,27 @@ export const SaveDashboardAsButton: React.FC<SaveDashboardButtonProps & { varian
   dashboard,
   onSaveSuccess,
   variant,
-  size,
 }) => {
   return (
     <ModalsController>
       {({ showModal, hideModal }) => {
         return (
-          <Button
-            size={size}
-            onClick={() => {
-              showModal(SaveDashboardDrawer, {
-                dashboard,
-                onSaveSuccess,
-                onDismiss: hideModal,
-                isCopy: true,
-              });
-            }}
-            variant={variant}
-            aria-label={selectors.pages.Dashboard.Settings.General.saveAsDashBoard}
-          >
-            Save as
-          </Button>
+          <FullWidthButtonContainer>
+            <Button
+              onClick={() => {
+                showModal(SaveDashboardProxy, {
+                  dashboard,
+                  onSaveSuccess,
+                  onDismiss: hideModal,
+                  isCopy: true,
+                });
+              }}
+              variant={variant}
+              aria-label={selectors.pages.Dashboard.Settings.General.saveAsDashBoard}
+            >
+              Save As...
+            </Button>
+          </FullWidthButtonContainer>
         );
       }}
     </ModalsController>

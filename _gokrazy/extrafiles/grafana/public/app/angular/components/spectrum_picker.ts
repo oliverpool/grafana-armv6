@@ -5,8 +5,7 @@
  */
 import coreModule from '../core_module';
 
-coreModule.directive('spectrumPicker', spectrumPicker);
-
+/** @ngInject */
 export function spectrumPicker() {
   return {
     restrict: 'E',
@@ -22,3 +21,4 @@ export function spectrumPicker() {
     },
   };
 }
+coreModule.directive('spectrumPicker', spectrumPicker);

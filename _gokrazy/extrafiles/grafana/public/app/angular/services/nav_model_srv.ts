@@ -65,12 +65,13 @@ export function getNotFoundNav(): NavModel {
 }
 
 export function getWarningNav(text: string, subTitle?: string): NavModel {
-  const node: NavModelItem = {
+  const node = {
     text,
     subTitle,
     icon: 'exclamation-triangle',
   };
   return {
+    breadcrumbs: [node],
     node: node,
     main: node,
   };

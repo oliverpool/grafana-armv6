@@ -1,12 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { DataSourceApi } from '@grafana/data';
+import { DataSourceApi, DataSourceRef } from '@grafana/data';
 
 import { VariablePayload } from '../state/types';
 import { VariableQueryEditorType } from '../types';
 
 export interface AdHocVariableEditorState {
   infoText?: string;
+  dataSources: Array<{ text: string; value: DataSourceRef | null }>;
 }
 
 export interface DataSourceVariableEditorState {
@@ -40,9 +41,14 @@ const variableEditorReducerSlice = createSlice({
   name: 'templating/editor',
   initialState: initialVariableEditorState,
   reducers: {
-    variableEditorMounted: (state: VariableEditorState, action: PayloadAction<{ name: string; id: string }>) => {
-      state.name = action.payload.name;
+    setIdInEditor: (state: VariableEditorState, action: PayloadAction<{ id: string }>) => {
       state.id = action.payload.id;
+    },
+    clearIdInEditor: (state: VariableEditorState, action: PayloadAction<undefined>) => {
+      state.id = '';
+    },
+    variableEditorMounted: (state: VariableEditorState, action: PayloadAction<{ name: string }>) => {
+      state.name = action.payload.name;
     },
     variableEditorUnMounted: (state: VariableEditorState, action: PayloadAction<VariablePayload>) => {
       return initialVariableEditorState;
@@ -87,6 +93,8 @@ const variableEditorReducerSlice = createSlice({
 export const variableEditorReducer = variableEditorReducerSlice.reducer;
 
 export const {
+  setIdInEditor,
+  clearIdInEditor,
   changeVariableNameSucceeded,
   changeVariableNameFailed,
   variableEditorMounted,

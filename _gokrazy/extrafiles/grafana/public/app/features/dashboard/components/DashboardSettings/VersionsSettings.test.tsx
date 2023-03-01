@@ -2,14 +2,7 @@ import { within } from '@testing-library/dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
-import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
-import { GrafanaContext } from 'app/core/context/GrafanaContext';
-
-import { configureStore } from '../../../../store/configureStore';
-import { createDashboardModelFixture } from '../../state/__fixtures__/dashboardFixtures';
 import { historySrv } from '../VersionHistory/HistorySrv';
 
 import { VersionsSettings, VERSIONS_FETCH_LIMIT } from './VersionsSettings';
@@ -28,52 +21,22 @@ const queryByFullText = (text: string) =>
     return false;
   });
 
-function setup() {
-  const store = configureStore();
-  const dashboard = createDashboardModelFixture({
+describe('VersionSettings', () => {
+  const dashboard: any = {
     id: 74,
     version: 11,
-    // formatDate: jest.fn(() => 'date'),
-    // getRelativeTime: jest.fn(() => 'time ago'),
-  });
-
-  const sectionNav = {
-    main: { text: 'Dashboard' },
-    node: {
-      text: 'Versions',
-    },
+    formatDate: jest.fn(() => 'date'),
+    getRelativeTime: jest.fn(() => 'time ago'),
   };
 
-  return render(
-    <GrafanaContext.Provider value={getGrafanaContextMock()}>
-      <Provider store={store}>
-        <BrowserRouter>
-          <VersionsSettings sectionNav={sectionNav} dashboard={dashboard} />
-        </BrowserRouter>
-      </Provider>
-    </GrafanaContext.Provider>
-  );
-}
-
-describe('VersionSettings', () => {
-  let user: ReturnType<typeof userEvent.setup>;
-
   beforeEach(() => {
-    // Need to use delay: null here to work with fakeTimers
-    // see https://github.com/testing-library/user-event/issues/833
-    user = userEvent.setup({ delay: null });
-    jest.clearAllMocks();
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
+    jest.resetAllMocks();
   });
 
   test('renders a header and a loading indicator followed by results in a table', async () => {
     // @ts-ignore
     historySrv.getHistoryList.mockResolvedValue(versions);
-    setup();
+    render(<VersionsSettings dashboard={dashboard} />);
 
     expect(screen.getByRole('heading', { name: /versions/i })).toBeInTheDocument();
     expect(screen.queryByText(/fetching history list/i)).toBeInTheDocument();
@@ -92,7 +55,7 @@ describe('VersionSettings', () => {
   test('does not render buttons if versions === 1', async () => {
     // @ts-ignore
     historySrv.getHistoryList.mockResolvedValue(versions.slice(0, 1));
-    setup();
+    render(<VersionsSettings dashboard={dashboard} />);
 
     expect(screen.queryByRole('button', { name: /show more versions/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /compare versions/i })).not.toBeInTheDocument();
@@ -106,9 +69,9 @@ describe('VersionSettings', () => {
   test('does not render show more button if versions < VERSIONS_FETCH_LIMIT', async () => {
     // @ts-ignore
     historySrv.getHistoryList.mockResolvedValue(versions.slice(0, VERSIONS_FETCH_LIMIT - 5));
-    setup();
+    render(<VersionsSettings dashboard={dashboard} />);
 
-    expect(screen.queryByRole('button', { name: /show more versions/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /show more versions|/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /compare versions/i })).not.toBeInTheDocument();
 
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
@@ -120,7 +83,7 @@ describe('VersionSettings', () => {
   test('renders buttons if versions >= VERSIONS_FETCH_LIMIT', async () => {
     // @ts-ignore
     historySrv.getHistoryList.mockResolvedValue(versions.slice(0, VERSIONS_FETCH_LIMIT));
-    setup();
+    render(<VersionsSettings dashboard={dashboard} />);
 
     expect(screen.queryByRole('button', { name: /show more versions/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /compare versions/i })).not.toBeInTheDocument();
@@ -140,11 +103,9 @@ describe('VersionSettings', () => {
     historySrv.getHistoryList
       // @ts-ignore
       .mockImplementationOnce(() => Promise.resolve(versions.slice(0, VERSIONS_FETCH_LIMIT)))
-      .mockImplementationOnce(
-        () => new Promise((resolve) => setTimeout(() => resolve(versions.slice(VERSIONS_FETCH_LIMIT)), 1000))
-      );
+      .mockImplementationOnce(() => Promise.resolve(versions.slice(VERSIONS_FETCH_LIMIT, versions.length)));
 
-    setup();
+    render(<VersionsSettings dashboard={dashboard} />);
 
     expect(historySrv.getHistoryList).toBeCalledTimes(1);
 
@@ -153,16 +114,14 @@ describe('VersionSettings', () => {
     expect(within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row').length).toBe(VERSIONS_FETCH_LIMIT);
 
     const showMoreButton = screen.getByRole('button', { name: /show more versions/i });
-    await user.click(showMoreButton);
+    userEvent.click(showMoreButton);
 
     expect(historySrv.getHistoryList).toBeCalledTimes(2);
-    expect(screen.getByText(/Fetching more entries/i)).toBeInTheDocument();
-    jest.advanceTimersByTime(1000);
+    expect(screen.queryByText(/Fetching more entries/i)).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.queryByText(/Fetching more entries/i)).not.toBeInTheDocument();
-      expect(within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row').length).toBe(versions.length);
-    });
+    await waitFor(() =>
+      expect(within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row').length).toBe(versions.length)
+    );
   });
 
   test('selecting two versions and clicking compare button should render compare view', async () => {
@@ -173,7 +132,7 @@ describe('VersionSettings', () => {
       .mockImplementationOnce(() => Promise.resolve(diffs.lhs))
       .mockImplementationOnce(() => Promise.resolve(diffs.rhs));
 
-    setup();
+    render(<VersionsSettings dashboard={dashboard} />);
 
     expect(historySrv.getHistoryList).toBeCalledTimes(1);
 
@@ -181,14 +140,19 @@ describe('VersionSettings', () => {
 
     const compareButton = screen.getByRole('button', { name: /compare versions/i });
     const tableBody = screen.getAllByRole('rowgroup')[1];
-    await user.click(within(tableBody).getAllByRole('checkbox')[0]);
-    await user.click(within(tableBody).getAllByRole('checkbox')[VERSIONS_FETCH_LIMIT - 1]);
+    userEvent.click(within(tableBody).getAllByRole('checkbox')[0]);
+    userEvent.click(within(tableBody).getAllByRole('checkbox')[VERSIONS_FETCH_LIMIT - 1]);
 
     expect(compareButton).toBeEnabled();
 
-    await user.click(compareButton);
+    userEvent.click(within(tableBody).getAllByRole('checkbox')[1]);
 
-    await waitFor(() => expect(screen.getByRole('heading', { name: /comparing 2 11/i })).toBeInTheDocument());
+    expect(compareButton).toBeDisabled();
+
+    userEvent.click(within(tableBody).getAllByRole('checkbox')[1]);
+    userEvent.click(compareButton);
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: /versions comparing 2 11/i })).toBeInTheDocument());
 
     expect(queryByFullText('Version 11 updated by admin')).toBeInTheDocument();
     expect(queryByFullText('Version 2 updated by admin')).toBeInTheDocument();
@@ -207,7 +171,7 @@ describe('VersionSettings', () => {
     expect(queryByFullText('version changed')).toBeInTheDocument();
     expect(screen.queryByText(/view json diff/i)).toBeInTheDocument();
 
-    await user.click(screen.getByText(/view json diff/i));
+    userEvent.click(screen.getByText(/view json diff/i));
 
     await waitFor(() => expect(screen.getByRole('table')).toBeInTheDocument());
   });

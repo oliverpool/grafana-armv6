@@ -29,7 +29,7 @@ export const CommentView = ({ comments, packetCounter, addComment }: Props) => {
   }, [packetCounter]);
 
   const onUpdateComment = (event: FormEvent<HTMLTextAreaElement>) => {
-    const element = event.currentTarget;
+    const element = event.target as HTMLInputElement;
     setComment(element.value);
   };
 

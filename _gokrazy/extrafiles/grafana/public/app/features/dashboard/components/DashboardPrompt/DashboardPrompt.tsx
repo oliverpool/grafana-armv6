@@ -1,16 +1,15 @@
 import * as H from 'history';
-import { each, find } from 'lodash';
+import { each, filter, find } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Prompt } from 'react-router-dom';
 
 import { locationService } from '@grafana/runtime';
-import { Dashboard } from '@grafana/schema';
 import { ModalsContext } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 import { SaveLibraryPanelModal } from 'app/features/library-panels/components/SaveLibraryPanelModal/SaveLibraryPanelModal';
 import { PanelModelWithLibraryPanel } from 'app/features/library-panels/types';
-import { useDispatch } from 'app/types';
 import { DashboardSavedEvent } from 'app/types/events';
 
 import { DashboardModel } from '../../state/DashboardModel';
@@ -77,7 +76,7 @@ export const DashboardPrompt = React.memo(({ dashboard }: Props) => {
       showModal(SaveLibraryPanelModal, {
         isUnsavedPrompt: true,
         panel: dashboard.panelInEdit as PanelModelWithLibraryPanel,
-        folderUid: dashboard.meta.folderUid ?? '',
+        folderId: dashboard.meta.folderId as number,
         onConfirm: () => {
           hideModal();
           moveToBlockedLocationAfterReactStateUpdate(location);
@@ -141,7 +140,7 @@ function moveToBlockedLocationAfterReactStateUpdate(location?: H.Location | null
 /**
  * For some dashboards and users changes should be ignored *
  */
-export function ignoreChanges(current: DashboardModel | null, original: object | null) {
+export function ignoreChanges(current: DashboardModel, original: object | null) {
   if (!original) {
     return true;
   }
@@ -151,7 +150,7 @@ export function ignoreChanges(current: DashboardModel | null, original: object |
     return true;
   }
 
-  if (!current) {
+  if (!current || !current.meta) {
     return true;
   }
 
@@ -166,7 +165,7 @@ export function ignoreChanges(current: DashboardModel | null, original: object |
 /**
  * Remove stuff that should not count in diff
  */
-function cleanDashboardFromIgnoredChanges(dashData: Dashboard) {
+function cleanDashboardFromIgnoredChanges(dashData: any) {
   // need to new up the domain model class to get access to expand / collapse row logic
   const model = new DashboardModel(dashData);
 
@@ -178,11 +177,29 @@ function cleanDashboardFromIgnoredChanges(dashData: Dashboard) {
 
   // ignore time and refresh
   dash.time = 0;
-  dash.refresh = '';
+  dash.refresh = 0;
   dash.schemaVersion = 0;
   dash.timezone = 0;
 
-  dash.panels = [];
+  // ignore iteration property
+  delete dash.iteration;
+
+  dash.panels = filter(dash.panels, (panel) => {
+    if (panel.repeatPanelId) {
+      return false;
+    }
+
+    // remove scopedVars
+    panel.scopedVars = undefined;
+
+    // ignore panel legend sort
+    if (panel.legend) {
+      delete panel.legend.sort;
+      delete panel.legend.sortDesc;
+    }
+
+    return true;
+  });
 
   // ignore template variable values
   each(dash.getVariables(), (variable: any) => {
@@ -194,17 +211,12 @@ function cleanDashboardFromIgnoredChanges(dashData: Dashboard) {
   return dash;
 }
 
-// TODO: Adapt original to be Dashboard type instead
-export function hasChanges(current: DashboardModel, original: unknown) {
-  if (current.hasUnsavedChanges()) {
-    return true;
-  }
-  // TODO: Make getSaveModelClone return Dashboard type instead
-  const currentClean = cleanDashboardFromIgnoredChanges(current.getSaveModelClone() as unknown as Dashboard);
-  const originalClean = cleanDashboardFromIgnoredChanges(original as Dashboard);
+export function hasChanges(current: DashboardModel, original: any) {
+  const currentClean = cleanDashboardFromIgnoredChanges(current.getSaveModelClone());
+  const originalClean = cleanDashboardFromIgnoredChanges(original);
 
-  const currentTimepicker = find((currentClean as any).nav, { type: 'timepicker' });
-  const originalTimepicker = find((originalClean as any).nav, { type: 'timepicker' });
+  const currentTimepicker: any = find((currentClean as any).nav, { type: 'timepicker' });
+  const originalTimepicker: any = find((originalClean as any).nav, { type: 'timepicker' });
 
   if (currentTimepicker && originalTimepicker) {
     currentTimepicker.now = originalTimepicker.now;

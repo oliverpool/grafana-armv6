@@ -2,12 +2,17 @@ import $ from 'jquery';
 import { isString, escape } from 'lodash';
 
 import coreModule from 'app/angular/core_module';
+import { ContextSrv } from 'app/core/services/context_srv';
 import alertDef from 'app/features/alerting/state/alertDef';
 import { DashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 
-coreModule.directive('annotationTooltip', ['$sanitize', 'dashboardSrv', '$compile', annotationTooltipDirective]);
-
-export function annotationTooltipDirective($sanitize: any, dashboardSrv: DashboardSrv, $compile: any) {
+/** @ngInject */
+export function annotationTooltipDirective(
+  $sanitize: any,
+  dashboardSrv: DashboardSrv,
+  contextSrv: ContextSrv,
+  $compile: any
+) {
   function sanitizeString(str: string) {
     try {
       return $sanitize(str);
@@ -89,3 +94,5 @@ export function annotationTooltipDirective($sanitize: any, dashboardSrv: Dashboa
     },
   };
 }
+
+coreModule.directive('annotationTooltip', annotationTooltipDirective);

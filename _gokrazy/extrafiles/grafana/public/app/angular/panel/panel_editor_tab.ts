@@ -3,8 +3,7 @@ import angular from 'angular';
 const directiveModule = angular.module('grafana.directives');
 const directiveCache: any = {};
 
-directiveModule.directive('panelEditorTab', ['dynamicDirectiveSrv', panelEditorTab]);
-
+/** @ngInject */
 function panelEditorTab(dynamicDirectiveSrv: any) {
   return dynamicDirectiveSrv.create({
     scope: {
@@ -39,3 +38,5 @@ function panelEditorTab(dynamicDirectiveSrv: any) {
     },
   });
 }
+
+directiveModule.directive('panelEditorTab', panelEditorTab);

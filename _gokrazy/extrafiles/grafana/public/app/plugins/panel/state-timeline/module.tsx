@@ -12,10 +12,10 @@ import { SpanNullsEditor } from '../timeseries/SpanNullsEditor';
 
 import { StateTimelinePanel } from './StateTimelinePanel';
 import { timelinePanelChangedHandler } from './migrations';
-import { PanelOptions, PanelFieldConfig, defaultPanelOptions, defaultPanelFieldConfig } from './panelcfg.gen';
 import { StatTimelineSuggestionsSupplier } from './suggestions';
+import { TimelineOptions, TimelineFieldConfig, defaultPanelOptions, defaultTimelineFieldConfig } from './types';
 
-export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StateTimelinePanel)
+export const plugin = new PanelPlugin<TimelineOptions, TimelineFieldConfig>(StateTimelinePanel)
   .setPanelChangeHandler(timelinePanelChangedHandler)
   .useFieldConfig({
     standardOptions: {
@@ -33,7 +33,7 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StateTimel
         .addSliderInput({
           path: 'lineWidth',
           name: 'Line width',
-          defaultValue: defaultPanelFieldConfig.lineWidth,
+          defaultValue: defaultTimelineFieldConfig.lineWidth,
           settings: {
             min: 0,
             max: 10,
@@ -43,7 +43,7 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StateTimel
         .addSliderInput({
           path: 'fillOpacity',
           name: 'Fill opacity',
-          defaultValue: defaultPanelFieldConfig.fillOpacity,
+          defaultValue: defaultTimelineFieldConfig.fillOpacity,
           settings: {
             min: 0,
             max: 100,
@@ -107,5 +107,4 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StateTimel
     commonOptionsBuilder.addLegendOptions(builder, false);
     commonOptionsBuilder.addTooltipOptions(builder, true);
   })
-  .setSuggestionsSupplier(new StatTimelineSuggestionsSupplier())
-  .setDataSupport({ annotations: true });
+  .setSuggestionsSupplier(new StatTimelineSuggestionsSupplier());

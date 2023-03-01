@@ -1,7 +1,4 @@
 import { DataLinkBuiltInVars } from '@grafana/data';
-import { Graph } from 'app/core/utils/dag';
-import { mapSet } from 'app/core/utils/set';
-import { stringifyPanelModel } from 'app/features/dashboard/state/PanelModel';
 
 import { safeStringifyValue } from '../../../core/utils/explore';
 import { DashboardModel, PanelModel } from '../../dashboard/state';
@@ -54,10 +51,10 @@ export const createDependencyEdges = (variables: VariableModel[]): GraphEdge[] =
   return edges;
 };
 
-export function getVariableName(expression: string) {
+function getVariableName(expression: string) {
   const match = variableRegexExec(expression);
   if (!match) {
-    return undefined;
+    return null;
   }
   const variableName = match.slice(1).find((match) => match !== undefined);
   return variableName;
@@ -256,32 +253,86 @@ function createUnknownsNetwork(variables: VariableModel[], dashboard: DashboardM
 
   This doesn't take circular dependencies in consideration.
  */
-
 export function getAllAffectedPanelIdsForVariableChange(
-  variableIds: string[],
-  variableGraph: Graph,
-  panelsByVar: Record<string, Set<number>>
-): Set<number> {
-  const allDependencies = mapSet(variableGraph.descendants(variableIds), (n) => n.name);
-  allDependencies.add(DataLinkBuiltInVars.includeVars);
-  for (const id of variableIds) {
-    allDependencies.add(id);
+  variableId: string,
+  variables: VariableModel[],
+  panels: PanelModel[]
+): number[] {
+  const flattenedPanels = flattenPanels(panels);
+  let affectedPanelIds: number[] = getAffectedPanelIdsForVariable(variableId, flattenedPanels);
+  const affectedPanelIdsForAllVariables = getAffectedPanelIdsForVariable(
+    DataLinkBuiltInVars.includeVars,
+    flattenedPanels
+  );
+  affectedPanelIds = [...new Set([...affectedPanelIdsForAllVariables, ...affectedPanelIds])];
+
+  const dependencies = getDependenciesForVariable(variableId, variables, new Set());
+  for (const dependency of dependencies) {
+    const affectedPanelIdsForDependency = getAffectedPanelIdsForVariable(dependency, flattenedPanels);
+    affectedPanelIds = [...new Set([...affectedPanelIdsForDependency, ...affectedPanelIds])];
   }
 
-  const affectedPanelIds = getDependentPanels([...allDependencies], panelsByVar);
   return affectedPanelIds;
 }
 
-// Return an array of panel IDs depending on variables
-export function getDependentPanels(variables: string[], panelsByVarUsage: Record<string, Set<number>>) {
-  const thePanels: number[] = [];
-  for (const varId of variables) {
-    if (panelsByVarUsage[varId]) {
-      thePanels.push(...panelsByVarUsage[varId]);
+export function getDependenciesForVariable(
+  variableId: string,
+  variables: VariableModel[],
+  deps: Set<string>
+): Set<string> {
+  if (!variables.length) {
+    return deps;
+  }
+
+  for (const variable of variables) {
+    if (variable.name === variableId) {
+      continue;
+    }
+
+    const depends = variableAdapters.get(variable.type).dependsOn(variable, { name: variableId });
+    if (!depends) {
+      continue;
+    }
+
+    deps.add(variable.name);
+    deps = getDependenciesForVariable(variable.name, variables, deps);
+  }
+
+  return deps;
+}
+
+export function getAffectedPanelIdsForVariable(variableId: string, panels: PanelModel[]): number[] {
+  if (!panels.length) {
+    return [];
+  }
+
+  const affectedPanelIds: number[] = [];
+  const repeatRegex = new RegExp(`"repeat":"${variableId}"`);
+  for (const panel of panels) {
+    const panelAsJson = safeStringifyValue(panel.getSaveModel());
+
+    // check for repeats that don't use variableRegex
+    const repeatMatches = panelAsJson.match(repeatRegex);
+    if (repeatMatches?.length) {
+      affectedPanelIds.push(panel.id);
+      continue;
+    }
+
+    const matches = panelAsJson.match(variableRegex);
+    if (!matches) {
+      continue;
+    }
+
+    for (const match of matches) {
+      const variableName = getVariableName(match);
+      if (variableName === variableId) {
+        affectedPanelIds.push(panel.id);
+        break;
+      }
     }
   }
 
-  return new Set(thePanels);
+  return affectedPanelIds;
 }
 
 export interface UsagesToNetwork {
@@ -367,25 +418,4 @@ export function flattenPanels(panels: PanelModel[]): PanelModel[] {
   }
 
   return result;
-}
-
-// Accepts an array of panel models, and returns an array of panel IDs paired with
-// the names of any template variables found
-export function getPanelVars(panels: PanelModel[]) {
-  const panelsByVar: Record<string, Set<number>> = {};
-  for (const p of panels) {
-    const jsonString = stringifyPanelModel(p);
-    const repeats = [...jsonString.matchAll(/"repeat":"([^"]+)"/g)].map((m) => m[1]);
-    const varRegexMatches = jsonString.match(variableRegex)?.map((m) => getVariableName(m)) ?? [];
-    const varNames = [...repeats, ...varRegexMatches];
-    for (const varName of varNames) {
-      if (varName! in panelsByVar) {
-        panelsByVar[varName!].add(p.id);
-      } else {
-        panelsByVar[varName!] = new Set([p.id]);
-      }
-    }
-  }
-
-  return panelsByVar;
 }

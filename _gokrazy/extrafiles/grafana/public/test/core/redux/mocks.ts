@@ -1,6 +1,6 @@
 import { ActionCreatorWithoutPayload, PayloadActionCreator } from '@reduxjs/toolkit';
 
-export const mockToolkitActionCreator = <T extends string>(creator: PayloadActionCreator<any, T>) => {
+export const mockToolkitActionCreator = (creator: PayloadActionCreator<any>) => {
   return Object.assign(jest.fn(), creator);
 };
 

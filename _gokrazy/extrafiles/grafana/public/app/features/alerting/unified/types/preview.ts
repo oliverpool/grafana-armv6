@@ -14,7 +14,6 @@ export type GrafanaPreviewRuleRequest = {
 };
 
 export type CloudPreviewRuleRequest = {
-  dataSourceUid: string;
   dataSourceName: string;
   expr: string;
 };

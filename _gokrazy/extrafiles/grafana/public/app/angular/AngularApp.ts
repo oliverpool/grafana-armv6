@@ -1,10 +1,11 @@
 import 'angular';
+
 import 'angular-route';
 import 'angular-sanitize';
 import 'angular-bindonce';
 import 'vendor/bootstrap/bootstrap';
-
-import angular from 'angular'; // eslint-disable-line no-duplicate-imports
+import 'vendor/angular-other/angular-strap';
+import angular from 'angular'; //eslint-disable-line no-duplicate-imports
 import { extend } from 'lodash';
 
 import { getTemplateSrv } from '@grafana/runtime';
@@ -37,12 +38,7 @@ export class AngularApp {
   init() {
     const app = angular.module('grafana', []);
 
-    app.config([
-      '$controllerProvider',
-      '$compileProvider',
-      '$filterProvider',
-      '$httpProvider',
-      '$provide',
+    app.config(
       (
         $controllerProvider: angular.IControllerProvider,
         $compileProvider: angular.ICompileProvider,
@@ -79,10 +75,17 @@ export class AngularApp {
             return $delegate;
           },
         ]);
-      },
-    ]);
+      }
+    );
 
-    this.ngModuleDependencies = ['grafana.core', 'ngSanitize', 'grafana', 'pasvaz.bindonce', 'react'];
+    this.ngModuleDependencies = [
+      'grafana.core',
+      'ngSanitize',
+      '$strap.directives',
+      'grafana',
+      'pasvaz.bindonce',
+      'react',
+    ];
 
     // makes it possible to add dynamic stuff
     angularModules.forEach((m: angular.IModule) => {

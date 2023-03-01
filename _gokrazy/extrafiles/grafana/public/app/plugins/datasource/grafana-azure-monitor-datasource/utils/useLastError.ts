@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 
 import { AzureMonitorErrorish } from '../types';
 
-import { messageFromElement } from './messageFromError';
+import messageFromError from './messageFromError';
 
 type SourcedError = [string, AzureMonitorErrorish];
 
@@ -33,7 +33,7 @@ export default function useLastError() {
 
   const errorMessage = useMemo(() => {
     const recentError = errors[0];
-    return recentError && messageFromElement(recentError[1]);
+    return recentError && messageFromError(recentError[1]);
   }, [errors]);
 
   return [errorMessage, addError] as const;

@@ -1,6 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { openMenu } from 'react-select-event';
 
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -14,16 +13,11 @@ const mockDS = mockDataSource({
   type: DataSourceType.Alertmanager,
 });
 
-const mockVariable = mockDataSource({
-  name: '${dsVariable}',
-  type: 'datasource',
-});
-
 jest.mock('@grafana/runtime/src/services/dataSourceSrv', () => {
   return {
     getDataSourceSrv: () => ({
       get: () => Promise.resolve(mockDS),
-      getList: ({ variables }: { variables: boolean }) => (variables ? [mockDS, mockVariable] : [mockDS]),
+      getList: () => [mockDS],
       getInstanceSettings: () => mockDS,
     }),
   };
@@ -38,7 +32,7 @@ describe('QueryEditorRowHeader', () => {
     fireEvent.change(input, { target: { value: 'new name' } });
     fireEvent.blur(input);
 
-    expect(jest.mocked(scenario.props.onChange).mock.calls[0][0].refId).toBe('new name');
+    expect((scenario.props.onChange as any).mock.calls[0][0].refId).toBe('new name');
   });
 
   it('Show error when other query with same name exists', async () => {
@@ -73,14 +67,6 @@ describe('QueryEditorRowHeader', () => {
     renderScenario({ onChangeDataSource: undefined });
 
     expect(screen.queryByLabelText(selectors.components.DataSourcePicker.container)).toBeNull();
-  });
-
-  it('should render variables in the data source picker', async () => {
-    renderScenario({ onChangeDataSource: () => {} });
-
-    const dsSelect = screen.getByLabelText(selectors.components.DataSourcePicker.inputV2);
-    openMenu(dsSelect);
-    expect(await screen.findByText('${dsVariable}')).toBeInTheDocument();
   });
 });
 

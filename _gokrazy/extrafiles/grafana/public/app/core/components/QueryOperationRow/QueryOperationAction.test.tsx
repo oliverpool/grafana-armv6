@@ -1,53 +1,24 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { shallow } from 'enzyme';
 import React from 'react';
 
-import { selectors } from '@grafana/e2e-selectors';
+import { QueryOperationAction } from './QueryOperationAction';
 
-import { QueryOperationAction, QueryOperationActionProps } from './QueryOperationAction';
-
-const setup = (propOverrides?: Partial<QueryOperationActionProps>) => {
-  const props: QueryOperationActionProps = {
-    icon: 'panel-add',
-    title: 'test',
-    onClick: jest.fn(),
-    disabled: false,
-    ...propOverrides,
-  };
-
-  render(<QueryOperationAction {...props} />);
-};
-
-describe('QueryOperationAction tests', () => {
-  it('should render component', () => {
-    setup();
-
-    expect(
-      screen.getByRole('button', { name: selectors.components.QueryEditorRow.actionButton('test') })
-    ).toBeInTheDocument();
+describe('QueryOperationAction', () => {
+  it('renders', () => {
+    expect(() => shallow(<QueryOperationAction title="test" icon="panel-add" onClick={() => {}} />)).not.toThrow();
   });
+  describe('when disabled', () => {
+    it('does not call onClick handler', () => {
+      const clickSpy = jest.fn();
+      const wrapper = shallow(<QueryOperationAction icon="panel-add" onClick={clickSpy} title="Test action" />);
+      const actionEl = wrapper.find({ 'aria-label': 'Test action query operation action' });
 
-  it('should call on click handler', async () => {
-    const clickSpy = jest.fn();
-    setup({ disabled: false, onClick: clickSpy });
+      expect(actionEl).toHaveLength(1);
+      expect(clickSpy).not.toBeCalled();
 
-    expect(clickSpy).not.toHaveBeenCalled();
-    const queryButton = screen.getByRole('button', { name: selectors.components.QueryEditorRow.actionButton('test') });
+      actionEl.first().simulate('click');
 
-    await userEvent.click(queryButton);
-
-    expect(clickSpy).toHaveBeenCalled();
-  });
-
-  it('should not call on click handler when disabled', async () => {
-    const clickSpy = jest.fn();
-    setup({ disabled: true, onClick: clickSpy });
-
-    expect(clickSpy).not.toHaveBeenCalled();
-    const queryButton = screen.getByRole('button', { name: selectors.components.QueryEditorRow.actionButton('test') });
-
-    await userEvent.click(queryButton);
-
-    expect(clickSpy).not.toHaveBeenCalled();
+      expect(clickSpy).toBeCalledTimes(1);
+    });
   });
 });

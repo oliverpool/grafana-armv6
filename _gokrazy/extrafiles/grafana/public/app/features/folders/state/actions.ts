@@ -1,7 +1,7 @@
 import { lastValueFrom } from 'rxjs';
 
 import { locationUtil } from '@grafana/data';
-import { getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+import { getBackendSrv, locationService } from '@grafana/runtime';
 import { notifyApp, updateNavIndex } from 'app/core/actions';
 import { createSuccessNotification, createWarningNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/core';
@@ -28,8 +28,7 @@ export function saveFolder(folder: FolderState): ThunkResult<void> {
     });
 
     dispatch(notifyApp(createSuccessNotification('Folder saved')));
-    dispatch(loadFolder(res));
-    locationService.push(locationUtil.stripBaseFromUrl(`${res.url}/settings`));
+    locationService.push(`${res.url}/settings`);
   };
 }
 
@@ -60,7 +59,7 @@ export function checkFolderPermissions(uid: string): ThunkResult<void> {
       );
       dispatch(setCanViewFolderPermissions(true));
     } catch (err) {
-      if (isFetchError(err) && err.status !== 403) {
+      if (err.status !== 403) {
         dispatch(notifyApp(createWarningNotification('Error checking folder permissions', err.data?.message)));
       }
 
@@ -90,7 +89,7 @@ export function updateFolderPermission(itemToUpdate: DashboardAcl, level: Permis
 
       const updated = toUpdateItem(item);
 
-      // if this is the item we want to update, update its permission
+      // if this is the item we want to update, update it's permission
       if (itemToUpdate === item) {
         updated.permission = level;
       }
@@ -144,9 +143,9 @@ export function addFolderPermission(newItem: NewDashboardAclItem): ThunkResult<v
   };
 }
 
-export function createNewFolder(folderName: string, uid?: string): ThunkResult<void> {
+export function createNewFolder(folderName: string): ThunkResult<void> {
   return async (dispatch) => {
-    const newFolder = await getBackendSrv().post('/api/folders', { title: folderName, parentUid: uid });
+    const newFolder = await getBackendSrv().post('/api/folders', { title: folderName });
     await contextSrv.fetchUserPermissions();
     dispatch(notifyApp(createSuccessNotification('Folder Created', 'OK')));
     locationService.push(locationUtil.stripBaseFromUrl(newFolder.url));

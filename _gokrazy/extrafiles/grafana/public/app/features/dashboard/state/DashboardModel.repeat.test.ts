@@ -1,4 +1,5 @@
 import { compact, flattenDeep, map, uniq } from 'lodash';
+import { expect } from 'test/lib/common';
 
 import { DashboardPanelsChangedEvent } from 'app/types/events';
 

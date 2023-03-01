@@ -7,15 +7,14 @@ import { useStyles2, getInputStyles, sharedInputStyle, styleMixins, Tooltip, Ico
 import { Role } from '../../../types';
 
 import { ValueContainer } from './ValueContainer';
-import { ROLE_PICKER_WIDTH } from './constants';
 
 const stopPropagation = (event: React.MouseEvent<HTMLDivElement>) => event.stopPropagation();
 
 interface InputProps extends HTMLProps<HTMLInputElement> {
   appliedRoles: Role[];
-  basicRole?: string;
+  builtInRole?: string;
   query: string;
-  showBasicRole?: boolean;
+  showBuiltInRole?: boolean;
   isFocused?: boolean;
   disabled?: boolean;
   onQueryChange: (query?: string) => void;
@@ -25,11 +24,11 @@ interface InputProps extends HTMLProps<HTMLInputElement> {
 
 export const RolePickerInput = ({
   appliedRoles,
-  basicRole,
+  builtInRole,
   disabled,
   isFocused,
   query,
-  showBasicRole,
+  showBuiltInRole,
   onOpen,
   onClose,
   onQueryChange,
@@ -52,13 +51,13 @@ export const RolePickerInput = ({
   const numberOfRoles = appliedRoles.length;
 
   return !isFocused ? (
-    <div className={cx(styles.wrapper, styles.selectedRoles)} onMouseDown={onOpen}>
-      {showBasicRole && <ValueContainer>{basicRole}</ValueContainer>}
-      <RolesLabel appliedRoles={appliedRoles} numberOfRoles={numberOfRoles} showBuiltInRole={showBasicRole} />
+    <div className={styles.selectedRoles} onMouseDown={onOpen}>
+      {showBuiltInRole && <ValueContainer>{builtInRole}</ValueContainer>}
+      <RolesLabel appliedRoles={appliedRoles} numberOfRoles={numberOfRoles} showBuiltInRole={showBuiltInRole} />
     </div>
   ) : (
     <div className={styles.wrapper}>
-      {showBasicRole && <ValueContainer>{basicRole}</ValueContainer>}
+      {showBuiltInRole && <ValueContainer>{builtInRole}</ValueContainer>}
       {appliedRoles.map((role) => (
         <ValueContainer key={role.uid}>{role.displayName}</ValueContainer>
       ))}
@@ -105,12 +104,18 @@ export const RolesLabel = ({ showBuiltInRole, numberOfRoles, appliedRoles }: Rol
             </div>
           }
         >
-          <ValueContainer>{`${showBuiltInRole ? '+' : ''}${numberOfRoles} role${
-            numberOfRoles > 1 ? 's' : ''
-          }`}</ValueContainer>
+          <div>
+            <ValueContainer>{`${showBuiltInRole ? '+' : ''}${numberOfRoles} role${
+              numberOfRoles > 1 ? 's' : ''
+            }`}</ValueContainer>
+          </div>
         </Tooltip>
       ) : (
-        !showBuiltInRole && <ValueContainer>No roles assigned</ValueContainer>
+        !showBuiltInRole && (
+          <div>
+            <ValueContainer>No roles assigned</ValueContainer>
+          </div>
+        )
       )}
     </>
   );
@@ -135,7 +140,7 @@ const getRolePickerInputStyles = (
         `,
       disabled && styles.inputDisabled,
       css`
-        min-width: ${ROLE_PICKER_WIDTH}px;
+        width: 520px;
         min-height: 32px;
         height: auto;
         flex-direction: row;

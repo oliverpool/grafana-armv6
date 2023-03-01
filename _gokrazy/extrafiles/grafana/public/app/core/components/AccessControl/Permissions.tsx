@@ -26,19 +26,20 @@ type Type = 'users' | 'teams' | 'builtInRoles';
 export type Props = {
   title?: string;
   buttonLabel?: string;
-  emptyLabel?: string;
   addPermissionTitle?: string;
   resource: string;
   resourceId: ResourceId;
+
+  canListUsers: boolean;
   canSetPermissions: boolean;
 };
 
 export const Permissions = ({
   title = 'Permissions',
   buttonLabel = 'Add a permission',
-  emptyLabel = 'There are no permissions',
   resource,
   resourceId,
+  canListUsers,
   canSetPermissions,
   addPermissionTitle,
 }: Props) => {
@@ -104,7 +105,7 @@ export const Permissions = ({
     () =>
       sortBy(
         items.filter((i) => i.teamId),
-        ['team', 'isManaged']
+        ['team']
       ),
     [items]
   );
@@ -112,7 +113,7 @@ export const Permissions = ({
     () =>
       sortBy(
         items.filter((i) => i.userId),
-        ['userLogin', 'isManaged']
+        ['userLogin']
       ),
     [items]
   );
@@ -120,7 +121,7 @@ export const Permissions = ({
     () =>
       sortBy(
         items.filter((i) => i.builtInRole),
-        ['builtInRole', 'isManaged']
+        ['builtInRole']
       ),
     [items]
   );
@@ -144,22 +145,13 @@ export const Permissions = ({
             onAdd={onAdd}
             permissions={desc.permissions}
             assignments={desc.assignments}
+            canListUsers={canListUsers}
             onCancel={() => setIsAdding(false)}
           />
         </SlideDown>
-        {items.length === 0 && (
-          <table className="filter-table gf-form-group">
-            <tbody>
-              <tr>
-                <th>{emptyLabel}</th>
-              </tr>
-            </tbody>
-          </table>
-        )}
         <PermissionList
           title="Role"
           items={builtInRoles}
-          compareKey={'builtInRole'}
           permissionLevels={desc.permissions}
           onChange={onChange}
           onRemove={onRemove}
@@ -168,7 +160,6 @@ export const Permissions = ({
         <PermissionList
           title="User"
           items={users}
-          compareKey={'userLogin'}
           permissionLevels={desc.permissions}
           onChange={onChange}
           onRemove={onRemove}
@@ -177,7 +168,6 @@ export const Permissions = ({
         <PermissionList
           title="Team"
           items={teams}
-          compareKey={'team'}
           permissionLevels={desc.permissions}
           onChange={onChange}
           onRemove={onRemove}

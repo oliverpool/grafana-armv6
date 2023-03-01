@@ -103,7 +103,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: ${theme.spacing(1)};
   `,
   alerts: css`
     margin: ${theme.spacing(0, 2, 0, 4)};

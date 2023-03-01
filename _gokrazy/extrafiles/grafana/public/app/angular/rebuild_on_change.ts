@@ -22,8 +22,7 @@ function getBlockNodes(nodes: any[]) {
   return blockNodes || nodes;
 }
 
-coreModule.directive('rebuildOnChange', ['$animate', rebuildOnChange]);
-
+/** @ngInject */
 function rebuildOnChange($animate: any) {
   return {
     multiElement: true,
@@ -71,3 +70,5 @@ function rebuildOnChange($animate: any) {
     },
   };
 }
+
+coreModule.directive('rebuildOnChange', rebuildOnChange);

@@ -12,7 +12,7 @@ export interface DimensionSupplier<T = any> {
   isAssumed?: boolean;
 
   /**
-   * The field used for
+   * The fied used for
    */
   field?: Field;
 
@@ -126,7 +126,6 @@ export enum MediaType {
 export enum PickerTabType {
   Folder = 'folder',
   URL = 'url',
-  Upload = 'upload',
 }
 
 export enum ResourcePickerSize {

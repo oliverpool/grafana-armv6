@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import React, { PureComponent } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { Modal, stylesFactory } from '@grafana/ui';
 
@@ -37,7 +37,7 @@ export class DashboardChangedModal extends PureComponent<Props, State> {
   continueEditing: ActionInfo = {
     label: 'Continue editing',
     description:
-      'Keep your local changes and continue editing.  Note: when you save, this will overwrite the most recent changes',
+      'Keep your local changes and continue editing.  Note: when you save, this will overwrite the most recent chages',
     action: () => {
       this.onDismiss();
     },
@@ -59,7 +59,7 @@ export class DashboardChangedModal extends PureComponent<Props, State> {
   render() {
     const { event } = this.props;
     const { dismiss } = this.state;
-    const styles = getStyles(config.theme2);
+    const styles = getStyles(config.theme);
 
     const isDelete = event?.action === DashboardEventAction.Deleted;
 
@@ -98,7 +98,7 @@ export class DashboardChangedModal extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => {
+const getStyles = stylesFactory((theme: GrafanaTheme) => {
   return {
     modal: css`
       width: 500px;
@@ -106,13 +106,13 @@ const getStyles = stylesFactory((theme: GrafanaTheme2) => {
     radioItem: css`
       margin: 0;
       font-size: ${theme.typography.size.sm};
-      color: ${theme.colors.text.secondary};
+      color: ${theme.colors.textWeak};
       padding: 10px;
       cursor: pointer;
       width: 100%;
 
       &:hover {
-        background: ${theme.colors.primary.main};
+        background: ${theme.colors.bgBlue1};
         color: ${theme.colors.text};
       }
     `,

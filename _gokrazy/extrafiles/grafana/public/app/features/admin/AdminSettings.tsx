@@ -1,16 +1,27 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { useAsync } from 'react-use';
 
+import { NavModel } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { Page } from 'app/core/components/Page/Page';
+import Page from 'app/core/components/Page/Page';
+import { getNavModel } from 'app/core/selectors/navModel';
+import { StoreState } from 'app/types';
 
 type Settings = { [key: string]: { [key: string]: string } };
 
-function AdminSettings() {
-  const { loading, value: settings } = useAsync(() => getBackendSrv().get<Settings>('/api/admin/settings'), []);
+interface Props {
+  navModel: NavModel;
+}
+
+function AdminSettings({ navModel }: Props) {
+  const { loading, value: settings } = useAsync(
+    () => getBackendSrv().get('/api/admin/settings') as Promise<Settings>,
+    []
+  );
 
   return (
-    <Page navId="server-settings">
+    <Page navModel={navModel}>
       <Page.Contents isLoading={loading}>
         <div className="grafana-info-box span8" style={{ margin: '20px 0 25px 0' }}>
           These system settings are defined in grafana.ini or custom.ini (or overridden in ENV variables). To change
@@ -42,4 +53,8 @@ function AdminSettings() {
   );
 }
 
-export default AdminSettings;
+const mapStateToProps = (state: StoreState) => ({
+  navModel: getNavModel(state.navIndex, 'server-settings'),
+});
+
+export default connect(mapStateToProps)(AdminSettings);

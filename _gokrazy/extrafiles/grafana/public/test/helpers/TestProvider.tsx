@@ -1,7 +1,9 @@
 import React from 'react';
 
-const TestProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  return <>{children}</>;
+import { I18nProvider } from '../../app/core/localisation';
+
+const TestProvider: React.FC = ({ children }) => {
+  return <I18nProvider>{children}</I18nProvider>;
 };
 
 export default TestProvider;

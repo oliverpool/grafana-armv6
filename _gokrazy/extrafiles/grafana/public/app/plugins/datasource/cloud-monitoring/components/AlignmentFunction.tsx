@@ -3,29 +3,19 @@ import React, { FC, useMemo } from 'react';
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
 
+import { SELECT_WIDTH } from '../constants';
 import { getAlignmentPickerData } from '../functions';
-import { MetricDescriptor, PreprocessorType, SLOQuery, TimeSeriesList } from '../types';
+import { MetricQuery } from '../types';
 
 export interface Props {
   inputId: string;
-  onChange: (query: TimeSeriesList | SLOQuery) => void;
-  query: TimeSeriesList | SLOQuery;
+  onChange: (query: MetricQuery) => void;
+  query: MetricQuery;
   templateVariableOptions: Array<SelectableValue<string>>;
-  metricDescriptor?: MetricDescriptor;
-  preprocessor?: PreprocessorType;
 }
 
-export const AlignmentFunction: FC<Props> = ({
-  inputId,
-  query,
-  templateVariableOptions,
-  onChange,
-  metricDescriptor,
-  preprocessor,
-}) => {
-  const { perSeriesAligner: psa } = query;
-  let { valueType, metricKind } = metricDescriptor || {};
-
+export const AlignmentFunction: FC<Props> = ({ inputId, query, templateVariableOptions, onChange }) => {
+  const { valueType, metricKind, perSeriesAligner: psa, preprocessor } = query;
   const { perSeriesAligner, alignOptions } = useMemo(
     () => getAlignmentPickerData(valueType, metricKind, psa, preprocessor),
     [valueType, metricKind, psa, preprocessor]
@@ -33,6 +23,8 @@ export const AlignmentFunction: FC<Props> = ({
 
   return (
     <Select
+      menuShouldPortal
+      width={SELECT_WIDTH}
       onChange={({ value }) => onChange({ ...query, perSeriesAligner: value! })}
       value={[...alignOptions, ...templateVariableOptions].find((s) => s.value === perSeriesAligner)}
       options={[
@@ -48,7 +40,6 @@ export const AlignmentFunction: FC<Props> = ({
       ]}
       placeholder="Select Alignment"
       inputId={inputId}
-      menuPlacement="top"
-    />
+    ></Select>
   );
 };

@@ -22,37 +22,23 @@ export const adHocVariableSlice = createSlice({
   initialState: initialVariablesState,
   reducers: {
     filterAdded: (state: VariablesState, action: PayloadAction<VariablePayload<AdHocVariableFilter>>) => {
-      const instanceState = getInstanceState(state, action.payload.id);
-      if (instanceState.type !== 'adhoc') {
-        return;
-      }
-
+      const instanceState = getInstanceState<AdHocVariableModel>(state, action.payload.id);
       instanceState.filters.push(action.payload.data);
     },
     filterRemoved: (state: VariablesState, action: PayloadAction<VariablePayload<number>>) => {
-      const instanceState = getInstanceState(state, action.payload.id);
-      if (instanceState.type !== 'adhoc') {
-        return;
-      }
-
+      const instanceState = getInstanceState<AdHocVariableModel>(state, action.payload.id);
       const index = action.payload.data;
+
       instanceState.filters.splice(index, 1);
     },
     filterUpdated: (state: VariablesState, action: PayloadAction<VariablePayload<AdHocVariabelFilterUpdate>>) => {
-      const instanceState = getInstanceState(state, action.payload.id);
-      if (instanceState.type !== 'adhoc') {
-        return;
-      }
-
+      const instanceState = getInstanceState<AdHocVariableModel>(state, action.payload.id);
       const { filter, index } = action.payload.data;
+
       instanceState.filters[index] = filter;
     },
     filtersRestored: (state: VariablesState, action: PayloadAction<VariablePayload<AdHocVariableFilter[]>>) => {
-      const instanceState = getInstanceState(state, action.payload.id);
-      if (instanceState.type !== 'adhoc') {
-        return;
-      }
-
+      const instanceState = getInstanceState<AdHocVariableModel>(state, action.payload.id);
       instanceState.filters = action.payload.data;
     },
   },

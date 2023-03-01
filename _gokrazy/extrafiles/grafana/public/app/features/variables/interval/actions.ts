@@ -7,6 +7,7 @@ import { validateVariableSelectionState } from '../state/actions';
 import { toKeyedAction } from '../state/keyedVariablesReducer';
 import { getVariable } from '../state/selectors';
 import { KeyedVariableIdentifier } from '../state/types';
+import { IntervalVariableModel } from '../types';
 import { toVariablePayload } from '../utils';
 
 import { createIntervalOptions } from './reducer';
@@ -36,11 +37,7 @@ export const updateAutoValue =
     }
   ): ThunkResult<void> =>
   (dispatch, getState) => {
-    const variableInState = getVariable(identifier, getState());
-    if (variableInState.type !== 'interval') {
-      return;
-    }
-
+    const variableInState = getVariable<IntervalVariableModel>(identifier, getState());
     if (variableInState.auto) {
       const res = dependencies.calculateInterval(
         dependencies.getTimeSrv().timeRange(),

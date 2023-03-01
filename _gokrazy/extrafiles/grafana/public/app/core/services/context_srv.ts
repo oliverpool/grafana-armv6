@@ -24,7 +24,6 @@ export class User implements CurrentUserInternal {
   timezone: string;
   weekStart: string;
   locale: string;
-  language: string;
   helpFlags1: number;
   hasEditPermissionInFolders: boolean;
   permissions?: UserPermission;
@@ -48,7 +47,6 @@ export class User implements CurrentUserInternal {
     this.email = '';
     this.name = '';
     this.locale = '';
-    this.language = '';
     this.weekStart = '';
     this.gravatarUrl = '';
 
@@ -62,16 +60,16 @@ export class ContextSrv {
   pinned: any;
   version: any;
   user: User;
-  isSignedIn: boolean;
-  isGrafanaAdmin: boolean;
-  isEditor: boolean;
+  isSignedIn: any;
+  isGrafanaAdmin: any;
+  isEditor: any;
   sidemenuSmallBreakpoint = false;
   hasEditPermissionInFolders: boolean;
   minRefreshInterval: string;
 
   constructor() {
     if (!config.bootData) {
-      config.bootData = { user: {}, settings: {}, navTree: [] } as any;
+      config.bootData = { user: {}, settings: {} } as any;
     }
 
     this.user = new User();
@@ -85,7 +83,7 @@ export class ContextSrv {
   async fetchUserPermissions() {
     try {
       if (this.accessControlEnabled()) {
-        this.user.permissions = await getBackendSrv().get('/api/access-control/user/actions', {
+        this.user.permissions = await getBackendSrv().get('/api/access-control/user/permissions', {
           reloadcache: true,
         });
       }
@@ -111,11 +109,11 @@ export class ContextSrv {
   }
 
   accessControlEnabled(): boolean {
-    return config.rbacEnabled;
+    return Boolean(config.featureToggles['accesscontrol']);
   }
 
   licensedAccessControlEnabled(): boolean {
-    return featureEnabled('accesscontrol') && config.rbacEnabled;
+    return featureEnabled('accesscontrol') && Boolean(config.featureToggles['accesscontrol']);
   }
 
   // Checks whether user has required permission
@@ -159,7 +157,7 @@ export class ContextSrv {
 
   hasAccessToExplore() {
     if (this.accessControlEnabled()) {
-      return this.hasPermission(AccessControlAction.DataSourcesExplore) && config.exploreEnabled;
+      return this.hasPermission(AccessControlAction.DataSourcesExplore);
     }
     return (this.isEditor || config.viewersCanEdit) && config.exploreEnabled;
   }
@@ -171,8 +169,8 @@ export class ContextSrv {
     return this.hasPermission(action);
   }
 
-  hasAccessInMetadata(action: string, object: WithAccessControlMetadata, fallBack: boolean): boolean {
-    if (!this.accessControlEnabled()) {
+  hasAccessInMetadata(action: string, object: WithAccessControlMetadata, fallBack: boolean) {
+    if (!config.featureToggles['accesscontrol']) {
       return fallBack;
     }
     return this.hasPermissionInMetadata(action, object);

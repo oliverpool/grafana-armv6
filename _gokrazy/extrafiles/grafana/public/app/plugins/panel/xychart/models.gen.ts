@@ -14,31 +14,20 @@ import {
   TextDimensionConfig,
 } from 'app/features/dimensions';
 
-// export enum ScatterLineMode {
-//   None = 'none',
-//   Linear = 'linear',
-//   Smooth
-//   r2, etc
-// }
-
-export enum ScatterShow {
-  Points = 'points',
-  Lines = 'lines',
-  PointsAndLines = 'points+lines',
-}
-
-export enum SeriesMapping {
-  Auto = 'auto',
-  Manual = 'manual',
+export enum ScatterLineMode {
+  None = 'none',
+  Linear = 'linear',
+  // Smooth
+  // r2, etc
 }
 
 export interface ScatterFieldConfig extends HideableFieldConfig, AxisConfig {
-  show?: ScatterShow;
-
+  line?: ScatterLineMode;
   lineWidth?: number;
   lineStyle?: LineStyle;
   lineColor?: ColorDimensionConfig;
 
+  point?: VisibilityMode;
   pointSize?: ScaleDimensionConfig; // only 'fixed' is exposed in the UI
   pointColor?: ColorDimensionConfig;
   pointSymbol?: DimensionSupplier<string>;
@@ -51,15 +40,15 @@ export interface ScatterFieldConfig extends HideableFieldConfig, AxisConfig {
 export interface ScatterSeriesConfig extends ScatterFieldConfig {
   x?: string;
   y?: string;
-  name?: string;
 }
 
 export const defaultScatterConfig: ScatterFieldConfig = {
-  show: ScatterShow.Points,
+  line: ScatterLineMode.None, // no line
   lineWidth: 1,
   lineStyle: {
     fill: 'solid',
   },
+  point: VisibilityMode.Auto,
   pointSize: {
     fixed: 5,
     min: 1,
@@ -76,7 +65,7 @@ export interface XYDimensionConfig {
 }
 
 export interface XYChartOptions extends OptionsWithLegend, OptionsWithTooltip {
-  seriesMapping?: SeriesMapping;
+  mode?: 'xy' | 'explicit';
   dims: XYDimensionConfig;
 
   series?: ScatterSeriesConfig[];

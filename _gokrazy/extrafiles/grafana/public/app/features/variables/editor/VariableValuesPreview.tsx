@@ -1,9 +1,9 @@
 import { css } from '@emotion/css';
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { Button, InlineFieldRow, InlineLabel, useStyles2 } from '@grafana/ui';
+import { Button, InlineFieldRow, InlineLabel, useStyles, VerticalGroup } from '@grafana/ui';
 
 import { VariableOption, VariableWithOptions } from '../types';
 
@@ -23,7 +23,7 @@ export const VariableValuesPreview: React.FunctionComponent<VariableValuesPrevie
     },
     [previewLimit, setPreviewLimit]
   );
-  const styles = useStyles2(getStyles);
+  const styles = useStyles(getStyles);
   useEffect(() => setPreviewOptions(options.slice(0, previewLimit)), [previewLimit, options]);
 
   if (!previewOptions.length) {
@@ -31,7 +31,7 @@ export const VariableValuesPreview: React.FunctionComponent<VariableValuesPrevie
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', marginTop: '16px' }}>
+    <VerticalGroup spacing="none">
       <h5>Preview of values</h5>
       <InlineFieldRow>
         {previewOptions.map((o, index) => (
@@ -54,27 +54,22 @@ export const VariableValuesPreview: React.FunctionComponent<VariableValuesPrevie
           </Button>
         </InlineFieldRow>
       )}
-    </div>
+    </VerticalGroup>
   );
 };
 VariableValuesPreview.displayName = 'VariableValuesPreview';
 
-function getStyles(theme: GrafanaTheme2) {
+function getStyles(theme: GrafanaTheme) {
   return {
-    wrapper: css({
-      display: 'flex',
-      flexDirection: 'column',
-      marginTop: theme.spacing(2),
-    }),
-    optionContainer: css({
-      marginLeft: theme.spacing(0.5),
-      marginBottom: theme.spacing(0.5),
-    }),
-    label: css({
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      maxWidth: '50vw',
-    }),
+    optionContainer: css`
+      margin-left: ${theme.spacing.xs};
+      margin-bottom: ${theme.spacing.xs};
+    `,
+    label: css`
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 50vw;
+    `,
   };
 }

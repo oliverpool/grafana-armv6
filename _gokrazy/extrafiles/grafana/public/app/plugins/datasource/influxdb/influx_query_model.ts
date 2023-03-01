@@ -1,7 +1,8 @@
 import { map, find, filter, indexOf } from 'lodash';
 
-import { escapeRegex, ScopedVars } from '@grafana/data';
+import { ScopedVars } from '@grafana/data';
 import { TemplateSrv } from '@grafana/runtime';
+import kbn from 'app/core/utils/kbn';
 
 import queryPart from './query_part';
 import { InfluxQuery, InfluxQueryTag } from './types';
@@ -15,6 +16,7 @@ export default class InfluxQueryModel {
   scopedVars: any;
   refId?: string;
 
+  /** @ngInject */
   constructor(target: InfluxQuery, templateSrv?: TemplateSrv, scopedVars?: ScopedVars) {
     this.target = target;
     this.templateSrv = templateSrv;
@@ -199,10 +201,10 @@ export default class InfluxQueryModel {
     }
 
     if (typeof value === 'string') {
-      return escapeRegex(value);
+      return kbn.regexEscape(value);
     }
 
-    const escapedValues = map(value, escapeRegex);
+    const escapedValues = map(value, kbn.regexEscape);
     return '(' + escapedValues.join('|') + ')';
   }
 

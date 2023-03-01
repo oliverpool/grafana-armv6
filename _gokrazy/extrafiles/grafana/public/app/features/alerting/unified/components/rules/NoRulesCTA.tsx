@@ -1,13 +1,11 @@
-import React from 'react';
+import React, { FC } from 'react';
 
-import { logInfo } from '@grafana/runtime';
 import { CallToActionCard } from '@grafana/ui';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
 
-import { LogMessages } from '../../Analytics';
 import { useRulesAccess } from '../../utils/accessControlHooks';
 
-export const NoRulesSplash = () => {
+export const NoRulesSplash: FC = () => {
   const { canCreateGrafanaRules, canCreateCloudRules } = useRulesAccess();
 
   if (canCreateGrafanaRules || canCreateCloudRules) {
@@ -21,7 +19,6 @@ export const NoRulesSplash = () => {
         proTipLink="https://grafana.com/docs/"
         proTipLinkTitle="Learn more"
         proTipTarget="_blank"
-        onClick={() => logInfo(LogMessages.alertRuleFromScratch)}
       />
     );
   }

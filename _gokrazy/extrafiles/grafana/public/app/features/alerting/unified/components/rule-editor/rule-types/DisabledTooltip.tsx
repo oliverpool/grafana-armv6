@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import { Tooltip } from '@grafana/ui';
 
@@ -6,7 +6,7 @@ type Props = {
   visible: boolean;
 };
 
-const DisabledTooltip = ({ children, visible = false }: React.PropsWithChildren<Props>) => {
+const DisabledTooltip: FC<Props> = ({ children, visible = false }) => {
   if (!visible) {
     return <>{children}</>;
   }

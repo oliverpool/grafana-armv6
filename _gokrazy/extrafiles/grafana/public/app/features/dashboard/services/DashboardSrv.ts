@@ -1,9 +1,7 @@
 import { lastValueFrom } from 'rxjs';
 
-import { AppEvents } from '@grafana/data';
 import { BackendSrvRequest } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
-import { t } from 'app/core/internationalization';
 import { getBackendSrv } from 'app/core/services/backend_srv';
 import { saveDashboard } from 'app/features/manage-dashboards/state/actions';
 import { DashboardMeta } from 'app/types';
@@ -71,7 +69,7 @@ export class DashboardSrv {
     const parsedJson = JSON.parse(json);
     return saveDashboard({
       dashboard: parsedJson,
-      folderUid: this.dashboard?.meta.folderUid || parsedJson.folderUid,
+      folderId: this.dashboard?.meta.folderId || parsedJson.folderId,
     });
   }
 
@@ -92,29 +90,25 @@ export class DashboardSrv {
     );
   }
 
-  starDashboard(dashboardId: string, isStarred: boolean) {
+  starDashboard(dashboardId: string, isStarred: any) {
     const backendSrv = getBackendSrv();
+    let promise;
 
-    const request = {
-      showSuccessAlert: false,
-      url: '/api/user/stars/dashboard/' + dashboardId,
-      method: isStarred ? 'DELETE' : 'POST',
-    };
+    if (isStarred) {
+      promise = backendSrv.delete('/api/user/stars/dashboard/' + dashboardId).then(() => {
+        return false;
+      });
+    } else {
+      promise = backendSrv.post('/api/user/stars/dashboard/' + dashboardId).then(() => {
+        return true;
+      });
+    }
 
-    return backendSrv.request(request).then(() => {
-      const newIsStarred = !isStarred;
-
-      if (this.dashboard?.id === dashboardId) {
-        this.dashboard.meta.isStarred = newIsStarred;
+    return promise.then((res: boolean) => {
+      if (this.dashboard && this.dashboard.id === dashboardId) {
+        this.dashboard.meta.isStarred = res;
       }
-
-      const message = newIsStarred
-        ? t('notifications.starred-dashboard', 'Dashboard starred')
-        : t('notifications.unstarred-dashboard', 'Dashboard unstarred');
-
-      appEvents.emit(AppEvents.alertSuccess, [message]);
-
-      return newIsStarred;
+      return res;
     });
   }
 }

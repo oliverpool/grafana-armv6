@@ -6,6 +6,7 @@ import { CartesianCoords2D, DataFrame, getFieldDisplayName, InterpolateFunction,
 import {
   ContextMenu,
   GraphContextMenuHeader,
+  IconName,
   MenuItemProps,
   MenuItemsGroup,
   MenuGroup,
@@ -23,7 +24,6 @@ export interface ContextMenuItemClickPayload {
 
 interface ContextMenuPluginProps {
   data: DataFrame;
-  frames?: DataFrame[];
   config: UPlotConfigBuilder;
   defaultItems?: Array<MenuItemsGroup<ContextMenuItemClickPayload>>;
   timeZone: TimeZone;
@@ -119,8 +119,9 @@ export const ContextMenuPlugin: React.FC<ContextMenuPluginProps> = ({
         }
         isClick = true;
 
-        if (e.target instanceof HTMLElement) {
-          if (!e.target.classList.contains('u-cursor-pt')) {
+        if (e.target) {
+          const target = e.target as HTMLElement;
+          if (!target.classList.contains('u-cursor-pt')) {
             pluginLog('ContextMenuPlugin', false, 'canvas click');
             setPoint({ seriesIdx: null, dataIdx: null });
           }
@@ -151,7 +152,7 @@ export const ContextMenuPlugin: React.FC<ContextMenuPluginProps> = ({
             items: i.items.map((j) => {
               return {
                 ...j,
-                onClick: (e?: React.MouseEvent<HTMLElement>) => {
+                onClick: (e?: React.SyntheticEvent<HTMLElement>) => {
                   if (!coords) {
                     return;
                   }
@@ -178,7 +179,6 @@ export const ContextMenuPlugin: React.FC<ContextMenuPluginProps> = ({
       {isOpen && coords && (
         <ContextMenuView
           data={data}
-          frames={otherProps.frames}
           defaultItems={defaultItems}
           timeZone={timeZone}
           selection={{ point, coords }}
@@ -196,9 +196,8 @@ export const ContextMenuPlugin: React.FC<ContextMenuPluginProps> = ({
   );
 };
 
-interface ContextMenuViewProps {
+interface ContextMenuProps {
   data: DataFrame;
-  frames?: DataFrame[];
   defaultItems?: MenuItemsGroup[];
   timeZone: TimeZone;
   onClose?: () => void;
@@ -209,7 +208,7 @@ interface ContextMenuViewProps {
   replaceVariables?: InterpolateFunction;
 }
 
-export const ContextMenuView: React.FC<ContextMenuViewProps> = ({
+export const ContextMenuView: React.FC<ContextMenuProps> = ({
   selection,
   timeZone,
   defaultItems,
@@ -261,7 +260,7 @@ export const ContextMenuView: React.FC<ContextMenuViewProps> = ({
                   ariaLabel: link.title,
                   url: link.href,
                   target: link.target,
-                  icon: link.target === '_self' ? 'link' : 'external-link-alt',
+                  icon: `${link.target === '_self' ? 'link' : 'external-link-alt'}` as IconName,
                   onClick: link.onClick,
                 };
               }),
@@ -275,7 +274,7 @@ export const ContextMenuView: React.FC<ContextMenuViewProps> = ({
           timestamp={xFieldFmt(xField.values.get(dataIdx)).text}
           displayValue={displayValue}
           seriesColor={displayValue.color!}
-          displayName={getFieldDisplayName(field, data, otherProps.frames)}
+          displayName={getFieldDisplayName(field, data)}
         />
       );
     }

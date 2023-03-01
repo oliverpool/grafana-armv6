@@ -4,6 +4,7 @@ import { TemplateSrvStub } from 'test/specs/helpers';
 
 import { FieldType, MutableDataFrame } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
+import config from 'app/core/config';
 import { backendSrv } from 'app/core/services/backend_srv'; // will use the version in __mocks__
 
 import InfluxDatasource from '../datasource';
@@ -305,16 +306,13 @@ describe('influxdb response parser', () => {
 
     const fetchMock = jest.spyOn(backendSrv, 'fetch');
 
-    const annotation = {
-      fromAnnotations: true,
-      name: 'Anno',
-      query: 'select * from logs where time >= now() - 15m and time <= now()',
-      textColumn: 'textColumn',
-      tagsColumn: 'host,path',
-    };
-
     const queryOptions: any = {
-      targets: [annotation],
+      annotation: {
+        name: 'Anno',
+        query: 'select * from logs where time >= now() - 15m and time <= now()',
+        textColumn: 'textColumn',
+        tagsColumn: 'host,path',
+      },
       range: {
         from: '2018-01-01T00:00:00Z',
         to: '2018-01-02T00:00:00Z',
@@ -425,7 +423,8 @@ describe('influxdb response parser', () => {
 
       ctx.ds = new InfluxDatasource(ctx.instanceSettings, templateSrv);
       ctx.ds.access = 'proxy';
-      response = await ctx.ds.annotationEvents(queryOptions, annotation);
+      config.featureToggles.influxdbBackendMigration = true;
+      response = await ctx.ds.annotationQuery(queryOptions);
     });
 
     it('should return annotation list', () => {

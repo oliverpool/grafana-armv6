@@ -14,9 +14,8 @@ describe('NodeGraphContainer', () => {
         dataFrames={[emptyFrame]}
         exploreId={ExploreId.left}
         range={getDefaultTimeRange()}
-        splitOpenFn={() => {}}
+        splitOpen={(() => {}) as any}
         withTraceView={true}
-        datasourceType={''}
       />
     );
 
@@ -30,8 +29,7 @@ describe('NodeGraphContainer', () => {
         dataFrames={[nodes]}
         exploreId={ExploreId.left}
         range={getDefaultTimeRange()}
-        splitOpenFn={() => {}}
-        datasourceType={''}
+        splitOpen={(() => {}) as any}
       />
     );
 

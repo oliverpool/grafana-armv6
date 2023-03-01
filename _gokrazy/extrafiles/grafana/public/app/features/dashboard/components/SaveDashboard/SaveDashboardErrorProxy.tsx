@@ -1,9 +1,8 @@
 import { css } from '@emotion/css';
 import React, { useEffect } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { FetchError } from '@grafana/runtime';
-import { Button, ConfirmModal, Modal, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { Button, ConfirmModal, Modal, stylesFactory, useTheme } from '@grafana/ui';
 import { DashboardModel } from 'app/features/dashboard/state';
 
 import { SaveDashboardAsButton } from './SaveDashboardButton';
@@ -15,7 +14,7 @@ interface SaveDashboardErrorProxyProps {
   dashboard: DashboardModel;
   /** dashboard save model with applied modifications, i.e. title */
   dashboardSaveModel: any;
-  error: FetchError;
+  error: any;
   onDismiss: () => void;
 }
 
@@ -77,9 +76,10 @@ export const SaveDashboardErrorProxy: React.FC<SaveDashboardErrorProxyProps> = (
   );
 };
 
-const ConfirmPluginDashboardSaveModal = ({ onDismiss, dashboard }: SaveDashboardModalProps) => {
+const ConfirmPluginDashboardSaveModal: React.FC<SaveDashboardModalProps> = ({ onDismiss, dashboard }) => {
+  const theme = useTheme();
   const { onDashboardSave } = useDashboardSave(dashboard);
-  const styles = useStyles2(getConfirmPluginDashboardSaveModalStyles);
+  const styles = getConfirmPluginDashboardSaveModalStyles(theme);
 
   return (
     <Modal className={styles.modal} title="Plugin dashboard" icon="copy" isOpen={true} onDismiss={onDismiss}>
@@ -121,21 +121,21 @@ const isHandledError = (errorStatus: string) => {
   }
 };
 
-const getConfirmPluginDashboardSaveModalStyles = (theme: GrafanaTheme2) => ({
+const getConfirmPluginDashboardSaveModalStyles = stylesFactory((theme: GrafanaTheme) => ({
   modal: css`
     width: 500px;
   `,
   modalText: css`
-    font-size: ${theme.typography.h4.fontSize};
-    color: ${theme.colors.text.primary};
-    margin-bottom: ${theme.spacing(4)}
-    padding-top: ${theme.spacing(2)};
+    font-size: ${theme.typography.heading.h4};
+    color: ${theme.colors.link};
+    margin-bottom: calc(${theme.spacing.d} * 2);
+    padding-top: ${theme.spacing.d};
   `,
   modalButtonRow: css`
     margin-bottom: 14px;
     a,
     button {
-      margin-right: ${theme.spacing(2)};
+      margin-right: ${theme.spacing.d};
     }
   `,
-});
+}));

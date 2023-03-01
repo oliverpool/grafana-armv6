@@ -115,7 +115,7 @@ describe('importDashboardReducer', () => {
           setLibraryPanelInputs([
             {
               model: { uid: 'sadjahsdk', name: 'A name', type: 'text' } as LibraryElementDTO,
-              state: LibraryPanelInputState.Exists,
+              state: LibraryPanelInputState.Exits,
             },
           ])
         )
@@ -127,7 +127,7 @@ describe('importDashboardReducer', () => {
             libraryPanels: [
               {
                 model: { uid: 'sadjahsdk', name: 'A name', type: 'text' } as LibraryElementDTO,
-                state: LibraryPanelInputState.Exists,
+                state: LibraryPanelInputState.Exits,
               },
             ],
           },

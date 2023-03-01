@@ -1,12 +1,13 @@
 import { css } from '@emotion/css';
-import React, { useCallback } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import { FieldType, GrafanaTheme2, SelectableValue, StandardEditorProps } from '@grafana/data';
 import { InlineField, InlineFieldRow, RadioButtonGroup, Select, useStyles2 } from '@grafana/ui';
 import { useFieldDisplayNames, useSelectOptions } from '@grafana/ui/src/components/MatchersUI/utils';
-import { NumberInput } from 'app/core/components/OptionsUI/NumberInput';
 
 import { ScalarDimensionConfig, ScalarDimensionMode, ScalarDimensionOptions } from '../types';
+
+import { NumberInput } from './NumberInput';
 
 const fixedValueOption: SelectableValue<string> = {
   label: 'Fixed value',
@@ -18,9 +19,10 @@ const scalarOptions = [
   { label: 'Clamped', value: ScalarDimensionMode.Clamped, description: 'Use field values, clamped to max and min' },
 ];
 
-type Props = StandardEditorProps<ScalarDimensionConfig, ScalarDimensionOptions, any>;
-
-export const ScalarDimensionEditor = ({ value, context, onChange, item }: Props) => {
+export const ScalarDimensionEditor: FC<StandardEditorProps<ScalarDimensionConfig, ScalarDimensionOptions, any>> = (
+  props
+) => {
+  const { value, context, onChange, item } = props;
   const { settings } = item;
 
   const DEFAULT_VALUE = 0;
@@ -53,7 +55,7 @@ export const ScalarDimensionEditor = ({ value, context, onChange, item }: Props)
   );
 
   const onModeChange = useCallback(
-    (mode: ScalarDimensionMode) => {
+    (mode) => {
       onChange({
         ...value,
         mode,
@@ -85,6 +87,7 @@ export const ScalarDimensionEditor = ({ value, context, onChange, item }: Props)
           </InlineField>
         </InlineFieldRow>
         <Select
+          menuShouldPortal
           value={selectedOption}
           options={selectOptions}
           onChange={onSelectChange}

@@ -10,12 +10,11 @@ import { NestedQuery } from './NestedQuery';
 export interface Props {
   query: LokiVisualQuery;
   datasource: LokiDatasource;
-  showExplain: boolean;
   onChange: (query: LokiVisualQuery) => void;
   onRunQuery: () => void;
 }
 
-export function NestedQueryList({ query, datasource, onChange, onRunQuery, showExplain }: Props) {
+export function NestedQueryList({ query, datasource, onChange, onRunQuery }: Props) {
   const nestedQueries = query.binaryQueries ?? [];
 
   const onNestedQueryUpdate = (index: number, update: LokiVisualQueryBinary) => {
@@ -40,7 +39,6 @@ export function NestedQueryList({ query, datasource, onChange, onRunQuery, showE
           datasource={datasource}
           onRemove={onRemove}
           onRunQuery={onRunQuery}
-          showExplain={showExplain}
         />
       ))}
     </Stack>

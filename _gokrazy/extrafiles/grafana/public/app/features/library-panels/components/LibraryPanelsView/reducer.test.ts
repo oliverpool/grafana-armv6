@@ -106,7 +106,7 @@ function mockLibraryPanel({
   uid = '1',
   id = 1,
   orgId = 1,
-  folderUid = '',
+  folderId = 0,
   name = 'Test Panel',
   model = { type: 'text', title: 'Test Panel' },
   meta = {
@@ -126,7 +126,7 @@ function mockLibraryPanel({
     uid,
     id,
     orgId,
-    folderUid,
+    folderId,
     name,
     kind: LibraryElementKind.Panel,
     model,

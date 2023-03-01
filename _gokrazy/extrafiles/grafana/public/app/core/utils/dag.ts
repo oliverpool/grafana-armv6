@@ -101,7 +101,7 @@ export class Node {
   }
 
   getOptimizedInputEdges(): Edge[] {
-    const toBeRemoved: Edge[] = [];
+    const toBeRemoved: any[] = [];
     this.inputEdges.forEach((e) => {
       const inputEdgesNodes = e.inputNode?.inputEdges.map((e) => e.inputNode);
 
@@ -118,7 +118,7 @@ export class Node {
 }
 
 export class Graph {
-  nodes: Record<string, Node> = {};
+  nodes: any = {};
 
   constructor() {}
 
@@ -189,34 +189,6 @@ export class Graph {
     return edges;
   }
 
-  descendants(nodes: Node[] | string[]): Set<Node> {
-    if (!nodes.length) {
-      return new Set();
-    }
-
-    const initialNodes = new Set(
-      isStringArray(nodes) ? nodes.map((n) => this.nodes[n]).filter((n) => n !== undefined) : nodes
-    );
-
-    return this.descendantsRecursive(initialNodes);
-  }
-
-  private descendantsRecursive(nodes: Set<Node>, descendants = new Set<Node>()): Set<Node> {
-    for (const node of nodes) {
-      const newDescendants = new Set<Node>();
-      for (const { inputNode } of node.inputEdges) {
-        if (inputNode && !descendants.has(inputNode)) {
-          descendants.add(inputNode);
-          newDescendants.add(inputNode);
-        }
-      }
-
-      this.descendantsRecursive(newDescendants, descendants);
-    }
-
-    return descendants;
-  }
-
   createEdge(): Edge {
     return new Edge();
   }
@@ -240,7 +212,3 @@ export const printGraph = (g: Graph) => {
     console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
   });
 };
-
-function isStringArray(arr: unknown[]): arr is string[] {
-  return arr.length > 0 && typeof arr[0] === 'string';
-}

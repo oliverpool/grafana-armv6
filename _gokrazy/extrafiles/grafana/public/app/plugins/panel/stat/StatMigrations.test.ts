@@ -1,11 +1,12 @@
 import { PanelModel } from '@grafana/data';
-import { BigValueGraphMode, BigValueColorMode, BigValueTextMode } from '@grafana/schema';
+import { BigValueGraphMode, BigValueColorMode } from '@grafana/ui';
+import { BigValueTextMode } from '@grafana/ui/src/components/BigValue/BigValue';
 
 import { statPanelChangedHandler } from './StatMigrations';
 
 describe('Stat Panel Migrations', () => {
   it('change from angular singlestat sparkline disabled', () => {
-    const old = {
+    const old: any = {
       angular: {
         format: 'ms',
         decimals: 7,
@@ -21,7 +22,7 @@ describe('Stat Panel Migrations', () => {
   });
 
   it('change from angular singlestat sparkline enabled', () => {
-    const old = {
+    const old: any = {
       angular: {
         format: 'ms',
         decimals: 7,
@@ -37,7 +38,7 @@ describe('Stat Panel Migrations', () => {
   });
 
   it('change from angular singlestat color background', () => {
-    const old = {
+    const old: any = {
       angular: {
         format: 'ms',
         decimals: 7,
@@ -51,7 +52,7 @@ describe('Stat Panel Migrations', () => {
   });
 
   it('change from angular singlestat with name stat', () => {
-    const old = {
+    const old: any = {
       angular: {
         valueName: 'name',
       },

@@ -5,8 +5,7 @@ import { LoadingState, VariableType } from '@grafana/data';
 
 import { variableAdapters } from '../adapters';
 import { changeVariableNameSucceeded } from '../editor/reducer';
-import { hasOptions } from '../guard';
-import { VariableModel, VariableOption } from '../types';
+import { VariableModel, VariableOption, VariableWithOptions } from '../types';
 import { ensureStringValues } from '../utils';
 
 import { getInstanceState, getNextVariableIndex } from './selectors';
@@ -67,9 +66,9 @@ const sharedReducerSlice = createSlice({
         return;
       }
 
-      const variableStates = Object.values(state).sort((a, b) => a.index - b.index);
-      for (let i = 0; i < variableStates.length; i++) {
-        variableStates[i].index = i;
+      const variableStates = Object.values(state);
+      for (let index = 0; index < variableStates.length; index++) {
+        variableStates[index].index = index;
       }
     },
     duplicateVariable: (state: VariablesState, action: PayloadAction<VariablePayload<{ newId: string }>>) => {
@@ -124,11 +123,7 @@ const sharedReducerSlice = createSlice({
         return;
       }
 
-      const instanceState = getInstanceState(state, action.payload.id);
-      if (!hasOptions(instanceState)) {
-        return;
-      }
-
+      const instanceState = getInstanceState<VariableWithOptions>(state, action.payload.id);
       const { option } = action.payload.data;
       const current = { ...option, text: ensureStringValues(option?.text), value: ensureStringValues(option?.value) };
 

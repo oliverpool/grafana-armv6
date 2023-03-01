@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { FC } from 'react';
 
-import { LoadingState } from '@grafana/data';
+import { ClickOutsideWrapper } from '@grafana/ui';
 
 import { DashboardModel, PanelModel } from '../../state';
 
@@ -10,17 +10,22 @@ import { PanelHeaderMenuProvider } from './PanelHeaderMenuProvider';
 interface Props {
   panel: PanelModel;
   dashboard: DashboardModel;
-  loadingState?: LoadingState;
+  show: boolean;
   onClose: () => void;
-  style?: React.CSSProperties;
 }
 
-export function PanelHeaderMenuWrapper({ style, panel, dashboard, loadingState }: Props) {
+export const PanelHeaderMenuWrapper: FC<Props> = ({ show, onClose, panel, dashboard }) => {
+  if (!show) {
+    return null;
+  }
+
   return (
-    <PanelHeaderMenuProvider panel={panel} dashboard={dashboard} loadingState={loadingState}>
-      {({ items }) => {
-        return <PanelHeaderMenu style={style} items={items} />;
-      }}
-    </PanelHeaderMenuProvider>
+    <ClickOutsideWrapper onClick={onClose} parent={document}>
+      <PanelHeaderMenuProvider panel={panel} dashboard={dashboard}>
+        {({ items }) => {
+          return <PanelHeaderMenu items={items} />;
+        }}
+      </PanelHeaderMenuProvider>
+    </ClickOutsideWrapper>
   );
-}
+};

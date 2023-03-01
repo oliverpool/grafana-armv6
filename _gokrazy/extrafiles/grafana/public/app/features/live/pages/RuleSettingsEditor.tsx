@@ -11,10 +11,11 @@ interface Props {
   entitiesInfo: PipeLineEntitiesInfo;
 }
 
-export const RuleSettingsEditor = ({ onChange, value, ruleType, entitiesInfo }: Props) => {
+export const RuleSettingsEditor: React.FC<Props> = ({ onChange, value, ruleType, entitiesInfo }) => {
   return (
     <>
       <Select
+        menuShouldPortal={true}
         key={ruleType}
         options={entitiesInfo[ruleType]}
         placeholder="Select an option"

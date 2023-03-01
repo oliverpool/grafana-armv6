@@ -17,8 +17,15 @@ export interface DashboardRowProps {
   dashboard: DashboardModel;
 }
 
-export class DashboardRow extends React.Component<DashboardRowProps> {
+export class DashboardRow extends React.Component<DashboardRowProps, any> {
   sub?: Unsubscribable;
+  constructor(props: DashboardRowProps) {
+    super(props);
+
+    this.state = {
+      collapsed: this.props.panel.collapsed,
+    };
+  }
 
   componentDidMount() {
     this.sub = this.props.dashboard.events.subscribe(RefreshEvent, this.onVariableUpdated);
@@ -36,11 +43,15 @@ export class DashboardRow extends React.Component<DashboardRowProps> {
 
   onToggle = () => {
     this.props.dashboard.toggleRow(this.props.panel);
+
+    this.setState((prevState: any) => {
+      return { collapsed: !prevState.collapsed };
+    });
   };
 
   onUpdate = (title: string, repeat?: string | null) => {
-    this.props.panel.setProperty('title', title);
-    this.props.panel.setProperty('repeat', repeat ?? undefined);
+    this.props.panel['title'] = title;
+    this.props.panel['repeat'] = repeat ?? undefined;
     this.props.panel.render();
     this.props.dashboard.processRepeats();
     this.forceUpdate();
@@ -66,7 +77,7 @@ export class DashboardRow extends React.Component<DashboardRowProps> {
   render() {
     const classes = classNames({
       'dashboard-row': true,
-      'dashboard-row--collapsed': this.props.panel.collapsed,
+      'dashboard-row--collapsed': this.state.collapsed,
     });
 
     const title = getTemplateSrv().replace(this.props.panel.title, this.props.panel.scopedVars, 'text');
@@ -75,19 +86,18 @@ export class DashboardRow extends React.Component<DashboardRowProps> {
     const canEdit = this.props.dashboard.meta.canEdit === true;
 
     return (
-      <div className={classes} data-testid="dashboard-row-container">
-        <button
+      <div className={classes}>
+        <a
           className="dashboard-row__title pointer"
-          type="button"
           data-testid={selectors.components.DashboardRow.title(title)}
           onClick={this.onToggle}
         >
-          <Icon name={this.props.panel.collapsed ? 'angle-right' : 'angle-down'} />
+          <Icon name={this.state.collapsed ? 'angle-right' : 'angle-down'} />
           {title}
           <span className="dashboard-row__panel_count">
             ({count} {panels})
           </span>
-        </button>
+        </a>
         {canEdit && (
           <div className="dashboard-row__actions">
             <RowOptionsButton
@@ -95,17 +105,17 @@ export class DashboardRow extends React.Component<DashboardRowProps> {
               repeat={this.props.panel.repeat}
               onUpdate={this.onUpdate}
             />
-            <button type="button" className="pointer" onClick={this.onDelete} aria-label="Delete row">
+            <a className="pointer" onClick={this.onDelete}>
               <Icon name="trash-alt" />
-            </button>
+            </a>
           </div>
         )}
-        {this.props.panel.collapsed === true && (
+        {this.state.collapsed === true && (
           <div className="dashboard-row__toggle-target" onClick={this.onToggle}>
             &nbsp;
           </div>
         )}
-        {canEdit && <div data-testid="dashboard-row-drag" className="dashboard-row__drag grid-drag-handle" />}
+        {canEdit && <div className="dashboard-row__drag grid-drag-handle" />}
       </div>
     );
   }

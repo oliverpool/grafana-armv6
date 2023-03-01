@@ -49,7 +49,7 @@ describe('DataFrame to annotations', () => {
     ]);
   });
 
-  test('explicit mappings', async () => {
+  test('explicit mappins', async () => {
     const frame = toDataFrame({
       fields: [
         { name: 'time1', values: [111, 222, 333] },

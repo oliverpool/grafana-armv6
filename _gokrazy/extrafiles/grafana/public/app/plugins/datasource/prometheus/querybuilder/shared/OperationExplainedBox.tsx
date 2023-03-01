@@ -5,10 +5,10 @@ import { GrafanaTheme2, renderMarkdown } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
 export interface Props {
-  title?: React.ReactNode;
+  title: string;
   children?: React.ReactNode;
   markdown?: string;
-  stepNumber?: number;
+  stepNumber: number;
 }
 
 export function OperationExplainedBox({ title, stepNumber, markdown, children }: Props) {
@@ -16,13 +16,11 @@ export function OperationExplainedBox({ title, stepNumber, markdown, children }:
 
   return (
     <div className={styles.box}>
-      {stepNumber !== undefined && <div className={styles.stepNumber}>{stepNumber}</div>}
+      <div className={styles.stepNumber}>{stepNumber}</div>
       <div className={styles.boxInner}>
-        {title && (
-          <div className={styles.header}>
-            <span>{title}</span>
-          </div>
-        )}
+        <div className={styles.header}>
+          <span>{title}</span>
+        </div>
         <div className={styles.body}>
           {markdown && <div dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}></div>}
           {children}
@@ -39,6 +37,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       padding: theme.spacing(1),
       borderRadius: theme.shape.borderRadius(),
       position: 'relative',
+      marginBottom: theme.spacing(0.5),
     }),
     boxInner: css({
       marginLeft: theme.spacing(4),

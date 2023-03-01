@@ -2,7 +2,6 @@ import { lastValueFrom, of } from 'rxjs';
 import { createFetchResponse } from 'test/helpers/createFetchResponse';
 
 import { DataSourceInstanceSettings, FieldType } from '@grafana/data';
-import { TemplateSrv } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
 
 import { ZipkinDatasource } from './datasource';
@@ -16,24 +15,16 @@ jest.mock('@grafana/runtime', () => ({
 
 describe('ZipkinDatasource', () => {
   describe('query', () => {
-    const templateSrv: TemplateSrv = {
-      replace: jest.fn(),
-      getVariables: jest.fn(),
-      containsTemplate: jest.fn(),
-      updateTimeRange: jest.fn(),
-    };
-
     it('runs query', async () => {
       setupBackendSrv(zipkinResponse);
-      const ds = new ZipkinDatasource(defaultSettings, templateSrv);
+      const ds = new ZipkinDatasource(defaultSettings);
       await expect(ds.query({ targets: [{ query: '12345' }] } as any)).toEmitValuesWith((val) => {
         expect(val[0].data[0].fields).toMatchObject(traceFrameFields);
       });
     });
-
     it('runs query with traceId that includes special characters', async () => {
       setupBackendSrv(zipkinResponse);
-      const ds = new ZipkinDatasource(defaultSettings, templateSrv);
+      const ds = new ZipkinDatasource(defaultSettings);
       await expect(ds.query({ targets: [{ query: 'a/b' }] } as any)).toEmitValuesWith((val) => {
         expect(val[0].data[0].fields).toMatchObject(traceFrameFields);
       });
@@ -91,5 +82,4 @@ const defaultSettings: DataSourceInstanceSettings = {
   meta: {} as any,
   jsonData: {},
   access: 'proxy',
-  readOnly: false,
 };

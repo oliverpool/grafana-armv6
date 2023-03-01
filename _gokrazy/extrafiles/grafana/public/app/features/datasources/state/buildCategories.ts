@@ -7,7 +7,6 @@ export function buildCategories(plugins: DataSourcePluginMeta[]): DataSourcePlug
     { id: 'tsdb', title: 'Time series databases', plugins: [] },
     { id: 'logging', title: 'Logging & document databases', plugins: [] },
     { id: 'tracing', title: 'Distributed tracing', plugins: [] },
-    { id: 'profiling', title: 'Profiling', plugins: [] },
     { id: 'sql', title: 'SQL', plugins: [] },
     { id: 'cloud', title: 'Cloud', plugins: [] },
     { id: 'enterprise', title: 'Enterprise plugins', plugins: [] },

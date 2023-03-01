@@ -40,8 +40,7 @@ export class AlertTabCtrl {
   alertingMinInterval: string;
   frequencyWarning: any;
 
-  static $inject = ['$scope', 'dashboardSrv', 'uiSegmentSrv', 'datasourceSrv'];
-
+  /** @ngInject */
   constructor(
     private $scope: any,
     private dashboardSrv: DashboardSrv,
@@ -513,6 +512,7 @@ export class AlertTabCtrl {
   }
 }
 
+/** @ngInject */
 export function alertTab() {
   'use strict';
   return {

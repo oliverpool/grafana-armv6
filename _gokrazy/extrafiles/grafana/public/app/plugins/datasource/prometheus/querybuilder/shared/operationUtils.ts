@@ -261,7 +261,7 @@ function getAggregationWithoutRenderer(aggregation: string) {
 /**
  * Very simple poc implementation, needs to be modified to support all aggregation operators
  */
-export function getAggregationExplainer(aggregationName: string, mode: 'by' | 'without' | '') {
+function getAggregationExplainer(aggregationName: string, mode: 'by' | 'without' | '') {
   return function aggregationExplainer(model: QueryBuilderOperation) {
     const labels = model.params.map((label) => `\`${label}\``).join(' and ');
     const labelWord = pluralize('label', model.params.length);
@@ -279,20 +279,22 @@ export function getAggregationExplainer(aggregationName: string, mode: 'by' | 'w
 
 function getAggregationByRendererWithParameter(aggregation: string) {
   return function aggregationRenderer(model: QueryBuilderOperation, def: QueryBuilderOperationDef, innerExpr: string) {
-    const restParamIndex = def.params.findIndex((param) => param.restParam);
-    const params = model.params.slice(0, restParamIndex);
-    const restParams = model.params.slice(restParamIndex);
-
-    return `${aggregation} by(${restParams.join(', ')}) (${params
-      .map((param, idx) => (def.params[idx].type === 'string' ? `\"${param}\"` : param))
-      .join(', ')}, ${innerExpr})`;
+    function mapType(p: QueryBuilderOperationParamValue) {
+      if (typeof p === 'string') {
+        return `\"${p}\"`;
+      }
+      return p;
+    }
+    const params = model.params.slice(0, -1);
+    const restParams = model.params.slice(1);
+    return `${aggregation} by(${restParams.join(', ')}) (${params.map(mapType).join(', ')}, ${innerExpr})`;
   };
 }
 
 /**
  * This function will transform operations without labels to their plan aggregation operation
  */
-export function getLastLabelRemovedHandler(changeToOperationId: string) {
+function getLastLabelRemovedHandler(changeToOperationId: string) {
   return function onParamChanged(index: number, op: QueryBuilderOperation, def: QueryBuilderOperationDef) {
     // If definition has more params then is defined there are no optional rest params anymore.
     // We then transform this operation into a different one
@@ -307,11 +309,11 @@ export function getLastLabelRemovedHandler(changeToOperationId: string) {
   };
 }
 
-export function getOnLabelAddedHandler(changeToOperationId: string) {
+function getOnLabelAddedHandler(changeToOperationId: string) {
   return function onParamChanged(index: number, op: QueryBuilderOperation, def: QueryBuilderOperationDef) {
     // Check if we actually have the label param. As it's optional the aggregation can have one less, which is the
     // case of just simple aggregation without label. When user adds the label it now has the same number of params
-    // as its definition, and now we can change it to its `_by` variant.
+    // as it's definition, and now we can change it to it's `_by` variant.
     if (op.params.length === def.params.length) {
       return {
         ...op,

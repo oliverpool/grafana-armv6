@@ -5,7 +5,6 @@ import React from 'react';
 import { QueryEditor, Props } from './QueryEditor';
 import { scenarios } from './__mocks__/scenarios';
 import { defaultQuery } from './constants';
-import { TestDataQueryType } from './dataquery.gen';
 import { defaultStreamQuery } from './runStreams';
 
 beforeEach(() => {
@@ -46,13 +45,11 @@ describe('Test Datasource Query Editor', () => {
     expect(scs).toHaveLength(scenarios.length);
 
     await userEvent.click(screen.getByText('CSV Metric Values'));
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({ scenarioId: TestDataQueryType.CSVMetricValues })
-    );
+    expect(mockOnChange).toHaveBeenCalledWith(expect.objectContaining({ scenarioId: 'csv_metric_values' }));
     await rerender(
       <QueryEditor
         {...props}
-        query={{ ...defaultQuery, scenarioId: TestDataQueryType.CSVMetricValues, stringInput: '1,20,90,30,5,0' }}
+        query={{ ...defaultQuery, scenarioId: 'csv_metric_values', stringInput: '1,20,90,30,5,0' }}
       />
     );
     expect(await screen.findByRole('textbox', { name: /string input/i })).toBeInTheDocument();
@@ -64,10 +61,7 @@ describe('Test Datasource Query Editor', () => {
       expect.objectContaining({ scenarioId: 'grafana_api', stringInput: 'datasources' })
     );
     rerender(
-      <QueryEditor
-        {...props}
-        query={{ ...defaultQuery, scenarioId: TestDataQueryType.GrafanaAPI, stringInput: 'datasources' }}
-      />
+      <QueryEditor {...props} query={{ ...defaultQuery, scenarioId: 'grafana_api', stringInput: 'datasources' }} />
     );
     expect(await screen.findByText('Grafana API')).toBeInTheDocument();
     expect(screen.getByText('Data Sources')).toBeInTheDocument();
@@ -78,7 +72,7 @@ describe('Test Datasource Query Editor', () => {
       expect.objectContaining({ scenarioId: 'streaming_client', stream: defaultStreamQuery })
     );
 
-    const streamQuery = { ...defaultQuery, stream: defaultStreamQuery, scenarioId: TestDataQueryType.StreamingClient };
+    const streamQuery = { ...defaultQuery, stream: defaultStreamQuery, scenarioId: 'streaming_client' };
 
     rerender(<QueryEditor {...props} query={streamQuery} />);
 

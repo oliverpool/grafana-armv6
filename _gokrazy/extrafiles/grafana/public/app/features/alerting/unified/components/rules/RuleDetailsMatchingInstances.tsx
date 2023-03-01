@@ -1,72 +1,36 @@
 import { css, cx } from '@emotion/css';
-import { countBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { LinkButton, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { useStyles } from '@grafana/ui';
 import { MatcherFilter } from 'app/features/alerting/unified/components/alert-groups/MatcherFilter';
-import {
-  AlertInstanceStateFilter,
-  InstanceStateFilter,
-} from 'app/features/alerting/unified/components/rules/AlertInstanceStateFilter';
+import { AlertInstanceStateFilter } from 'app/features/alerting/unified/components/rules/AlertInstanceStateFilter';
 import { labelsMatchMatchers, parseMatchers } from 'app/features/alerting/unified/utils/alertmanager';
-import { createViewLink, sortAlerts } from 'app/features/alerting/unified/utils/misc';
+import { sortAlerts } from 'app/features/alerting/unified/utils/misc';
 import { SortOrder } from 'app/plugins/panel/alertlist/types';
-import { Alert, CombinedRule, PaginationProps } from 'app/types/unified-alerting';
-import { mapStateWithReasonToBaseState } from 'app/types/unified-alerting-dto';
+import { Alert, Rule } from 'app/types/unified-alerting';
+import { GrafanaAlertState } from 'app/types/unified-alerting-dto';
 
-import { GRAFANA_RULES_SOURCE_NAME, isGrafanaRulesSource } from '../../utils/datasource';
 import { isAlertingRule } from '../../utils/rules';
 import { DetailsField } from '../DetailsField';
 
 import { AlertInstancesTable } from './AlertInstancesTable';
 
-interface Props {
-  rule: CombinedRule;
-  pagination?: PaginationProps;
-  itemsDisplayLimit?: number;
-}
-
-interface ShowMoreStats {
-  totalItemsCount: number;
-  visibleItemsCount: number;
-}
-
-function ShowMoreInstances(props: { ruleViewPageLink: string; stats: ShowMoreStats }) {
-  const styles = useStyles2(getStyles);
-  const { ruleViewPageLink, stats } = props;
-
-  return (
-    <div className={styles.footerRow}>
-      <div>
-        Showing {stats.visibleItemsCount} out of {stats.totalItemsCount} instances
-      </div>
-      {ruleViewPageLink && (
-        <LinkButton href={ruleViewPageLink} size="sm" variant="secondary">
-          Show all {stats.totalItemsCount} alert instances
-        </LinkButton>
-      )}
-    </div>
-  );
-}
+type Props = {
+  promRule?: Rule;
+};
 
 export function RuleDetailsMatchingInstances(props: Props): JSX.Element | null {
-  const {
-    rule: { promRule, namespace },
-    itemsDisplayLimit = Number.POSITIVE_INFINITY,
-    pagination,
-  } = props;
+  const { promRule } = props;
 
   const [queryString, setQueryString] = useState<string>();
-  const [alertState, setAlertState] = useState<InstanceStateFilter>();
+  const [alertState, setAlertState] = useState<GrafanaAlertState>();
 
   // This key is used to force a rerender on the inputs when the filters are cleared
   const [filterKey] = useState<number>(Math.floor(Math.random() * 100));
   const queryStringKey = `queryString-${filterKey}`;
 
-  const styles = useStyles2(getStyles);
-
-  const stateFilterType = isGrafanaRulesSource(namespace.rulesSource) ? GRAFANA_RULES_SOURCE_NAME : 'prometheus';
+  const styles = useStyles(getStyles);
 
   const alerts = useMemo(
     (): Alert[] =>
@@ -80,22 +44,6 @@ export function RuleDetailsMatchingInstances(props: Props): JSX.Element | null {
     return null;
   }
 
-  const visibleInstances = alerts.slice(0, itemsDisplayLimit);
-
-  const countAllByState = countBy(promRule.alerts, (alert) => mapStateWithReasonToBaseState(alert.state));
-  const hiddenItemsCount = alerts.length - visibleInstances.length;
-
-  const stats: ShowMoreStats = {
-    totalItemsCount: alerts.length,
-    visibleItemsCount: visibleInstances.length,
-  };
-
-  const ruleViewPageLink = createViewLink(namespace.rulesSource, props.rule, location.pathname + location.search);
-
-  const footerRow = hiddenItemsCount ? (
-    <ShowMoreInstances stats={stats} ruleViewPageLink={ruleViewPageLink} />
-  ) : undefined;
-
   return (
     <DetailsField label="Matching instances" horizontal={true}>
       <div className={cx(styles.flexRow, styles.spaceBetween)}>
@@ -108,22 +56,20 @@ export function RuleDetailsMatchingInstances(props: Props): JSX.Element | null {
           />
           <AlertInstanceStateFilter
             className={styles.rowChild}
-            filterType={stateFilterType}
             stateFilter={alertState}
             onStateFilterChange={setAlertState}
-            itemPerStateStats={countAllByState}
           />
         </div>
       </div>
 
-      <AlertInstancesTable instances={visibleInstances} pagination={pagination} footerRow={footerRow} />
+      <AlertInstancesTable instances={alerts} />
     </DetailsField>
   );
 }
 
 function filterAlerts(
   alertInstanceLabel: string | undefined,
-  alertInstanceState: InstanceStateFilter | undefined,
+  alertInstanceState: GrafanaAlertState | undefined,
   alerts: Alert[]
 ): Alert[] {
   let filteredAlerts = [...alerts];
@@ -133,14 +79,14 @@ function filterAlerts(
   }
   if (alertInstanceState) {
     filteredAlerts = filteredAlerts.filter((alert) => {
-      return mapStateWithReasonToBaseState(alert.state) === alertInstanceState;
+      return alert.state === alertInstanceState;
     });
   }
 
   return filteredAlerts;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
+const getStyles = (theme: GrafanaTheme) => {
   return {
     flexRow: css`
       display: flex;
@@ -148,21 +94,13 @@ const getStyles = (theme: GrafanaTheme2) => {
       align-items: flex-end;
       width: 100%;
       flex-wrap: wrap;
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing.sm};
     `,
     spaceBetween: css`
       justify-content: space-between;
     `,
     rowChild: css`
-      margin-right: ${theme.spacing(1)};
-    `,
-    footerRow: css`
-      display: flex;
-      flex-direction: column;
-      gap: ${theme.spacing(1)};
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
+      margin-right: ${theme.spacing.sm};
     `,
   };
 };

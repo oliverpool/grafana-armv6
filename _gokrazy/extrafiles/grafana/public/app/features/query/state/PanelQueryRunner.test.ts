@@ -7,7 +7,7 @@ import * as grafanaData from '@grafana/data';
 import { setDataSourceSrv, setEchoSrv } from '@grafana/runtime';
 
 import { Echo } from '../../../core/services/echo/Echo';
-import { createDashboardModelFixture } from '../../dashboard/state/__fixtures__/dashboardFixtures';
+import { DashboardModel } from '../../dashboard/state/index';
 
 import {
   createDashboardQueryRunner,
@@ -18,7 +18,7 @@ import { PanelQueryRunner } from './PanelQueryRunner';
 
 jest.mock('@grafana/data', () => ({
   __esModule: true,
-  ...jest.requireActual('@grafana/data'),
+  ...(jest.requireActual('@grafana/data') as any),
   applyFieldOverrides: applyFieldOverridesMock,
 }));
 
@@ -30,7 +30,7 @@ jest.mock('app/core/config', () => ({
   }),
 }));
 
-const dashboardModel = createDashboardModelFixture({
+const dashboardModel = new DashboardModel({
   panels: [{ id: 1, type: 'graph' }],
 });
 

@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { useAsync } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -10,8 +10,8 @@ import { DiffViewer } from '../VersionHistory/DiffViewer';
 import { Diffs } from '../VersionHistory/utils';
 
 interface SaveDashboardDiffProps {
-  oldValue?: unknown;
-  newValue?: unknown;
+  oldValue?: any;
+  newValue?: any;
 
   // calculated by parent so we can see summary in tabs
   diff?: Diffs;
@@ -22,29 +22,12 @@ export const SaveDashboardDiff = ({ diff, oldValue, newValue }: SaveDashboardDif
   const loader = useAsync(async () => {
     const oldJSON = JSON.stringify(oldValue ?? {}, null, 2);
     const newJSON = JSON.stringify(newValue ?? {}, null, 2);
-
-    // Schema changes will have MANY changes that the user will not understand
-    let schemaChange: ReactElement | undefined = undefined;
-    const diffs: ReactElement[] = [];
-    let count = 0;
-    if (diff) {
-      for (const [key, changes] of Object.entries(diff)) {
-        // this takes a long time for large diffs (so this is async)
-        const g = <DiffGroup diffs={changes} key={key} title={key} />;
-        if (key === 'schemaVersion') {
-          schemaChange = g;
-        } else {
-          diffs.push(g);
-        }
-        count += changes.length;
-      }
-    }
     return {
-      schemaChange,
-      diffs,
-      count,
-      showDiffs: count < 15, // overwhelming if too many changes
-      jsonView: <DiffViewer oldValue={oldJSON} newValue={newJSON} />,
+      oldJSON,
+      newJSON,
+      diffs: Object.entries(diff ?? []).map(([key, diffs]) => (
+        <DiffGroup diffs={diffs} key={key} title={key} /> // this takes a long time for large diffs
+      )),
     };
   }, [diff, oldValue, newValue]);
 
@@ -53,18 +36,16 @@ export const SaveDashboardDiff = ({ diff, oldValue, newValue }: SaveDashboardDif
     return <Spinner />;
   }
 
-  if (value.count < 1) {
+  if (!value.diffs.length) {
     return <div>No changes in this dashboard</div>;
   }
 
   return (
     <div>
-      {value.schemaChange && <div className={styles.spacer}>{value.schemaChange}</div>}
+      <div className={styles.spacer}>{value.diffs}</div>
 
-      {value.showDiffs && <div className={styles.spacer}>{value.diffs}</div>}
-
-      <h4>JSON Model</h4>
-      {value.jsonView}
+      <h4>JSON Diff</h4>
+      <DiffViewer oldValue={value.oldJSON} newValue={value.newJSON} />
     </div>
   );
 };

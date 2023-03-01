@@ -1,11 +1,9 @@
 import {
   ByNamesMatcherMode,
-  ConfigOverrideRule,
   DataFrame,
   DynamicConfigValue,
   FieldConfigSource,
   FieldMatcherID,
-  fieldMatchers,
   FieldType,
   getFieldDisplayName,
   isSystemOverrideWithRef,
@@ -29,7 +27,7 @@ export function seriesVisibilityConfigFactory(
 
   if (currentIndex < 0) {
     if (mode === SeriesVisibilityChangeMode.ToggleSelection) {
-      const override = createOverride([displayName, ...getNamesOfHiddenFields(overrides, data)]);
+      const override = createOverride([displayName]);
 
       return {
         ...fieldConfig,
@@ -50,12 +48,7 @@ export function seriesVisibilityConfigFactory(
   const [current] = overridesCopy.splice(currentIndex, 1) as SystemConfigOverrideRule[];
 
   if (mode === SeriesVisibilityChangeMode.ToggleSelection) {
-    let existing = getExistingDisplayNames(current);
-    const nameOfHiddenFields = getNamesOfHiddenFields(overridesCopy, data);
-
-    if (nameOfHiddenFields.length > 0) {
-      existing = existing.filter((el) => nameOfHiddenFields.indexOf(el) < 0);
-    }
+    const existing = getExistingDisplayNames(current);
 
     if (existing[0] === displayName && existing.length === 1) {
       return {
@@ -64,7 +57,7 @@ export function seriesVisibilityConfigFactory(
       };
     }
 
-    const override = createOverride([displayName, ...nameOfHiddenFields]);
+    const override = createOverride([displayName]);
 
     return {
       ...fieldConfig,
@@ -175,33 +168,4 @@ const getDisplayNames = (data: DataFrame[], excludeName?: string): string[] => {
   }
 
   return Array.from(unique);
-};
-
-const getNamesOfHiddenFields = (overrides: ConfigOverrideRule[], data: DataFrame[]): string[] => {
-  let names: string[] = [];
-
-  for (const override of overrides) {
-    const property = override.properties.find((p) => p.id === 'custom.hideFrom');
-
-    if (property !== undefined && property.value?.legend === true) {
-      const info = fieldMatchers.get(override.matcher.id);
-      const matcher = info.get(override.matcher.options);
-
-      for (const frame of data) {
-        for (const field of frame.fields) {
-          if (field.type !== FieldType.number) {
-            continue;
-          }
-
-          const name = getFieldDisplayName(field, frame, data);
-
-          if (matcher(field, frame, data)) {
-            names.push(name);
-          }
-        }
-      }
-    }
-  }
-
-  return names;
 };

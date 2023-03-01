@@ -4,7 +4,7 @@ import {
   FieldType,
   identityOverrideProcessor,
   SetFieldConfigOptionsArgs,
-  Field,
+  stringOverrideProcessor,
 } from '@grafana/data';
 import {
   BarAlignment,
@@ -20,6 +20,7 @@ import {
 } from '@grafana/schema';
 import { graphFieldOptions, commonOptionsBuilder } from '@grafana/ui';
 
+import { FillBellowToEditor } from './FillBelowToEditor';
 import { LineStyleEditor } from './LineStyleEditor';
 import { SpanNullsEditor } from './SpanNullsEditor';
 import { ThresholdsStyleEditor } from './ThresholdsStyleEditor';
@@ -36,7 +37,6 @@ export const defaultGraphConfig: GraphFieldConfig = {
     group: 'A',
   },
   axisGridShow: true,
-  axisCenteredZero: false,
 };
 
 const categoryStyles = ['Graph styles'];
@@ -122,14 +122,16 @@ export function getGraphFieldConfig(cfg: GraphFieldConfig): SetFieldConfigOption
           },
           showIf: (c) => c.drawStyle !== GraphDrawStyle.Points,
         })
-        .addFieldNamePicker({
+        .addCustomEditor({
+          id: 'fillBelowTo',
           path: 'fillBelowTo',
           name: 'Fill below to',
           category: categoryStyles,
+          editor: FillBellowToEditor,
+          override: FillBellowToEditor,
+          process: stringOverrideProcessor,
           hideFromDefaults: true,
-          settings: {
-            filter: (field: Field) => field.type === FieldType.number,
-          },
+          shouldApply: (f) => true,
         })
         .addCustomEditor<void, LineStyle>({
           id: 'lineStyle',

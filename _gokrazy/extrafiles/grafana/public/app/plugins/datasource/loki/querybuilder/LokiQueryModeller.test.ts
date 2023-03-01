@@ -22,24 +22,6 @@ describe('LokiQueryModeller', () => {
     ).toBe('{app="grafana"} | json');
   });
 
-  it('Can query with pipeline operation json and expression param', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.Json, params: ['foo="bar"'] }],
-      })
-    ).toBe('{app="grafana"} | json foo="bar"');
-  });
-
-  it('Can query with pipeline operation json and multiple expression params', () => {
-    expect(
-      modeller.renderQuery({
-        labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.Json, params: ['foo="bar", bar="baz"'] }],
-      })
-    ).toBe('{app="grafana"} | json foo="bar", bar="baz"');
-  });
-
   it('Can query with pipeline operation logfmt', () => {
     expect(
       modeller.renderQuery({
@@ -91,7 +73,7 @@ describe('LokiQueryModeller', () => {
         labels: [{ label: 'app', op: '=', value: 'grafana' }],
         operations: [{ id: LokiOperationId.LineContains, params: [''] }],
       })
-    ).toBe('{app="grafana"} |= ``');
+    ).toBe('{app="grafana"}');
   });
 
   it('Can query with line filter contains not operation', () => {
@@ -127,7 +109,7 @@ describe('LokiQueryModeller', () => {
         labels: [{ label: 'app', op: '=', value: 'grafana' }],
         operations: [{ id: LokiOperationId.LabelFilter, params: ['__error__', '=', 'value'] }],
       })
-    ).toBe('{app="grafana"} | __error__ = `value`');
+    ).toBe('{app="grafana"} | __error__=`value`');
   });
 
   it('Can query with label filter expression using greater than operator', () => {
@@ -170,9 +152,9 @@ describe('LokiQueryModeller', () => {
     expect(
       modeller.renderQuery({
         labels: [{ label: 'app', op: '=', value: 'grafana' }],
-        operations: [{ id: LokiOperationId.LabelFormat, params: ['original', 'renameTo'] }],
+        operations: [{ id: LokiOperationId.LabelFormat, params: ['new', 'old'] }],
       })
-    ).toBe('{app="grafana"} | label_format renameTo=original');
+    ).toBe('{app="grafana"} | label_format old=`new`');
   });
 
   it('Can render simply binary operation with scalar', () => {

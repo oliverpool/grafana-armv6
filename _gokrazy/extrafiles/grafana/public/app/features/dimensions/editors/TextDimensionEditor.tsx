@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import {
   FieldNamePickerConfigSettings,
@@ -6,10 +6,9 @@ import {
   StandardEditorsRegistryItem,
   StringFieldConfigSettings,
 } from '@grafana/data';
-import { Button, InlineField, InlineFieldRow, RadioButtonGroup } from '@grafana/ui';
-import { FieldNamePicker } from '@grafana/ui/src/components/MatchersUI/FieldNamePicker';
-import { StringValueEditor } from 'app/core/components/OptionsUI/string';
+import { Button, InlineField, InlineFieldRow, RadioButtonGroup, StringValueEditor } from '@grafana/ui';
 
+import { FieldNamePicker } from '../../../../../packages/grafana-ui/src/components/MatchersUI/FieldNamePicker';
 import { TextDimensionConfig, TextDimensionMode, TextDimensionOptions } from '../types';
 
 const textOptions = [
@@ -26,13 +25,12 @@ const dummyStringSettings: StandardEditorsRegistryItem<string, StringFieldConfig
   settings: {},
 } as any;
 
-type Props = StandardEditorProps<TextDimensionConfig, TextDimensionOptions, any>;
-
-export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
+export const TextDimensionEditor: FC<StandardEditorProps<TextDimensionConfig, TextDimensionOptions, any>> = (props) => {
+  const { value, context, onChange } = props;
   const labelWidth = 9;
 
   const onModeChange = useCallback(
-    (mode: TextDimensionMode) => {
+    (mode) => {
       onChange({
         ...value,
         mode,
@@ -42,7 +40,7 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
   );
 
   const onFieldChange = useCallback(
-    (field?: string) => {
+    (field) => {
       onChange({
         ...value,
         field,
@@ -52,7 +50,7 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
   );
 
   const onFixedChange = useCallback(
-    (fixed = '') => {
+    (fixed) => {
       onChange({
         ...value,
         fixed,
@@ -61,11 +59,14 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
     [onChange, value]
   );
 
-  const onClearFixed = () => {
-    onFixedChange('');
+  const onClearFixedText = () => {
+    // Need to first change to field in order to clear fixed value in editor
+    onChange({ mode: TextDimensionMode.Field, fixed: '', field: '' });
+    onChange({ mode: TextDimensionMode.Fixed, fixed: '', field: '' });
   };
 
   const mode = value?.mode ?? TextDimensionMode.Fixed;
+
   return (
     <>
       <InlineFieldRow>
@@ -86,17 +87,19 @@ export const TextDimensionEditor = ({ value, context, onChange }: Props) => {
         </InlineFieldRow>
       )}
       {mode === TextDimensionMode.Fixed && (
-        <InlineFieldRow key={value?.fixed}>
+        <InlineFieldRow>
           <InlineField label={'Value'} labelWidth={labelWidth} grow={true}>
-            <StringValueEditor
-              context={context}
-              value={value?.fixed}
-              onChange={onFixedChange}
-              item={dummyStringSettings}
-              suffix={
-                value?.fixed && <Button icon="times" variant="secondary" fill="text" size="sm" onClick={onClearFixed} />
-              }
-            />
+            <>
+              <StringValueEditor
+                context={context}
+                value={value?.fixed}
+                onChange={onFixedChange}
+                item={dummyStringSettings}
+              />
+              {value?.fixed && (
+                <Button icon="times" variant="secondary" fill="text" size="sm" onClick={onClearFixedText} />
+              )}
+            </>
           </InlineField>
         </InlineFieldRow>
       )}

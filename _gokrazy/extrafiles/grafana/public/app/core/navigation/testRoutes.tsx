@@ -7,16 +7,19 @@ import { RouteDescriptor } from './types';
 export const testRoutes: RouteDescriptor[] = [
   {
     path: '/test1',
-    component: () => (
-      <>
-        <h1>Test1</h1>
-        <Link to={'/test2'}>Test2 link</Link>
-        <NavLink to={'/test2'}>Test2 navlink</NavLink>
-      </>
-    ),
+    // eslint-disable-next-line react/display-name
+    component: () =>
+      (
+        <>
+          <h1>Test1</h1>
+          <Link to={'/test2'}>Test2 link</Link>
+          <NavLink to={'/test2'}>Test2 navlink</NavLink>
+        </>
+      ) as any,
   },
   {
     path: '/test2',
+    // eslint-disable-next-line react/display-name
     component: () => (
       <>
         <h1>Test2 </h1>
@@ -27,6 +30,7 @@ export const testRoutes: RouteDescriptor[] = [
   },
   {
     path: '/router-debug',
-    component: RouterDebugger,
+    // eslint-disable-next-line react/display-name
+    component: () => RouterDebugger,
   },
 ];

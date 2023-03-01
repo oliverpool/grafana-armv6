@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { selectOptionInTest } from 'test/helpers/selectOptionInTest';
+
+import { selectOptionInTest } from '@grafana/ui';
 
 import { InfluxQuery } from '../types';
 
@@ -76,7 +77,7 @@ describe('RawInfluxQLEditor', () => {
     // value before
     expect(queryTextarea).toHaveValue('test query 1');
 
-    await userEvent.type(queryTextarea, 'new changes');
+    userEvent.type(queryTextarea, 'new changes');
 
     // the field should have a new value, but no onChange yet.
     expect(queryTextarea).toHaveValue('test query 1new changes');
@@ -99,7 +100,7 @@ describe('RawInfluxQLEditor', () => {
     // value before
     expect(aliasInput).toHaveValue('alias42');
 
-    await userEvent.type(aliasInput, 'new changes');
+    userEvent.type(aliasInput, 'new changes');
 
     // the field should have a new value, but no onChange yet.
     expect(aliasInput).toHaveValue('alias42new changes');

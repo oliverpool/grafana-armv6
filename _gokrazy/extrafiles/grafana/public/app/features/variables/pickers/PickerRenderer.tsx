@@ -8,7 +8,6 @@ import { VariableHide, VariableModel } from '../types';
 
 interface Props {
   variable: VariableModel;
-  readOnly?: boolean;
 }
 
 export const PickerRenderer: FunctionComponent<Props> = (props) => {
@@ -22,7 +21,7 @@ export const PickerRenderer: FunctionComponent<Props> = (props) => {
     <div className="gf-form">
       <PickerLabel variable={props.variable} />
       {props.variable.hide !== VariableHide.hideVariable && PickerToRender && (
-        <PickerToRender variable={props.variable} readOnly={props.readOnly ?? false} />
+        <PickerToRender variable={props.variable} />
       )}
     </div>
   );

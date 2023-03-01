@@ -5,9 +5,9 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
 import { Authorize } from '../../components/Authorize';
-import { FormAmRoute } from '../../types/amroutes';
+import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
 import { getNotificationsPermissions } from '../../utils/access-control';
-import { AmRouteReceiver } from '../receivers/grafanaAppReceivers/types';
+import { isVanillaPrometheusAlertManagerDataSource } from '../../utils/datasource';
 
 import { AmRootRouteForm } from './AmRootRouteForm';
 import { AmRootRouteRead } from './AmRootRouteRead';
@@ -20,7 +20,6 @@ export interface AmRootRouteProps {
   receivers: AmRouteReceiver[];
   routes: FormAmRoute;
   alertManagerSourceName: string;
-  readOnly?: boolean;
 }
 
 export const AmRootRoute: FC<AmRootRouteProps> = ({
@@ -31,11 +30,11 @@ export const AmRootRoute: FC<AmRootRouteProps> = ({
   receivers,
   routes,
   alertManagerSourceName,
-  readOnly = false,
 }) => {
   const styles = useStyles2(getStyles);
 
   const permissions = getNotificationsPermissions(alertManagerSourceName);
+  const isReadOnly = isVanillaPrometheusAlertManagerDataSource(alertManagerSourceName);
 
   return (
     <div className={styles.container} data-testid="am-root-route-container">
@@ -43,7 +42,7 @@ export const AmRootRoute: FC<AmRootRouteProps> = ({
         <h5 className={styles.title}>
           Root policy - <i>default for all alerts</i>
         </h5>
-        {!isEditMode && !readOnly && (
+        {!isEditMode && !isReadOnly && (
           <Authorize actions={[permissions.update]}>
             <Button icon="pen" onClick={onEnterEditMode} size="sm" type="button" variant="secondary">
               Edit

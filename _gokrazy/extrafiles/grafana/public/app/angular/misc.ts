@@ -2,8 +2,7 @@ import angular from 'angular';
 
 import coreModule from './core_module';
 
-coreModule.directive('tip', ['$compile', tip]);
-
+/** @ngInject */
 function tip($compile: any) {
   return {
     restrict: 'E',
@@ -22,8 +21,7 @@ function tip($compile: any) {
   };
 }
 
-coreModule.directive('compile', ['$compile', compile]);
-
+/** @ngInject */
 function compile($compile: any) {
   return {
     restrict: 'A',
@@ -41,8 +39,6 @@ function compile($compile: any) {
   };
 }
 
-coreModule.directive('watchChange', watchChange);
-
 function watchChange() {
   return {
     scope: { onchange: '&watchChange' },
@@ -56,8 +52,7 @@ function watchChange() {
   };
 }
 
-coreModule.directive('editorOptBool', ['$compile', editorOptBool]);
-
+/** @ngInject */
 function editorOptBool($compile: any) {
   return {
     restrict: 'E',
@@ -94,8 +89,7 @@ function editorOptBool($compile: any) {
   };
 }
 
-coreModule.directive('editorCheckbox', ['$compile, $interpolate', editorCheckbox]);
-
+/** @ngInject */
 function editorCheckbox($compile: any, $interpolate: any) {
   return {
     restrict: 'E',
@@ -130,8 +124,7 @@ function editorCheckbox($compile: any, $interpolate: any) {
   };
 }
 
-coreModule.directive('gfDropdown', ['$parse', '$compile', '$timeout', gfDropdown]);
-
+/** @ngInject */
 function gfDropdown($parse: any, $compile: any, $timeout: any) {
   function buildTemplate(items: any, placement?: any) {
     const upclass = placement === 'top' ? 'dropup' : '';
@@ -187,3 +180,10 @@ function gfDropdown($parse: any, $compile: any, $timeout: any) {
     },
   };
 }
+
+coreModule.directive('tip', tip);
+coreModule.directive('compile', compile);
+coreModule.directive('watchChange', watchChange);
+coreModule.directive('editorOptBool', editorOptBool);
+coreModule.directive('editorCheckbox', editorCheckbox);
+coreModule.directive('gfDropdown', gfDropdown);

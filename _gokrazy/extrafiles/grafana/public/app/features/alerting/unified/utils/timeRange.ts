@@ -32,7 +32,6 @@ const getReferencedIds = (model: ExpressionQuery, queries: AlertQuery[]): string
       return getReferencedIdsForMath(model, queries);
     case ExpressionQueryType.resample:
     case ExpressionQueryType.reduce:
-    case ExpressionQueryType.threshold:
       return getReferencedIdsForReduce(model);
   }
 };

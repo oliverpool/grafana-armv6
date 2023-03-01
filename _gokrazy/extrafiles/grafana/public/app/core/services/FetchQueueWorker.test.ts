@@ -2,6 +2,8 @@ import { Subject } from 'rxjs';
 
 import { GrafanaBootConfig } from '@grafana/runtime';
 
+import { expect } from '../../../test/lib/common';
+
 import { FetchQueue, FetchQueueUpdate, FetchStatus } from './FetchQueue';
 import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';

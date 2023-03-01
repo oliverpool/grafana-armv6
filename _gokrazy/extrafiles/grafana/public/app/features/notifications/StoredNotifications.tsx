@@ -1,9 +1,9 @@
 import { css, cx } from '@emotion/css';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useEffectOnce } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Alert, Button, Checkbox, Icon, useStyles2 } from '@grafana/ui';
+import { Button, Icon, useStyles2 } from '@grafana/ui';
 import { StoredNotificationItem } from 'app/core/components/AppNotifications/StoredNotificationItem';
 import {
   clearAllNotifications,
@@ -17,10 +17,6 @@ import { useDispatch, useSelector } from 'app/types';
 export function StoredNotifications() {
   const dispatch = useDispatch();
   const notifications = useSelector((state) => selectWarningsAndErrors(state.appNotifications));
-  const [selectedNotificationIds, setSelectedNotificationIds] = useState<string[]>([]);
-  const allNotificationsSelected = notifications.every((notification) =>
-    selectedNotificationIds.includes(notification.id)
-  );
   const lastReadTimestamp = useRef(useSelector((state) => selectLastReadTimestamp(state.appNotifications)));
   const styles = useStyles2(getStyles);
 
@@ -28,29 +24,12 @@ export function StoredNotifications() {
     dispatch(readAllNotifications(Date.now()));
   });
 
-  const clearSelectedNotifications = () => {
-    if (allNotificationsSelected) {
-      dispatch(clearAllNotifications());
-    } else {
-      selectedNotificationIds.forEach((id) => {
-        dispatch(clearNotification(id));
-      });
-    }
-    setSelectedNotificationIds([]);
+  const onClearNotification = (id: string) => {
+    dispatch(clearNotification(id));
   };
 
-  const handleAllCheckboxToggle = (isChecked: boolean) => {
-    setSelectedNotificationIds(isChecked ? notifications.map((n) => n.id) : []);
-  };
-
-  const handleCheckboxToggle = (id: string) => {
-    setSelectedNotificationIds((prevState) => {
-      if (!prevState.includes(id)) {
-        return [...prevState, id];
-      } else {
-        return prevState.filter((notificationId) => notificationId !== id);
-      }
-    });
+  const clearAllNotifs = () => {
+    dispatch(clearAllNotifications());
   };
 
   if (notifications.length === 0) {
@@ -64,28 +43,19 @@ export function StoredNotifications() {
 
   return (
     <div className={styles.wrapper}>
-      <Alert
-        severity="info"
-        title="This page displays past errors and warnings. Once dismissed, they cannot be retrieved."
-      />
-      <div className={styles.topRow}>
-        <Checkbox
-          value={allNotificationsSelected}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleAllCheckboxToggle(event.target.checked)}
-        />
-        <Button disabled={selectedNotificationIds.length === 0} onClick={clearSelectedNotifications}>
-          Dismiss notifications
-        </Button>
-      </div>
+      <Button variant="destructive" onClick={clearAllNotifs} className={styles.clearAll}>
+        Clear all notifications
+      </Button>
       <ul className={styles.list}>
         {notifications.map((notif) => (
-          <li key={notif.id} className={styles.listItem}>
+          <li
+            key={notif.id}
+            className={cx(styles.listItem, { [styles.newItem]: notif.timestamp > lastReadTimestamp.current })}
+          >
             <StoredNotificationItem
-              className={cx({ [styles.newItem]: notif.timestamp > lastReadTimestamp.current })}
-              isSelected={selectedNotificationIds.includes(notif.id)}
-              onClick={() => handleCheckboxToggle(notif.id)}
               severity={notif.severity}
               title={notif.title}
+              onRemove={() => onClearNotification(notif.id)}
               timestamp={notif.timestamp}
               traceId={notif.traceId}
             >
@@ -100,20 +70,28 @@ export function StoredNotifications() {
 
 function getStyles(theme: GrafanaTheme2) {
   return {
-    topRow: css({
-      alignItems: 'center',
+    smallText: css({
+      fontSize: theme.typography.pxToRem(10),
+      color: theme.colors.text.secondary,
+    }),
+    side: css({
       display: 'flex',
-      gap: theme.spacing(2),
+      flexDirection: 'column',
+      padding: '3px 6px',
+      paddingTop: theme.spacing(1),
+      alignItems: 'flex-end',
+      justifyContent: 'space-between',
+      flexShrink: 0,
     }),
     list: css({
       display: 'flex',
       flexDirection: 'column',
+      gap: theme.spacing(1),
     }),
     listItem: css({
-      alignItems: 'center',
-      display: 'flex',
-      gap: theme.spacing(2),
       listStyle: 'none',
+      gap: theme.spacing(1),
+      alignItems: 'center',
       position: 'relative',
     }),
     newItem: css({
@@ -138,6 +116,9 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(2),
+    }),
+    clearAll: css({
+      alignSelf: 'flex-end',
     }),
   };
 }

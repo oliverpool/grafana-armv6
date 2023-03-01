@@ -1,6 +1,6 @@
 import { Value } from 'slate';
 
-import { LanguageProvider, SelectableValue } from '@grafana/data';
+import { HistoryItem, LanguageProvider, SelectableValue } from '@grafana/data';
 import { CompletionItemGroup, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
 
 import { TempoDatasource } from './datasource';
@@ -21,13 +21,8 @@ export default class TempoLanguageProvider extends LanguageProvider {
   };
 
   start = async () => {
-    if (!this.startTask) {
-      this.startTask = this.fetchTags().then(() => {
-        return [];
-      });
-    }
-
-    return this.startTask;
+    await this.fetchTags();
+    return [];
   };
 
   async fetchTags() {
@@ -35,11 +30,10 @@ export default class TempoLanguageProvider extends LanguageProvider {
     this.tags = response.tagNames;
   }
 
-  getTags = () => {
-    return this.tags;
-  };
-
-  provideCompletionItems = async ({ text, value }: TypeaheadInput): Promise<TypeaheadOutput> => {
+  provideCompletionItems = async (
+    { prefix, text, value, labelKey, wrapperClasses }: TypeaheadInput,
+    context: { history: Array<HistoryItem<any>> } = { history: [] }
+  ): Promise<TypeaheadOutput> => {
     const emptyResult: TypeaheadOutput = { suggestions: [] };
 
     if (!value) {
@@ -74,41 +68,29 @@ export default class TempoLanguageProvider extends LanguageProvider {
     let tagName = tags[tags.length - 1] ?? '';
     tagName = tagName.split('=')[0];
 
-    const response = await this.request(`/api/v2/search/tag/${tagName}/values`, []);
-
+    const response = await this.request(`/api/search/tag/${tagName}/values`, []);
     const suggestions: CompletionItemGroup[] = [];
 
     if (response && response.tagValues) {
       suggestions.push({
         label: `Tag Values`,
-        items: response.tagValues.map((tagValue: string) => ({ label: tagValue, insertText: `"${tagValue}"` })),
+        items: response.tagValues.map((tagValue: string) => ({ label: tagValue })),
       });
     }
     return { suggestions };
   }
 
-  async getOptionsV1(tag: string): Promise<Array<SelectableValue<string>>> {
+  async getOptions(tag: string): Promise<Array<SelectableValue<string>>> {
     const response = await this.request(`/api/search/tag/${tag}/values`);
     let options: Array<SelectableValue<string>> = [];
+
     if (response && response.tagValues) {
       options = response.tagValues.map((v: string) => ({
         value: v,
         label: v,
       }));
     }
-    return options;
-  }
 
-  async getOptionsV2(tag: string): Promise<Array<SelectableValue<string>>> {
-    const response = await this.request(`/api/v2/search/tag/${tag}/values`);
-    let options: Array<SelectableValue<string>> = [];
-    if (response && response.tagValues) {
-      options = response.tagValues.map((v: { type: string; value: string }) => ({
-        type: v.type,
-        value: v.value,
-        label: v.value,
-      }));
-    }
     return options;
   }
 }

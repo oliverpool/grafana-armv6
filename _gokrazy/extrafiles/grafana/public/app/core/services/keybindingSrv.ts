@@ -3,10 +3,10 @@ import Mousetrap from 'mousetrap';
 import 'mousetrap-global-bind';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 import { LegacyGraphHoverClearEvent, locationUtil } from '@grafana/data';
-import { config, LocationService } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import appEvents from 'app/core/app_events';
 import { getExploreUrl } from 'app/core/utils/explore';
-import { SaveDashboardDrawer } from 'app/features/dashboard/components/SaveDashboard/SaveDashboardDrawer';
+import { SaveDashboardProxy } from 'app/features/dashboard/components/SaveDashboard/SaveDashboardProxy';
 import { ShareModal } from 'app/features/dashboard/components/ShareModal';
 import { DashboardModel } from 'app/features/dashboard/state';
 
@@ -20,46 +20,37 @@ import {
   ZoomOutEvent,
   AbsoluteTimeEvent,
 } from '../../types/events';
-import { AppChromeService } from '../components/AppChrome/AppChromeService';
 import { HelpModal } from '../components/help/HelpModal';
 import { contextSrv } from '../core';
+import { exitKioskMode, toggleKioskMode } from '../navigation/kiosk';
 
-import { toggleTheme } from './theme';
+import { toggleTheme } from './toggleTheme';
 import { withFocusedPanel } from './withFocusedPanelId';
 
 export class KeybindingSrv {
-  constructor(private locationService: LocationService, private chromeService: AppChromeService) {}
-
-  clearAndInitGlobalBindings() {
+  reset() {
     Mousetrap.reset();
+  }
 
-    if (this.locationService.getLocation().pathname !== '/login') {
+  initGlobals() {
+    if (locationService.getLocation().pathname !== '/login') {
       this.bind(['?', 'h'], this.showHelpModal);
       this.bind('g h', this.goToHome);
       this.bind('g a', this.openAlerting);
       this.bind('g p', this.goToProfile);
-      this.bind('g e', this.goToExplore);
       this.bind('s o', this.openSearch);
       this.bind('t a', this.makeAbsoluteTime);
       this.bind('f', this.openSearch);
       this.bind('esc', this.exit);
-      this.bindGlobalEsc();
+      this.bindGlobal('esc', this.globalEsc);
     }
 
-    this.bind('c t', () => toggleTheme(false));
-    this.bind('c r', () => toggleTheme(true));
-
-    if (process.env.NODE_ENV === 'development') {
-      this.bind('t n', () => this.toggleNav());
-    }
+    this.bind('t t', () => toggleTheme(false));
+    this.bind('t r', () => toggleTheme(true));
   }
 
-  bindGlobalEsc() {
-    this.bindGlobal('esc', this.globalEsc);
-  }
-
-  globalEsc() {
-    const anyDoc = document;
+  private globalEsc() {
+    const anyDoc = document as any;
     const activeElement = anyDoc.activeElement;
 
     // typehead needs to handle it
@@ -69,13 +60,13 @@ export class KeybindingSrv {
     }
 
     // second check if we are in an input we can blur
-    if (activeElement && activeElement instanceof HTMLElement) {
+    if (activeElement && activeElement.blur) {
       if (
         activeElement.nodeName === 'INPUT' ||
         activeElement.nodeName === 'TEXTAREA' ||
         activeElement.hasAttribute('data-slate-editor')
       ) {
-        activeElement.blur();
+        anyDoc.activeElement.blur();
         return;
       }
     }
@@ -84,36 +75,24 @@ export class KeybindingSrv {
     this.exit();
   }
 
-  toggleNav() {
-    window.location.href =
-      config.appSubUrl +
-      locationUtil.getUrlForPartial(this.locationService.getLocation(), {
-        '__feature.topnav': (!config.featureToggles.topnav).toString(),
-      });
-  }
-
   private openSearch() {
-    this.locationService.partial({ search: 'open' });
+    locationService.partial({ search: 'open' });
   }
 
   private closeSearch() {
-    this.locationService.partial({ search: null });
+    locationService.partial({ search: null });
   }
 
   private openAlerting() {
-    this.locationService.push('/alerting');
+    locationService.push('/alerting');
   }
 
   private goToHome() {
-    this.locationService.push('/');
+    locationService.push('/');
   }
 
   private goToProfile() {
-    this.locationService.push('/profile');
-  }
-
-  private goToExplore() {
-    this.locationService.push('/explore');
+    locationService.push('/profile');
   }
 
   private makeAbsoluteTime() {
@@ -125,31 +104,30 @@ export class KeybindingSrv {
   }
 
   private exit() {
-    const search = this.locationService.getSearchObject();
+    const search = locationService.getSearchObject();
 
     if (search.editview) {
-      this.locationService.partial({ editview: null, editIndex: null });
+      locationService.partial({ editview: null });
       return;
     }
 
     if (search.inspect) {
-      this.locationService.partial({ inspect: null, inspectTab: null });
+      locationService.partial({ inspect: null, inspectTab: null });
       return;
     }
 
     if (search.editPanel) {
-      this.locationService.partial({ editPanel: null, tab: null });
+      locationService.partial({ editPanel: null, tab: null });
       return;
     }
 
     if (search.viewPanel) {
-      this.locationService.partial({ viewPanel: null, tab: null });
+      locationService.partial({ viewPanel: null, tab: null });
       return;
     }
 
-    const { kioskMode } = this.chromeService.state.getValue();
-    if (kioskMode) {
-      this.chromeService.exitKioskMode();
+    if (search.kiosk) {
+      exitKioskMode();
     }
 
     if (search.search) {
@@ -158,7 +136,7 @@ export class KeybindingSrv {
   }
 
   private showDashEditView() {
-    this.locationService.partial({
+    locationService.partial({
       editview: 'settings',
     });
   }
@@ -166,7 +144,7 @@ export class KeybindingSrv {
   bind(keyArg: string | string[], fn: () => void) {
     Mousetrap.bind(
       keyArg,
-      (evt) => {
+      (evt: any) => {
         evt.preventDefault();
         evt.stopPropagation();
         evt.returnValue = false;
@@ -179,7 +157,7 @@ export class KeybindingSrv {
   bindGlobal(keyArg: string, fn: () => void) {
     Mousetrap.bindGlobal(
       keyArg,
-      (evt) => {
+      (evt: any) => {
         evt.preventDefault();
         evt.stopPropagation();
         evt.returnValue = false;
@@ -226,7 +204,7 @@ export class KeybindingSrv {
       if (dashboard.meta.canSave) {
         appEvents.publish(
           new ShowModalReactEvent({
-            component: SaveDashboardDrawer,
+            component: SaveDashboardProxy,
             props: {
               dashboard,
             },
@@ -240,29 +218,19 @@ export class KeybindingSrv {
     // edit panel
     this.bindWithPanelId('e', (panelId) => {
       if (dashboard.canEditPanelById(panelId)) {
-        const isEditing = this.locationService.getSearchObject().editPanel !== undefined;
-        this.locationService.partial({ editPanel: isEditing ? null : panelId });
+        const isEditing = locationService.getSearchObject().editPanel !== undefined;
+        locationService.partial({ editPanel: isEditing ? null : panelId });
       }
     });
 
     // view panel
     this.bindWithPanelId('v', (panelId) => {
-      const isViewing = this.locationService.getSearchObject().viewPanel !== undefined;
-      this.locationService.partial({ viewPanel: isViewing ? null : panelId });
-    });
-
-    //toggle legend
-    this.bindWithPanelId('p l', (panelId) => {
-      const panel = dashboard.getPanelById(panelId)!;
-      const newOptions = { ...panel.options };
-
-      newOptions.legend.showLegend ? (newOptions.legend.showLegend = false) : (newOptions.legend.showLegend = true);
-
-      panel.updateOptions(newOptions);
+      const isViewing = locationService.getSearchObject().viewPanel !== undefined;
+      locationService.partial({ viewPanel: isViewing ? null : panelId });
     });
 
     this.bindWithPanelId('i', (panelId) => {
-      this.locationService.partial({ inspect: panelId });
+      locationService.partial({ inspect: panelId });
     });
 
     // jump to explore if permissions allow
@@ -278,7 +246,7 @@ export class KeybindingSrv {
         if (url) {
           const urlWithoutBase = locationUtil.stripBaseFromUrl(url);
           if (urlWithoutBase) {
-            this.locationService.push(urlWithoutBase);
+            locationService.push(urlWithoutBase);
           }
         }
       });
@@ -315,6 +283,14 @@ export class KeybindingSrv {
     });
 
     // toggle panel legend
+    this.bindWithPanelId('p l', (panelId) => {
+      const panelInfo = dashboard.getPanelInfoById(panelId)!;
+
+      if (panelInfo.panel.legend) {
+        panelInfo.panel.legend.show = !panelInfo.panel.legend.show;
+        panelInfo.panel.render();
+      }
+    });
 
     // toggle all panel legends
     this.bind('d l', () => {
@@ -332,7 +308,7 @@ export class KeybindingSrv {
     });
 
     this.bind('d n', () => {
-      this.locationService.push('/dashboard/new');
+      locationService.push('/dashboard/new');
     });
 
     this.bind('d r', () => {
@@ -344,15 +320,17 @@ export class KeybindingSrv {
     });
 
     this.bind('d k', () => {
-      this.chromeService.onToggleKioskMode();
+      toggleKioskMode();
     });
 
     //Autofit panels
     this.bind('d a', () => {
       // this has to be a full page reload
-      const queryParams = this.locationService.getSearchObject();
+      const queryParams = locationService.getSearchObject();
       const newUrlParam = queryParams.autofitpanels ? '' : '&autofitpanels';
       window.location.href = window.location.href + newUrlParam;
     });
   }
 }
+
+export const keybindingSrv = new KeybindingSrv();

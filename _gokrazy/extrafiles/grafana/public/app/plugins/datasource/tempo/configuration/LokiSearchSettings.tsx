@@ -1,16 +1,16 @@
 import { css } from '@emotion/css';
 import React from 'react';
 
-import { DataSourcePluginOptionsEditorProps, GrafanaTheme2, updateDatasourcePluginJsonDataOption } from '@grafana/data';
+import { DataSourcePluginOptionsEditorProps, GrafanaTheme, updateDatasourcePluginJsonDataOption } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
-import { Button, InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, useStyles } from '@grafana/ui';
 
-import { TempoJsonData } from '../types';
+import { TempoJsonData } from '../datasource';
 
 interface Props extends DataSourcePluginOptionsEditorProps<TempoJsonData> {}
 
 export function LokiSearchSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
+  const styles = useStyles(getStyles);
 
   // Default to the trace to logs datasource if configured and loki search was enabled
   // but only if jsonData.lokiSearch hasn't been set
@@ -65,11 +65,11 @@ export function LokiSearchSettings({ options, onOptionsChange }: Props) {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme) => ({
   infoText: css`
     label: infoText;
-    padding-bottom: ${theme.spacing(2)};
-    color: ${theme.colors.text.secondary};
+    padding-bottom: ${theme.spacing.md};
+    color: ${theme.colors.textSemiWeak};
   `,
 
   row: css`

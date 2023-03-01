@@ -4,14 +4,14 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 
 import {
   DataTransformerID,
-  GrafanaTheme2,
+  GrafanaTheme,
   standardTransformers,
   TransformerRegistryItem,
   TransformerUIProps,
 } from '@grafana/data';
 import { createOrderFieldsComparer } from '@grafana/data/src/transformations/transformers/order';
 import { OrganizeFieldsTransformerOptions } from '@grafana/data/src/transformations/transformers/organize';
-import { Input, IconButton, Icon, FieldValidationMessage, useStyles2 } from '@grafana/ui';
+import { stylesFactory, useTheme, Input, IconButton, Icon, FieldValidationMessage } from '@grafana/ui';
 
 import { useAllFieldNamesFromDataFrames } from '../utils';
 
@@ -117,33 +117,34 @@ interface DraggableFieldProps {
   onRenameField: (from: string, to: string) => void;
 }
 
-const DraggableFieldName = ({
+const DraggableFieldName: React.FC<DraggableFieldProps> = ({
   fieldName,
   renamedFieldName,
   index,
   visible,
   onToggleVisibility,
   onRenameField,
-}: DraggableFieldProps) => {
-  const styles = useStyles2(getFieldNameStyles);
+}) => {
+  const theme = useTheme();
+  const styles = getFieldNameStyles(theme);
 
   return (
     <Draggable draggableId={fieldName} index={index}>
       {(provided) => (
-        <div className="gf-form-inline" ref={provided.innerRef} {...provided.draggableProps}>
+        <div
+          className="gf-form-inline"
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+        >
           <div className="gf-form gf-form--grow">
             <div className="gf-form-label gf-form-label--justify-left width-30">
-              <Icon
-                name="draggabledots"
-                title="Drag and drop to reorder"
-                size="lg"
-                className={styles.draggable}
-                {...provided.dragHandleProps}
-              />
+              <Icon name="draggabledots" title="Drag and drop to reorder" size="lg" className={styles.draggable} />
               <IconButton
                 className={styles.toggle}
                 size="md"
                 name={visible ? 'eye' : 'eye-slash'}
+                surface="header"
                 onClick={() => onToggleVisibility(fieldName, visible)}
               />
               <span className={styles.name} title={fieldName}>
@@ -165,25 +166,25 @@ const DraggableFieldName = ({
 
 DraggableFieldName.displayName = 'DraggableFieldName';
 
-const getFieldNameStyles = (theme: GrafanaTheme2) => ({
+const getFieldNameStyles = stylesFactory((theme: GrafanaTheme) => ({
   toggle: css`
     margin: 0 8px;
-    color: ${theme.colors.text.secondary};
+    color: ${theme.colors.textWeak};
   `,
   draggable: css`
     opacity: 0.4;
     &:hover {
-      color: ${theme.colors.text.maxContrast};
+      color: ${theme.colors.textStrong};
     }
   `,
   name: css`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: ${theme.typography.bodySmall.fontSize};
-    font-weight: ${theme.typography.fontWeightMedium};
+    font-size: ${theme.typography.size.sm};
+    font-weight: ${theme.typography.weight.semibold};
   `,
-});
+}));
 
 const reorderToIndex = (fieldNames: string[], startIndex: number, endIndex: number) => {
   const result = Array.from(fieldNames);

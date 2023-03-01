@@ -9,11 +9,9 @@ import { RevertDashboardModal } from './RevertDashboardModal';
 
 type VersionsTableProps = {
   versions: DecoratedRevisionModel[];
-  canCompare: boolean;
   onCheck: (ev: React.FormEvent<HTMLInputElement>, versionId: number) => void;
 };
-
-export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsTableProps) => (
+export const VersionHistoryTable: React.FC<VersionsTableProps> = ({ versions, onCheck }) => (
   <table className="filter-table gf-form-group">
     <thead>
       <tr>
@@ -36,7 +34,6 @@ export const VersionHistoryTable = ({ versions, canCompare, onCheck }: VersionsT
               `}
               checked={version.checked}
               onChange={(ev) => onCheck(ev, version.id)}
-              disabled={!version.checked && canCompare}
             />
           </td>
           <td>{version.version}</td>

@@ -57,12 +57,14 @@ export class CloudMonitoringVariableQueryEditor extends PureComponent<Props, Var
 
   constructor(props: Props) {
     super(props);
-    this.state = Object.assign(this.defaults, this.props.query);
+    this.state = Object.assign(
+      this.defaults,
+      { projectName: this.props.datasource.getDefaultProject() },
+      this.props.query
+    );
   }
 
   async componentDidMount() {
-    await this.props.datasource.ensureGCEDefaultProject();
-    const projectName = this.props.datasource.getDefaultProject();
     const projects = (await this.props.datasource.getProjects()) as MetricDescriptor[];
     const metricDescriptors = await this.props.datasource.getMetricTypes(
       this.props.query.projectName || this.props.datasource.getDefaultProject()
@@ -86,7 +88,7 @@ export class CloudMonitoringVariableQueryEditor extends PureComponent<Props, Var
       getTemplateSrv().replace(selectedService)
     );
 
-    const sloServices = await this.props.datasource.getSLOServices(projectName);
+    const sloServices = await this.props.datasource.getSLOServices(this.state.projectName);
 
     const state: any = {
       services,
@@ -95,10 +97,9 @@ export class CloudMonitoringVariableQueryEditor extends PureComponent<Props, Var
       selectedMetricType,
       metricDescriptors,
       projects,
-      ...(await this.getLabels(selectedMetricType, projectName)),
+      ...(await this.getLabels(selectedMetricType, this.state.projectName)),
       sloServices,
       loading: false,
-      projectName,
     };
     this.setState(state, () => this.onPropsChange());
   }

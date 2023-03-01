@@ -1,107 +1,35 @@
-import produce from 'immer';
-import { compact, isEmpty } from 'lodash';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { getDataSourceSrv } from '@grafana/runtime';
-import { Matcher } from 'app/plugins/datasource/alertmanager/types';
-import { CombinedRuleGroup, CombinedRuleNamespace } from 'app/types/unified-alerting';
-import { isPromAlertingRuleState, PromRuleType, RulerGrafanaRuleDTO } from 'app/types/unified-alerting-dto';
+import { useQueryParams } from 'app/core/hooks/useQueryParams';
+import { CombinedRuleGroup, CombinedRuleNamespace, FilterState } from 'app/types/unified-alerting';
+import { PromRuleType, RulerGrafanaRuleDTO } from 'app/types/unified-alerting-dto';
 
-import { getSearchFilterFromQuery, RulesFilter, applySearchFilterToQuery } from '../search/rulesSearchParser';
-import { labelsMatchMatchers, matcherToMatcherField, parseMatcher, parseMatchers } from '../utils/alertmanager';
+import { labelsMatchMatchers, parseMatchers } from '../utils/alertmanager';
 import { isCloudRulesSource } from '../utils/datasource';
-import { getRuleHealth, isAlertingRule, isGrafanaRulerRule, isPromRuleType } from '../utils/rules';
+import { getFiltersFromUrlParams } from '../utils/misc';
+import { isAlertingRule, isGrafanaRulerRule } from '../utils/rules';
 
-import { useURLSearchParams } from './useURLSearchParams';
+export const useFilteredRules = (namespaces: CombinedRuleNamespace[]) => {
+  const [queryParams] = useQueryParams();
+  const filters = getFiltersFromUrlParams(queryParams);
 
-export function useRulesFilter() {
-  const [queryParams, updateQueryParams] = useURLSearchParams();
-  const searchQuery = queryParams.get('search') ?? '';
-
-  const filterState = getSearchFilterFromQuery(searchQuery);
-  const hasActiveFilters = Object.values(filterState).some((filter) => !isEmpty(filter));
-
-  const updateFilters = useCallback(
-    (newFilter: RulesFilter) => {
-      const newSearchQuery = applySearchFilterToQuery(searchQuery, newFilter);
-      updateQueryParams({ search: newSearchQuery });
-    },
-    [searchQuery, updateQueryParams]
-  );
-
-  const setSearchQuery = useCallback(
-    (newSearchQuery: string | undefined) => {
-      updateQueryParams({ search: newSearchQuery });
-    },
-    [updateQueryParams]
-  );
-
-  // Handle legacy filters
-  useEffect(() => {
-    const legacyFilters = {
-      dataSource: queryParams.get('dataSource') ?? undefined,
-      alertState: queryParams.get('alertState') ?? undefined,
-      ruleType: queryParams.get('ruleType') ?? undefined,
-      labels: parseMatchers(queryParams.get('queryString') ?? '').map(matcherToMatcherField),
-    };
-
-    const hasLegacyFilters = Object.values(legacyFilters).some((legacyFilter) => !isEmpty(legacyFilter));
-    if (hasLegacyFilters) {
-      updateQueryParams({ dataSource: undefined, alertState: undefined, ruleType: undefined, queryString: undefined });
-      // Existing query filters takes precedence over legacy ones
-      updateFilters(
-        produce(filterState, (draft) => {
-          draft.dataSourceName ??= legacyFilters.dataSource;
-          if (legacyFilters.alertState && isPromAlertingRuleState(legacyFilters.alertState)) {
-            draft.ruleState ??= legacyFilters.alertState;
-          }
-          if (legacyFilters.ruleType && isPromRuleType(legacyFilters.ruleType)) {
-            draft.ruleType ??= legacyFilters.ruleType;
-          }
-          if (draft.labels.length === 0 && legacyFilters.labels.length > 0) {
-            const legacyLabelsAsStrings = legacyFilters.labels.map(
-              ({ name, operator, value }) => `${name}${operator}${value}`
-            );
-            draft.labels.push(...legacyLabelsAsStrings);
-          }
-        })
-      );
-    }
-  }, [queryParams, updateFilters, filterState, updateQueryParams]);
-
-  return { filterState, hasActiveFilters, searchQuery, setSearchQuery, updateFilters };
-}
-
-export const useFilteredRules = (namespaces: CombinedRuleNamespace[], filterState: RulesFilter) => {
-  return useMemo(() => filterRules(namespaces, filterState), [namespaces, filterState]);
-};
-
-export const filterRules = (
-  namespaces: CombinedRuleNamespace[],
-  filterState: RulesFilter = { labels: [], freeFormWords: [] }
-): CombinedRuleNamespace[] => {
-  return (
-    namespaces
-      .filter((ns) =>
-        filterState.namespace ? ns.name.toLowerCase().includes(filterState.namespace.toLowerCase()) : true
-      )
+  return useMemo(() => {
+    const filteredNamespaces = namespaces
+      // Filter by data source
+      // TODO: filter by multiple data sources for grafana-managed alerts
       .filter(({ rulesSource }) =>
-        filterState.dataSourceName && isCloudRulesSource(rulesSource)
-          ? rulesSource.name === filterState.dataSourceName
-          : true
+        filters.dataSource && isCloudRulesSource(rulesSource) ? rulesSource.name === filters.dataSource : true
       )
       // If a namespace and group have rules that match the rules filters then keep them.
-      .reduce(reduceNamespaces(filterState), [] as CombinedRuleNamespace[])
-  );
+      .reduce(reduceNamespaces(filters), [] as CombinedRuleNamespace[]);
+    return filteredNamespaces;
+  }, [namespaces, filters]);
 };
 
-const reduceNamespaces = (filterStateFilters: RulesFilter) => {
+const reduceNamespaces = (filters: FilterState) => {
   return (namespaceAcc: CombinedRuleNamespace[], namespace: CombinedRuleNamespace) => {
-    const groups = namespace.groups
-      .filter((g) =>
-        filterStateFilters.groupName ? g.name.toLowerCase().includes(filterStateFilters.groupName.toLowerCase()) : true
-      )
-      .reduce(reduceGroups(filterStateFilters), [] as CombinedRuleGroup[]);
+    const groups = namespace.groups.reduce(reduceGroups(filters), [] as CombinedRuleGroup[]);
 
     if (groups.length) {
       namespaceAcc.push({
@@ -115,56 +43,35 @@ const reduceNamespaces = (filterStateFilters: RulesFilter) => {
 };
 
 // Reduces groups to only groups that have rules matching the filters
-const reduceGroups = (filterState: RulesFilter) => {
+const reduceGroups = (filters: FilterState) => {
   return (groupAcc: CombinedRuleGroup[], group: CombinedRuleGroup) => {
     const rules = group.rules.filter((rule) => {
-      if (filterState.ruleType && filterState.ruleType !== rule.promRule?.type) {
+      if (filters.ruleType && filters.ruleType !== rule.promRule?.type) {
         return false;
       }
-
-      const doesNotQueryDs = isGrafanaRulerRule(rule.rulerRule) && !isQueryingDataSource(rule.rulerRule, filterState);
-      if (filterState.dataSourceName && doesNotQueryDs) {
+      if (filters.dataSource && isGrafanaRulerRule(rule.rulerRule) && !isQueryingDataSource(rule.rulerRule, filters)) {
         return false;
       }
-
-      const ruleNameLc = rule.name?.toLocaleLowerCase();
-      // Free Form Query is used to filter by rule name
-      if (
-        filterState.freeFormWords.length > 0 &&
-        !filterState.freeFormWords.every((w) => ruleNameLc.includes(w.toLocaleLowerCase()))
-      ) {
-        return false;
-      }
-
-      if (filterState.ruleName && !rule.name?.toLocaleLowerCase().includes(filterState.ruleName.toLocaleLowerCase())) {
-        return false;
-      }
-
-      if (filterState.ruleHealth && rule.promRule) {
-        const ruleHealth = getRuleHealth(rule.promRule.health);
-        return filterState.ruleHealth === ruleHealth;
-      }
-
       // Query strings can match alert name, label keys, and label values
-      if (filterState.labels.length > 0) {
-        // const matchers = parseMatchers(filters.queryString);
-        const matchers = compact(filterState.labels.map(looseParseMatcher));
+      if (filters.queryString) {
+        const normalizedQueryString = filters.queryString.toLocaleLowerCase();
+        const doesNameContainsQueryString = rule.name?.toLocaleLowerCase().includes(normalizedQueryString);
+        const matchers = parseMatchers(filters.queryString);
 
-        const doRuleLabelsMatchQuery = matchers.length > 0 && labelsMatchMatchers(rule.labels, matchers);
+        const doRuleLabelsMatchQuery = labelsMatchMatchers(rule.labels, matchers);
         const doAlertsContainMatchingLabels =
-          matchers.length > 0 &&
           rule.promRule &&
           rule.promRule.type === PromRuleType.Alerting &&
           rule.promRule.alerts &&
           rule.promRule.alerts.some((alert) => labelsMatchMatchers(alert.labels, matchers));
 
-        if (!(doRuleLabelsMatchQuery || doAlertsContainMatchingLabels)) {
+        if (!(doesNameContainsQueryString || doRuleLabelsMatchQuery || doAlertsContainMatchingLabels)) {
           return false;
         }
       }
       if (
-        filterState.ruleState &&
-        !(rule.promRule && isAlertingRule(rule.promRule) && rule.promRule.state === filterState.ruleState)
+        filters.alertState &&
+        !(rule.promRule && isAlertingRule(rule.promRule) && rule.promRule.state === filters.alertState)
       ) {
         return false;
       }
@@ -181,17 +88,8 @@ const reduceGroups = (filterState: RulesFilter) => {
   };
 };
 
-function looseParseMatcher(matcherQuery: string): Matcher | undefined {
-  try {
-    return parseMatcher(matcherQuery);
-  } catch {
-    // Try to createa a matcher than matches all values for a given key
-    return { name: matcherQuery, value: '', isRegex: true, isEqual: true };
-  }
-}
-
-const isQueryingDataSource = (rulerRule: RulerGrafanaRuleDTO, filterState: RulesFilter): boolean => {
-  if (!filterState.dataSourceName) {
+const isQueryingDataSource = (rulerRule: RulerGrafanaRuleDTO, filter: FilterState): boolean => {
+  if (!filter.dataSource) {
     return true;
   }
 
@@ -200,6 +98,6 @@ const isQueryingDataSource = (rulerRule: RulerGrafanaRuleDTO, filterState: Rules
       return false;
     }
     const ds = getDataSourceSrv().getInstanceSettings(query.datasourceUid);
-    return ds?.name === filterState.dataSourceName;
+    return ds?.name === filter.dataSource;
   });
 };

@@ -32,12 +32,3 @@ export function checkBrowserCompatibility() {
 
   return true;
 }
-
-export function userAgentIsApple() {
-  const appleRe = /(iPhone|iPad|Mac)/;
-  return appleRe.test(navigator.platform);
-}
-
-export function getModKey() {
-  return userAgentIsApple() ? 'cmd' : 'ctrl';
-}

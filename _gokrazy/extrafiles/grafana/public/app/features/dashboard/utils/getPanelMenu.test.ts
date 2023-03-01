@@ -1,11 +1,10 @@
 import { PanelMenuItem } from '@grafana/data';
-import { LoadingState } from '@grafana/schema';
 import config from 'app/core/config';
 import * as actions from 'app/features/explore/state/main';
 import { setStore } from 'app/store/store';
 
-import { PanelModel } from '../state';
-import { createDashboardModelFixture } from '../state/__fixtures__/dashboardFixtures';
+import { describe } from '../../../../test/lib/common';
+import { DashboardModel, PanelModel } from '../state';
 
 import { getPanelMenu } from './getPanelMenu';
 
@@ -18,41 +17,41 @@ jest.mock('app/core/services/context_srv', () => ({
 describe('getPanelMenu', () => {
   it('should return the correct panel menu items', () => {
     const panel = new PanelModel({});
-    const dashboard = createDashboardModelFixture({});
+    const dashboard = new DashboardModel({});
 
     const menuItems = getPanelMenu(dashboard, panel);
     expect(menuItems).toMatchInlineSnapshot(`
-      [
-        {
+      Array [
+        Object {
           "iconClassName": "eye",
           "onClick": [Function],
           "shortcut": "v",
           "text": "View",
         },
-        {
+        Object {
           "iconClassName": "edit",
           "onClick": [Function],
           "shortcut": "e",
           "text": "Edit",
         },
-        {
+        Object {
           "iconClassName": "share-alt",
           "onClick": [Function],
           "shortcut": "p s",
           "text": "Share",
         },
-        {
+        Object {
           "iconClassName": "compass",
           "onClick": [Function],
           "shortcut": "x",
           "text": "Explore",
         },
-        {
+        Object {
           "iconClassName": "info-circle",
           "onClick": [Function],
           "shortcut": "i",
-          "subMenu": [
-            {
+          "subMenu": Array [
+            Object {
               "onClick": [Function],
               "text": "Panel JSON",
             },
@@ -60,20 +59,20 @@ describe('getPanelMenu', () => {
           "text": "Inspect",
           "type": "submenu",
         },
-        {
+        Object {
           "iconClassName": "cube",
           "onClick": [Function],
-          "subMenu": [
-            {
+          "subMenu": Array [
+            Object {
               "onClick": [Function],
               "shortcut": "p d",
               "text": "Duplicate",
             },
-            {
+            Object {
               "onClick": [Function],
               "text": "Copy",
             },
-            {
+            Object {
               "onClick": [Function],
               "text": "Create library panel",
             },
@@ -81,11 +80,11 @@ describe('getPanelMenu', () => {
           "text": "More...",
           "type": "submenu",
         },
-        {
+        Object {
           "text": "",
           "type": "divider",
         },
-        {
+        Object {
           "iconClassName": "trash-alt",
           "onClick": [Function],
           "shortcut": "p r",
@@ -95,147 +94,117 @@ describe('getPanelMenu', () => {
     `);
   });
 
-  it('should return the correct panel menu items when data is streaming', () => {
-    const panel = new PanelModel({});
-    const dashboard = createDashboardModelFixture({});
+  describe('when panel is in view mode', () => {
+    it('should return the correct panel menu items', () => {
+      const getExtendedMenu = () => [{ text: 'Toggle legend', shortcut: 'p l', click: jest.fn() }];
+      const ctrl: any = { getExtendedMenu };
+      const scope: any = { $$childHead: { ctrl } };
+      const angularComponent: any = { getScope: () => scope };
+      const panel = new PanelModel({ isViewing: true });
+      const dashboard = new DashboardModel({});
 
-    const menuItems = getPanelMenu(dashboard, panel, LoadingState.Streaming);
-    expect(menuItems).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          iconClassName: 'circle',
-          text: 'Stop query',
-        }),
-      ])
-    );
+      const menuItems = getPanelMenu(dashboard, panel, angularComponent);
+      expect(menuItems).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "iconClassName": "eye",
+            "onClick": [Function],
+            "shortcut": "v",
+            "text": "View",
+          },
+          Object {
+            "iconClassName": "edit",
+            "onClick": [Function],
+            "shortcut": "e",
+            "text": "Edit",
+          },
+          Object {
+            "iconClassName": "share-alt",
+            "onClick": [Function],
+            "shortcut": "p s",
+            "text": "Share",
+          },
+          Object {
+            "iconClassName": "compass",
+            "onClick": [Function],
+            "shortcut": "x",
+            "text": "Explore",
+          },
+          Object {
+            "iconClassName": "info-circle",
+            "onClick": [Function],
+            "shortcut": "i",
+            "subMenu": Array [
+              Object {
+                "onClick": [Function],
+                "text": "Panel JSON",
+              },
+            ],
+            "text": "Inspect",
+            "type": "submenu",
+          },
+          Object {
+            "iconClassName": "cube",
+            "onClick": [Function],
+            "subMenu": Array [
+              Object {
+                "href": undefined,
+                "onClick": [Function],
+                "shortcut": "p l",
+                "text": "Toggle legend",
+              },
+            ],
+            "text": "More...",
+            "type": "submenu",
+          },
+        ]
+      `);
+    });
   });
 
-  it('should return the correct panel menu items when data is loading', () => {
-    const panel = new PanelModel({});
-    const dashboard = createDashboardModelFixture({});
+  describe('onNavigateToExplore', () => {
+    const testSubUrl = '/testSubUrl';
+    const testUrl = '/testUrl';
+    const windowOpen = jest.fn();
+    let event: any;
+    let explore: PanelMenuItem;
+    let navigateSpy: any;
 
-    const menuItems = getPanelMenu(dashboard, panel, LoadingState.Loading);
-    expect(menuItems).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          iconClassName: 'circle',
-          text: 'Stop query',
-        }),
-      ])
-    );
-  });
-});
+    beforeAll(() => {
+      const panel = new PanelModel({});
+      const dashboard = new DashboardModel({});
+      const menuItems = getPanelMenu(dashboard, panel);
+      explore = menuItems.find((item) => item.text === 'Explore') as PanelMenuItem;
+      navigateSpy = jest.spyOn(actions, 'navigateToExplore');
+      window.open = windowOpen;
 
-describe('when panel is in view mode', () => {
-  it('should return the correct panel menu items', () => {
-    const getExtendedMenu = () => [{ text: 'Toggle legend', shortcut: 'p l', click: jest.fn() }];
-    const ctrl: any = { getExtendedMenu };
-    const scope: any = { $$childHead: { ctrl } };
-    const angularComponent: any = { getScope: () => scope };
-    const panel = new PanelModel({ isViewing: true });
-    const dashboard = createDashboardModelFixture({});
+      event = {
+        ctrlKey: true,
+        preventDefault: jest.fn(),
+      };
 
-    const menuItems = getPanelMenu(dashboard, panel, undefined, angularComponent);
-    expect(menuItems).toMatchInlineSnapshot(`
-      [
-        {
-          "iconClassName": "eye",
-          "onClick": [Function],
-          "shortcut": "v",
-          "text": "View",
-        },
-        {
-          "iconClassName": "edit",
-          "onClick": [Function],
-          "shortcut": "e",
-          "text": "Edit",
-        },
-        {
-          "iconClassName": "share-alt",
-          "onClick": [Function],
-          "shortcut": "p s",
-          "text": "Share",
-        },
-        {
-          "iconClassName": "compass",
-          "onClick": [Function],
-          "shortcut": "x",
-          "text": "Explore",
-        },
-        {
-          "iconClassName": "info-circle",
-          "onClick": [Function],
-          "shortcut": "i",
-          "subMenu": [
-            {
-              "onClick": [Function],
-              "text": "Panel JSON",
-            },
-          ],
-          "text": "Inspect",
-          "type": "submenu",
-        },
-        {
-          "iconClassName": "cube",
-          "onClick": [Function],
-          "subMenu": [
-            {
-              "href": undefined,
-              "onClick": [Function],
-              "shortcut": "p l",
-              "text": "Toggle legend",
-            },
-          ],
-          "text": "More...",
-          "type": "submenu",
-        },
-      ]
-    `);
-  });
-});
+      setStore({ dispatch: jest.fn() } as any);
+    });
 
-describe('onNavigateToExplore', () => {
-  const testSubUrl = '/testSubUrl';
-  const testUrl = '/testUrl';
-  const windowOpen = jest.fn();
-  let event: any;
-  let explore: PanelMenuItem;
-  let navigateSpy: any;
+    it('should navigate to url without subUrl', () => {
+      explore.onClick!(event);
 
-  beforeAll(() => {
-    const panel = new PanelModel({});
-    const dashboard = createDashboardModelFixture({});
-    const menuItems = getPanelMenu(dashboard, panel);
-    explore = menuItems.find((item) => item.text === 'Explore') as PanelMenuItem;
-    navigateSpy = jest.spyOn(actions, 'navigateToExplore');
-    window.open = windowOpen;
+      const openInNewWindow = navigateSpy.mock.calls[0][1].openInNewWindow;
 
-    event = {
-      ctrlKey: true,
-      preventDefault: jest.fn(),
-    };
+      openInNewWindow(testUrl);
 
-    setStore({ dispatch: jest.fn() } as any);
-  });
+      expect(windowOpen).toHaveBeenLastCalledWith(testUrl);
+    });
 
-  it('should navigate to url without subUrl', () => {
-    explore.onClick!(event);
+    it('should navigate to url with subUrl', () => {
+      config.appSubUrl = testSubUrl;
+      explore.onClick!(event);
 
-    const openInNewWindow = navigateSpy.mock.calls[0][1].openInNewWindow;
+      const openInNewWindow = navigateSpy.mock.calls[0][1].openInNewWindow;
 
-    openInNewWindow(testUrl);
+      openInNewWindow(testUrl);
 
-    expect(windowOpen).toHaveBeenLastCalledWith(testUrl);
-  });
-
-  it('should navigate to url with subUrl', () => {
-    config.appSubUrl = testSubUrl;
-    explore.onClick!(event);
-
-    const openInNewWindow = navigateSpy.mock.calls[0][1].openInNewWindow;
-
-    openInNewWindow(testUrl);
-
-    expect(windowOpen).toHaveBeenLastCalledWith(`${testSubUrl}${testUrl}`);
+      expect(windowOpen).toHaveBeenLastCalledWith(`${testSubUrl}${testUrl}`);
+    });
   });
 });

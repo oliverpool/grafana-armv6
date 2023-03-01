@@ -54,8 +54,7 @@ export class TablePanelCtrl extends MetricsPanelCtrl {
     sort: { col: 0, desc: true },
   };
 
-  static $inject = ['$scope', '$injector', 'annotationsSrv', '$sanitize'];
-
+  /** @ngInject */
   constructor($scope: any, $injector: any, private annotationsSrv: any, private $sanitize: any) {
     super($scope, $injector);
 
@@ -141,7 +140,7 @@ export class TablePanelCtrl extends MetricsPanelCtrl {
       this.dashboard.getTimezone(),
       this.$sanitize,
       this.templateSrv,
-      config.theme2
+      config.theme
     );
 
     return super.render(this.table);

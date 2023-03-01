@@ -7,9 +7,9 @@ import {
   FieldConfigOptionsRegistry,
   FieldConfigProperty,
   FieldOverrideContext,
-  GrafanaTheme2,
+  GrafanaTheme,
 } from '@grafana/data';
-import { Counter, Field, HorizontalGroup, IconButton, Label, useStyles2 } from '@grafana/ui';
+import { Counter, Field, HorizontalGroup, IconButton, Label, stylesFactory, useTheme } from '@grafana/ui';
 
 import { OptionsPaneCategory } from './OptionsPaneCategory';
 
@@ -32,7 +32,8 @@ export const DynamicConfigValueEditor: React.FC<DynamicConfigValueEditorProps> =
   isSystemOverride,
   searchQuery,
 }) => {
-  const styles = useStyles2(getStyles);
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const item = registry?.getIfExists(property.id);
 
   if (!item) {
@@ -124,13 +125,13 @@ export const DynamicConfigValueEditor: React.FC<DynamicConfigValueEditorProps> =
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
+const getStyles = stylesFactory((theme: GrafanaTheme) => {
   return {
     collapsibleOverrideEditor: css`
       label: collapsibleOverrideEditor;
       & + .dynamicConfigValueEditor--nonCollapsible {
-        margin-top: ${theme.spacing(1)};
+        margin-top: ${theme.spacing.formSpacingBase}px;
       }
     `,
   };
-};
+});

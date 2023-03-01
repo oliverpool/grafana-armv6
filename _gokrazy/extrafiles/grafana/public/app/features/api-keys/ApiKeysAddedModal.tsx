@@ -2,7 +2,11 @@
 import React, { useCallback } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Alert, Field, Modal, useStyles2, Input, ClipboardButton } from '@grafana/ui';
+import { Alert, Field, Modal, useStyles2, Input, Icon, ClipboardButton } from '@grafana/ui';
+
+import { notifyApp } from '../../core/actions';
+import { createSuccessNotification } from '../../core/copy/appNotification';
+import { dispatch } from '../../store/store';
 
 export interface Props {
   onDismiss: () => void;
@@ -13,7 +17,9 @@ export interface Props {
 export function ApiKeysAddedModal({ onDismiss, apiKey, rootPath }: Props): JSX.Element {
   const styles = useStyles2(getStyles);
   const getClipboardText = useCallback(() => apiKey, [apiKey]);
-
+  const onClipboardCopy = () => {
+    dispatch(notifyApp(createSuccessNotification('Content copied to clipboard')));
+  };
   return (
     <Modal title="API Key Created" onDismiss={onDismiss} onClickBackdrop={onDismiss} isOpen>
       <Field label="Key">
@@ -22,8 +28,8 @@ export function ApiKeysAddedModal({ onDismiss, apiKey, rootPath }: Props): JSX.E
           value={apiKey}
           readOnly
           addonAfter={
-            <ClipboardButton icon="copy" variant="primary" getText={getClipboardText}>
-              Copy
+            <ClipboardButton variant="primary" getText={getClipboardText} onClipboardCopy={onClipboardCopy}>
+              <Icon name="copy" /> Copy
             </ClipboardButton>
           }
         />

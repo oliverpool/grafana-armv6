@@ -4,6 +4,7 @@ export enum AzureCloud {
   Public = 'AzureCloud',
   China = 'AzureChinaCloud',
   USGovernment = 'AzureUSGovernment',
+  Germany = 'AzureGermanCloud',
   None = '',
 }
 
@@ -11,6 +12,7 @@ export const KnownAzureClouds = [
   { value: AzureCloud.Public, label: 'Azure' },
   { value: AzureCloud.China, label: 'Azure China' },
   { value: AzureCloud.USGovernment, label: 'Azure US Government' },
+  { value: AzureCloud.Germany, label: 'Azure Germany' },
 ] as SelectableValue[];
 
 export type AzureAuthType = 'msi' | 'clientsecret';

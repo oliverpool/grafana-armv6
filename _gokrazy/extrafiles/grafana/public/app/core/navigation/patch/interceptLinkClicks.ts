@@ -1,6 +1,5 @@
-import { locationUtil, urlUtil } from '@grafana/data';
+import { locationUtil } from '@grafana/data';
 import { locationService, navigationLogger } from '@grafana/runtime';
-import { config } from 'app/core/config';
 
 export function interceptLinkClicks(e: MouseEvent) {
   const anchor = getParentAnchor(e.target as HTMLElement);
@@ -15,8 +14,6 @@ export function interceptLinkClicks(e: MouseEvent) {
     const target = anchor.getAttribute('target');
 
     if (href && !target) {
-      const params = urlUtil.parseKeyValue(href.split('?')[1]);
-      const orgIdChange = params.orgId && Number(params.orgId) !== config.bootData.user.orgId;
       navigationLogger('utils', false, 'intercepting link click', e);
       e.preventDefault();
 
@@ -25,9 +22,9 @@ export function interceptLinkClicks(e: MouseEvent) {
       // Ensure old angular urls with no starting '/' are handled the same as before
       // Make sure external links are handled correctly
       // That is they where seen as being absolute from app root
-      if (href[0] !== '/' || orgIdChange) {
+      if (href[0] !== '/') {
         // if still contains protocol or is a mailto link, it's an absolute link to another domain or web application
-        if (href.indexOf('://') > 0 || href.indexOf('mailto:') === 0 || orgIdChange) {
+        if (href.indexOf('://') > 0 || href.indexOf('mailto:') === 0) {
           window.location.href = href;
           return;
         } else if (href.indexOf('#') === 0) {

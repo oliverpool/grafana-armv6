@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
-import { TypedVariableModel } from '@grafana/data';
+import { LoadingState } from '@grafana/data';
 import { dashboardReducer } from 'app/features/dashboard/state/reducers';
 
 import { DashboardState, StoreState } from '../../../types';
@@ -15,7 +15,6 @@ import {
   VariableModel,
 } from '../types';
 
-import { createQueryVariable } from './__tests__/fixtures';
 import { keyedVariablesReducer, KeyedVariablesState } from './keyedVariablesReducer';
 import { getInitialTemplatingState, TemplatingState } from './reducers';
 import { VariablesState } from './types';
@@ -25,8 +24,8 @@ export const getVariableState = (
   inEditorIndex = -1,
   includeEmpty = false,
   includeSystem = false
-): VariablesState => {
-  const variables: Record<string, TypedVariableModel> = {};
+): Record<string, VariableModel> => {
+  const variables: Record<string, VariableModel> = {};
 
   if (includeSystem) {
     const dashboardModel: DashboardVariableModel = {
@@ -87,27 +86,43 @@ export const getVariableState = (
   }
 
   for (let index = 0; index < noOfVariables; index++) {
-    variables[index] = createQueryVariable({
+    variables[index] = {
       id: index.toString(),
+      rootStateKey: 'key',
+      type: 'query',
       name: `Name-${index}`,
-      label: `Label-${index}`,
+      hide: VariableHide.dontHide,
       index,
-    });
+      label: `Label-${index}`,
+      skipUrlSync: false,
+      global: false,
+      state: LoadingState.NotStarted,
+      error: null,
+      description: null,
+    };
   }
 
   if (includeEmpty) {
-    variables[NEW_VARIABLE_ID] = createQueryVariable({
+    variables[NEW_VARIABLE_ID] = {
       id: NEW_VARIABLE_ID,
+      rootStateKey: 'key',
+      type: 'query',
       name: `Name-${NEW_VARIABLE_ID}`,
-      label: `Label-${NEW_VARIABLE_ID}`,
+      hide: VariableHide.dontHide,
       index: noOfVariables,
-    });
+      label: `Label-${NEW_VARIABLE_ID}`,
+      skipUrlSync: false,
+      global: false,
+      state: LoadingState.NotStarted,
+      error: null,
+      description: null,
+    };
   }
 
   return variables;
 };
 
-export const getVariableTestContext = <Model extends TypedVariableModel>(
+export const getVariableTestContext = <Model extends VariableModel>(
   adapter: VariableAdapter<Model>,
   variableOverrides: Partial<Model> = {}
 ) => {
@@ -117,7 +132,6 @@ export const getVariableTestContext = <Model extends TypedVariableModel>(
     index: 0,
     name: '0',
   };
-
   const defaultVariable = {
     ...adapter.initialState,
     ...defaults,

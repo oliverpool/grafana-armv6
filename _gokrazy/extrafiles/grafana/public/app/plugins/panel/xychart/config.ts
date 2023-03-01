@@ -5,12 +5,14 @@ import {
   identityOverrideProcessor,
   SetFieldConfigOptionsArgs,
 } from '@grafana/data';
-import { LineStyle } from '@grafana/schema';
-import { commonOptionsBuilder } from '@grafana/ui';
+import { LineStyle, VisibilityMode } from '@grafana/schema';
+import { commonOptionsBuilder, graphFieldOptions } from '@grafana/ui';
 
 import { LineStyleEditor } from '../timeseries/LineStyleEditor';
 
-import { ScatterFieldConfig, ScatterShow } from './types';
+import { ScatterFieldConfig, ScatterLineMode } from './models.gen';
+
+const categoryStyles = undefined; // ['Scatter styles'];
 
 export function getScatterFieldConfig(cfg: ScatterFieldConfig): SetFieldConfigOptionsArgs<ScatterFieldConfig> {
   return {
@@ -30,33 +32,44 @@ export function getScatterFieldConfig(cfg: ScatterFieldConfig): SetFieldConfigOp
     useCustomConfig: (builder) => {
       builder
         .addRadio({
-          path: 'show',
-          name: 'Show',
-          defaultValue: cfg.show,
+          path: 'point',
+          name: 'Points',
+          category: categoryStyles,
+          defaultValue: cfg.point,
           settings: {
-            options: [
-              { label: 'Points', value: ScatterShow.Points },
-              { label: 'Lines', value: ScatterShow.Lines },
-              { label: 'Both', value: ScatterShow.PointsAndLines },
-            ],
+            options: graphFieldOptions.showPoints,
           },
         })
         .addSliderInput({
           path: 'pointSize.fixed',
           name: 'Point size',
+          category: categoryStyles,
           defaultValue: cfg.pointSize?.fixed,
           settings: {
             min: 1,
             max: 100,
             step: 1,
           },
-          showIf: (c) => c.show !== ScatterShow.Lines,
+          showIf: (c) => c.point !== VisibilityMode.Never,
+        })
+        .addRadio({
+          path: 'line',
+          name: 'Lines',
+          category: categoryStyles,
+          defaultValue: cfg.line,
+          settings: {
+            options: [
+              { label: 'None', value: ScatterLineMode.None },
+              { label: 'Linear', value: ScatterLineMode.Linear },
+            ],
+          },
         })
         .addCustomEditor<void, LineStyle>({
           id: 'lineStyle',
           path: 'lineStyle',
           name: 'Line style',
-          showIf: (c) => c.show !== ScatterShow.Points,
+          category: categoryStyles,
+          showIf: (c) => c.line !== ScatterLineMode.None,
           editor: LineStyleEditor,
           override: LineStyleEditor,
           process: identityOverrideProcessor,
@@ -65,13 +78,14 @@ export function getScatterFieldConfig(cfg: ScatterFieldConfig): SetFieldConfigOp
         .addSliderInput({
           path: 'lineWidth',
           name: 'Line width',
+          category: categoryStyles,
           defaultValue: cfg.lineWidth,
           settings: {
             min: 0,
             max: 10,
             step: 1,
           },
-          showIf: (c) => c.show !== ScatterShow.Points,
+          showIf: (c) => c.line !== ScatterLineMode.None,
         });
 
       commonOptionsBuilder.addAxisConfig(builder, cfg);

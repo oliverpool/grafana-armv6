@@ -1,11 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
 
-import { selectors } from '../../e2e/selectors';
 import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
-import { addValueToOptions } from '../../utils/common';
 import { Field } from '../Field';
 
 import { setMetricName } from './setQueryValue';
@@ -27,15 +25,17 @@ const MetricNameField: React.FC<MetricNameProps> = ({ metricNames, query, variab
     [onQueryChange, query]
   );
 
-  const options = addValueToOptions(metricNames, variableOptionGroup, query.azureMonitor?.metricName);
+  const options = useMemo(() => [...metricNames, variableOptionGroup], [metricNames, variableOptionGroup]);
 
   return (
-    <Field label="Metric" data-testid={selectors.components.queryEditor.metricsQueryEditor.metricName.input}>
+    <Field label="Metric">
       <Select
+        menuShouldPortal
         inputId="azure-monitor-metrics-metric-field"
         value={query.azureMonitor?.metricName ?? null}
         onChange={handleChange}
         options={options}
+        width={38}
         allowCustomValue
       />
     </Field>

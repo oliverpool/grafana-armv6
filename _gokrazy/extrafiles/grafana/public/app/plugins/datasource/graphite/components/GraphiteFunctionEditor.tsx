@@ -37,10 +37,8 @@ export function GraphiteFunctionEditor({ func }: FunctionEditorProps) {
   return (
     <div
       className={cx(styles.container, { [styles.error]: func.def.unknown })}
-      onBlur={() => setIsMouseOver(false)}
-      onFocus={() => setIsMouseOver(true)}
       onMouseOver={() => setIsMouseOver(true)}
-      onMouseOut={() => setIsMouseOver(false)}
+      onMouseLeave={() => setIsMouseOver(false)}
     >
       <HorizontalGroup spacing="none">
         <FunctionEditor

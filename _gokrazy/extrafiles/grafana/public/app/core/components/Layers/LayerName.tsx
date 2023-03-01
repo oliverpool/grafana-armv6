@@ -1,18 +1,17 @@
 import { css, cx } from '@emotion/css';
 import React, { useState } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Icon, Input, FieldValidationMessage, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { Icon, Input, FieldValidationMessage, useStyles } from '@grafana/ui';
 
 export interface LayerNameProps {
   name: string;
   onChange: (v: string) => void;
   verifyLayerNameUniqueness?: (nameToCheck: string) => boolean;
-  overrideStyles?: boolean;
 }
 
-export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideStyles }: LayerNameProps) => {
-  const styles = useStyles2(getStyles);
+export const LayerName = ({ name, onChange, verifyLayerNameUniqueness }: LayerNameProps) => {
+  const styles = useStyles(getStyles);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -56,9 +55,9 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
     onEndEditName(event.currentTarget.value.trim());
   };
 
-  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
-      onEndEditName(event.currentTarget.value);
+      onEndEditName((event.target as any).value);
     }
   };
 
@@ -76,7 +75,7 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
             onClick={onEditLayer}
             data-testid="layer-name-div"
           >
-            <span className={overrideStyles ? '' : styles.layerName}>{name}</span>
+            <span className={styles.layerName}>{name}</span>
             <Icon name="pen" className={styles.layerEditIcon} size="sm" />
           </button>
         )}
@@ -103,31 +102,31 @@ export const LayerName = ({ name, onChange, verifyLayerNameUniqueness, overrideS
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
+const getStyles = (theme: GrafanaTheme) => {
   return {
     wrapper: css`
       label: Wrapper;
       display: flex;
       align-items: center;
-      margin-left: ${theme.spacing(0.5)};
+      margin-left: ${theme.spacing.xs};
     `,
     layerNameWrapper: css`
       display: flex;
       cursor: pointer;
       border: 1px solid transparent;
-      border-radius: ${theme.shape.borderRadius(2)};
+      border-radius: ${theme.border.radius.md};
       align-items: center;
-      padding: 0 0 0 ${theme.spacing(0.5)};
+      padding: 0 0 0 ${theme.spacing.xs};
       margin: 0;
       background: transparent;
 
       &:hover {
-        background: ${theme.colors.action.hover};
-        border: 1px dashed ${theme.colors.border.strong};
+        background: ${theme.colors.bg3};
+        border: 1px dashed ${theme.colors.border3};
       }
 
       &:focus {
-        border: 2px solid ${theme.colors.primary.border};
+        border: 2px solid ${theme.colors.formInputBorderActive};
       }
 
       &:hover,
@@ -138,15 +137,15 @@ const getStyles = (theme: GrafanaTheme2) => {
       }
     `,
     layerName: css`
-      font-weight: ${theme.typography.fontWeightMedium};
-      color: ${theme.colors.primary.text};
+      font-weight: ${theme.typography.weight.semibold};
+      color: ${theme.colors.textBlue};
       cursor: pointer;
       overflow: hidden;
-      margin-left: ${theme.spacing(0.5)};
+      margin-left: ${theme.spacing.xs};
     `,
     layerEditIcon: cx(
       css`
-        margin-left: ${theme.spacing(2)};
+        margin-left: ${theme.spacing.md};
         visibility: hidden;
       `,
       'query-name-edit-icon'

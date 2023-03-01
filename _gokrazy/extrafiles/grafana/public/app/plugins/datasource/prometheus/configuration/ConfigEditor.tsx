@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
-import { SIGV4ConnectionConfig } from '@grafana/aws-sdk';
 import { DataSourcePluginOptionsEditorProps, DataSourceSettings } from '@grafana/data';
-import { AlertingSettings, DataSourceHttpSettings, Alert, SecureSocksProxySettings } from '@grafana/ui';
+import { AlertingSettings, DataSourceHttpSettings, Alert } from '@grafana/ui';
 import { config } from 'app/core/config';
+import { getAllAlertmanagerDataSources } from 'app/features/alerting/unified/utils/alertmanager';
 
 import { PromOptions } from '../types';
 
@@ -14,11 +14,10 @@ import { PromSettings } from './PromSettings';
 export type Props = DataSourcePluginOptionsEditorProps<PromOptions>;
 export const ConfigEditor = (props: Props) => {
   const { options, onOptionsChange } = props;
-  // use ref so this is evaluated only first time it renders and the select does not disappear suddenly.
-  const showAccessOptions = useRef(props.options.access === 'direct');
+  const alertmanagers = getAllAlertmanagerDataSources();
 
   const azureAuthSettings = {
-    azureAuthSupported: config.azureAuthEnabled,
+    azureAuthSupported: config.featureToggles['prometheus_azure_auth'] ?? false,
     getAzureAuthEnabled: (config: DataSourceSettings<any, any>): boolean => hasCredentials(config),
     setAzureAuthEnabled: (config: DataSourceSettings<any, any>, enabled: boolean) =>
       enabled ? setDefaultCredentials(config) : resetCredentials(config),
@@ -28,26 +27,25 @@ export const ConfigEditor = (props: Props) => {
   return (
     <>
       {options.access === 'direct' && (
-        <Alert title="Error" severity="error">
-          Browser access mode in the Prometheus datasource is no longer available. Switch to server access mode.
+        <Alert title="Deprecation Notice" severity="warning">
+          Browser access mode in the Prometheus datasource is deprecated and will be removed in a future release.
         </Alert>
       )}
 
       <DataSourceHttpSettings
         defaultUrl="http://localhost:9090"
         dataSourceConfig={options}
-        showAccessOptions={showAccessOptions.current}
+        showAccessOptions={true}
         onChange={onOptionsChange}
         sigV4AuthToggleEnabled={config.sigV4AuthEnabled}
         azureAuthSettings={azureAuthSettings}
-        renderSigV4Editor={<SIGV4ConnectionConfig {...props}></SIGV4ConnectionConfig>}
       />
 
-      {config.featureToggles.secureSocksDatasourceProxy && (
-        <SecureSocksProxySettings options={options} onOptionsChange={onOptionsChange} />
-      )}
-
-      <AlertingSettings<PromOptions> options={options} onOptionsChange={onOptionsChange} />
+      <AlertingSettings<PromOptions>
+        alertmanagerDataSources={alertmanagers}
+        options={options}
+        onOptionsChange={onOptionsChange}
+      />
 
       <PromSettings options={options} onOptionsChange={onOptionsChange} />
     </>

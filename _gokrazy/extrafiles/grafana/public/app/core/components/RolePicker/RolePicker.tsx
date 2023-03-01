@@ -5,84 +5,57 @@ import { Role, OrgRole } from 'app/types';
 
 import { RolePickerInput } from './RolePickerInput';
 import { RolePickerMenu } from './RolePickerMenu';
-import { MENU_MAX_HEIGHT, ROLE_PICKER_SUBMENU_MIN_WIDTH, ROLE_PICKER_WIDTH } from './constants';
+import { MENU_MAX_HEIGHT } from './constants';
 
 export interface Props {
-  basicRole?: OrgRole;
+  builtInRole?: OrgRole;
   appliedRoles: Role[];
   roleOptions: Role[];
+  builtInRoles?: Record<string, Role[]>;
   isLoading?: boolean;
   disabled?: boolean;
-  basicRoleDisabled?: boolean;
-  showBasicRole?: boolean;
-  onRolesChange: (newRoles: Role[]) => void;
-  onBasicRoleChange?: (newRole: OrgRole) => void;
-  canUpdateRoles?: boolean;
-  /**
-   * Set {@link RolePickerMenu}'s button to display either `Apply` (apply=true) or `Update` (apply=false)
-   */
-  apply?: boolean;
-  maxWidth?: string | number;
+  builtinRolesDisabled?: boolean;
+  showBuiltInRole?: boolean;
+  onRolesChange: (newRoles: string[]) => void;
+  onBuiltinRoleChange?: (newRole: OrgRole) => void;
 }
 
 export const RolePicker = ({
-  basicRole,
+  builtInRole,
   appliedRoles,
   roleOptions,
   disabled,
   isLoading,
-  basicRoleDisabled,
-  showBasicRole,
+  builtinRolesDisabled,
+  showBuiltInRole,
   onRolesChange,
-  onBasicRoleChange,
-  canUpdateRoles = true,
-  apply = false,
-  maxWidth = ROLE_PICKER_WIDTH,
+  onBuiltinRoleChange,
 }: Props): JSX.Element | null => {
   const [isOpen, setOpen] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<Role[]>(appliedRoles);
-  const [selectedBuiltInRole, setSelectedBuiltInRole] = useState<OrgRole | undefined>(basicRole);
+  const [selectedBuiltInRole, setSelectedBuiltInRole] = useState<OrgRole | undefined>(builtInRole);
   const [query, setQuery] = useState('');
-  const [offset, setOffset] = useState({ vertical: 0, horizontal: 0 });
+  const [offset, setOffset] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSelectedBuiltInRole(basicRole);
     setSelectedRoles(appliedRoles);
-  }, [appliedRoles, basicRole]);
+  }, [appliedRoles]);
 
   useEffect(() => {
     const dimensions = ref?.current?.getBoundingClientRect();
     if (!dimensions || !isOpen) {
       return;
     }
-    const { bottom, top, left, right, width: currentRolePickerWidth } = dimensions;
+    const { bottom, top } = dimensions;
     const distance = window.innerHeight - bottom;
-    const offsetVertical = bottom - top + 10; // Add extra 10px to offset to account for border and outline
-    const offsetHorizontal = right - left;
-    let horizontal = -offsetHorizontal;
-    let vertical = -offsetVertical;
-
-    if (distance < MENU_MAX_HEIGHT + 20) {
-      vertical = offsetVertical;
+    const offset = bottom - top + 10; // Add extra 10px to offset to account for border and outline
+    if (distance < MENU_MAX_HEIGHT) {
+      setOffset(offset);
+    } else {
+      setOffset(-offset);
     }
-
-    /*
-     * This expression calculates whether there is enough place
-     * on the right of the RolePicker input to show/fit the role picker menu and its sub menu AND
-     * whether there is enough place under the RolePicker input to show/fit
-     * both (the role picker menu and its sub menu) aligned to the left edge of the input.
-     * Otherwise, it aligns the role picker menu to the right.
-     */
-    if (
-      window.innerWidth - right < currentRolePickerWidth &&
-      currentRolePickerWidth < 2 * ROLE_PICKER_SUBMENU_MIN_WIDTH
-    ) {
-      horizontal = offsetHorizontal;
-    }
-
-    setOffset({ horizontal, vertical });
-  }, [isOpen, selectedRoles]);
+  }, [isOpen]);
 
   const onOpen = useCallback(
     (event: FormEvent<HTMLElement>) => {
@@ -99,8 +72,8 @@ export const RolePicker = ({
     setOpen(false);
     setQuery('');
     setSelectedRoles(appliedRoles);
-    setSelectedBuiltInRole(basicRole);
-  }, [appliedRoles, basicRole]);
+    setSelectedBuiltInRole(builtInRole);
+  }, [appliedRoles, builtInRole]);
 
   // Only call onClose if menu is open. Prevent unnecessary calls for multiple pickers on the page.
   const onClickOutside = () => isOpen && onClose();
@@ -117,29 +90,24 @@ export const RolePicker = ({
     setSelectedRoles(roles);
   };
 
-  const onBasicRoleSelect = (role: OrgRole) => {
+  const onBuiltInRoleSelect = (role: OrgRole) => {
     setSelectedBuiltInRole(role);
   };
 
-  const onUpdate = (newRoles: Role[], newBuiltInRole?: OrgRole) => {
-    if (onBasicRoleChange && newBuiltInRole && newBuiltInRole !== basicRole) {
-      onBasicRoleChange(newBuiltInRole);
+  const onUpdate = (newRoles: string[], newBuiltInRole?: OrgRole) => {
+    if (onBuiltinRoleChange && newBuiltInRole) {
+      onBuiltinRoleChange(newBuiltInRole);
     }
-    if (canUpdateRoles) {
-      onRolesChange(newRoles);
-    }
-    setQuery('');
+    onRolesChange(newRoles);
     setOpen(false);
+    setQuery('');
   };
 
   const getOptions = () => {
-    // if roles cannot be updated mark every role as non delegatable
-    const options = roleOptions.map((r) => ({ ...r, delegatable: canUpdateRoles && r.delegatable }));
-
     if (query && query.trim() !== '') {
-      return options.filter((option) => option.name?.toLowerCase().includes(query.toLowerCase()));
+      return roleOptions.filter((option) => option.name?.toLowerCase().includes(query.toLowerCase()));
     }
-    return options;
+    return roleOptions;
   };
 
   if (isLoading) {
@@ -152,17 +120,10 @@ export const RolePicker = ({
   }
 
   return (
-    <div
-      data-testid="role-picker"
-      style={{
-        position: 'relative',
-        maxWidth,
-      }}
-      ref={ref}
-    >
+    <div data-testid="role-picker" style={{ position: 'relative' }} ref={ref}>
       <ClickOutsideWrapper onClick={onClickOutside}>
         <RolePickerInput
-          basicRole={selectedBuiltInRole}
+          builtInRole={selectedBuiltInRole}
           appliedRoles={selectedRoles}
           query={query}
           onQueryChange={onInputChange}
@@ -170,21 +131,19 @@ export const RolePicker = ({
           onClose={onClose}
           isFocused={isOpen}
           disabled={disabled}
-          showBasicRole={showBasicRole}
+          showBuiltInRole={showBuiltInRole}
         />
         {isOpen && (
           <RolePickerMenu
             options={getOptions()}
-            basicRole={selectedBuiltInRole}
+            builtInRole={selectedBuiltInRole}
             appliedRoles={appliedRoles}
-            onBasicRoleSelect={onBasicRoleSelect}
+            onBuiltInRoleSelect={onBuiltInRoleSelect}
             onSelect={onSelect}
             onUpdate={onUpdate}
             showGroups={query.length === 0 || query.trim() === ''}
-            basicRoleDisabled={basicRoleDisabled}
-            showBasicRole={showBasicRole}
-            updateDisabled={basicRoleDisabled && !canUpdateRoles}
-            apply={apply}
+            builtinRolesDisabled={builtinRolesDisabled}
+            showBuiltInRole={showBuiltInRole}
             offset={offset}
           />
         )}

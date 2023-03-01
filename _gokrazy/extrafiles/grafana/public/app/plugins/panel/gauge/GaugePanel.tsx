@@ -7,9 +7,9 @@ import { config } from 'app/core/config';
 
 import { clearNameForSingleSeries } from '../bargauge/BarGaugePanel';
 
-import { PanelOptions } from './panelcfg.gen';
+import { GaugeOptions } from './types';
 
-export class GaugePanel extends PureComponent<PanelProps<PanelOptions>> {
+export class GaugePanel extends PureComponent<PanelProps<GaugeOptions>> {
   renderComponent = (
     valueProps: VizRepeaterRenderValueProps<FieldDisplay>,
     menuProps: DataLinksContextMenuApi
@@ -28,7 +28,7 @@ export class GaugePanel extends PureComponent<PanelProps<PanelOptions>> {
         text={options.text}
         showThresholdLabels={options.showThresholdLabels}
         showThresholdMarkers={options.showThresholdMarkers}
-        theme={config.theme2}
+        theme={config.theme}
         onClick={openMenu}
         className={targetClassName}
       />
@@ -41,7 +41,7 @@ export class GaugePanel extends PureComponent<PanelProps<PanelOptions>> {
 
     if (hasLinks && getLinks) {
       return (
-        <DataLinksContextMenu links={getLinks} style={{ flexGrow: 1 }}>
+        <DataLinksContextMenu links={getLinks} config={value.field}>
           {(api) => {
             return this.renderComponent(valueProps, api);
           }}

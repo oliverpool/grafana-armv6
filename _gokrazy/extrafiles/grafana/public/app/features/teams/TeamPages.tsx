@@ -2,10 +2,10 @@ import { includes } from 'lodash';
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { NavModelItem } from '@grafana/data';
+import { NavModel } from '@grafana/data';
 import { featureEnabled } from '@grafana/runtime';
 import { Themeable2, withTheme2 } from '@grafana/ui';
-import { Page } from 'app/core/components/Page/Page';
+import Page from 'app/core/components/Page/Page';
 import { UpgradeBox } from 'app/core/components/Upgrade/UpgradeBox';
 import config from 'app/core/config';
 import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
@@ -44,18 +44,18 @@ function mapStateToProps(state: StoreState, props: OwnProps) {
   const team = getTeam(state.team, teamId);
   let defaultPage = 'members';
   if (contextSrv.accessControlEnabled()) {
-    // With RBAC the settings page will always be available
+    // With FGAC the settings page will always be available
     if (!team || !contextSrv.hasPermissionInMetadata(AccessControlAction.ActionTeamsPermissionsRead, team)) {
       defaultPage = 'settings';
     }
   }
   const pageName = props.match.params.page ?? defaultPage;
   const teamLoadingNav = getTeamLoadingNav(pageName as string);
-  const pageNav = getNavModel(state.navIndex, `team-${pageName}-${teamId}`, teamLoadingNav).main;
+  const navModel = getNavModel(state.navIndex, `team-${pageName}-${teamId}`, teamLoadingNav);
   const members = getTeamMembers(state.team);
 
   return {
-    pageNav,
+    navModel,
     teamId: teamId,
     pageName: pageName,
     team,
@@ -118,20 +118,20 @@ export class TeamPages extends PureComponent<Props, State> {
     return text1.toLocaleLowerCase() === text2.toLocaleLowerCase();
   };
 
-  hideTabsFromNonTeamAdmin = (pageNav: NavModelItem, isSignedInUserTeamAdmin: boolean) => {
+  hideTabsFromNonTeamAdmin = (navModel: NavModel, isSignedInUserTeamAdmin: boolean) => {
     if (contextSrv.accessControlEnabled()) {
-      return pageNav;
+      return navModel;
     }
 
-    if (!isSignedInUserTeamAdmin && pageNav && pageNav.children) {
-      pageNav.children
+    if (!isSignedInUserTeamAdmin && navModel.main && navModel.main.children) {
+      navModel.main.children
         .filter((navItem) => !this.textsAreEqual(navItem.text, PageTypes.Members))
         .map((navItem) => {
           navItem.hideFromTabs = true;
         });
     }
 
-    return pageNav;
+    return navModel;
   };
 
   renderPage(isSignedInUserTeamAdmin: boolean): React.ReactNode {
@@ -183,11 +183,11 @@ export class TeamPages extends PureComponent<Props, State> {
   }
 
   render() {
-    const { team, pageNav, members, editorsCanAdmin, signedInUser } = this.props;
+    const { team, navModel, members, editorsCanAdmin, signedInUser } = this.props;
     const isTeamAdmin = isSignedInUserTeamAdmin({ members, editorsCanAdmin, signedInUser });
 
     return (
-      <Page navId="teams" pageNav={this.hideTabsFromNonTeamAdmin(pageNav, isTeamAdmin)}>
+      <Page navModel={this.hideTabsFromNonTeamAdmin(navModel, isTeamAdmin)}>
         <Page.Contents isLoading={this.state.isLoading}>
           {team && Object.keys(team).length !== 0 && this.renderPage(isTeamAdmin)}
         </Page.Contents>

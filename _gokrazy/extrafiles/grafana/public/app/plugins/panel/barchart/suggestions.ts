@@ -2,21 +2,19 @@ import { VisualizationSuggestionsBuilder, VizOrientation } from '@grafana/data';
 import { LegendDisplayMode, StackingMode, VisibilityMode } from '@grafana/schema';
 import { SuggestionName } from 'app/types/suggestions';
 
-import { PanelFieldConfig, PanelOptions } from './panelcfg.gen';
+import { BarChartFieldConfig, PanelOptions } from './models.gen';
 
 export class BarChartSuggestionsSupplier {
   getListWithDefaults(builder: VisualizationSuggestionsBuilder) {
-    return builder.getListAppender<PanelOptions, PanelFieldConfig>({
+    return builder.getListAppender<PanelOptions, BarChartFieldConfig>({
       name: SuggestionName.BarChart,
       pluginId: 'barchart',
       options: {
         showValue: VisibilityMode.Never,
         legend: {
-          calcs: [],
-          displayMode: LegendDisplayMode.List,
-          showLegend: true,
+          displayMode: LegendDisplayMode.Hidden,
           placement: 'right',
-        },
+        } as any,
       },
       fieldConfig: {
         defaults: {

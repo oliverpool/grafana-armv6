@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import cx from 'classnames';
-import React, { ReactNode, useState } from 'react';
+import React, { useState } from 'react';
 
 import { ArrayVector, Field, FieldType, LinkModel } from '@grafana/data';
 import { LegacyForms } from '@grafana/ui';
@@ -62,8 +62,8 @@ const DebugFields = ({ fields }: DebugFieldItemProps) => {
       </thead>
       <tbody>
         {fields.map((field) => {
-          let value: ReactNode = field.value;
-          if (field.error && field.error instanceof Error) {
+          let value: any = field.value;
+          if (field.error) {
             value = field.error.message;
           } else if (field.href) {
             value = <a href={field.href}>{value}</a>;
@@ -83,7 +83,7 @@ const DebugFields = ({ fields }: DebugFieldItemProps) => {
 
 type DebugField = {
   name: string;
-  error?: unknown;
+  error?: any;
   value?: string;
   href?: string;
 };
@@ -112,18 +112,16 @@ function makeDebugFields(derivedFields: DerivedFieldConfig[], debugText: string)
           })[0];
         }
 
-        const result: DebugField = {
+        return {
           name: field.name,
           value: value || '<no match>',
-          href: link ? link.href : undefined,
-        };
-        return result;
+          href: link && link.href,
+        } as DebugField;
       } catch (error) {
-        const result: DebugField = {
+        return {
           name: field.name,
           error,
-        };
-        return result;
+        } as DebugField;
       }
     });
 }

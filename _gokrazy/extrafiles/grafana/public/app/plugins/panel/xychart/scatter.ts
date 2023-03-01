@@ -1,4 +1,3 @@
-import { MutableRefObject } from 'react';
 import uPlot from 'uplot';
 
 import {
@@ -26,15 +25,8 @@ import {
 import { pointWithin, Quadtree, Rect } from '../barchart/quadtree';
 
 import { isGraphable } from './dims';
-import {
-  DimensionValues,
-  ScatterFieldConfig,
-  defaultScatterFieldConfig,
-  ScatterHoverCallback,
-  ScatterSeries,
-  PanelOptions,
-  ScatterShow,
-} from './types';
+import { defaultScatterConfig, ScatterFieldConfig, ScatterLineMode, XYChartOptions } from './models.gen';
+import { DimensionValues, ScatterHoverCallback, ScatterSeries } from './types';
 
 export interface ScatterPanelInfo {
   error?: string;
@@ -46,29 +38,21 @@ export interface ScatterPanelInfo {
  * This is called when options or structure rev changes
  */
 export function prepScatter(
-  options: PanelOptions,
+  options: XYChartOptions,
   getData: () => DataFrame[],
   theme: GrafanaTheme2,
-  ttip: ScatterHoverCallback,
-  onUPlotClick: null | ((evt?: Object) => void),
-  isToolTipOpen: MutableRefObject<boolean>
+  ttip: ScatterHoverCallback
 ): ScatterPanelInfo {
   let series: ScatterSeries[];
   let builder: UPlotConfigBuilder;
 
   try {
     series = prepSeries(options, getData());
-    builder = prepConfig(getData, series, theme, ttip, onUPlotClick, isToolTipOpen);
+    builder = prepConfig(getData, series, theme, ttip);
   } catch (e) {
-    let errorMsg = 'Unknown error in prepScatter';
-    if (typeof e === 'string') {
-      errorMsg = e;
-    } else if (e instanceof Error) {
-      errorMsg = e.message;
-    }
-
+    console.log('prepScatter ERROR', e);
     return {
-      error: errorMsg,
+      error: e.message,
       series: [],
     };
   }
@@ -107,7 +91,7 @@ function getScatterSeries(
     ? config.theme2.visualization.getColorByName(dims.pointColorFixed)
     : getFieldSeriesColor(y, config.theme2).color;
   let pointColor: DimensionValues<string> = () => seriesColor;
-  const fieldConfig: ScatterFieldConfig = { ...defaultScatterFieldConfig, ...y.config.custom };
+  const fieldConfig: ScatterFieldConfig = { ...defaultScatterConfig, ...y.config.custom };
   let pointColorMode = fieldColorModeRegistry.get(FieldColorModeId.PaletteClassic);
   if (dims.pointColorIndex) {
     const f = frames[frameIndex].fields[dims.pointColorIndex];
@@ -135,7 +119,7 @@ function getScatterSeries(
   // Size configs
   //----------------
   let pointSizeHints = dims.pointSizeConfig;
-  let pointSizeFixed = dims.pointSizeConfig?.fixed ?? y.config.custom?.pointSize?.fixed ?? 5;
+  let pointSizeFixed = dims.pointSizeConfig?.fixed ?? y.config.custom?.pointSizeConfig?.fixed ?? 5;
   let pointSize: DimensionValues<number> = () => pointSizeFixed;
   if (dims.pointSizeIndex) {
     pointSize = (frame) => {
@@ -168,7 +152,7 @@ function getScatterSeries(
 
     x: (frame) => frame.fields[xIndex],
     y: (frame) => frame.fields[yIndex],
-    legend: () => {
+    legend: (frame) => {
       return [
         {
           label: name,
@@ -179,19 +163,18 @@ function getScatterSeries(
       ];
     },
 
-    showLine: fieldConfig.show !== ScatterShow.Points,
+    line: fieldConfig.line ?? ScatterLineMode.None,
     lineWidth: fieldConfig.lineWidth ?? 2,
     lineStyle: fieldConfig.lineStyle!,
     lineColor: () => seriesColor,
 
-    showPoints: fieldConfig.show !== ScatterShow.Lines ? VisibilityMode.Always : VisibilityMode.Never,
+    point: fieldConfig.point!,
     pointSize,
     pointColor,
     pointSymbol: (frame: DataFrame, from?: number) => 'circle', // single field, multiple symbols.... kinda equals multiple series 🤔
 
     label: VisibilityMode.Never,
     labelValue: () => '',
-    show: !frame.fields[yIndex].config.custom.hideFrom?.viz,
 
     hints: {
       pointSize: pointSizeHints!,
@@ -202,59 +185,53 @@ function getScatterSeries(
   };
 }
 
-function prepSeries(options: PanelOptions, frames: DataFrame[]): ScatterSeries[] {
+function prepSeries(options: XYChartOptions, frames: DataFrame[]): ScatterSeries[] {
   let seriesIndex = 0;
   if (!frames.length) {
-    throw 'Missing data';
+    throw 'missing data';
   }
 
-  if (options.seriesMapping === 'manual') {
-    if (!options.series?.length) {
-      throw 'Missing series config';
-    }
+  if (options.mode === 'explicit') {
+    if (options.series?.length) {
+      for (const series of options.series) {
+        if (!series?.x) {
+          throw 'Select X dimension';
+        }
 
-    const scatterSeries: ScatterSeries[] = [];
+        if (!series?.y) {
+          throw 'Select Y dimension';
+        }
 
-    for (const series of options.series) {
-      if (!series?.x) {
-        throw 'Select X dimension';
-      }
+        for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
+          const frame = frames[frameIndex];
+          const xIndex = findFieldIndex(frame, series.x);
 
-      if (!series?.y) {
-        throw 'Select Y dimension';
-      }
+          if (xIndex != null) {
+            // TODO: this should find multiple y fields
+            const yIndex = findFieldIndex(frame, series.y);
 
-      for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
-        const frame = frames[frameIndex];
-        const xIndex = findFieldIndex(frame, series.x);
+            if (yIndex == null) {
+              throw 'Y must be in the same frame as X';
+            }
 
-        if (xIndex != null) {
-          // TODO: this should find multiple y fields
-          const yIndex = findFieldIndex(frame, series.y);
-
-          if (yIndex == null) {
-            throw 'Y must be in the same frame as X';
+            const dims: Dims = {
+              pointColorFixed: series.pointColor?.fixed,
+              pointColorIndex: findFieldIndex(frame, series.pointColor?.field),
+              pointSizeConfig: series.pointSize,
+              pointSizeIndex: findFieldIndex(frame, series.pointSize?.field),
+            };
+            return [getScatterSeries(seriesIndex++, frames, frameIndex, xIndex, yIndex, dims)];
           }
-
-          const dims: Dims = {
-            pointColorFixed: series.pointColor?.fixed,
-            pointColorIndex: findFieldIndex(frame, series.pointColor?.field),
-            pointSizeConfig: series.pointSize,
-            pointSizeIndex: findFieldIndex(frame, series.pointSize?.field),
-          };
-          scatterSeries.push(getScatterSeries(seriesIndex++, frames, frameIndex, xIndex, yIndex, dims));
         }
       }
     }
-
-    return scatterSeries;
   }
 
   // Default behavior
   const dims = options.dims ?? {};
   const frameIndex = dims.frame ?? 0;
   const frame = frames[frameIndex];
-  const numericIndices: number[] = [];
+  const numericIndicies: number[] = [];
 
   let xIndex = findFieldIndex(frame, dims.x);
   for (let i = 0; i < frame.fields.length; i++) {
@@ -267,7 +244,7 @@ function prepSeries(options: PanelOptions, frames: DataFrame[]): ScatterSeries[]
         continue; // skip
       }
 
-      numericIndices.push(i);
+      numericIndicies.push(i);
     }
   }
 
@@ -275,10 +252,10 @@ function prepSeries(options: PanelOptions, frames: DataFrame[]): ScatterSeries[]
     throw 'Missing X dimension';
   }
 
-  if (!numericIndices.length) {
+  if (!numericIndicies.length) {
     throw 'No Y values';
   }
-  return numericIndices.map((yIndex) => getScatterSeries(seriesIndex++, frames, frameIndex, xIndex!, yIndex, {}));
+  return numericIndicies.map((yIndex) => getScatterSeries(seriesIndex++, frames, frameIndex, xIndex!, yIndex, {}));
 }
 
 interface DrawBubblesOpts {
@@ -300,9 +277,7 @@ const prepConfig = (
   getData: () => DataFrame[],
   scatterSeries: ScatterSeries[],
   theme: GrafanaTheme2,
-  ttip: ScatterHoverCallback,
-  onUPlotClick: null | ((evt?: Object) => void),
-  isToolTipOpen: MutableRefObject<boolean>
+  ttip: ScatterHoverCallback
 ) => {
   let qt: Quadtree;
   let hRect: Rect | null;
@@ -332,9 +307,9 @@ const prepConfig = (
           const scatterInfo = scatterSeries[seriesIdx - 1];
           let d = u.data[seriesIdx] as unknown as FacetSeries;
 
-          let showLine = scatterInfo.showLine;
-          let showPoints = scatterInfo.showPoints === VisibilityMode.Always;
-          if (!showPoints && scatterInfo.showPoints === VisibilityMode.Auto) {
+          let showLine = scatterInfo.line !== ScatterLineMode.None;
+          let showPoints = scatterInfo.point === VisibilityMode.Always;
+          if (!showPoints && scatterInfo.point === VisibilityMode.Auto) {
             showPoints = d[0].length < 1000;
           }
 
@@ -513,32 +488,9 @@ const prepConfig = (
     },
   });
 
-  const clearPopupIfOpened = () => {
-    if (isToolTipOpen.current) {
-      ttip(undefined);
-      if (onUPlotClick) {
-        onUPlotClick();
-      }
-    }
-  };
-
-  let ref_parent: HTMLElement | null = null;
-
   // clip hover points/bubbles to plotting area
   builder.addHook('init', (u, r) => {
     u.over.style.overflow = 'hidden';
-    ref_parent = u.root.parentElement;
-
-    if (onUPlotClick) {
-      ref_parent?.addEventListener('click', onUPlotClick);
-    }
-  });
-
-  builder.addHook('destroy', (u) => {
-    if (onUPlotClick) {
-      ref_parent?.removeEventListener('click', onUPlotClick);
-      clearPopupIfOpened();
-    }
   });
 
   let rect: DOMRect;
@@ -549,10 +501,11 @@ const prepConfig = (
   });
 
   builder.addHook('setLegend', (u) => {
+    // console.log('TTIP???', u.cursor.idxs);
     if (u.cursor.idxs != null) {
       for (let i = 0; i < u.cursor.idxs.length; i++) {
         const sel = u.cursor.idxs[i];
-        if (sel != null && !isToolTipOpen.current) {
+        if (sel != null) {
           ttip({
             scatterIndex: i - 1,
             xIndex: sel,
@@ -563,15 +516,10 @@ const prepConfig = (
         }
       }
     }
-
-    if (!isToolTipOpen.current) {
-      ttip(undefined);
-    }
+    ttip(undefined);
   });
 
   builder.addHook('drawClear', (u) => {
-    clearPopupIfOpened();
-
     qt = qt || new Quadtree(0, 0, u.bbox.width, u.bbox.height);
 
     qt.clear();
@@ -595,12 +543,8 @@ const prepConfig = (
     isTime: false,
     orientation: ScaleOrientation.Horizontal,
     direction: ScaleDirection.Right,
-    min: xField.config.min,
-    max: xField.config.max,
+    range: (u, min, max) => [min, max],
   });
-
-  // why does this fall back to '' instead of null or undef?
-  let xAxisLabel = xField.config.custom.axisLabel;
 
   builder.addAxis({
     scaleKey: 'x',
@@ -608,13 +552,10 @@ const prepConfig = (
       xField.config.custom?.axisPlacement !== AxisPlacement.Hidden ? AxisPlacement.Bottom : AxisPlacement.Hidden,
     show: xField.config.custom?.axisPlacement !== AxisPlacement.Hidden,
     theme,
-    label:
-      xAxisLabel == null || xAxisLabel === ''
-        ? getFieldDisplayName(xField, scatterSeries[0].frame(frames), frames)
-        : xAxisLabel,
+    label: xField.config.custom.axisLabel,
   });
 
-  scatterSeries.forEach((s, si) => {
+  scatterSeries.forEach((s) => {
     let frame = s.frame(frames);
     let field = s.y(frame);
 
@@ -629,22 +570,15 @@ const prepConfig = (
       scaleKey,
       orientation: ScaleOrientation.Vertical,
       direction: ScaleDirection.Up,
-      max: field.config.max,
-      min: field.config.min,
+      range: (u, min, max) => [min, max],
     });
 
     if (field.config.custom?.axisPlacement !== AxisPlacement.Hidden) {
-      // why does this fall back to '' instead of null or undef?
-      let yAxisLabel = field.config.custom?.axisLabel;
-
       builder.addAxis({
         scaleKey,
         theme,
         placement: field.config.custom?.axisPlacement,
-        label:
-          yAxisLabel == null || yAxisLabel === ''
-            ? getFieldDisplayName(field, scatterSeries[si].frame(frames), frames)
-            : yAxisLabel,
+        label: field.config.custom.axisLabel,
         values: (u, splits) => splits.map((s) => field.display!(s).text),
       });
     }
@@ -665,7 +599,6 @@ const prepConfig = (
       scaleKey: '', // facets' scales used (above)
       lineColor: lineColor as string,
       fillColor: alpha(pointColor, 0.5),
-      show: !field.config.custom.hideFrom?.viz,
     });
   });
 
@@ -700,7 +633,7 @@ const prepConfig = (
  * from?  is this where we would support that?  -- need the previous values
  */
 export function prepData(info: ScatterPanelInfo, data: DataFrame[], from?: number): FacetedData {
-  if (info.error || !data.length) {
+  if (info.error) {
     return [null];
   }
   return [

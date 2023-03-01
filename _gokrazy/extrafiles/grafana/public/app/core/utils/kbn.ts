@@ -9,7 +9,6 @@ import {
   TimeRange,
   ValueFormatterIndex,
   rangeUtil,
-  escapeRegex,
 } from '@grafana/data';
 
 const kbn = {
@@ -25,11 +24,7 @@ const kbn = {
     s: 1,
     ms: 0.001,
   } as { [index: string]: number },
-  /** @deprecated since 9.4, use grafana/data */
-  regexEscape: (value: string): string => {
-    deprecationWarning('kbn.ts', 'kbn.regexEscape()', 'escapeRegex from @grafana/data');
-    return escapeRegex(value);
-  },
+  regexEscape: (value: string) => value.replace(/[\\^$*+?.()|[\]{}\/]/g, '\\$&'),
 
   /** @deprecated since 7.2, use grafana/data */
   roundInterval: (interval: number) => {

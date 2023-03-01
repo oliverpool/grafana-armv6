@@ -1,20 +1,22 @@
 import { css, cx } from '@emotion/css';
-import React, { useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { GrafanaTheme2, StandardEditorProps } from '@grafana/data';
+import { GrafanaTheme, StandardEditorProps } from '@grafana/data';
 import {
   CodeEditor,
-  useStyles2,
+  stylesFactory,
+  useTheme,
   CodeEditorSuggestionItem,
   variableSuggestionToCodeEditorSuggestion,
 } from '@grafana/ui';
 
-import { PanelOptions, TextMode } from './panelcfg.gen';
+import { PanelOptions, TextMode } from './models.gen';
 
-export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProps<string, any, PanelOptions>) => {
+export const TextPanelEditor: FC<StandardEditorProps<string, any, PanelOptions>> = ({ value, onChange, context }) => {
   const language = useMemo(() => context.options?.mode ?? TextMode.Markdown, [context]);
-  const styles = useStyles2(getStyles);
+  const theme = useTheme();
+  const styles = getStyles(theme);
 
   const getSuggestions = (): CodeEditorSuggestionItem[] => {
     if (!context.getSuggestions) {
@@ -49,12 +51,12 @@ export const TextPanelEditor = ({ value, onChange, context }: StandardEditorProp
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = stylesFactory((theme: GrafanaTheme) => ({
   editorBox: css`
     label: editorBox;
-    border: 1px solid ${theme.colors.border.medium};
-    border-radius: ${theme.shape.borderRadius(1)};
-    margin: ${theme.spacing(0.5)} 0;
+    border: ${theme.border.width.sm} solid ${theme.colors.border2};
+    border-radius: ${theme.border.radius.sm};
+    margin: ${theme.spacing.xs} 0;
     width: 100%;
   `,
-});
+}));

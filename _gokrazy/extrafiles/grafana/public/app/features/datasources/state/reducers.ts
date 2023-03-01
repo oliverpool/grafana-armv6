@@ -1,10 +1,9 @@
 import { AnyAction, createAction } from '@reduxjs/toolkit';
 
 import { DataSourcePluginMeta, DataSourceSettings, LayoutMode, LayoutModes } from '@grafana/data';
-import { TestingStatus } from '@grafana/runtime';
-import { DataSourcesState, DataSourceSettingsState } from 'app/types';
+import { DataSourcesState, DataSourceSettingsState, TestingStatus } from 'app/types';
 
-import { GenericDataSourcePlugin } from '../types';
+import { GenericDataSourcePlugin } from '../settings/PluginSettings';
 
 import { DataSourceTypesLoadedPayload } from './actions';
 
@@ -20,7 +19,6 @@ export const initialState: DataSourcesState = {
   hasFetched: false,
   isLoadingDataSources: false,
   dataSourceMeta: {} as DataSourcePluginMeta,
-  isSortAscending: true,
 };
 
 export const dataSourceLoaded = createAction<DataSourceSettings>('dataSources/dataSourceLoaded');
@@ -35,7 +33,6 @@ export const setDataSourcesLayoutMode = createAction<LayoutMode>('dataSources/se
 export const setDataSourceTypeSearchQuery = createAction<string>('dataSources/setDataSourceTypeSearchQuery');
 export const setDataSourceName = createAction<string>('dataSources/setDataSourceName');
 export const setIsDefault = createAction<boolean>('dataSources/setIsDefault');
-export const setIsSortAscending = createAction<boolean>('dataSources/setIsSortAscending');
 
 // Redux Toolkit uses ImmerJs as part of their solution to ensure that state objects are not mutated.
 // ImmerJs has an autoFreeze option that freezes objects from change which means this reducer can't be migrated to createSlice
@@ -93,13 +90,6 @@ export const dataSourcesReducer = (state: DataSourcesState = initialState, actio
     return {
       ...state,
       dataSource: { ...state.dataSource, isDefault: action.payload },
-    };
-  }
-
-  if (setIsSortAscending.match(action)) {
-    return {
-      ...state,
-      isSortAscending: action.payload,
     };
   }
 

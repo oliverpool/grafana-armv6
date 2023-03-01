@@ -1,8 +1,9 @@
+import { Dispatch } from 'react';
 import { Action } from 'redux';
 
-import { SelectableValue, WithAccessControlMetadata } from '@grafana/data';
+import { SelectableValue } from '@grafana/data';
 
-import { QueryResponse } from './service';
+import { FolderInfo } from '../../types';
 
 export enum DashboardSearchItemType {
   DashDB = 'dash-db',
@@ -10,11 +11,8 @@ export enum DashboardSearchItemType {
   DashFolder = 'dash-folder',
 }
 
-/**
- * @deprecated
- */
 export interface DashboardSection {
-  id?: number;
+  id: number;
   uid?: string;
   title: string;
   expanded?: boolean;
@@ -30,22 +28,18 @@ export interface DashboardSection {
   itemsFetching?: boolean;
 }
 
-/**
- * @deprecated
- */
 export interface DashboardSectionItem {
   checked?: boolean;
   folderId?: number;
   folderTitle?: string;
   folderUid?: string;
   folderUrl?: string;
-  id?: number;
+  id: number;
   isStarred: boolean;
   selected?: boolean;
   tags: string[];
   title: string;
   type: DashboardSearchItemType;
-  icon?: string; // used for grid view
   uid?: string;
   uri: string;
   url: string;
@@ -53,48 +47,56 @@ export interface DashboardSectionItem {
   sortMetaName?: string;
 }
 
-/**
- * @deprecated - It uses dashboard ID which is deprecated in favor of dashboard UID. Please, use DashboardSearchItem instead.
- */
-export interface DashboardSearchHit extends DashboardSectionItem, DashboardSection, WithAccessControlMetadata {}
+export interface DashboardSearchHit extends DashboardSectionItem, DashboardSection {}
 
-export interface DashboardSearchItem
-  extends Omit<
-    DashboardSearchHit,
-    'id' | 'uid' | 'expanded' | 'selected' | 'checked' | 'folderId' | 'icon' | 'sortMeta' | 'sortMetaName'
-  > {
-  uid: string;
+export interface DashboardTag {
+  term: string;
+  count: number;
 }
 
 export interface SearchAction extends Action {
   payload?: any;
 }
 
-export type EventTrackingNamespace = 'manage_dashboards' | 'dashboard_search';
+export interface UidsToDelete {
+  folders: string[];
+  dashboards: string[];
+}
 
-export interface SearchState {
+export interface DashboardQuery {
   query: string;
   tag: string[];
   starred: boolean;
-  explain?: boolean; // adds debug info
+  skipRecent: boolean;
+  skipStarred: boolean;
+  folderIds: number[];
   datasource?: string;
   sort: SelectableValue | null;
   // Save sorting data between layouts
   prevSort: SelectableValue | null;
   layout: SearchLayout;
-  result?: QueryResponse;
-  loading?: boolean;
-  folderUid?: string;
-  includePanels?: boolean;
-  eventTrackingNamespace: EventTrackingNamespace;
 }
 
+export type SearchReducer<S> = [S, Dispatch<SearchAction>];
+interface UseSearchParams {
+  queryParsing?: boolean;
+  searchCallback?: (folderUid: string | undefined) => any;
+  folderUid?: string;
+}
+
+export type UseSearch = <S>(
+  query: DashboardQuery,
+  reducer: SearchReducer<S>,
+  params: UseSearchParams
+) => { state: S; dispatch: Dispatch<SearchAction>; onToggleSection: (section: DashboardSection) => void };
+
 export type OnToggleChecked = (item: DashboardSectionItem | DashboardSection) => void;
+export type OnDeleteItems = (folders: string[], dashboards: string[]) => void;
+export type OnMoveItems = (selectedDashboards: DashboardSectionItem[], folder: FolderInfo | null) => void;
 
 export enum SearchLayout {
   List = 'list',
   Folders = 'folders',
-  Grid = 'grid', // preview
 }
 
 export interface SearchQueryParams {
@@ -105,6 +107,3 @@ export interface SearchQueryParams {
   layout?: SearchLayout | null;
   folder?: string | null;
 }
-
-// new Search Types
-export type OnMoveOrDeleleSelectedItems = () => void;

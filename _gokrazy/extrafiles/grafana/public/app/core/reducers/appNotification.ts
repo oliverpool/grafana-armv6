@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+import { config } from '@grafana/runtime';
 import { AppNotification, AppNotificationSeverity, AppNotificationsState } from 'app/types/';
 
-const MAX_STORED_NOTIFICATIONS = 25;
 export const STORAGE_KEY = 'notifications';
 export const NEW_NOTIFS_KEY = `${STORAGE_KEY}/lastRead`;
 type StoredNotification = Omit<AppNotification, 'component'>;
@@ -75,13 +75,22 @@ function isAtLeastWarning(notif: AppNotification) {
   return notif.severity === AppNotificationSeverity.Warning || notif.severity === AppNotificationSeverity.Error;
 }
 
-function isStoredNotification(obj: unknown): obj is StoredNotification {
-  return typeof obj === 'object' && obj !== null && 'id' in obj && 'icon' in obj && 'title' in obj && 'text' in obj;
+function isStoredNotification(obj: any): obj is StoredNotification {
+  return (
+    typeof obj.id === 'string' &&
+    typeof obj.icon === 'string' &&
+    typeof obj.title === 'string' &&
+    typeof obj.text === 'string'
+  );
 }
 
 // (De)serialization
 
 export function deserializeNotifications(): Record<string, StoredNotification> {
+  if (!config.featureToggles?.persistNotifications) {
+    return {};
+  }
+
   const storedNotifsRaw = window.localStorage.getItem(STORAGE_KEY);
   if (!storedNotifsRaw) {
     return {};
@@ -96,10 +105,12 @@ export function deserializeNotifications(): Record<string, StoredNotification> {
 }
 
 function serializeNotifications(notifs: Record<string, StoredNotification>) {
+  if (!config.featureToggles?.persistNotifications) {
+    return;
+  }
+
   const reducedNotifs = Object.values(notifs)
     .filter(isAtLeastWarning)
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, MAX_STORED_NOTIFICATIONS)
     .reduce<Record<string, StoredNotification>>((prev, cur) => {
       prev[cur.id] = {
         id: cur.id,
@@ -114,11 +125,5 @@ function serializeNotifications(notifs: Record<string, StoredNotification>) {
 
       return prev;
     }, {});
-
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reducedNotifs));
-  } catch (err) {
-    console.error('Unable to persist notifications to local storage');
-    console.error(err);
-  }
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reducedNotifs));
 }

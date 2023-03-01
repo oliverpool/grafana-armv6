@@ -1,4 +1,4 @@
-import { parser, VectorSelector } from '@prometheus-io/lezer-promql';
+import { parser } from 'lezer-promql';
 
 import { PromQueryModeller } from './querybuilder/PromQueryModeller';
 import { buildVisualQueryFromString } from './querybuilder/parsing';
@@ -44,8 +44,8 @@ function getVectorSelectorPositions(query: string): VectorSelectorPosition[] {
   const tree = parser.parse(query);
   const positions: VectorSelectorPosition[] = [];
   tree.iterate({
-    enter: ({ to, from, type }): false | void => {
-      if (type.id === VectorSelector) {
+    enter: (type, from, to, get): false | void => {
+      if (type.name === 'VectorSelector') {
         const visQuery = buildVisualQueryFromString(query.substring(from, to));
         positions.push({ query: visQuery.query, from, to });
         return false;

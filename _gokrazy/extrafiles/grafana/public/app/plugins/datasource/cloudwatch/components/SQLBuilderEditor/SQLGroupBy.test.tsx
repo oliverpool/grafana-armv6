@@ -22,8 +22,6 @@ const makeSQLQuery = (sql?: SQLExpression): CloudWatchMetricsQuery => ({
   sql: sql,
 });
 
-datasource.resources.getDimensionKeys = jest.fn().mockResolvedValue([]);
-
 describe('Cloudwatch SQLGroupBy', () => {
   const baseProps = {
     query: makeSQLQuery(),

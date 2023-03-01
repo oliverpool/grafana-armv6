@@ -1,38 +1,25 @@
-import React from 'react';
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import React, { FC } from 'react';
 
 import { PlaylistTableRows } from './PlaylistTableRows';
 import { PlaylistItem } from './types';
 
-interface Props {
+interface PlaylistTableProps {
   items: PlaylistItem[];
-  deleteItem: (idx: number) => void;
-  moveItem: (src: number, dst: number) => void;
+  onMoveUp: (item: PlaylistItem) => void;
+  onMoveDown: (item: PlaylistItem) => void;
+  onDelete: (item: PlaylistItem) => void;
 }
 
-export const PlaylistTable = ({ items, deleteItem, moveItem }: Props) => {
-  const onDragEnd = (d: DropResult) => {
-    if (d.destination) {
-      moveItem(d.source.index, d.destination?.index);
-    }
-  };
-
+export const PlaylistTable: FC<PlaylistTableProps> = ({ items, onMoveUp, onMoveDown, onDelete }) => {
   return (
     <div className="gf-form-group">
       <h3 className="page-headering">Dashboards</h3>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="playlist-list" direction="vertical">
-          {(provided) => {
-            return (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <PlaylistTableRows items={items} onDelete={deleteItem} />
-                {provided.placeholder}
-              </div>
-            );
-          }}
-        </Droppable>
-      </DragDropContext>
+      <table className="filter-table">
+        <tbody>
+          <PlaylistTableRows items={items} onMoveUp={onMoveUp} onMoveDown={onMoveDown} onDelete={onDelete} />
+        </tbody>
+      </table>
     </div>
   );
 };

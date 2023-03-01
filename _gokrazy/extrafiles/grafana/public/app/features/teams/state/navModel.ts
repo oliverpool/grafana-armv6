@@ -13,10 +13,6 @@ const loadingTeam = {
   email: 'loading',
   memberCount: 0,
   permission: TeamPermissionLevel.Member,
-  accessControl: { isEditor: false },
-  created: 0,
-  orgId: 0,
-  updated: 0,
 };
 
 export function buildNavModel(team: Team): NavModelItem {
@@ -28,7 +24,7 @@ export function buildNavModel(team: Team): NavModelItem {
     text: team.name,
     breadcrumbs: [{ title: 'Teams', url: 'org/teams' }],
     children: [
-      // With RBAC this tab will always be available (but not always editable)
+      // With FGAC this tab will always be available (but not always editable)
       // With Legacy it will be hidden by hideTabsFromNonTeamAdmin should the user not be allowed to see it
       {
         active: false,
@@ -41,7 +37,7 @@ export function buildNavModel(team: Team): NavModelItem {
   };
 
   // While team is loading we leave the members tab
-  // With RBAC the Members tab is available when user has ActionTeamsPermissionsRead for this team
+  // With FGAC the Members tab is available when user has ActionTeamsPermissionsRead for this team
   // With Legacy it will always be present
   if (
     team === loadingTeam ||
@@ -71,9 +67,9 @@ export function buildNavModel(team: Team): NavModelItem {
       ProBadge({ experimentId: isLoadingTeam ? '' : 'feature-highlights-team-sync-badge', eventVariant: 'trial' });
   }
 
-  // With both Legacy and RBAC the tab is protected being featureEnabled
+  // With both Legacy and FGAC the tab is protected being featureEnabled
   // While team is loading we leave the teamsync tab
-  // With RBAC the External Group Sync tab is available when user has ActionTeamsPermissionsRead for this team
+  // With FGAC the External Group Sync tab is available when user has ActionTeamsPermissionsRead for this team
   if (featureEnabled('teamsync')) {
     if (isLoadingTeam || contextSrv.hasPermissionInMetadata(AccessControlAction.ActionTeamsPermissionsRead, team)) {
       navModel.children!.push(teamGroupSync);

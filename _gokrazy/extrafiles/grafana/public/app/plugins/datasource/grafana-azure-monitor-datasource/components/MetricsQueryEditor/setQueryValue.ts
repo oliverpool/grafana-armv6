@@ -1,29 +1,100 @@
 import { AzureMetricDimension, AzureMonitorQuery } from '../../types';
 
-export function setCustomNamespace(query: AzureMonitorQuery, selection: string | undefined): AzureMonitorQuery {
-  if (query.azureMonitor?.customNamespace === selection) {
+export function setSubscriptionID(query: AzureMonitorQuery, subscriptionID: string): AzureMonitorQuery {
+  if (query.subscription === subscriptionID) {
     return query;
   }
 
-  if (selection?.toLowerCase().startsWith('microsoft.storage/storageaccounts/')) {
-    return {
-      ...query,
-      azureMonitor: {
-        ...query.azureMonitor,
-        metricNamespace: selection,
-        metricName: undefined,
-        aggregation: undefined,
-        timeGrain: '',
-        dimensionFilters: [],
-      },
-    };
+  return {
+    ...query,
+    subscription: subscriptionID,
+    azureMonitor: {
+      ...query.azureMonitor,
+      resourceGroup: undefined,
+      metricDefinition: undefined,
+      metricNamespace: undefined,
+      resourceName: undefined,
+      metricName: undefined,
+      aggregation: undefined,
+      timeGrain: '',
+      dimensionFilters: [],
+    },
+  };
+}
+
+export function setResourceGroup(query: AzureMonitorQuery, resourceGroup: string | undefined): AzureMonitorQuery {
+  if (query.azureMonitor?.resourceGroup === resourceGroup) {
+    return query;
   }
 
   return {
     ...query,
     azureMonitor: {
       ...query.azureMonitor,
-      customNamespace: selection,
+      resourceGroup: resourceGroup,
+      metricDefinition: undefined,
+      metricNamespace: undefined,
+      resourceName: undefined,
+      metricName: undefined,
+      aggregation: undefined,
+      timeGrain: '',
+      dimensionFilters: [],
+    },
+  };
+}
+
+// In the query as "metricDefinition" for some reason
+export function setResourceType(query: AzureMonitorQuery, resourceType: string | undefined): AzureMonitorQuery {
+  if (query.azureMonitor?.metricDefinition === resourceType) {
+    return query;
+  }
+
+  const newQuery = {
+    ...query,
+    azureMonitor: {
+      ...query.azureMonitor,
+      metricDefinition: resourceType,
+      resourceName: undefined,
+      metricNamespace: undefined,
+      metricName: undefined,
+      aggregation: undefined,
+      timeGrain: '',
+      dimensionFilters: [],
+    },
+  };
+
+  return newQuery;
+}
+
+export function setResourceName(query: AzureMonitorQuery, resourceName: string | undefined): AzureMonitorQuery {
+  if (query.azureMonitor?.resourceName === resourceName) {
+    return query;
+  }
+
+  return {
+    ...query,
+    azureMonitor: {
+      ...query.azureMonitor,
+      resourceName: resourceName,
+      metricNamespace: undefined,
+      metricName: undefined,
+      aggregation: undefined,
+      timeGrain: '',
+      dimensionFilters: [],
+    },
+  };
+}
+
+export function setMetricNamespace(query: AzureMonitorQuery, metricNamespace: string | undefined): AzureMonitorQuery {
+  if (query.azureMonitor?.metricNamespace === metricNamespace) {
+    return query;
+  }
+
+  return {
+    ...query,
+    azureMonitor: {
+      ...query.azureMonitor,
+      metricNamespace: metricNamespace,
       metricName: undefined,
       aggregation: undefined,
       timeGrain: '',
@@ -95,7 +166,7 @@ export function appendDimensionFilter(
   query: AzureMonitorQuery,
   dimension = '',
   operator = 'eq',
-  filters: string[] = []
+  filter = '*'
 ): AzureMonitorQuery {
   const existingFilters = query.azureMonitor?.dimensionFilters ?? [];
 
@@ -104,7 +175,7 @@ export function appendDimensionFilter(
     {
       dimension,
       operator,
-      filters,
+      filter,
     },
   ]);
 }
@@ -126,9 +197,6 @@ export function setDimensionFilterValue<Key extends keyof AzureMetricDimension>(
   const newFilters = [...existingFilters];
   const newFilter = newFilters[index];
   newFilter[fieldName] = value;
-  if (fieldName === 'dimension' || fieldName === 'operator') {
-    newFilter.filters = [];
-  }
   return setDimensionFilters(query, newFilters);
 }
 

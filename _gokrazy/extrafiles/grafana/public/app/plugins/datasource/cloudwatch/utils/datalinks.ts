@@ -70,13 +70,8 @@ function createAwsConsoleLink(
   replace: (target: string, fieldName?: string) => string,
   getVariableValue: (value: string) => string[]
 ) {
-  const arns = (target.logGroups ?? [])
-    .filter((group) => group?.arn)
-    .map((group) => (group.arn ?? '').replace(/:\*$/, '')); // remove `:*` from end of arn
-  const logGroupNames = target.logGroupNames ?? [];
-  const sources = arns?.length ? arns : logGroupNames;
   const interpolatedExpression = target.expression ? replace(target.expression) : '';
-  const interpolatedGroups = sources?.flatMap(getVariableValue);
+  const interpolatedGroups = target.logGroupNames?.flatMap(getVariableValue) ?? [];
 
   const urlProps: AwsUrl = {
     end: range.to.toISOString(),

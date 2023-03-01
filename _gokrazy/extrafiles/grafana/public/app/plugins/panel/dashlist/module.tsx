@@ -11,7 +11,7 @@ import {
 } from '../../../core/components/Select/ReadonlyFolderPicker/ReadonlyFolderPicker';
 
 import { DashList } from './DashList';
-import { defaultPanelOptions, PanelLayout, PanelOptions } from './panelcfg.gen';
+import { defaultPanelOptions, PanelLayout, PanelOptions } from './models.gen';
 
 export const plugin = new PanelPlugin<PanelOptions>(DashList)
   .setPanelOptions((builder) => {

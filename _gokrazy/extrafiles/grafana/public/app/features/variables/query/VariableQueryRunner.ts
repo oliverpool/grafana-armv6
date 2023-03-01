@@ -105,11 +105,7 @@ export class VariableQueryRunner {
 
       this.updateOptionsResults.next({ identifier, state: LoadingState.Loading });
 
-      const variable = getVariable(identifier, getState());
-      if (variable.type !== 'query') {
-        return;
-      }
-
+      const variable = getVariable<QueryVariableModel>(identifier, getState());
       const timeSrv = getTimeSrv();
       const runnerArgs = { variable, datasource, searchFilter, timeSrv, runRequest };
       const runner = queryRunners.getRunnerForDatasource(datasource);

@@ -1,86 +1,151 @@
-import React, { useEffect, useState } from 'react';
-import { useDebounce } from 'react-use';
+import React from 'react';
 
-import { QueryEditorProps, toOption } from '@grafana/data';
-import { EditorField, EditorRows } from '@grafana/experimental';
-import { Input } from '@grafana/ui';
+import { SelectableValue, toOption } from '@grafana/data';
+import { TemplateSrv } from '@grafana/runtime';
+import { LegacyForms } from '@grafana/ui';
 
 import CloudMonitoringDatasource from '../datasource';
-import { AnnotationQuery, CloudMonitoringOptions, CloudMonitoringQuery, QueryType } from '../types';
+import { AnnotationTarget, EditorMode, MetricDescriptor, MetricKind } from '../types';
 
-import { MetricQueryEditor, defaultTimeSeriesList } from './MetricQueryEditor';
+import { AnnotationsHelp, LabelFilter, Metrics, Project, QueryEditorRow } from './';
 
-import { AnnotationsHelp } from './';
+const { Input } = LegacyForms;
 
-export type Props = QueryEditorProps<CloudMonitoringDatasource, CloudMonitoringQuery, CloudMonitoringOptions>;
+export interface Props {
+  refId: string;
+  onQueryChange: (target: AnnotationTarget) => void;
+  target: AnnotationTarget;
+  datasource: CloudMonitoringDatasource;
+  templateSrv: TemplateSrv;
+}
 
-export const defaultQuery: (datasource: CloudMonitoringDatasource) => AnnotationQuery = (datasource) => ({
-  ...defaultTimeSeriesList(datasource),
+interface State extends AnnotationTarget {
+  variableOptionGroup: SelectableValue<string>;
+  variableOptions: Array<SelectableValue<string>>;
+  labels: any;
+  [key: string]: any;
+}
+
+const DefaultTarget: State = {
+  editorMode: EditorMode.Visual,
+  projectName: '',
+  projects: [],
+  metricType: '',
+  filters: [],
+  metricKind: MetricKind.GAUGE,
+  valueType: '',
+  refId: 'annotationQuery',
   title: '',
   text: '',
-});
-
-export const AnnotationQueryEditor = (props: Props) => {
-  const { datasource, query, onRunQuery, data, onChange } = props;
-  const meta = data?.series.length ? data?.series[0].meta : {};
-  const customMetaData = meta?.custom ?? {};
-  const timeSeriesList = { ...defaultQuery(datasource), ...query.timeSeriesList };
-  const [title, setTitle] = useState(timeSeriesList.title || '');
-  const [text, setText] = useState(timeSeriesList.text || '');
-  const variableOptionGroup = {
-    label: 'Template Variables',
-    options: datasource.getVariables().map(toOption),
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  };
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-  };
-
-  useDebounce(
-    () => {
-      onChange({ ...query, timeSeriesList: { ...timeSeriesList, title } });
-    },
-    1000,
-    [title, onChange]
-  );
-  useDebounce(
-    () => {
-      onChange({ ...query, timeSeriesList: { ...timeSeriesList, text } });
-    },
-    1000,
-    [text, onChange]
-  );
-
-  // Use a known query type
-  useEffect(() => {
-    if (!Object.values(QueryType).includes(query.queryType)) {
-      onChange({ ...query, queryType: QueryType.TIME_SERIES_LIST });
-    }
-  });
-
-  return (
-    <EditorRows>
-      <>
-        <MetricQueryEditor
-          refId={query.refId}
-          variableOptionGroup={variableOptionGroup}
-          customMetaData={customMetaData}
-          onChange={onChange}
-          onRunQuery={onRunQuery}
-          datasource={datasource}
-          query={query}
-        />
-        <EditorField label="Title" htmlFor="annotation-query-title">
-          <Input id="annotation-query-title" value={title} onChange={handleTitleChange} />
-        </EditorField>
-        <EditorField label="Text" htmlFor="annotation-query-text">
-          <Input id="annotation-query-text" value={text} onChange={handleTextChange} />
-        </EditorField>
-      </>
-      <AnnotationsHelp />
-    </EditorRows>
-  );
+  labels: {},
+  variableOptionGroup: {},
+  variableOptions: [],
 };
+
+export class AnnotationQueryEditor extends React.Component<Props, State> {
+  state: State = DefaultTarget;
+
+  async UNSAFE_componentWillMount() {
+    // Unfortunately, migrations like this need to go UNSAFE_componentWillMount. As soon as there's
+    // migration hook for this module.ts, we can do the migrations there instead.
+    const { target, datasource } = this.props;
+    if (!target.projectName) {
+      target.projectName = datasource.getDefaultProject();
+    }
+
+    const variableOptionGroup = {
+      label: 'Template Variables',
+      options: datasource.getVariables().map(toOption),
+    };
+
+    const projects = await datasource.getProjects();
+    this.setState({
+      variableOptionGroup,
+      variableOptions: variableOptionGroup.options,
+      ...target,
+      projects,
+    });
+
+    datasource
+      .getLabels(target.metricType, target.projectName, target.refId)
+      .then((labels) => this.setState({ labels }));
+  }
+
+  onMetricTypeChange = ({ valueType, metricKind, type, unit }: MetricDescriptor) => {
+    const { onQueryChange, datasource } = this.props;
+    this.setState(
+      {
+        metricType: type,
+        unit,
+        valueType,
+        metricKind,
+      },
+      () => {
+        onQueryChange(this.state);
+      }
+    );
+    datasource.getLabels(type, this.state.refId, this.state.projectName).then((labels) => this.setState({ labels }));
+  };
+
+  onChange(prop: string, value: string | string[]) {
+    this.setState({ [prop]: value }, () => {
+      this.props.onQueryChange(this.state);
+    });
+  }
+
+  render() {
+    const { metricType, projectName, filters, title, text, variableOptionGroup, labels, variableOptions } = this.state;
+    const { datasource } = this.props;
+
+    return (
+      <>
+        <Project
+          refId={this.props.refId}
+          templateVariableOptions={variableOptions}
+          datasource={datasource}
+          projectName={projectName || datasource.getDefaultProject()}
+          onChange={(value) => this.onChange('projectName', value)}
+        />
+        <Metrics
+          refId={this.props.refId}
+          projectName={projectName}
+          metricType={metricType}
+          templateSrv={datasource.templateSrv}
+          datasource={datasource}
+          templateVariableOptions={variableOptions}
+          onChange={(metric) => this.onMetricTypeChange(metric)}
+        >
+          {(metric) => (
+            <>
+              <LabelFilter
+                labels={labels}
+                filters={filters}
+                onChange={(value) => this.onChange('filters', value)}
+                variableOptionGroup={variableOptionGroup}
+              />
+            </>
+          )}
+        </Metrics>
+
+        <QueryEditorRow label="Title">
+          <Input
+            type="text"
+            className="gf-form-input width-20"
+            value={title}
+            onChange={(e) => this.onChange('title', e.target.value)}
+          />
+        </QueryEditorRow>
+        <QueryEditorRow label="Text">
+          <Input
+            type="text"
+            className="gf-form-input width-20"
+            value={text}
+            onChange={(e) => this.onChange('text', e.target.value)}
+          />
+        </QueryEditorRow>
+
+        <AnnotationsHelp />
+      </>
+    );
+  }
+}

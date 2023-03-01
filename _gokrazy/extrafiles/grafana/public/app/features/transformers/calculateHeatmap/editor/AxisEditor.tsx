@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import { HorizontalGroup, Input, RadioButtonGroup, ScaleDistribution } from '@grafana/ui';
+import { HorizontalGroup, Input, RadioButtonGroup } from '@grafana/ui';
 
-import { HeatmapCalculationBucketConfig, HeatmapCalculationMode } from '../models.gen';
+import { HeatmapCalculationAxisConfig, HeatmapCalculationMode } from '../models.gen';
 
 const modeOptions: Array<SelectableValue<HeatmapCalculationMode>> = [
   {
@@ -18,15 +18,7 @@ const modeOptions: Array<SelectableValue<HeatmapCalculationMode>> = [
   },
 ];
 
-const logModeOptions: Array<SelectableValue<HeatmapCalculationMode>> = [
-  {
-    label: 'Split',
-    value: HeatmapCalculationMode.Size,
-    description: 'Split the buckets based on size',
-  },
-];
-
-export const AxisEditor: React.FC<StandardEditorProps<HeatmapCalculationBucketConfig, any>> = ({
+export const AxisEditor: React.FC<StandardEditorProps<HeatmapCalculationAxisConfig, any>> = ({
   value,
   onChange,
   item,
@@ -35,7 +27,7 @@ export const AxisEditor: React.FC<StandardEditorProps<HeatmapCalculationBucketCo
     <HorizontalGroup>
       <RadioButtonGroup
         value={value?.mode || HeatmapCalculationMode.Size}
-        options={value?.scale?.type === ScaleDistribution.Log ? logModeOptions : modeOptions}
+        options={modeOptions}
         onChange={(mode) => {
           onChange({
             ...value,

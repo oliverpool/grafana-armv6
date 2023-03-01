@@ -24,8 +24,7 @@ export class ColumnOptionsCtrl {
     { text: 'right', value: 'right' },
   ];
 
-  static $inject = ['$scope'];
-
+  /** @ngInject */
   constructor($scope: any) {
     $scope.editor = this;
 

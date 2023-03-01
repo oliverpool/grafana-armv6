@@ -13,18 +13,19 @@ import {
   useStyles2,
   FilterInput,
 } from '@grafana/ui';
-import { Page } from 'app/core/components/Page/Page';
+import Page from 'app/core/components/Page/Page';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
 import { contextSrv } from 'app/core/core';
 
 import PageLoader from '../../core/components/PageLoader/PageLoader';
+import { getNavModel } from '../../core/selectors/navModel';
 import { AccessControlAction, StoreState, Unit, UserDTO, UserFilter } from '../../types';
 
 import { changeFilter, changePage, changeQuery, fetchUsers } from './state/actions';
 
 export interface FilterProps {
   filters: UserFilter[];
-  onChange: (filter: UserFilter) => void;
+  onChange: (filter: any) => void;
   className?: string;
 }
 const extraFilters: Array<ComponentType<FilterProps>> = [];
@@ -40,6 +41,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state: StoreState) => ({
+  navModel: getNavModel(state.navIndex, 'global-users'),
   users: state.userListAdmin.users,
   query: state.userListAdmin.query,
   showPaging: state.userListAdmin.showPaging,
@@ -55,8 +57,9 @@ interface OwnProps {}
 
 type Props = OwnProps & ConnectedProps<typeof connector>;
 
-const UserListAdminPageUnConnected = ({
+const UserListAdminPageUnConnected: React.FC<Props> = ({
   fetchUsers,
+  navModel,
   query,
   changeQuery,
   users,
@@ -67,7 +70,7 @@ const UserListAdminPageUnConnected = ({
   changeFilter,
   filters,
   isLoading,
-}: Props) => {
+}) => {
   const styles = useStyles2(getStyles);
 
   useEffect(() => {
@@ -77,104 +80,97 @@ const UserListAdminPageUnConnected = ({
   const showLicensedRole = useMemo(() => users.some((user) => user.licensedRole), [users]);
 
   return (
-    <Page.Contents>
-      <div className="page-action-bar">
-        <div className="gf-form gf-form--grow">
-          <FilterInput
-            placeholder="Search user by login, email, or name."
-            autoFocus={true}
-            value={query}
-            onChange={changeQuery}
-          />
-          <RadioButtonGroup
-            options={[
-              { label: 'All users', value: false },
-              { label: 'Active last 30 days', value: true },
-            ]}
-            onChange={(value) => changeFilter({ name: 'activeLast30Days', value })}
-            value={filters.find((f) => f.name === 'activeLast30Days')?.value}
-            className={styles.filter}
-          />
-          {extraFilters.map((FilterComponent, index) => (
-            <FilterComponent key={index} filters={filters} onChange={changeFilter} className={styles.filter} />
-          ))}
+    <Page navModel={navModel}>
+      <Page.Contents>
+        <div className="page-action-bar">
+          <div className="gf-form gf-form--grow">
+            <FilterInput
+              placeholder="Search user by login, email, or name."
+              autoFocus={true}
+              value={query}
+              onChange={changeQuery}
+            />
+            <RadioButtonGroup
+              options={[
+                { label: 'All users', value: false },
+                { label: 'Active last 30 days', value: true },
+              ]}
+              onChange={(value) => changeFilter({ name: 'activeLast30Days', value })}
+              value={filters.find((f) => f.name === 'activeLast30Days')?.value}
+              className={styles.filter}
+            />
+            {extraFilters.map((FilterComponent, index) => (
+              <FilterComponent key={index} filters={filters} onChange={changeFilter} className={styles.filter} />
+            ))}
+          </div>
+          {contextSrv.hasPermission(AccessControlAction.UsersCreate) && (
+            <LinkButton href="admin/users/create" variant="primary">
+              New user
+            </LinkButton>
+          )}
         </div>
-        {contextSrv.hasPermission(AccessControlAction.UsersCreate) && (
-          <LinkButton href="admin/users/create" variant="primary">
-            New user
-          </LinkButton>
-        )}
-      </div>
-      {isLoading ? (
-        <PageLoader />
-      ) : (
-        <>
-          <div className={cx(styles.table, 'admin-list-table')}>
-            <table className="filter-table form-inline filter-table--hover">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Login</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Belongs to</th>
-                  {showLicensedRole && (
+        {isLoading ? (
+          <PageLoader />
+        ) : (
+          <>
+            <div className={cx(styles.table, 'admin-list-table')}>
+              <table className="filter-table form-inline filter-table--hover">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Login</th>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Belongs to</th>
+                    {showLicensedRole && (
+                      <th>
+                        Licensed role{' '}
+                        <Tooltip
+                          placement="top"
+                          content={
+                            <>
+                              Licensed role is based on a user&apos;s Org role (i.e. Viewer, Editor, Admin) and their
+                              dashboard/folder permissions.{' '}
+                              <a
+                                className={styles.link}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                href={
+                                  'https://grafana.com/docs/grafana/next/enterprise/license/license-restrictions/#active-users-limit'
+                                }
+                              >
+                                Learn more
+                              </a>
+                            </>
+                          }
+                        >
+                          <Icon name="question-circle" />
+                        </Tooltip>
+                      </th>
+                    )}
                     <th>
-                      Licensed role{' '}
-                      <Tooltip
-                        placement="top"
-                        content={
-                          <>
-                            Licensed role is based on a user&apos;s Org role (i.e. Viewer, Editor, Admin) and their
-                            dashboard/folder permissions.{' '}
-                            <a
-                              className={styles.link}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              href={
-                                'https://grafana.com/docs/grafana/next/enterprise/license/license-restrictions/#active-users-limit'
-                              }
-                            >
-                              Learn more
-                            </a>
-                          </>
-                        }
-                      >
+                      Last active&nbsp;
+                      <Tooltip placement="top" content="Time since user was seen using Grafana">
                         <Icon name="question-circle" />
                       </Tooltip>
                     </th>
-                  )}
-                  <th>
-                    Last active&nbsp;
-                    <Tooltip placement="top" content="Time since user was seen using Grafana">
-                      <Icon name="question-circle" />
-                    </Tooltip>
-                  </th>
-                  <th style={{ width: '1%' }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <UserListItem user={user} showLicensedRole={showLicensedRole} key={user.id} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {showPaging && <Pagination numberOfPages={totalPages} currentPage={page} onNavigate={changePage} />}
-        </>
-      )}
-    </Page.Contents>
-  );
-};
-
-export const UserListAdminPageContent = connector(UserListAdminPageUnConnected);
-export function UserListAdminPage() {
-  return (
-    <Page navId="global-users">
-      <UserListAdminPageContent />
+                    <th style={{ width: '1%' }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <UserListItem user={user} showLicensedRole={showLicensedRole} key={user.id} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {showPaging && <Pagination numberOfPages={totalPages} currentPage={page} onNavigate={changePage} />}
+          </>
+        )}
+      </Page.Contents>
     </Page>
   );
-}
+};
 
 const getUsersAriaLabel = (name: string) => {
   return `Edit user's ${name} details`;
@@ -356,4 +352,4 @@ const getStyles = (theme: GrafanaTheme2) => {
   };
 };
 
-export default UserListAdminPage;
+export default connector(UserListAdminPageUnConnected);

@@ -119,7 +119,7 @@ export function flotToGraphOptions(angular: any): { fieldConfig: FieldConfigSour
       if (!seriesOverride.alias) {
         continue; // the matcher config
       }
-      const aliasIsRegex = /^([/~@;%#'])(.*?)\1([gimsuy]*)$/.test(seriesOverride.alias);
+      const aliasIsRegex = seriesOverride.alias.startsWith('/') && seriesOverride.alias.endsWith('/');
       const rule: ConfigOverrideRule = {
         matcher: {
           id: aliasIsRegex ? FieldMatcherID.byRegexp : FieldMatcherID.byName,
@@ -319,7 +319,6 @@ export function flotToGraphOptions(angular: any): { fieldConfig: FieldConfigSour
   const options: TimeSeriesOptions = {
     legend: {
       displayMode: LegendDisplayMode.List,
-      showLegend: true,
       placement: 'bottom',
       calcs: [],
     },
@@ -335,7 +334,7 @@ export function flotToGraphOptions(angular: any): { fieldConfig: FieldConfigSour
     if (legendConfig.show) {
       options.legend.displayMode = legendConfig.alignAsTable ? LegendDisplayMode.Table : LegendDisplayMode.List;
     } else {
-      options.legend.showLegend = false;
+      options.legend.displayMode = LegendDisplayMode.Hidden;
     }
 
     if (legendConfig.rightSide) {
@@ -412,7 +411,7 @@ export function flotToGraphOptions(angular: any): { fieldConfig: FieldConfigSour
             value: threshold.value,
             color: 'transparent',
           });
-          // if next is a lt we need to use its color
+          // if next is a lt we need to use it's color
         } else if (next && next.op === 'lt') {
           steps.push({
             value: threshold.value,

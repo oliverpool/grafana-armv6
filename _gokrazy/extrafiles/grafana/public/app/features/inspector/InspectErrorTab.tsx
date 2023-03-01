@@ -20,7 +20,7 @@ const parseErrorMessage = (message: string): { msg: string; json?: any } => {
   }
 };
 
-export const InspectErrorTab = ({ error }: InspectErrorTabProps) => {
+export const InspectErrorTab: React.FC<InspectErrorTabProps> = ({ error }) => {
   if (!error) {
     return null;
   }

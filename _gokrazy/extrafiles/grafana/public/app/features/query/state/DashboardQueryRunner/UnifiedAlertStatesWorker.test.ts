@@ -2,7 +2,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { AlertState, getDefaultTimeRange, TimeRange } from '@grafana/data';
 import { backendSrv } from 'app/core/services/backend_srv';
-import { disableRBAC, enableRBAC, grantUserPermissions } from 'app/features/alerting/unified/mocks';
+import { enableRBAC, grantUserPermissions } from 'app/features/alerting/unified/mocks';
 import { Annotation } from 'app/features/alerting/unified/utils/constants';
 import { AccessControlAction } from 'app/types/accessControl';
 import { PromAlertingRuleState, PromRuleDTO, PromRulesResponse, PromRuleType } from 'app/types/unified-alerting-dto';
@@ -19,7 +19,7 @@ jest.mock('@grafana/runtime', () => ({
 }));
 
 function getDefaultOptions(): DashboardQueryRunnerOptions {
-  const dashboard: any = { id: 'an id', uid: 'a uid', meta: { publicDashboardAccessToken: '' } };
+  const dashboard: any = { id: 'an id', uid: 'a uid' };
   const range = getDefaultTimeRange();
 
   return { dashboard, range };
@@ -37,24 +37,11 @@ function getTestContext() {
 describe('UnifiedAlertStatesWorker', () => {
   const worker = new UnifiedAlertStatesWorker();
 
-  beforeAll(() => {
-    disableRBAC();
-  });
-
   describe('when canWork is called with correct props', () => {
     it('then it should return true', () => {
       const options = getDefaultOptions();
 
       expect(worker.canWork(options)).toBe(true);
-    });
-  });
-
-  describe('when canWork is called on a public dashboard view', () => {
-    it('then it should return false', () => {
-      const options = getDefaultOptions();
-      options.dashboard.meta.publicDashboardAccessToken = 'abc123';
-
-      expect(worker.canWork(options)).toBe(false);
     });
   });
 
@@ -123,7 +110,6 @@ describe('UnifiedAlertStatesWorker', () => {
         ...overrides,
       };
     }
-
     it('then it should return the correct results', async () => {
       const getResults: PromRulesResponse = {
         status: 'success',

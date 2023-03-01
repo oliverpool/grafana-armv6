@@ -10,24 +10,23 @@ export type UserPermission = Record<string, boolean>;
 export enum AccessControlAction {
   UsersRead = 'users:read',
   UsersWrite = 'users:write',
-  UsersAuthTokenList = 'users.authtoken:read',
-  UsersAuthTokenUpdate = 'users.authtoken:write',
-  UsersPasswordUpdate = 'users.password:write',
+  UsersTeamRead = 'users.teams:read',
+  UsersAuthTokenList = 'users.authtoken:list',
+  UsersAuthTokenUpdate = 'users.authtoken:update',
+  UsersPasswordUpdate = 'users.password:update',
   UsersDelete = 'users:delete',
   UsersCreate = 'users:create',
   UsersEnable = 'users:enable',
   UsersDisable = 'users:disable',
-  UsersPermissionsUpdate = 'users.permissions:write',
+  UsersPermissionsUpdate = 'users.permissions:update',
   UsersLogout = 'users:logout',
-  UsersQuotasList = 'users.quotas:read',
-  UsersQuotasUpdate = 'users.quotas:write',
+  UsersQuotasList = 'users.quotas:list',
+  UsersQuotasUpdate = 'users.quotas:update',
 
   ServiceAccountsRead = 'serviceaccounts:read',
   ServiceAccountsCreate = 'serviceaccounts:create',
   ServiceAccountsWrite = 'serviceaccounts:write',
   ServiceAccountsDelete = 'serviceaccounts:delete',
-  ServiceAccountsPermissionsRead = 'serviceaccounts.permissions:read',
-  ServiceAccountsPermissionsWrite = 'serviceaccounts.permissions:write',
 
   OrgsRead = 'orgs:read',
   OrgsPreferencesRead = 'orgs.preferences:read',
@@ -38,7 +37,7 @@ export enum AccessControlAction {
   OrgUsersRead = 'org.users:read',
   OrgUsersAdd = 'org.users:add',
   OrgUsersRemove = 'org.users:remove',
-  OrgUsersWrite = 'org.users:write',
+  OrgUsersRoleUpdate = 'org.users.role:update',
 
   LDAPUsersRead = 'ldap.user:read',
   LDAPUsersSync = 'ldap.user:sync',
@@ -50,8 +49,6 @@ export enum AccessControlAction {
   DataSourcesWrite = 'datasources:write',
   DataSourcesDelete = 'datasources:delete',
   DataSourcesPermissionsRead = 'datasources.permissions:read',
-  DataSourcesCachingRead = 'datasources.caching:read',
-  DataSourcesInsightsRead = 'datasources.insights:read',
 
   ActionServerStatsRead = 'server.stats:read',
 
@@ -62,43 +59,36 @@ export enum AccessControlAction {
   ActionTeamsPermissionsRead = 'teams.permissions:read',
   ActionTeamsPermissionsWrite = 'teams.permissions:write',
 
-  ActionRolesList = 'roles:read',
-  ActionTeamsRolesList = 'teams.roles:read',
+  ActionRolesList = 'roles:list',
+  ActionBuiltinRolesList = 'roles.builtin:list',
+  ActionTeamsRolesList = 'teams.roles:list',
   ActionTeamsRolesAdd = 'teams.roles:add',
   ActionTeamsRolesRemove = 'teams.roles:remove',
-  ActionUserRolesList = 'users.roles:read',
-  ActionUserRolesAdd = 'users.roles:add',
-  ActionUserRolesRemove = 'users.roles:remove',
+  ActionUserRolesList = 'users.roles:list',
 
   DashboardsRead = 'dashboards:read',
   DashboardsWrite = 'dashboards:write',
   DashboardsDelete = 'dashboards:delete',
   DashboardsCreate = 'dashboards:create',
   DashboardsPermissionsRead = 'dashboards.permissions:read',
-  DashboardsPermissionsWrite = 'dashboards.permissions:write',
-  DashboardsPublicWrite = 'dashboards.public:write',
+  DashboardsPermissionsWrite = 'dashboards.permissions:read',
 
   FoldersRead = 'folders:read',
-  FoldersWrite = 'folders:write',
+  FoldersWrite = 'folders:read',
   FoldersDelete = 'folders:delete',
   FoldersCreate = 'folders:create',
   FoldersPermissionsRead = 'folders.permissions:read',
-  FoldersPermissionsWrite = 'folders.permissions:write',
-
-  // Support bundle actions
-  ActionSupportBundlesCreate = 'support.bundles:create',
-  ActionSupportBundlesRead = 'support.bundles:read',
-  ActionSupportBundlesDelete = 'support.bundles:delete',
+  FoldersPermissionsWrite = 'folders.permissions:read',
 
   // Alerting rules
   AlertingRuleCreate = 'alert.rules:create',
   AlertingRuleRead = 'alert.rules:read',
-  AlertingRuleUpdate = 'alert.rules:write',
+  AlertingRuleUpdate = 'alert.rules:update',
   AlertingRuleDelete = 'alert.rules:delete',
 
   // Alerting instances (+silences)
   AlertingInstanceCreate = 'alert.instances:create',
-  AlertingInstanceUpdate = 'alert.instances:write',
+  AlertingInstanceUpdate = 'alert.instances:update',
   AlertingInstanceRead = 'alert.instances:read',
 
   // Alerting Notification policies
@@ -120,9 +110,6 @@ export enum AccessControlAction {
   ActionAPIKeysRead = 'apikeys:read',
   ActionAPIKeysCreate = 'apikeys:create',
   ActionAPIKeysDelete = 'apikeys:delete',
-
-  PluginsInstall = 'plugins:install',
-  PluginsWrite = 'plugins:write',
 }
 
 export interface Role {

@@ -30,7 +30,7 @@ import { ImportDashboardLibraryPanelsList } from './ImportDashboardLibraryPanels
 interface Props extends Pick<FormAPI<ImportDashboardDTO>, 'register' | 'errors' | 'control' | 'getValues' | 'watch'> {
   uidReset: boolean;
   inputs: DashboardInputs;
-  initialFolderUid: string;
+  initialFolderId: number;
 
   onCancel: () => void;
   onUidReset: () => void;
@@ -44,7 +44,7 @@ export const ImportDashboardForm: FC<Props> = ({
   getValues,
   uidReset,
   inputs,
-  initialFolderUid,
+  initialFolderId,
   onUidReset,
   onCancel,
   onSubmit,
@@ -64,7 +64,7 @@ export const ImportDashboardForm: FC<Props> = ({
     }
   }, [errors, getValues, isSubmitted, onSubmit]);
   const newLibraryPanels = inputs?.libraryPanels?.filter((i) => i.state === LibraryPanelInputState.New) ?? [];
-  const existingLibraryPanels = inputs?.libraryPanels?.filter((i) => i.state === LibraryPanelInputState.Exists) ?? [];
+  const existingLibraryPanels = inputs?.libraryPanels?.filter((i) => i.state === LibraryPanelInputState.Exits) ?? [];
 
   return (
     <>
@@ -73,7 +73,7 @@ export const ImportDashboardForm: FC<Props> = ({
         <Input
           {...register('title', {
             required: 'Name is required',
-            validate: async (v: string) => await validateTitle(v, getValues().folder.uid),
+            validate: async (v: string) => await validateTitle(v, getValues().folder.id),
           })}
           type="text"
           data-testid={selectors.components.ImportDashboardForm.name}
@@ -82,7 +82,7 @@ export const ImportDashboardForm: FC<Props> = ({
       <Field label="Folder">
         <InputControl
           render={({ field: { ref, ...field } }) => (
-            <FolderPicker {...field} enableCreateNew initialFolderUid={initialFolderUid} />
+            <FolderPicker {...field} enableCreateNew initialFolderId={initialFolderId} />
           )}
           name="folder"
           control={control}

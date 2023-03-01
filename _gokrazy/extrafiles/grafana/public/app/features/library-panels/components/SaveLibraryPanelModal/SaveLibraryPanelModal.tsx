@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useAsync, useDebounce } from 'react-use';
 
-import { Button, Icon, Input, Modal, useStyles2 } from '@grafana/ui';
+import { Button, Icon, Input, Modal, useStyles } from '@grafana/ui';
 
 import { getConnectedDashboards } from '../../state/api';
 import { getModalStyles } from '../../styles';
@@ -10,21 +10,21 @@ import { usePanelSave } from '../../utils/usePanelSave';
 
 interface Props {
   panel: PanelModelWithLibraryPanel;
-  folderUid: string;
+  folderId: number;
   isUnsavedPrompt?: boolean;
   onConfirm: () => void;
   onDismiss: () => void;
   onDiscard: () => void;
 }
 
-export const SaveLibraryPanelModal = ({
+export const SaveLibraryPanelModal: React.FC<Props> = ({
   panel,
-  folderUid,
+  folderId,
   isUnsavedPrompt,
   onDismiss,
   onConfirm,
   onDiscard,
-}: Props) => {
+}) => {
   const [searchString, setSearchString] = useState('');
   const dashState = useAsync(async () => {
     const searchHits = await getConnectedDashboards(panel.libraryPanel.uid);
@@ -51,7 +51,7 @@ export const SaveLibraryPanelModal = ({
   );
 
   const { saveLibraryPanel } = usePanelSave();
-  const styles = useStyles2(getModalStyles);
+  const styles = useStyles(getModalStyles);
   const discardAndClose = useCallback(() => {
     onDiscard();
   }, [onDiscard]);
@@ -105,7 +105,7 @@ export const SaveLibraryPanelModal = ({
           )}
           <Button
             onClick={() => {
-              saveLibraryPanel(panel, folderUid).then(() => {
+              saveLibraryPanel(panel, folderId).then(() => {
                 onConfirm();
               });
             }}

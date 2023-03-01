@@ -82,7 +82,7 @@ export const validateIntervals = (
     getValidIntervals(intervals, dependencies);
     return null;
   } catch (err) {
-    return err instanceof Error ? err.message : 'Invalid intervals';
+    return err.message;
   }
 };
 

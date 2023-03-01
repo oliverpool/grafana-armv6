@@ -27,8 +27,7 @@ export type DataProvider = {
   getAllMetricNames: () => Promise<Metric[]>;
   getAllLabelNames: () => Promise<string[]>;
   getLabelValues: (labelName: string) => Promise<string[]>;
-  getSeriesValues: (name: string, match: string) => Promise<string[]>;
-  getSeriesLabels: (selector: string, otherLabels: Label[]) => Promise<string[]>;
+  getSeries: (selector: string) => Promise<Record<string, string[]>>;
 };
 
 // we order items like: history, functions, metrics
@@ -110,7 +109,10 @@ async function getLabelNames(
     return dataProvider.getAllLabelNames();
   } else {
     const selector = makeSelector(metric, otherLabels);
-    return await dataProvider.getSeriesLabels(selector, otherLabels);
+    const data = await dataProvider.getSeries(selector);
+    const possibleLabelNames = Object.keys(data); // all names from prometheus
+    const usedLabelNames = new Set(otherLabels.map((l) => l.name)); // names used in the query
+    return possibleLabelNames.filter((l) => !usedLabelNames.has(l));
   }
 }
 
@@ -156,7 +158,8 @@ async function getLabelValues(
     return dataProvider.getLabelValues(labelName);
   } else {
     const selector = makeSelector(metric, otherLabels);
-    return await dataProvider.getSeriesValues(labelName, selector);
+    const data = await dataProvider.getSeries(selector);
+    return data[labelName] ?? [];
   }
 }
 

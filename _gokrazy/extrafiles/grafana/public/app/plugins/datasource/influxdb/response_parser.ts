@@ -2,7 +2,7 @@ import { each, flatten, groupBy, isArray } from 'lodash';
 
 import { AnnotationEvent, DataFrame, DataQuery, FieldType, QueryResultMeta } from '@grafana/data';
 import { toDataQueryResponse } from '@grafana/runtime';
-import TableModel from 'app/core/TableModel';
+import TableModel from 'app/core/table_model';
 
 import { InfluxQuery } from './types';
 
@@ -88,7 +88,7 @@ export default class ResponseParser {
     return table;
   }
 
-  async transformAnnotationResponse(annotation: any, data: any, target: InfluxQuery): Promise<AnnotationEvent[]> {
+  async transformAnnotationResponse(options: any, data: any, target: InfluxQuery): Promise<AnnotationEvent[]> {
     const rsp = toDataQueryResponse(data, [target] as DataQuery[]);
 
     if (rsp) {
@@ -105,19 +105,19 @@ export default class ResponseParser {
           timeCol = index;
           return;
         }
-        if (column.text === annotation.titleColumn) {
+        if (column.text === options.annotation.titleColumn) {
           titleCol = index;
           return;
         }
-        if (colContainsTag(column.text, annotation.tagsColumn)) {
+        if (colContainsTag(column.text, options.annotation.tagsColumn)) {
           tagsCol.push(index);
           return;
         }
-        if (column.text.includes(annotation.textColumn)) {
+        if (column.text.includes(options.annotation.textColumn)) {
           textCol = index;
           return;
         }
-        if (column.text === annotation.timeEndColumn) {
+        if (column.text === options.annotation.timeEndColumn) {
           timeEndCol = index;
           return;
         }
@@ -129,7 +129,7 @@ export default class ResponseParser {
 
       each(table.rows, (value) => {
         const data = {
-          annotation: annotation,
+          annotation: options.annotation,
           time: +new Date(value[timeCol]),
           title: value[titleCol],
           timeEnd: value[timeEndCol],
@@ -157,7 +157,7 @@ export default class ResponseParser {
 
 function colContainsTag(colText: string, tagsColumn: string): boolean {
   const tags = (tagsColumn || '').replace(' ', '').split(',');
-  for (const tag of tags) {
+  for (var tag of tags) {
     if (colText.includes(tag)) {
       return true;
     }

@@ -1,4 +1,4 @@
-import { parser } from '@prometheus-io/lezer-promql';
+import { parser } from 'lezer-promql';
 
 import { getLeftMostChild, getString, replaceVariables } from './parsingUtils';
 

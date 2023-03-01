@@ -1,11 +1,8 @@
-import { DataSourceInstanceSettings, DataSourcePluginMeta } from '@grafana/data';
+import { DataSourcePluginMeta } from '@grafana/data';
 
-import { AzureDataSourceInstanceSettings, AzureDataSourceJsonData } from '../types';
+import { AzureDataSourceInstanceSettings } from '../types';
 
-export const createMockInstanceSetttings = (
-  overrides?: Partial<DataSourceInstanceSettings>,
-  jsonDataOverrides?: Partial<AzureDataSourceJsonData>
-): AzureDataSourceInstanceSettings => ({
+export const createMockInstanceSetttings = (): AzureDataSourceInstanceSettings => ({
   url: '/ds/1',
   id: 1,
   uid: 'abc',
@@ -13,8 +10,6 @@ export const createMockInstanceSetttings = (
   access: 'proxy',
   meta: {} as DataSourcePluginMeta,
   name: 'azure',
-  readOnly: false,
-  ...overrides,
 
   jsonData: {
     cloudName: 'azuremonitor',
@@ -24,6 +19,5 @@ export const createMockInstanceSetttings = (
     tenantId: 'abc-123',
     clientId: 'def-456',
     subscriptionId: 'ghi-789',
-    ...jsonDataOverrides,
   },
 });

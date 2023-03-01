@@ -55,9 +55,6 @@ export function getDefaultOptions(): DashboardQueryRunnerOptions {
       publish: jest.fn(),
     },
     panels: [{ alert: {} } as any],
-    meta: {
-      publicDashboardAccessToken: '',
-    },
   };
   const range = getDefaultTimeRange();
 

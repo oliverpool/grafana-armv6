@@ -4,23 +4,24 @@ import React from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Card, LinkButton, ModalsController, useStyles2 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
-import { DashNavButton } from 'app/features/dashboard/components/DashNav/DashNavButton';
+
+import { DashNavButton } from '../dashboard/components/DashNav/DashNavButton';
 
 import { ShareModal } from './ShareModal';
-import { Playlist } from './types';
+import { PlaylistDTO } from './types';
 
 interface Props {
-  setStartPlaylist: (playlistItem: Playlist) => void;
-  setPlaylistToDelete: (playlistItem: Playlist) => void;
-  playlists: Playlist[] | undefined;
+  setStartPlaylist: (playlistItem: PlaylistDTO) => void;
+  setPlaylistToDelete: (playlistItem: PlaylistDTO) => void;
+  playlists: PlaylistDTO[] | undefined;
 }
 
 export const PlaylistPageList = ({ playlists, setStartPlaylist, setPlaylistToDelete }: Props) => {
   const styles = useStyles2(getStyles);
   return (
     <ul className={styles.list}>
-      {playlists!.map((playlist: Playlist) => (
-        <li className={styles.listItem} key={playlist.uid}>
+      {playlists!.map((playlist: PlaylistDTO) => (
+        <li className={styles.listItem} key={playlist.id.toString()}>
           <Card>
             <Card.Heading>
               {playlist.name}
@@ -32,7 +33,7 @@ export const PlaylistPageList = ({ playlists, setStartPlaylist, setPlaylistToDel
                     iconSize="lg"
                     onClick={() => {
                       showModal(ShareModal, {
-                        playlistUid: playlist.uid,
+                        playlistId: playlist.id,
                         onDismiss: hideModal,
                       });
                     }}
@@ -46,12 +47,12 @@ export const PlaylistPageList = ({ playlists, setStartPlaylist, setPlaylistToDel
               </Button>
               {contextSrv.isEditor && (
                 <>
-                  <LinkButton key="edit" variant="secondary" href={`/playlists/edit/${playlist.uid}`} icon="cog">
+                  <LinkButton key="edit" variant="secondary" href={`/playlists/edit/${playlist.id}`} icon="cog">
                     Edit playlist
                   </LinkButton>
                   <Button
                     disabled={false}
-                    onClick={() => setPlaylistToDelete(playlist)}
+                    onClick={() => setPlaylistToDelete({ id: playlist.id, name: playlist.name })}
                     icon="trash-alt"
                     variant="destructive"
                   >

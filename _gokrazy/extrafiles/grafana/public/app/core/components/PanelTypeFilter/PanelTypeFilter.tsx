@@ -11,7 +11,9 @@ export interface Props {
 }
 
 export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Props): JSX.Element => {
-  const plugins = useMemo<PanelPluginMeta[]>(() => getAllPanelPluginMeta(), []);
+  const plugins = useMemo<PanelPluginMeta[]>(() => {
+    return getAllPanelPluginMeta();
+  }, []);
   const options = useMemo(
     () =>
       plugins
@@ -22,7 +24,12 @@ export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Prop
   const [value, setValue] = useState<Array<SelectableValue<PanelPluginMeta>>>([]);
   const onChange = useCallback(
     (plugins: Array<SelectableValue<PanelPluginMeta>>) => {
-      const changedPlugins = plugins.filter((p) => p.value).map((p) => p.value!);
+      const changedPlugins = [];
+      for (const plugin of plugins) {
+        if (plugin.value) {
+          changedPlugins.push(plugin.value);
+        }
+      }
       propsOnChange(changedPlugins);
       setValue(plugins);
     },
@@ -48,7 +55,7 @@ export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Prop
         <Button
           size="xs"
           icon="trash-alt"
-          fill="text"
+          variant="link"
           className={styles.clear}
           onClick={() => onChange([])}
           aria-label="Clear types"
@@ -56,7 +63,7 @@ export const PanelTypeFilter = ({ onChange: propsOnChange, maxMenuHeight }: Prop
           Clear types
         </Button>
       )}
-      <MultiSelect {...selectOptions} prefix={<Icon name="filter" />} aria-label="Panel Type filter" />
+      <MultiSelect menuShouldPortal {...selectOptions} prefix={<Icon name="filter" />} aria-label="Panel Type filter" />
     </div>
   );
 };

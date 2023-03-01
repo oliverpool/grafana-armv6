@@ -2,6 +2,8 @@ import { DataQuery, DataSourceJsonData, QueryResultMeta, ScopedVars } from '@gra
 
 import { QueryEditorMode } from '../prometheus/querybuilder/shared/types';
 
+import { LokiVisualQuery } from './querybuilder/types';
+
 export interface LokiInstantQueryRequest {
   query: string;
   limit?: number;
@@ -30,16 +32,14 @@ export enum LokiQueryType {
   Stream = 'stream',
 }
 
-export enum LokiQueryDirection {
-  Backward = 'backward',
-  Forward = 'forward',
-}
-
 export interface LokiQuery extends DataQuery {
   queryType?: LokiQueryType;
   expr: string;
-  direction?: LokiQueryDirection;
+  query?: string;
+  format?: string;
+  reverse?: boolean;
   legendFormat?: string;
+  valueWithRefId?: boolean;
   maxLines?: number;
   resolution?: number;
   /** Used in range queries */
@@ -49,13 +49,14 @@ export interface LokiQuery extends DataQuery {
   /* @deprecated now use queryType */
   instant?: boolean;
   editorMode?: QueryEditorMode;
+  /** Temporary until we have a parser */
+  visualQuery?: LokiVisualQuery;
 }
 
 export interface LokiOptions extends DataSourceJsonData {
   maxLines?: string;
   derivedFields?: DerivedFieldConfig[];
   alertmanager?: string;
-  keepCookies?: string[];
 }
 
 export interface LokiStats {
@@ -136,20 +137,15 @@ export type DerivedFieldConfig = {
 };
 
 export interface TransformerOptions {
+  format?: string;
   legendFormat?: string;
+  step: number;
+  start: number;
+  end: number;
   query: string;
+  responseListLength: number;
   refId: string;
   scopedVars: ScopedVars;
   meta?: QueryResultMeta;
-}
-
-export enum LokiVariableQueryType {
-  LabelNames,
-  LabelValues,
-}
-
-export interface LokiVariableQuery extends DataQuery {
-  type: LokiVariableQueryType;
-  label?: string;
-  stream?: string;
+  valueWithRefId?: boolean;
 }

@@ -1,15 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { AnnotationQuery, getDataSourceRef, NavModelItem } from '@grafana/data';
-import { getDataSourceSrv, locationService } from '@grafana/runtime';
-import { Page } from 'app/core/components/PageNew/Page';
+import { AnnotationQuery, getDataSourceRef } from '@grafana/data';
+import { getDataSourceSrv } from '@grafana/runtime';
 
-import { DashboardModel } from '../../state';
+import { DashboardModel } from '../../state/DashboardModel';
 import { AnnotationSettingsEdit, AnnotationSettingsList, newAnnotationName } from '../AnnotationSettings';
 
-import { SettingsPageProps } from './types';
+import { DashboardSettingsHeader } from './DashboardSettingsHeader';
 
-export function AnnotationsSettings({ dashboard, editIndex, sectionNav }: SettingsPageProps) {
+interface Props {
+  dashboard: DashboardModel;
+}
+
+export const AnnotationsSettings: React.FC<Props> = ({ dashboard }) => {
+  const [editIdx, setEditIdx] = useState<number | null>(null);
+
+  const onGoBack = () => {
+    setEditIdx(null);
+  };
+
   const onNew = () => {
     const newAnnotation: AnnotationQuery = {
       name: newAnnotationName,
@@ -19,34 +28,20 @@ export function AnnotationsSettings({ dashboard, editIndex, sectionNav }: Settin
     };
 
     dashboard.annotations.list = [...dashboard.annotations.list, { ...newAnnotation }];
-    locationService.partial({ editIndex: dashboard.annotations.list.length - 1 });
+    setEditIdx(dashboard.annotations.list.length - 1);
   };
 
   const onEdit = (idx: number) => {
-    locationService.partial({ editIndex: idx });
+    setEditIdx(idx);
   };
 
-  const isEditing = editIndex != null && editIndex < dashboard.annotations.list.length;
+  const isEditing = editIdx !== null;
 
   return (
-    <Page navModel={sectionNav} pageNav={getSubPageNav(dashboard, editIndex)}>
+    <>
+      <DashboardSettingsHeader title="Annotations" onGoBack={onGoBack} isEditing={isEditing} />
       {!isEditing && <AnnotationSettingsList dashboard={dashboard} onNew={onNew} onEdit={onEdit} />}
-      {isEditing && <AnnotationSettingsEdit dashboard={dashboard} editIdx={editIndex!} />}
-    </Page>
+      {isEditing && <AnnotationSettingsEdit dashboard={dashboard} editIdx={editIdx!} />}
+    </>
   );
-}
-
-function getSubPageNav(dashboard: DashboardModel, editIndex: number | undefined): NavModelItem | undefined {
-  if (editIndex == null) {
-    return undefined;
-  }
-
-  const editItem = dashboard.annotations.list[editIndex];
-  if (editItem) {
-    return {
-      text: editItem.name,
-    };
-  }
-
-  return undefined;
-}
+};

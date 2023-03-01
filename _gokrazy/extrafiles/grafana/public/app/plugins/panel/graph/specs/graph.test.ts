@@ -6,7 +6,7 @@ import { PanelCtrl } from 'app/angular/panel/panel_ctrl';
 import config from 'app/core/config';
 import TimeSeries from 'app/core/time_series2';
 
-import { createDashboardModelFixture } from '../../../../features/dashboard/state/__fixtures__/dashboardFixtures';
+import { DashboardModel } from '../../../../features/dashboard/state';
 import { graphDirective, GraphElement } from '../graph';
 import { GraphCtrl } from '../module';
 
@@ -1297,7 +1297,6 @@ describe('grafanaGraph', () => {
     describe('when called and user can edit the dashboard', () => {
       it('then the correct menu items should be returned', () => {
         const element = getGraphElement({ canEdit: true, canMakeEditable: false });
-        jest.spyOn(element.dashboard, 'canAddAnnotations').mockReturnValue(true);
 
         const result = element.getContextMenuItemsSupplier({ x: 1, y: 1 })();
 
@@ -1312,7 +1311,6 @@ describe('grafanaGraph', () => {
     describe('when called and user can make the dashboard editable', () => {
       it('then the correct menu items should be returned', () => {
         const element = getGraphElement({ canEdit: false, canMakeEditable: true });
-        jest.spyOn(element.dashboard, 'canAddAnnotations').mockReturnValue(true);
 
         const result = element.getContextMenuItemsSupplier({ x: 1, y: 1 })();
 
@@ -1337,7 +1335,7 @@ describe('grafanaGraph', () => {
 });
 
 function getGraphElement({ canEdit, canMakeEditable }: { canEdit?: boolean; canMakeEditable?: boolean } = {}) {
-  const dashboard = createDashboardModelFixture({});
+  const dashboard = new DashboardModel({});
   dashboard.events.on = jest.fn();
   dashboard.meta.canEdit = canEdit;
   dashboard.meta.canMakeEditable = canMakeEditable;

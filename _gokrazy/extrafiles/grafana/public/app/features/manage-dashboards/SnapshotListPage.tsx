@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { FC } from 'react';
+import { MapStateToProps, connect } from 'react-redux';
 
-import { Page } from 'app/core/components/Page/Page';
+import { NavModel } from '@grafana/data';
+import Page from 'app/core/components/Page/Page';
+import { getNavModel } from 'app/core/selectors/navModel';
+import { StoreState } from 'app/types';
+
+import { GrafanaRouteComponentProps } from '../../core/navigation/types';
 
 import { SnapshotListTable } from './components/SnapshotListTable';
 
-export const SnapshotListPage = ({}) => {
+interface ConnectedProps {
+  navModel: NavModel;
+}
+interface Props extends ConnectedProps, GrafanaRouteComponentProps {}
+
+export const SnapshotListPage: FC<Props> = ({ navModel, location }) => {
   return (
-    <Page navId="dashboards/snapshots">
+    <Page navModel={navModel}>
       <Page.Contents>
         <SnapshotListTable />
       </Page.Contents>
@@ -14,4 +25,8 @@ export const SnapshotListPage = ({}) => {
   );
 };
 
-export default SnapshotListPage;
+const mapStateToProps: MapStateToProps<ConnectedProps, {}, StoreState> = (state: StoreState) => ({
+  navModel: getNavModel(state.navIndex, 'snapshots'),
+});
+
+export default connect(mapStateToProps)(SnapshotListPage);

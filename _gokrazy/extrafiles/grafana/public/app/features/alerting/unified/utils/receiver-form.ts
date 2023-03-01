@@ -192,7 +192,6 @@ function grafanaChannelConfigToFormChannelValues(
   const values: GrafanaChannelValues = {
     __id: id,
     type: channel.type as NotifierType,
-    provenance: channel.provenance,
     secureSettings: {},
     settings: { ...channel.settings },
     secureFields: { ...channel.secureFields },

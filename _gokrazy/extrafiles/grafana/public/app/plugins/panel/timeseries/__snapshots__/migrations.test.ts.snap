@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Graph Migrations legend with multiple values 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "auto",
         "drawStyle": "line",
         "fillOpacity": 50,
@@ -17,16 +17,16 @@ exports[`Graph Migrations legend with multiple values 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "A-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "color",
-            "value": {
+            "value": Object {
               "fixedColor": "red",
               "mode": "fixed",
             },
@@ -35,18 +35,17 @@ exports[`Graph Migrations legend with multiple values 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "mean",
         "lastNotNull",
         "sum",
       ],
       "displayMode": "table",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -55,27 +54,26 @@ exports[`Graph Migrations legend with multiple values 1`] = `
 `;
 
 exports[`Graph Migrations legend with single value 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "drawStyle": "points",
         "spanNulls": false,
       },
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "sum",
       ],
       "displayMode": "list",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "single",
       "sort": "none",
     },
@@ -84,25 +82,24 @@ exports[`Graph Migrations legend with single value 1`] = `
 `;
 
 exports[`Graph Migrations legend without values 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "drawStyle": "points",
         "spanNulls": false,
       },
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "options": {
-    "legend": {
-      "calcs": [],
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [],
       "displayMode": "list",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "single",
       "sort": "none",
     },
@@ -111,11 +108,11 @@ exports[`Graph Migrations legend without values 1`] = `
 `;
 
 exports[`Graph Migrations preserves colors from series overrides 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "hidden",
         "drawStyle": "line",
         "fillOpacity": 60,
@@ -128,32 +125,17 @@ exports[`Graph Migrations preserves colors from series overrides 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "A-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "color",
-            "value": {
+            "value": Object {
               "fixedColor": "rgba(165, 72, 170, 0.77)",
-              "mode": "fixed",
-            },
-          },
-        ],
-      },
-      {
-        "matcher": {
-          "id": "byName",
-          "options": "B-series",
-        },
-        "properties": [
-          {
-            "id": "color",
-            "value": {
-              "fixedColor": "rgba(16, 72, 170, 0.77)",
               "mode": "fixed",
             },
           },
@@ -161,9 +143,9 @@ exports[`Graph Migrations preserves colors from series overrides 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "mean",
         "lastNotNull",
         "max",
@@ -172,9 +154,8 @@ exports[`Graph Migrations preserves colors from series overrides 1`] = `
       ],
       "displayMode": "table",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -183,11 +164,11 @@ exports[`Graph Migrations preserves colors from series overrides 1`] = `
 `;
 
 exports[`Graph Migrations preserves series overrides using a regex alias 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "hidden",
         "drawStyle": "line",
         "fillOpacity": 60,
@@ -200,32 +181,17 @@ exports[`Graph Migrations preserves series overrides using a regex alias 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byRegexp",
           "options": "/^A-/",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "color",
-            "value": {
+            "value": Object {
               "fixedColor": "rgba(165, 72, 170, 0.77)",
-              "mode": "fixed",
-            },
-          },
-        ],
-      },
-      {
-        "matcher": {
-          "id": "byRegexp",
-          "options": "/.*Status: 2[0-9]+.*/i",
-        },
-        "properties": [
-          {
-            "id": "color",
-            "value": {
-              "fixedColor": "rgba(16, 72, 170, 0.77)",
               "mode": "fixed",
             },
           },
@@ -233,9 +199,9 @@ exports[`Graph Migrations preserves series overrides using a regex alias 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "mean",
         "lastNotNull",
         "max",
@@ -244,9 +210,8 @@ exports[`Graph Migrations preserves series overrides using a regex alias 1`] = `
       ],
       "displayMode": "table",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -255,27 +220,26 @@ exports[`Graph Migrations preserves series overrides using a regex alias 1`] = `
 `;
 
 exports[`Graph Migrations simple bars 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "drawStyle": "bars",
         "fillOpacity": 100,
         "showPoints": "never",
         "spanNulls": false,
       },
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "options": {
-    "legend": {
-      "calcs": [],
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [],
       "displayMode": "list",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "single",
       "sort": "none",
     },
@@ -284,11 +248,11 @@ exports[`Graph Migrations simple bars 1`] = `
 `;
 
 exports[`Graph Migrations stacking groups 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "auto",
         "drawStyle": "line",
         "fillOpacity": 50,
@@ -296,7 +260,7 @@ exports[`Graph Migrations stacking groups 1`] = `
         "lineWidth": 5,
         "showPoints": "never",
         "spanNulls": false,
-        "stacking": {
+        "stacking": Object {
           "group": "A",
           "mode": "normal",
         },
@@ -304,46 +268,46 @@ exports[`Graph Migrations stacking groups 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "A-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "color",
-            "value": {
+            "value": Object {
               "fixedColor": "red",
               "mode": "fixed",
             },
           },
         ],
       },
-      {
-        "matcher": {
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "A-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "custom.stacking",
-            "value": {
+            "value": Object {
               "group": "A",
               "mode": "normal",
             },
           },
         ],
       },
-      {
-        "matcher": {
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "B-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "custom.stacking",
-            "value": {
+            "value": Object {
               "group": "A",
               "mode": "normal",
             },
@@ -352,18 +316,17 @@ exports[`Graph Migrations stacking groups 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "mean",
         "lastNotNull",
         "sum",
       ],
       "displayMode": "table",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -372,11 +335,11 @@ exports[`Graph Migrations stacking groups 1`] = `
 `;
 
 exports[`Graph Migrations stacking simple 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "auto",
         "drawStyle": "line",
         "fillOpacity": 50,
@@ -384,7 +347,7 @@ exports[`Graph Migrations stacking simple 1`] = `
         "lineWidth": 5,
         "showPoints": "never",
         "spanNulls": false,
-        "stacking": {
+        "stacking": Object {
           "group": "A",
           "mode": "normal",
         },
@@ -392,16 +355,16 @@ exports[`Graph Migrations stacking simple 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "A-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "color",
-            "value": {
+            "value": Object {
               "fixedColor": "red",
               "mode": "fixed",
             },
@@ -410,18 +373,17 @@ exports[`Graph Migrations stacking simple 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "mean",
         "lastNotNull",
         "sum",
       ],
       "displayMode": "table",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -430,11 +392,11 @@ exports[`Graph Migrations stacking simple 1`] = `
 `;
 
 exports[`Graph Migrations stairscase 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "hidden",
         "drawStyle": "line",
         "fillOpacity": 60,
@@ -448,11 +410,11 @@ exports[`Graph Migrations stairscase 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "options": {
-    "legend": {
-      "calcs": [
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [
         "mean",
         "lastNotNull",
         "max",
@@ -461,9 +423,8 @@ exports[`Graph Migrations stairscase 1`] = `
       ],
       "displayMode": "table",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -472,11 +433,11 @@ exports[`Graph Migrations stairscase 1`] = `
 `;
 
 exports[`Graph Migrations stepped line 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisPlacement": "auto",
         "drawStyle": "line",
         "fillOpacity": 50,
@@ -488,16 +449,16 @@ exports[`Graph Migrations stepped line 1`] = `
       "nullValueMode": "null",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "A-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "color",
-            "value": {
+            "value": Object {
               "fixedColor": "red",
               "mode": "fixed",
             },
@@ -506,14 +467,13 @@ exports[`Graph Migrations stepped line 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [],
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [],
       "displayMode": "list",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -522,21 +482,21 @@ exports[`Graph Migrations stepped line 1`] = `
 `;
 
 exports[`Graph Migrations transforms should preserve "constant" transform 1`] = `
-{
-  "defaults": {
-    "custom": {
+Object {
+  "defaults": Object {
+    "custom": Object {
       "drawStyle": "points",
       "spanNulls": false,
     },
   },
-  "overrides": [
-    {
-      "matcher": {
+  "overrides": Array [
+    Object {
+      "matcher": Object {
         "id": "byName",
         "options": "out",
       },
-      "properties": [
-        {
+      "properties": Array [
+        Object {
           "id": "custom.transform",
           "value": "constant",
         },
@@ -547,21 +507,21 @@ exports[`Graph Migrations transforms should preserve "constant" transform 1`] = 
 `;
 
 exports[`Graph Migrations transforms should preserve "negative-Y" transform 1`] = `
-{
-  "defaults": {
-    "custom": {
+Object {
+  "defaults": Object {
+    "custom": Object {
       "drawStyle": "points",
       "spanNulls": false,
     },
   },
-  "overrides": [
-    {
-      "matcher": {
+  "overrides": Array [
+    Object {
+      "matcher": Object {
         "id": "byName",
         "options": "out",
       },
-      "properties": [
-        {
+      "properties": Array [
+        Object {
           "id": "custom.transform",
           "value": "negative-Y",
         },
@@ -572,24 +532,24 @@ exports[`Graph Migrations transforms should preserve "negative-Y" transform 1`] 
 `;
 
 exports[`Graph Migrations twoYAxis 1`] = `
-{
+Object {
   "alert": undefined,
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "axisLabel": "Y111",
         "axisPlacement": "auto",
         "drawStyle": "line",
         "fillOpacity": 10,
-        "lineStyle": {
-          "dash": [
+        "lineStyle": Object {
+          "dash": Array [
             10,
             10,
           ],
           "fill": "dash",
         },
         "lineWidth": 1,
-        "scaleDistribution": {
+        "scaleDistribution": Object {
           "log": 10,
           "type": "log",
         },
@@ -602,37 +562,37 @@ exports[`Graph Migrations twoYAxis 1`] = `
       "nullValueMode": "null",
       "unit": "areaMI2",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "B-series",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "unit",
             "value": "degree",
           },
-          {
+          Object {
             "id": "decimals",
             "value": 2,
           },
-          {
+          Object {
             "id": "min",
             "value": -10,
           },
-          {
+          Object {
             "id": "max",
             "value": 25,
           },
-          {
+          Object {
             "id": "custom.axisLabel",
             "value": "Y222",
           },
-          {
+          Object {
             "id": "custom.lineStyle",
-            "value": {
-              "dash": [
+            "value": Object {
+              "dash": Array [
                 5,
                 8,
               ],
@@ -643,14 +603,13 @@ exports[`Graph Migrations twoYAxis 1`] = `
       },
     ],
   },
-  "options": {
-    "legend": {
-      "calcs": [],
+  "options": Object {
+    "legend": Object {
+      "calcs": Array [],
       "displayMode": "list",
       "placement": "bottom",
-      "showLegend": true,
     },
-    "tooltip": {
+    "tooltip": Object {
       "mode": "multi",
       "sort": "none",
     },
@@ -659,21 +618,21 @@ exports[`Graph Migrations twoYAxis 1`] = `
 `;
 
 exports[`Graph Migrations x axis should hide x axis 1`] = `
-{
-  "defaults": {
-    "custom": {
+Object {
+  "defaults": Object {
+    "custom": Object {
       "drawStyle": "points",
       "spanNulls": false,
     },
   },
-  "overrides": [
-    {
-      "matcher": {
+  "overrides": Array [
+    Object {
+      "matcher": Object {
         "id": "byType",
         "options": "time",
       },
-      "properties": [
-        {
+      "properties": Array [
+        Object {
           "id": "custom.axisPlacement",
           "value": "hidden",
         },

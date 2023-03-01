@@ -1,31 +1,26 @@
-import { DatasourceSrv } from 'app/features/plugins/datasource_srv';
-
 import { RichHistoryQuery } from '../../types';
 import { backendSrv } from '../services/backend_srv';
 
 import { RichHistoryLocalStorageDTO } from './RichHistoryLocalStorage';
 import { fromDTO, toDTO } from './localStorageConverter';
 
-const dsMock = new DatasourceSrv();
-dsMock.init(
-  {
-    // @ts-ignore
-    'name-of-dev-test': { uid: 'dev-test', name: 'name-of-dev-test' },
-  },
-  ''
-);
-
 jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
+  ...(jest.requireActual('@grafana/runtime') as unknown as object),
   getBackendSrv: () => backendSrv,
-  getDataSourceSrv: () => dsMock,
+  getDataSourceSrv: () => {
+    return {
+      getList: () => {
+        return [{ uid: 'uid', name: 'dev-test' }];
+      },
+    };
+  },
 }));
 
 const validRichHistory: RichHistoryQuery = {
   comment: 'comment',
   createdAt: 1,
-  datasourceName: 'name-of-dev-test',
-  datasourceUid: 'dev-test',
+  datasourceName: 'dev-test',
+  datasourceUid: 'uid',
   id: '1',
   queries: [{ refId: 'A' }],
   starred: true,
@@ -33,7 +28,7 @@ const validRichHistory: RichHistoryQuery = {
 
 const validDTO: RichHistoryLocalStorageDTO = {
   comment: 'comment',
-  datasourceName: 'name-of-dev-test',
+  datasourceName: 'dev-test',
   queries: [{ refId: 'A' }],
   starred: true,
   ts: 1,

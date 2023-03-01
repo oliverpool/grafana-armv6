@@ -33,7 +33,7 @@ export function getFieldOverrideCategories(
     return [];
   }
 
-  const onOverrideChange = (index: number, override: ConfigOverrideRule) => {
+  const onOverrideChange = (index: number, override: any) => {
     let overrides = cloneDeep(currentFieldConfig.overrides);
     overrides[index] = override;
     props.onFieldConfigsChange({ ...currentFieldConfig, overrides });

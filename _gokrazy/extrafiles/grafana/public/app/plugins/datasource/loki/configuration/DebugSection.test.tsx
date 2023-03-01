@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { mount } from 'enzyme';
 import React from 'react';
 
 import { dateTime, TimeRange } from '@grafana/data';
@@ -49,12 +48,20 @@ describe('DebugSection', () => {
     setLinkSrv(originalLinkSrv);
   });
 
-  it('does not render any table rows if no debug text', () => {
-    render(<DebugSection derivedFields={[]} />);
-    expect(screen.queryByRole('row')).not.toBeInTheDocument();
+  it('does not render any field if no debug text', () => {
+    const wrapper = mount(<DebugSection derivedFields={[]} />);
+    expect(wrapper.find('DebugFieldItem').length).toBe(0);
   });
 
-  it('renders derived fields as table rows', async () => {
+  it('does not render any field if no derived fields', () => {
+    const wrapper = mount(<DebugSection derivedFields={[]} />);
+    const textarea = wrapper.find('textarea');
+    (textarea.getDOMNode() as HTMLTextAreaElement).value = 'traceId=1234';
+    textarea.simulate('change');
+    expect(wrapper.find('DebugFieldItem').length).toBe(0);
+  });
+
+  it('renders derived fields', () => {
     const derivedFields = [
       {
         matcherRegex: 'traceId=(\\w+)',
@@ -71,14 +78,14 @@ describe('DebugSection', () => {
       },
     ];
 
-    render(<DebugSection derivedFields={derivedFields} />);
-    const textarea = screen.getByRole('textbox');
-    await userEvent.type(textarea, 'traceId=1234');
+    const wrapper = mount(<DebugSection derivedFields={derivedFields} />);
+    const textarea = wrapper.find('textarea');
+    (textarea.getDOMNode() as HTMLTextAreaElement).value = 'traceId=1234';
+    textarea.simulate('change');
 
-    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(wrapper.find('table').length).toBe(1);
     // 3 rows + one header
-    const rows = screen.getAllByRole('row');
-    expect(rows.length).toBe(4);
-    expect(rows[1]).toHaveTextContent('http://localhost/trace/${__value.raw}');
+    expect(wrapper.find('tr').length).toBe(4);
+    expect(wrapper.find('tr').at(1).contains('http://localhost/trace/${__value.raw}')).toBeTruthy();
   });
 });

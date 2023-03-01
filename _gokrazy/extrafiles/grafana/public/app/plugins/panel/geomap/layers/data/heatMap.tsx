@@ -1,5 +1,4 @@
 import {
-  EventBus,
   FieldType,
   getFieldColorModeForField,
   GrafanaTheme2,
@@ -46,7 +45,7 @@ export const heatmapLayer: MapLayerRegistryItem<HeatmapConfig> = {
    * Function that configures transformation and returns a transformer
    * @param options
    */
-  create: async (map: Map, options: MapLayerOptions<HeatmapConfig>, eventBus: EventBus, theme: GrafanaTheme2) => {
+  create: async (map: Map, options: MapLayerOptions<HeatmapConfig>, theme: GrafanaTheme2) => {
     const config = { ...defaultOptions, ...options.config };
     
     const location = await getLocationMatchers(options.location);

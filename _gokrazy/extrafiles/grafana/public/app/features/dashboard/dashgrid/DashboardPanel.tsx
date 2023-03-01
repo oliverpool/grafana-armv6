@@ -8,8 +8,8 @@ import { setPanelInstanceState } from '../../panel/state/reducers';
 import { DashboardModel, PanelModel } from '../state';
 
 import { LazyLoader } from './LazyLoader';
+import { PanelChrome } from './PanelChrome';
 import { PanelChromeAngular } from './PanelChromeAngular';
-import { PanelStateWrapper } from './PanelStateWrapper';
 
 export interface OwnProps {
   panel: PanelModel;
@@ -20,7 +20,6 @@ export interface OwnProps {
   width: number;
   height: number;
   lazy?: boolean;
-  timezone?: string;
 }
 
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
@@ -70,15 +69,12 @@ export class DashboardPanelUnconnected extends PureComponent<Props> {
     }
   };
 
-  renderPanel = (isInView: boolean) => {
-    const { dashboard, panel, isViewing, isEditing, width, height, plugin, timezone } = this.props;
+  render() {
+    const { dashboard, panel, isViewing, isEditing, width, height, lazy, plugin } = this.props;
 
-    if (!plugin) {
-      return null;
-    }
-
-    if (plugin && plugin.angularPanelCtrl) {
-      return (
+    const renderPanelChrome = (isInView: boolean) =>
+      plugin &&
+      (plugin.angularPanelCtrl ? (
         <PanelChromeAngular
           plugin={plugin}
           panel={panel}
@@ -89,34 +85,26 @@ export class DashboardPanelUnconnected extends PureComponent<Props> {
           width={width}
           height={height}
         />
-      );
-    }
-
-    return (
-      <PanelStateWrapper
-        plugin={plugin}
-        panel={panel}
-        dashboard={dashboard}
-        isViewing={isViewing}
-        isEditing={isEditing}
-        isInView={isInView}
-        width={width}
-        height={height}
-        onInstanceStateChange={this.onInstanceStateChange}
-        timezone={timezone}
-      />
-    );
-  };
-
-  render() {
-    const { width, height, lazy } = this.props;
+      ) : (
+        <PanelChrome
+          plugin={plugin}
+          panel={panel}
+          dashboard={dashboard}
+          isViewing={isViewing}
+          isEditing={isEditing}
+          isInView={isInView}
+          width={width}
+          height={height}
+          onInstanceStateChange={this.onInstanceStateChange}
+        />
+      ));
 
     return lazy ? (
       <LazyLoader width={width} height={height} onChange={this.onVisibilityChange} onLoad={this.onPanelLoad}>
-        {this.renderPanel}
+        {({ isInView }) => renderPanelChrome(isInView)}
       </LazyLoader>
     ) : (
-      this.renderPanel(true)
+      renderPanelChrome(true)
     );
   }
 }

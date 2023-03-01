@@ -1,24 +1,22 @@
-import React, { memo } from 'react';
+import React, { FC, memo } from 'react';
 
-import { config } from '@grafana/runtime';
 import { useUrlParams } from 'app/core/navigation/hooks';
 
-import { DashboardSearch } from './DashboardSearch';
-import { DashboardSearchModal } from './DashboardSearchModal';
+import { defaultQueryParams } from '../reducers/searchQueryReducer';
 
-export const SearchWrapper = memo(() => {
-  const [params] = useUrlParams();
+import DashboardSearch from './DashboardSearch';
+
+export const SearchWrapper: FC = memo(() => {
+  const [params, updateUrlParams] = useUrlParams();
   const isOpen = params.get('search') === 'open';
-  const isTopnav = config.featureToggles.topnav;
 
-  return isOpen ? (
-    isTopnav ? (
-      <DashboardSearchModal isOpen={isOpen} />
-    ) : (
-      // TODO: remove this component when we turn on the topnav feature toggle
-      <DashboardSearch />
-    )
-  ) : null;
+  const closeSearch = () => {
+    if (isOpen) {
+      updateUrlParams({ search: null, folder: null, ...defaultQueryParams });
+    }
+  };
+
+  return isOpen ? <DashboardSearch onCloseSearch={closeSearch} /> : null;
 });
 
 SearchWrapper.displayName = 'SearchWrapper';

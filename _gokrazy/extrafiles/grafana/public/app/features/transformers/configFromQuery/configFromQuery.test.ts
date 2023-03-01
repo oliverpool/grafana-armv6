@@ -132,20 +132,20 @@ describe('value mapping from data', () => {
 
     const results = extractConfigFromQuery(options, [config, seriesA]);
     expect(results[0].fields[1].config.mappings).toMatchInlineSnapshot(`
-      [
-        {
-          "options": {
-            "1": {
+      Array [
+        Object {
+          "options": Object {
+            "1": Object {
               "color": "red",
               "index": 0,
               "text": "one",
             },
-            "2": {
+            "2": Object {
               "color": "blue",
               "index": 1,
               "text": "two",
             },
-            "3": {
+            "3": Object {
               "color": "green",
               "index": 2,
               "text": "three",

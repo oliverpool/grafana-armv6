@@ -3,11 +3,9 @@ import { find, get } from 'lodash';
 import TimeGrainConverter from '../time_grain_converter';
 import {
   AzureMonitorLocalizedValue,
-  AzureMonitorLocations,
   AzureMonitorMetricAvailabilityMetadata,
   AzureMonitorMetricsMetadataResponse,
   AzureMonitorOption,
-  AzureMonitorLocationsResponse,
 } from '../types';
 export default class ResponseParser {
   static parseResponseValues(
@@ -35,7 +33,7 @@ export default class ResponseParser {
     return list;
   }
 
-  static parseResourceNames(result: any, metricNamespace?: string): Array<{ text: string; value: string }> {
+  static parseResourceNames(result: any, metricDefinition: string): Array<{ text: string; value: string }> {
     const list: Array<{ text: string; value: string }> = [];
 
     if (!result) {
@@ -45,7 +43,7 @@ export default class ResponseParser {
     for (let i = 0; i < result.value.length; i++) {
       if (
         typeof result.value[i].type === 'string' &&
-        (!metricNamespace || result.value[i].type.toLocaleLowerCase() === metricNamespace.toLocaleLowerCase())
+        result.value[i].type.toLocaleLowerCase() === metricDefinition.toLocaleLowerCase()
       ) {
         list.push({
           text: result.value[i].name,
@@ -171,19 +169,5 @@ export default class ResponseParser {
     }
 
     return list;
-  }
-
-  static parseLocations(result: AzureMonitorLocationsResponse) {
-    const locations: AzureMonitorLocations[] = [];
-
-    if (!result) {
-      return locations;
-    }
-
-    for (const location of result.value) {
-      locations.push({ name: location.name, displayName: location.displayName, supportsLogs: undefined });
-    }
-
-    return locations;
   }
 }

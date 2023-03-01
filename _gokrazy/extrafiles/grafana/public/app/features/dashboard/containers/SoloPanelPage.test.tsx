@@ -1,9 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
-import { GrafanaContext } from 'app/core/context/GrafanaContext';
-import { DashboardMeta, DashboardRoutes } from 'app/types';
+import { DashboardRoutes } from 'app/types';
 
 import { getRouteComponentProps } from '../../../core/navigation/__mocks__/routeProps';
 import { Props as DashboardPanelProps } from '../dashgrid/DashboardPanel';
@@ -26,14 +24,14 @@ jest.mock('app/features/dashboard/dashgrid/DashboardPanel', () => {
 interface ScenarioContext {
   dashboard?: DashboardModel | null;
   secondaryDashboard?: DashboardModel | null;
-  setDashboard: (overrides?: any, metaOverrides?: Partial<DashboardMeta>) => void;
-  setSecondaryDashboard: (overrides?: any, metaOverrides?: Partial<DashboardMeta>) => void;
+  setDashboard: (overrides?: any, metaOverrides?: any) => void;
+  setSecondaryDashboard: (overrides?: any, metaOverrides?: any) => void;
   mount: (propOverrides?: Partial<Props>) => void;
   rerender: (propOverrides?: Partial<Props>) => void;
   setup: (fn: () => void) => void;
 }
 
-function getTestDashboard(overrides?: any, metaOverrides?: Partial<DashboardMeta>): DashboardModel {
+function getTestDashboard(overrides?: any, metaOverrides?: any): DashboardModel {
   const data = Object.assign(
     {
       title: 'My dashboard',
@@ -61,10 +59,10 @@ function soloPanelPageScenario(description: string, scenarioFn: (ctx: ScenarioCo
       setup: (fn) => {
         setupFn = fn;
       },
-      setDashboard: (overrides?: any, metaOverrides?: Partial<DashboardMeta>) => {
+      setDashboard: (overrides?: any, metaOverrides?: any) => {
         ctx.dashboard = getTestDashboard(overrides, metaOverrides);
       },
-      setSecondaryDashboard: (overrides?: any, metaOverrides?: Partial<DashboardMeta>) => {
+      setSecondaryDashboard: (overrides?: any, metaOverrides?: any) => {
         ctx.secondaryDashboard = getTestDashboard(overrides, metaOverrides);
       },
       mount: (propOverrides?: Partial<Props>) => {
@@ -85,22 +83,13 @@ function soloPanelPageScenario(description: string, scenarioFn: (ctx: ScenarioCo
         Object.assign(props, propOverrides);
 
         ctx.dashboard = props.dashboard;
-
-        const context = getGrafanaContextMock();
-        const renderPage = (props: Props) => (
-          <GrafanaContext.Provider value={context}>
-            <SoloPanelPage {...props} />
-          </GrafanaContext.Provider>
-        );
-
-        let { rerender } = render(renderPage(props));
-
+        let { rerender } = render(<SoloPanelPage {...props} />);
         // prop updates will be submitted by rerendering the same component with different props
         ctx.rerender = (newProps?: Partial<Props>) => {
-          rerender(renderPage(Object.assign(props, newProps)));
+          Object.assign(props, newProps);
+          rerender(<SoloPanelPage {...props} />);
         };
       },
-
       rerender: () => {
         // will be replaced while mount() is called
       },

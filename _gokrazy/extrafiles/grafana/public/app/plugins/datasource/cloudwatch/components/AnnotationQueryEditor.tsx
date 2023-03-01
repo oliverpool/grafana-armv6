@@ -1,29 +1,26 @@
 import React, { ChangeEvent } from 'react';
 
-import { QueryEditorProps } from '@grafana/data';
-import { EditorField, EditorHeader, EditorRow, EditorSwitch, InlineSelect, Space } from '@grafana/experimental';
-import { Alert, Input } from '@grafana/ui';
+import { PanelData } from '@grafana/data';
+import { EditorField, EditorHeader, EditorRow, InlineSelect, Space } from '@grafana/experimental';
+import { Input, Switch } from '@grafana/ui';
 
 import { CloudWatchDatasource } from '../datasource';
-import { isCloudWatchAnnotationQuery } from '../guards';
 import { useRegions } from '../hooks';
-import { CloudWatchJsonData, CloudWatchQuery, MetricStat } from '../types';
+import { CloudWatchAnnotationQuery, CloudWatchMetricsQuery } from '../types';
 
 import { MetricStatEditor } from './MetricStatEditor';
 
-export type Props = QueryEditorProps<CloudWatchDatasource, CloudWatchQuery, CloudWatchJsonData>;
+export type Props = {
+  query: CloudWatchAnnotationQuery;
+  datasource: CloudWatchDatasource;
+  onChange: (value: CloudWatchAnnotationQuery) => void;
+  data?: PanelData;
+};
 
-export const AnnotationQueryEditor = (props: Props) => {
+export function AnnotationQueryEditor(props: React.PropsWithChildren<Props>) {
   const { query, onChange, datasource } = props;
-  const [regions, regionIsLoading] = useRegions(datasource);
 
-  if (!isCloudWatchAnnotationQuery(query)) {
-    return (
-      <Alert severity="error" title="Invalid annotation query" topSpacing={2}>
-        {JSON.stringify(query, null, 4)}
-      </Alert>
-    );
-  }
+  const [regions, regionIsLoading] = useRegions(datasource);
 
   return (
     <>
@@ -41,10 +38,9 @@ export const AnnotationQueryEditor = (props: Props) => {
       <Space v={0.5} />
       <MetricStatEditor
         {...props}
-        refId={query.refId}
-        metricStat={query}
         disableExpressions={true}
-        onChange={(metricStat: MetricStat) => onChange({ ...query, ...metricStat })}
+        onChange={(editorQuery: CloudWatchMetricsQuery) => onChange({ ...query, ...editorQuery })}
+        onRunQuery={() => {}}
       ></MetricStatEditor>
       <Space v={0.5} />
       <EditorRow>
@@ -56,7 +52,7 @@ export const AnnotationQueryEditor = (props: Props) => {
           />
         </EditorField>
         <EditorField label="Enable Prefix Matching" optional={true}>
-          <EditorSwitch
+          <Switch
             value={query.prefixMatching}
             onChange={(e) => {
               onChange({
@@ -66,16 +62,18 @@ export const AnnotationQueryEditor = (props: Props) => {
             }}
           />
         </EditorField>
-        <EditorField label="Action" optional={true} disabled={!query.prefixMatching}>
+        <EditorField label="Action" optional={true}>
           <Input
+            disabled={!query.prefixMatching}
             value={query.actionPrefix || ''}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               onChange({ ...query, actionPrefix: event.target.value })
             }
           />
         </EditorField>
-        <EditorField label="Alarm Name" optional={true} disabled={!query.prefixMatching}>
+        <EditorField label="Alarm Name" optional={true}>
           <Input
+            disabled={!query.prefixMatching}
             value={query.alarmNamePrefix || ''}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               onChange({ ...query, alarmNamePrefix: event.target.value })
@@ -85,4 +83,4 @@ export const AnnotationQueryEditor = (props: Props) => {
       </EditorRow>
     </>
   );
-};
+}

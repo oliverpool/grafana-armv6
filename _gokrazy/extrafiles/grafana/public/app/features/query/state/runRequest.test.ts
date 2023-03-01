@@ -14,13 +14,13 @@ import { setEchoSrv } from '@grafana/runtime';
 
 import { deepFreeze } from '../../../../test/core/redux/reducerTester';
 import { Echo } from '../../../core/services/echo/Echo';
-import { createDashboardModelFixture } from '../../dashboard/state/__fixtures__/dashboardFixtures';
+import { DashboardModel } from '../../dashboard/state/DashboardModel';
 
 import { runRequest } from './runRequest';
 
 jest.mock('app/core/services/backend_srv');
 
-const dashboardModel = createDashboardModelFixture({
+const dashboardModel = new DashboardModel({
   panels: [{ id: 1, type: 'graph' }],
 });
 
@@ -209,12 +209,12 @@ describe('runRequest', () => {
 
     it('should keep data for X and Y', () => {
       expect(ctx.results[2].series).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "DataX-1",
             "refId": "X",
           },
-          {
+          Object {
             "name": "DataY-2",
             "refId": "Y",
           },

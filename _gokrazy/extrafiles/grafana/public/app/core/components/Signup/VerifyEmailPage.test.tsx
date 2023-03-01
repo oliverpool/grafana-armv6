@@ -44,17 +44,17 @@ describe('VerifyEmail Page', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Send verification email' }));
     expect(await screen.findByText('Email is required')).toBeInTheDocument();
 
-    await userEvent.type(screen.getByRole('textbox', { name: /Email/i }), 'test');
+    userEvent.type(screen.getByRole('textbox', { name: /Email/i }), 'test');
     await waitFor(() => expect(screen.queryByText('Email is invalid')).toBeInTheDocument());
 
-    await userEvent.type(screen.getByRole('textbox', { name: /Email/i }), 'test@gmail.com');
+    userEvent.type(screen.getByRole('textbox', { name: /Email/i }), 'test@gmail.com');
     await waitFor(() => expect(screen.queryByText('Email is invalid')).not.toBeInTheDocument());
   });
   it('should show complete signup if email-verification is successful', async () => {
     postMock.mockResolvedValueOnce({ message: 'SignUpCreated' });
     render(<VerifyEmailPage />);
 
-    await userEvent.type(screen.getByRole('textbox', { name: /Email/i }), 'test@gmail.com');
+    userEvent.type(screen.getByRole('textbox', { name: /Email/i }), 'test@gmail.com');
     fireEvent.click(screen.getByRole('button', { name: 'Send verification email' }));
 
     await waitFor(() =>

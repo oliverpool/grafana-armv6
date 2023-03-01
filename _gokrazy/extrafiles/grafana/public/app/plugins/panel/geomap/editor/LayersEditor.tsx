@@ -6,10 +6,13 @@ import { Container } from '@grafana/ui';
 import { AddLayerButton } from 'app/core/components/Layers/AddLayerButton';
 import { LayerDragDropList } from 'app/core/components/Layers/LayerDragDropList';
 
-import { getLayersOptions } from '../layers/registry';
-import { PanelOptions, MapLayerState, GeomapInstanceState } from '../types';
+import { GeomapInstanceState } from '../GeomapPanel';
+import { geomapLayerRegistry } from '../layers/registry';
+import { GeomapPanelOptions, MapLayerState } from '../types';
 
-type LayersEditorProps = StandardEditorProps<unknown, unknown, PanelOptions, GeomapInstanceState>;
+import { dataLayerFilter } from './layerEditor';
+
+type LayersEditorProps = StandardEditorProps<any, any, GeomapPanelOptions, GeomapInstanceState>;
 
 export const LayersEditor = (props: LayersEditorProps) => {
   const { layers, selected, actions } = props.context.instanceState ?? {};
@@ -35,19 +38,19 @@ export const LayersEditor = (props: LayersEditorProps) => {
     actions.reorder(src, dst);
   };
 
-  const onSelect = (element: MapLayerState<unknown>) => {
+  const onSelect = (element: MapLayerState<any>) => {
     actions.selectLayer(element.options.name);
   };
 
-  const onDelete = (element: MapLayerState<unknown>) => {
+  const onDelete = (element: MapLayerState<any>) => {
     actions.deleteLayer(element.options.name);
   };
 
-  const getLayerInfo = (element: MapLayerState<unknown>) => {
+  const getLayerInfo = (element: MapLayerState<any>) => {
     return element.options.type;
   };
 
-  const onNameChange = (element: MapLayerState<unknown>, name: string) => {
+  const onNameChange = (element: MapLayerState<any>, name: string) => {
     element.onChange({ ...element.options, name });
   };
 
@@ -58,7 +61,7 @@ export const LayersEditor = (props: LayersEditorProps) => {
       <Container>
         <AddLayerButton
           onChange={(v) => actions.addlayer(v.value!)}
-          options={getLayersOptions(false).options}
+          options={geomapLayerRegistry.selectOptions(undefined, dataLayerFilter).options}
           label={'Add layer'}
         />
       </Container>
@@ -66,7 +69,6 @@ export const LayersEditor = (props: LayersEditorProps) => {
 
       <LayerDragDropList
         layers={layers}
-        showActions={() => layers.length > 2} // 2 because base layer is not counted!
         getLayerInfo={getLayerInfo}
         onDragEnd={onDragEnd}
         onSelect={onSelect}

@@ -1,31 +1,30 @@
 import { css } from '@emotion/css';
 import React, { ReactElement } from 'react';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 import { SelectableValue, GrafanaTheme2 } from '@grafana/data';
-import { config, locationSearchToObject } from '@grafana/runtime';
-import { LoadingPlaceholder, Select, RadioButtonGroup, useStyles2, Tooltip, Field } from '@grafana/ui';
+import { locationSearchToObject } from '@grafana/runtime';
+import { LoadingPlaceholder, Select, RadioButtonGroup, useStyles2, Tooltip } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
 import { getNavModel } from 'app/core/selectors/navModel';
-import {
-  ConnectionsRedirectNotice,
-  DestinationPage,
-} from 'app/features/connections/components/ConnectionsRedirectNotice';
-import { useSelector } from 'app/types';
+import { StoreState } from 'app/types/store';
 
 import { HorizontalGroup } from '../components/HorizontalGroup';
+import { Page as PluginPage } from '../components/Page';
 import { PluginList } from '../components/PluginList';
 import { SearchField } from '../components/SearchField';
 import { Sorters } from '../helpers';
 import { useHistory } from '../hooks/useHistory';
 import { useGetAllWithFilters, useIsRemotePluginsAvailable, useDisplayMode } from '../state/hooks';
-import { PluginListDisplayMode } from '../types';
+import { PluginAdminRoutes, PluginListDisplayMode } from '../types';
 
 export default function Browse({ route }: GrafanaRouteComponentProps): ReactElement | null {
   const location = useLocation();
   const locationSearch = locationSearchToObject(location.search);
-  const navModel = useSelector((state) => getNavModel(state.navIndex, 'plugins'));
+  const navModelId = getNavModelId(route.routeName);
+  const navModel = useSelector((state: StoreState) => getNavModel(state.navIndex, navModelId));
   const { displayMode, setDisplayMode } = useDisplayMode();
   const styles = useStyles2(getStyles);
   const history = useHistory();
@@ -53,11 +52,11 @@ export default function Browse({ route }: GrafanaRouteComponentProps): ReactElem
     history.push({ query: { filterBy: value } });
   };
 
-  const onFilterByTypeChange = (value: SelectableValue<string>) => {
-    history.push({ query: { filterByType: value.value } });
+  const onFilterByTypeChange = (value: string) => {
+    history.push({ query: { filterByType: value } });
   };
 
-  const onSearch = (q: string) => {
+  const onSearch = (q: any) => {
     history.push({ query: { filterBy: 'all', filterByType: 'all', q } });
   };
 
@@ -70,101 +69,94 @@ export default function Browse({ route }: GrafanaRouteComponentProps): ReactElem
   return (
     <Page navModel={navModel}>
       <Page.Contents>
-        {config.featureToggles.dataConnectionsConsole && (filterByType === 'all' || filterByType === 'datasource') && (
-          <ConnectionsRedirectNotice destinationPage={DestinationPage.connectData} />
-        )}
-
-        <HorizontalGroup wrap>
-          <Field label="Search">
+        <PluginPage>
+          <HorizontalGroup wrap>
             <SearchField value={query} onSearch={onSearch} />
-          </Field>
-          <HorizontalGroup wrap className={styles.actionBar}>
-            {/* Filter by type */}
-            <Field label="Type">
-              <Select
-                aria-label="Plugin type filter"
-                value={filterByType}
-                onChange={onFilterByTypeChange}
-                width={18}
-                options={[
-                  { value: 'all', label: 'All' },
-                  { value: 'datasource', label: 'Data sources' },
-                  { value: 'panel', label: 'Panels' },
-                  { value: 'app', label: 'Applications' },
-                ]}
-              />
-            </Field>
+            <HorizontalGroup wrap className={styles.actionBar}>
+              {/* Filter by type */}
+              <div>
+                <RadioButtonGroup
+                  value={filterByType}
+                  onChange={onFilterByTypeChange}
+                  options={[
+                    { value: 'all', label: 'All' },
+                    { value: 'datasource', label: 'Data sources' },
+                    { value: 'panel', label: 'Panels' },
+                    { value: 'app', label: 'Applications' },
+                  ]}
+                />
+              </div>
 
-            {/* Filter by installed / all */}
-            {remotePluginsAvailable ? (
-              <Field label="State">
-                <RadioButtonGroup value={filterBy} onChange={onFilterByChange} options={filterByOptions} />
-              </Field>
-            ) : (
-              <Tooltip
-                content="This filter has been disabled because the Grafana server cannot access grafana.com"
-                placement="top"
-              >
+              {/* Filter by installed / all */}
+              {remotePluginsAvailable ? (
                 <div>
-                  <Field label="State">
+                  <RadioButtonGroup value={filterBy} onChange={onFilterByChange} options={filterByOptions} />
+                </div>
+              ) : (
+                <Tooltip
+                  content="This filter has been disabled because the Grafana server cannot access grafana.com"
+                  placement="top"
+                >
+                  <div>
                     <RadioButtonGroup
                       disabled={true}
                       value={filterBy}
                       onChange={onFilterByChange}
                       options={filterByOptions}
                     />
-                  </Field>
-                </div>
-              </Tooltip>
-            )}
+                  </div>
+                </Tooltip>
+              )}
 
-            {/* Sorting */}
-            <Field label="Sort">
-              <Select
-                aria-label="Sort Plugins List"
-                width={24}
-                value={sortBy}
-                onChange={onSortByChange}
-                options={[
-                  { value: 'nameAsc', label: 'By name (A-Z)' },
-                  { value: 'nameDesc', label: 'By name (Z-A)' },
-                  { value: 'updated', label: 'By updated date' },
-                  { value: 'published', label: 'By published date' },
-                  { value: 'downloads', label: 'By downloads' },
-                ]}
-              />
-            </Field>
+              {/* Sorting */}
+              <div>
+                <Select
+                  menuShouldPortal
+                  aria-label="Sort Plugins List"
+                  width={24}
+                  value={sortBy}
+                  onChange={onSortByChange}
+                  options={[
+                    { value: 'nameAsc', label: 'Sort by name (A-Z)' },
+                    { value: 'nameDesc', label: 'Sort by name (Z-A)' },
+                    { value: 'updated', label: 'Sort by updated date' },
+                    { value: 'published', label: 'Sort by published date' },
+                    { value: 'downloads', label: 'Sort by downloads' },
+                  ]}
+                />
+              </div>
 
-            {/* Display mode */}
-            <Field label="View">
-              <RadioButtonGroup<PluginListDisplayMode>
-                className={styles.displayAs}
-                value={displayMode}
-                onChange={setDisplayMode}
-                options={[
-                  {
-                    value: PluginListDisplayMode.Grid,
-                    icon: 'table',
-                    description: 'Display plugins in a grid layout',
-                  },
-                  { value: PluginListDisplayMode.List, icon: 'list-ul', description: 'Display plugins in list' },
-                ]}
-              />
-            </Field>
+              {/* Display mode */}
+              <div>
+                <RadioButtonGroup<PluginListDisplayMode>
+                  className={styles.displayAs}
+                  value={displayMode}
+                  onChange={setDisplayMode}
+                  options={[
+                    {
+                      value: PluginListDisplayMode.Grid,
+                      icon: 'table',
+                      description: 'Display plugins in a grid layout',
+                    },
+                    { value: PluginListDisplayMode.List, icon: 'list-ul', description: 'Display plugins in list' },
+                  ]}
+                />
+              </div>
+            </HorizontalGroup>
           </HorizontalGroup>
-        </HorizontalGroup>
-        <div className={styles.listWrap}>
-          {isLoading ? (
-            <LoadingPlaceholder
-              className={css`
-                margin-bottom: 0;
-              `}
-              text="Loading results"
-            />
-          ) : (
-            <PluginList plugins={plugins} displayMode={displayMode} />
-          )}
-        </div>
+          <div className={styles.listWrap}>
+            {isLoading ? (
+              <LoadingPlaceholder
+                className={css`
+                  margin-bottom: 0;
+                `}
+                text="Loading results"
+              />
+            ) : (
+              <PluginList plugins={plugins} displayMode={displayMode} />
+            )}
+          </div>
+        </PluginPage>
       </Page.Contents>
     </Page>
   );
@@ -185,3 +177,13 @@ const getStyles = (theme: GrafanaTheme2) => ({
     }
   `,
 });
+
+// Because the component is used under multiple paths (/plugins and /admin/plugins) we need to get
+// the correct navModel from the store
+const getNavModelId = (routeName?: string) => {
+  if (routeName === PluginAdminRoutes.HomeAdmin || routeName === PluginAdminRoutes.BrowseAdmin) {
+    return 'admin-plugins';
+  }
+
+  return 'plugins';
+};

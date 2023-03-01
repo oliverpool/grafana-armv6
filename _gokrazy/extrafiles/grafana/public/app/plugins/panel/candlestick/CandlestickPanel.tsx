@@ -4,10 +4,10 @@
 import React, { useMemo } from 'react';
 import uPlot from 'uplot';
 
-import { Field, getDisplayProcessor, getLinksSupplier, PanelProps } from '@grafana/data';
+import { Field, getDisplayProcessor, PanelProps } from '@grafana/data';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { TooltipDisplayMode } from '@grafana/schema';
-import { TimeSeries, TooltipPlugin, UPlotConfigBuilder, usePanelContext, useTheme2, ZoomPlugin } from '@grafana/ui';
+import { usePanelContext, TimeSeries, TooltipPlugin, ZoomPlugin, UPlotConfigBuilder, useTheme2 } from '@grafana/ui';
 import { AxisProps } from '@grafana/ui/src/components/uPlot/config/UPlotAxisBuilder';
 import { ScaleProps } from '@grafana/ui/src/components/uPlot/config/UPlotScaleBuilder';
 import { config } from 'app/core/config';
@@ -21,7 +21,7 @@ import { OutsideRangePlugin } from '../timeseries/plugins/OutsideRangePlugin';
 import { ThresholdControlsPlugin } from '../timeseries/plugins/ThresholdControlsPlugin';
 
 import { prepareCandlestickFields } from './fields';
-import { CandlestickOptions, defaultColors, VizDisplayMode } from './models.gen';
+import { defaultColors, CandlestickOptions, VizDisplayMode } from './models.gen';
 import { drawMarkers, FieldIndices } from './utils';
 
 interface CandlestickPanelProps extends PanelProps<CandlestickOptions> {}
@@ -38,8 +38,7 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
   onChangeTimeRange,
   replaceVariables,
 }) => {
-  const { sync, canAddAnnotations, onThresholdsChange, canEditThresholds, showThresholds, onSplitOpen } =
-    usePanelContext();
+  const { sync, canAddAnnotations, onThresholdsChange, canEditThresholds, onSplitOpen } = usePanelContext();
 
   const getFieldLinks = (field: Field, rowIndex: number) => {
     return getFieldLinksForExplore({ field, rowIndex, splitOpenFn: onSplitOpen, range: timeRange });
@@ -48,10 +47,10 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
   const theme = useTheme2();
 
   const info = useMemo(() => {
-    return prepareCandlestickFields(data.series, options, theme, timeRange);
+    return prepareCandlestickFields(data?.series, options, theme, timeRange);
   }, [data, options, theme, timeRange]);
 
-  const { renderers, tweakScale, tweakAxis, shouldRenderPrice } = useMemo(() => {
+  const { renderers, tweakScale, tweakAxis } = useMemo(() => {
     let tweakScale = (opts: ScaleProps, forField: Field) => opts;
     let tweakAxis = (opts: AxisProps, forField: Field) => opts;
 
@@ -59,7 +58,6 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
       renderers: [],
       tweakScale,
       tweakAxis,
-      shouldRenderPrice: false,
     };
 
     if (!info) {
@@ -160,6 +158,18 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
 
     if (shouldRenderPrice) {
       fields = { open, high: high!, low: low!, close };
+
+      // hide series from legend that are rendered as composite markers
+      for (let key in fields) {
+        let field = (info as any)[key] as Field;
+        field.config = {
+          ...field.config,
+          custom: {
+            ...field.config.custom,
+            hideFrom: { legend: true, tooltip: false, viz: false },
+          },
+        };
+      }
     } else {
       // these fields should not be omitted from normal rendering if they arent rendered
       // as part of price markers. they're only here so we can get back their indicies in the
@@ -174,7 +184,6 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
     }
 
     return {
-      shouldRenderPrice,
       renderers: [
         {
           fieldMap: fields,
@@ -203,32 +212,10 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
       tweakAxis,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options, data.structureRev, data.series.length]);
+  }, [options, data.structureRev]);
 
   if (!info) {
-    return (
-      <PanelDataErrorView
-        panelId={id}
-        fieldConfig={fieldConfig}
-        data={data}
-        needsTimeField={true}
-        needsNumberField={true}
-      />
-    );
-  }
-
-  if (shouldRenderPrice) {
-    // hide series from legend that are rendered as composite markers
-    for (let key in renderers[0].fieldMap) {
-      let field = (info as any)[key] as Field;
-      field.config = {
-        ...field.config,
-        custom: {
-          ...field.config.custom,
-          hideFrom: { legend: true, tooltip: false, viz: false },
-        },
-      };
-    }
+    return <PanelDataErrorView panelId={id} data={data} needsTimeField={true} needsNumberField={true} />;
   }
 
   const enableAnnotationCreation = Boolean(canAddAnnotations && canAddAnnotations());
@@ -248,16 +235,6 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
       options={options}
     >
       {(config, alignedDataFrame) => {
-        alignedDataFrame.fields.forEach((field) => {
-          field.getLinks = getLinksSupplier(
-            alignedDataFrame,
-            field,
-            field.state!.scopedVars!,
-            replaceVariables,
-            timeZone
-          );
-        });
-
         return (
           <>
             <ZoomPlugin config={config} onZoom={onChangeTimeRange} />
@@ -325,11 +302,11 @@ export const CandlestickPanel: React.FC<CandlestickPanelProps> = ({
               />
             )}
 
-            {((canEditThresholds && onThresholdsChange) || showThresholds) && (
+            {canEditThresholds && onThresholdsChange && (
               <ThresholdControlsPlugin
                 config={config}
                 fieldConfig={fieldConfig}
-                onThresholdsChange={canEditThresholds ? onThresholdsChange : undefined}
+                onThresholdsChange={onThresholdsChange}
               />
             )}
 

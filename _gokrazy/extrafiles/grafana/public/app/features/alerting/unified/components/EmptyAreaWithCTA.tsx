@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
 import React, { ButtonHTMLAttributes, FC } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Button, ButtonVariant, IconName, LinkButton, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { Button, ButtonVariant, IconName, LinkButton, useStyles } from '@grafana/ui';
 
 import { EmptyArea } from './EmptyArea';
 
@@ -28,7 +28,7 @@ export const EmptyAreaWithCTA: FC<EmptyAreaWithCTAProps> = ({
   href,
   showButton = true,
 }) => {
-  const styles = useStyles2(getStyles);
+  const styles = useStyles(getStyles);
 
   const commonProps = {
     className: styles.button,
@@ -56,19 +56,19 @@ export const EmptyAreaWithCTA: FC<EmptyAreaWithCTAProps> = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
+const getStyles = (theme: GrafanaTheme) => {
   return {
     container: css`
-      background-color: ${theme.colors.background.secondary};
-      color: ${theme.colors.text.secondary};
-      padding: ${theme.spacing(4)};
+      background-color: ${theme.colors.bg2};
+      color: ${theme.colors.textSemiWeak};
+      padding: ${theme.spacing.xl};
       text-align: center;
     `,
     text: css`
-      margin-bottom: ${theme.spacing(2)};
+      margin-bottom: ${theme.spacing.md};
     `,
     button: css`
-      margin: ${theme.spacing(2, 0, 1)};
+      margin: ${theme.spacing.md} 0 ${theme.spacing.sm};
     `,
   };
 };

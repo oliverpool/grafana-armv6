@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { useAsync } from 'react-use';
 
-import { Page } from 'app/core/components/Page/Page';
-
+import Page from '../../core/components/Page/Page';
 import { GrafanaRouteComponentProps } from '../../core/navigation/types';
 import { getNavModel } from '../../core/selectors/navModel';
 import { StoreState } from '../../types';
@@ -19,8 +18,9 @@ export interface OwnProps extends GrafanaRouteComponentProps<{ uid: string }> {}
 const mapStateToProps = (state: StoreState, props: OwnProps) => {
   const uid = props.match.params.uid;
   return {
-    pageNav: getNavModel(state.navIndex, `folder-library-panels-${uid}`, getLoadingNav(1)),
+    navModel: getNavModel(state.navIndex, `folder-library-panels-${uid}`, getLoadingNav(1)),
     folderUid: uid,
+    folder: state.folder,
   };
 };
 
@@ -32,16 +32,16 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 export type Props = OwnProps & ConnectedProps<typeof connector>;
 
-export function FolderLibraryPanelsPage({ pageNav, getFolderByUid, folderUid }: Props): JSX.Element {
+export function FolderLibraryPanelsPage({ navModel, getFolderByUid, folderUid, folder }: Props): JSX.Element {
   const { loading } = useAsync(async () => await getFolderByUid(folderUid), [getFolderByUid, folderUid]);
   const [selected, setSelected] = useState<LibraryElementDTO | undefined>(undefined);
 
   return (
-    <Page navId="dashboards/browse" pageNav={pageNav.main}>
+    <Page navModel={navModel}>
       <Page.Contents isLoading={loading}>
         <LibraryPanelsSearch
           onClick={setSelected}
-          currentFolderUID={folderUid}
+          currentFolderId={folder.id}
           showSecondaryActions
           showSort
           showPanelFilter

@@ -91,6 +91,7 @@ export const LineStyleEditor: React.FC<FieldOverrideEditorProps<LineStyle, any>>
       {value?.fill && value?.fill !== 'solid' && (
         <>
           <Select
+            menuShouldPortal
             allowCustomValue={true}
             options={options}
             value={current}

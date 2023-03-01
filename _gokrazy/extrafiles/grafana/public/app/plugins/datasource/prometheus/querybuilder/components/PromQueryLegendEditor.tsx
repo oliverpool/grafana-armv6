@@ -2,9 +2,10 @@ import React, { useRef } from 'react';
 
 import { SelectableValue } from '@grafana/data';
 import { EditorField } from '@grafana/experimental';
-import { Select, AutoSizeInput } from '@grafana/ui';
+import { Select } from '@grafana/ui';
 
 import { LegendFormatMode } from '../../types';
+import { AutoSizeInput } from '../shared/AutoSizeInput';
 
 export interface Props {
   legendFormat: string | undefined;

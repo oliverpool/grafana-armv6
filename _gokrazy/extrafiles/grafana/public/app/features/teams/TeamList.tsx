@@ -1,31 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { PureComponent } from 'react';
 
-import { LinkButton, FilterInput, VerticalGroup, HorizontalGroup, Pagination } from '@grafana/ui';
+import { NavModel } from '@grafana/data';
+import { DeleteButton, LinkButton, FilterInput, VerticalGroup, HorizontalGroup, Pagination } from '@grafana/ui';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
-import { Page } from 'app/core/components/Page/Page';
+import Page from 'app/core/components/Page/Page';
+import { TeamRolePicker } from 'app/core/components/RolePicker/TeamRolePicker';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { config } from 'app/core/config';
+import { getNavModel } from 'app/core/selectors/navModel';
 import { contextSrv, User } from 'app/core/services/context_srv';
 import { AccessControlAction, Role, StoreState, Team } from 'app/types';
 
 import { connectWithCleanUp } from '../../core/components/connectWithCleanUp';
 
-import { TeamListRow } from './TeamListRow';
-import { deleteTeam, loadTeams, changePage, changeQuery } from './state/actions';
-import { initialTeamsState } from './state/reducers';
-import { isPermissionTeamAdmin } from './state/selectors';
+import { deleteTeam, loadTeams } from './state/actions';
+import { setSearchQuery, setTeamsSearchPage } from './state/reducers';
+import { getSearchQuery, getTeams, getTeamsCount, getTeamsSearchPage, isPermissionTeamAdmin } from './state/selectors';
+
+const pageLimit = 30;
 
 export interface Props {
+  navModel: NavModel;
   teams: Team[];
-  page: number;
-  query: string;
-  noTeams: boolean;
-  totalPages: number;
+  searchQuery: string;
+  searchPage: number;
+  teamsCount: number;
   hasFetched: boolean;
   loadTeams: typeof loadTeams;
   deleteTeam: typeof deleteTeam;
-  changePage: typeof changePage;
-  changeQuery: typeof changeQuery;
+  setSearchQuery: typeof setSearchQuery;
+  setTeamsSearchPage: typeof setTeamsSearchPage;
   editorsCanAdmin: boolean;
   signedInUser: User;
 }
@@ -34,130 +38,209 @@ export interface State {
   roleOptions: Role[];
 }
 
-export const TeamList = ({
-  teams,
-  page,
-  query,
-  noTeams,
-  totalPages,
-  hasFetched,
-  loadTeams,
-  deleteTeam,
-  changeQuery,
-  changePage,
-  signedInUser,
-  editorsCanAdmin,
-}: Props) => {
-  const [roleOptions, setRoleOptions] = useState<Role[]>([]);
+export class TeamList extends PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { roleOptions: [] };
+  }
 
-  useEffect(() => {
-    loadTeams(true);
-  }, [loadTeams]);
-
-  useEffect(() => {
+  componentDidMount() {
+    this.fetchTeams();
     if (contextSrv.licensedAccessControlEnabled() && contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
-      fetchRoleOptions().then((roles) => setRoleOptions(roles));
+      this.fetchRoleOptions();
     }
-  }, []);
+  }
 
-  const canCreate = canCreateTeam(editorsCanAdmin);
-  const displayRolePicker = shouldDisplayRolePicker();
+  async fetchTeams() {
+    await this.props.loadTeams();
+  }
 
-  return (
-    <Page navId="teams">
-      <Page.Contents isLoading={!hasFetched}>
-        {noTeams ? (
-          <EmptyListCTA
-            title="You haven't created any teams yet."
-            buttonIcon="users-alt"
-            buttonLink="org/teams/new"
-            buttonTitle=" New team"
-            buttonDisabled={!contextSrv.hasPermission(AccessControlAction.ActionTeamsCreate)}
-            proTip="Assign folder and dashboard permissions to teams instead of users to ease administration."
-            proTipLink=""
-            proTipLinkTitle=""
-            proTipTarget="_blank"
-          />
-        ) : (
-          <>
-            <div className="page-action-bar">
-              <div className="gf-form gf-form--grow">
-                <FilterInput placeholder="Search teams" value={query} onChange={changeQuery} />
-              </div>
+  async fetchRoleOptions() {
+    const roleOptions = await fetchRoleOptions();
+    this.setState({ roleOptions });
+  }
 
-              <LinkButton href={canCreate ? 'org/teams/new' : '#'} disabled={!canCreate}>
-                New Team
-              </LinkButton>
+  deleteTeam = (team: Team) => {
+    this.props.deleteTeam(team.id);
+  };
+
+  onSearchQueryChange = (value: string) => {
+    this.props.setSearchQuery(value);
+  };
+
+  renderTeam(team: Team) {
+    const { editorsCanAdmin, signedInUser } = this.props;
+    const permission = team.permission;
+    const teamUrl = `org/teams/edit/${team.id}`;
+    const isTeamAdmin = isPermissionTeamAdmin({ permission, editorsCanAdmin, signedInUser });
+    const canDelete = contextSrv.hasAccessInMetadata(AccessControlAction.ActionTeamsDelete, team, isTeamAdmin);
+    const canReadTeam = contextSrv.hasAccessInMetadata(AccessControlAction.ActionTeamsRead, team, isTeamAdmin);
+    const canSeeTeamRoles = contextSrv.hasAccessInMetadata(AccessControlAction.ActionTeamsRolesList, team, false);
+    const canUpdateTeamRoles =
+      contextSrv.hasAccess(AccessControlAction.ActionTeamsRolesAdd, false) ||
+      contextSrv.hasAccess(AccessControlAction.ActionTeamsRolesRemove, false);
+    const displayRolePicker =
+      contextSrv.licensedAccessControlEnabled() &&
+      contextSrv.hasPermission(AccessControlAction.ActionTeamsRolesList) &&
+      contextSrv.hasPermission(AccessControlAction.ActionRolesList);
+
+    return (
+      <tr key={team.id}>
+        <td className="width-4 text-center link-td">
+          {canReadTeam ? (
+            <a href={teamUrl}>
+              <img className="filter-table__avatar" src={team.avatarUrl} alt="Team avatar" />
+            </a>
+          ) : (
+            <img className="filter-table__avatar" src={team.avatarUrl} alt="Team avatar" />
+          )}
+        </td>
+        <td className="link-td">
+          {canReadTeam ? <a href={teamUrl}>{team.name}</a> : <div style={{ padding: '0px 8px' }}>{team.name}</div>}
+        </td>
+        <td className="link-td">
+          {canReadTeam ? (
+            <a href={teamUrl} aria-label={team.email?.length > 0 ? undefined : 'Empty email cell'}>
+              {team.email}
+            </a>
+          ) : (
+            <div style={{ padding: '0px 8px' }} aria-label={team.email?.length > 0 ? undefined : 'Empty email cell'}>
+              {team.email}
             </div>
-
-            <div className="admin-list-table">
-              <VerticalGroup spacing="md">
-                <table className="filter-table filter-table--hover form-inline">
-                  <thead>
-                    <tr>
-                      <th />
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Members</th>
-                      {displayRolePicker && <th>Roles</th>}
-                      <th style={{ width: '1%' }} />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {teams.map((team) => (
-                      <TeamListRow
-                        key={team.id}
-                        team={team}
-                        roleOptions={roleOptions}
-                        displayRolePicker={displayRolePicker}
-                        isTeamAdmin={isPermissionTeamAdmin({
-                          permission: team.permission,
-                          editorsCanAdmin,
-                          signedInUser,
-                        })}
-                        onDelete={deleteTeam}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-                <HorizontalGroup justify="flex-end">
-                  <Pagination
-                    hideWhenSinglePage
-                    currentPage={page}
-                    numberOfPages={totalPages}
-                    onNavigate={changePage}
-                  />
-                </HorizontalGroup>
-              </VerticalGroup>
-            </div>
-          </>
+          )}
+        </td>
+        <td className="link-td">
+          {canReadTeam ? (
+            <a href={teamUrl}>{team.memberCount}</a>
+          ) : (
+            <div style={{ padding: '0px 8px' }}>{team.memberCount}</div>
+          )}
+        </td>
+        {displayRolePicker && (
+          <td>
+            {canSeeTeamRoles && (
+              <TeamRolePicker teamId={team.id} roleOptions={this.state.roleOptions} disabled={!canUpdateTeamRoles} />
+            )}
+          </td>
         )}
-      </Page.Contents>
-    </Page>
-  );
-};
+        <td className="text-right">
+          <DeleteButton
+            aria-label="Delete team"
+            size="sm"
+            disabled={!canDelete}
+            onConfirm={() => this.deleteTeam(team)}
+          />
+        </td>
+      </tr>
+    );
+  }
 
-function canCreateTeam(editorsCanAdmin: boolean): boolean {
-  const teamAdmin = contextSrv.hasRole('Admin') || (editorsCanAdmin && contextSrv.hasRole('Editor'));
-  return contextSrv.hasAccess(AccessControlAction.ActionTeamsCreate, teamAdmin);
-}
+  renderEmptyList() {
+    return (
+      <EmptyListCTA
+        title="You haven't created any teams yet."
+        buttonIcon="users-alt"
+        buttonLink="org/teams/new"
+        buttonTitle=" New team"
+        buttonDisabled={!contextSrv.hasPermission(AccessControlAction.ActionTeamsCreate)}
+        proTip="Assign folder and dashboard permissions to teams instead of users to ease administration."
+        proTipLink=""
+        proTipLinkTitle=""
+        proTipTarget="_blank"
+      />
+    );
+  }
 
-function shouldDisplayRolePicker(): boolean {
-  return (
-    contextSrv.licensedAccessControlEnabled() &&
-    contextSrv.hasPermission(AccessControlAction.ActionTeamsRolesList) &&
-    contextSrv.hasPermission(AccessControlAction.ActionRolesList)
-  );
+  getPaginatedTeams = (teams: Team[]) => {
+    const offset = (this.props.searchPage - 1) * pageLimit;
+    return teams.slice(offset, offset + pageLimit);
+  };
+
+  renderTeamList() {
+    const { teams, searchQuery, editorsCanAdmin, searchPage, setTeamsSearchPage } = this.props;
+    const teamAdmin = contextSrv.hasRole('Admin') || (editorsCanAdmin && contextSrv.hasRole('Editor'));
+    const canCreate = contextSrv.hasAccess(AccessControlAction.ActionTeamsCreate, teamAdmin);
+    const displayRolePicker =
+      contextSrv.licensedAccessControlEnabled() &&
+      contextSrv.hasPermission(AccessControlAction.ActionTeamsRolesList) &&
+      contextSrv.hasPermission(AccessControlAction.ActionRolesList);
+    const newTeamHref = canCreate ? 'org/teams/new' : '#';
+    const paginatedTeams = this.getPaginatedTeams(teams);
+    const totalPages = Math.ceil(teams.length / pageLimit);
+
+    return (
+      <>
+        <div className="page-action-bar">
+          <div className="gf-form gf-form--grow">
+            <FilterInput placeholder="Search teams" value={searchQuery} onChange={this.onSearchQueryChange} />
+          </div>
+
+          <LinkButton href={newTeamHref} disabled={!canCreate}>
+            New Team
+          </LinkButton>
+        </div>
+
+        <div className="admin-list-table">
+          <VerticalGroup spacing="md">
+            <table className="filter-table filter-table--hover form-inline">
+              <thead>
+                <tr>
+                  <th />
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Members</th>
+                  {displayRolePicker && <th>Roles</th>}
+                  <th style={{ width: '1%' }} />
+                </tr>
+              </thead>
+              <tbody>{paginatedTeams.map((team) => this.renderTeam(team))}</tbody>
+            </table>
+            <HorizontalGroup justify="flex-end">
+              <Pagination
+                onNavigate={setTeamsSearchPage}
+                currentPage={searchPage}
+                numberOfPages={totalPages}
+                hideWhenSinglePage={true}
+              />
+            </HorizontalGroup>
+          </VerticalGroup>
+        </div>
+      </>
+    );
+  }
+
+  renderList() {
+    const { teamsCount, hasFetched } = this.props;
+
+    if (!hasFetched) {
+      return null;
+    }
+
+    if (teamsCount > 0) {
+      return this.renderTeamList();
+    } else {
+      return this.renderEmptyList();
+    }
+  }
+
+  render() {
+    const { hasFetched, navModel } = this.props;
+
+    return (
+      <Page navModel={navModel}>
+        <Page.Contents isLoading={!hasFetched}>{this.renderList()}</Page.Contents>
+      </Page>
+    );
+  }
 }
 
 function mapStateToProps(state: StoreState) {
   return {
-    teams: state.teams.teams,
-    page: state.teams.page,
-    query: state.teams.query,
-    perPage: state.teams.perPage,
-    noTeams: state.teams.noTeams,
-    totalPages: state.teams.totalPages,
+    navModel: getNavModel(state.navIndex, 'teams'),
+    teams: getTeams(state.teams),
+    searchQuery: getSearchQuery(state.teams),
+    searchPage: getTeamsSearchPage(state.teams),
+    teamsCount: getTeamsCount(state.teams),
     hasFetched: state.teams.hasFetched,
     editorsCanAdmin: config.editorsCanAdmin, // this makes the feature toggle mockable/controllable from tests,
     signedInUser: contextSrv.user, // this makes the feature toggle mockable/controllable from tests,
@@ -167,12 +250,8 @@ function mapStateToProps(state: StoreState) {
 const mapDispatchToProps = {
   loadTeams,
   deleteTeam,
-  changePage,
-  changeQuery,
+  setSearchQuery,
+  setTeamsSearchPage,
 };
 
-export default connectWithCleanUp(
-  mapStateToProps,
-  mapDispatchToProps,
-  (state) => (state.teams = initialTeamsState)
-)(TeamList);
+export default connectWithCleanUp(mapStateToProps, mapDispatchToProps, (state) => state.teams)(TeamList);

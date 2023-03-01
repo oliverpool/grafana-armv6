@@ -1,8 +1,11 @@
 import { debounce } from 'lodash';
 import React, { FunctionComponent, useState } from 'react';
 
-import { EditorField } from '@grafana/experimental';
 import { Input } from '@grafana/ui';
+
+import { INPUT_WIDTH } from '../constants';
+
+import { QueryEditorRow } from '.';
 
 export interface Props {
   refId: string;
@@ -21,8 +24,8 @@ export const AliasBy: FunctionComponent<Props> = ({ refId, value = '', onChange 
   };
 
   return (
-    <EditorField label="Alias by">
-      <Input id={`${refId}-alias-by`} value={alias} onChange={onChange} />
-    </EditorField>
+    <QueryEditorRow label="Alias by" htmlFor={`${refId}-alias-by`}>
+      <Input id={`${refId}-alias-by`} width={INPUT_WIDTH} value={alias} onChange={onChange} />
+    </QueryEditorRow>
   );
 };

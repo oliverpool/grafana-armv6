@@ -84,7 +84,7 @@ export class CustomEndpointTransport implements BaseTransport {
       // https://caniuse.com/#feat=referrer-policy
       // It doesn't. And it throw exception instead of ignoring this parameter...
       // REF: https://github.com/getsentry/raven-js/issues/1233
-      referrerPolicy: supportsReferrerPolicy() ? 'origin' : '',
+      referrerPolicy: (supportsReferrerPolicy() ? 'origin' : '') as ReferrerPolicy,
     };
 
     if (this.options.fetchParameters !== undefined) {

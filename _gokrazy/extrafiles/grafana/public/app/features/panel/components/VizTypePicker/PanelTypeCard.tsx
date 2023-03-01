@@ -17,7 +17,7 @@ interface Props {
   description?: string;
 }
 
-export const PanelTypeCard = ({
+export const PanelTypeCard: React.FC<Props> = ({
   isCurrent,
   title,
   plugin,
@@ -27,12 +27,11 @@ export const PanelTypeCard = ({
   showBadge,
   description,
   children,
-}: React.PropsWithChildren<Props>) => {
+}) => {
   const styles = useStyles2(getStyles);
-  const isDisabled = disabled || plugin.state === PluginState.deprecated;
   const cssClass = cx({
     [styles.item]: true,
-    [styles.itemDisabled]: isDisabled,
+    [styles.disabled]: disabled || plugin.state === PluginState.deprecated,
     [styles.current]: isCurrent,
   });
 
@@ -40,18 +39,18 @@ export const PanelTypeCard = ({
     <div
       className={cssClass}
       aria-label={selectors.components.PluginVisualization.item(plugin.name)}
-      onClick={isDisabled ? undefined : onClick}
+      onClick={disabled ? undefined : onClick}
       title={isCurrent ? 'Click again to close this section' : plugin.name}
     >
-      <img className={cx(styles.img, { [styles.disabled]: isDisabled })} src={plugin.info.logos.small} alt="" />
+      <img className={styles.img} src={plugin.info.logos.small} alt="" />
 
-      <div className={cx(styles.itemContent, { [styles.disabled]: isDisabled })}>
+      <div className={styles.itemContent}>
         <div className={styles.name}>{title}</div>
         {description ? <span className={styles.description}>{description}</span> : null}
         {children}
       </div>
       {showBadge && (
-        <div className={cx(styles.badge, { [styles.disabled]: isDisabled })}>
+        <div className={cx(styles.badge, disabled && styles.disabled)}>
           <PanelPluginBadge plugin={plugin} />
         </div>
       )}
@@ -101,21 +100,13 @@ const getStyles = (theme: GrafanaTheme2) => {
       position: relative;
       padding: ${theme.spacing(0, 1)};
     `,
-    itemDisabled: css`
-      cursor: default;
-
-      &,
-      &:hover {
-        background: ${theme.colors.action.disabledBackground};
-      }
-    `,
     current: css`
       label: currentVisualizationItem;
       border: 1px solid ${theme.colors.primary.border};
       background: ${theme.colors.action.selected};
     `,
     disabled: css`
-      opacity: ${theme.colors.action.disabledOpacity};
+      opacity: 0.2;
       filter: grayscale(1);
       cursor: default;
       pointer-events: none;
@@ -147,7 +138,6 @@ const getStyles = (theme: GrafanaTheme2) => {
       background: ${theme.colors.background.primary};
     `,
     deleteButton: css`
-      cursor: pointer;
       margin-left: auto;
     `,
   };
@@ -157,7 +147,7 @@ interface PanelPluginBadgeProps {
   plugin: PanelPluginMeta;
 }
 
-const PanelPluginBadge = ({ plugin }: PanelPluginBadgeProps) => {
+const PanelPluginBadge: React.FC<PanelPluginBadgeProps> = ({ plugin }) => {
   if (isUnsignedPluginSignature(plugin.signature)) {
     return <PluginSignatureBadge status={plugin.signature} />;
   }

@@ -45,30 +45,30 @@ describe('Read GeoJSON', () => {
     });
     const msg = dataFrameToJSON(frame);
     expect(msg.schema).toMatchInlineSnapshot(`
-      {
-        "fields": [
-          {
-            "config": {},
+      Object {
+        "fields": Array [
+          Object {
+            "config": Object {},
             "name": "id",
             "type": "string",
           },
-          {
-            "config": {},
+          Object {
+            "config": Object {},
             "name": "geo",
             "type": "geo",
           },
-          {
-            "config": {},
+          Object {
+            "config": Object {},
             "name": "hello",
             "type": "string",
           },
-          {
-            "config": {},
+          Object {
+            "config": Object {},
             "name": "number",
             "type": "number",
           },
-          {
-            "config": {},
+          Object {
+            "config": Object {},
             "name": "mixed",
             "type": "string",
           },
@@ -87,23 +87,23 @@ describe('Read GeoJSON', () => {
         return acc;
       }, {} as any)
     ).toMatchInlineSnapshot(`
-      {
-        "hello": [
+      Object {
+        "hello": Array [
           "A",
           "B",
           null,
         ],
-        "id": [
+        "id": Array [
           "A",
           null,
           null,
         ],
-        "mixed": [
+        "mixed": Array [
           null,
           "first",
           "2",
         ],
-        "number": [
+        "number": Array [
           null,
           1.2,
           2.3,

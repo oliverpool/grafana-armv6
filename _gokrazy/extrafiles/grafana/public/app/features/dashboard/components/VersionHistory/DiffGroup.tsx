@@ -2,8 +2,8 @@ import { css } from '@emotion/css';
 import { last } from 'lodash';
 import React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { useStyles } from '@grafana/ui';
 
 import { DiffTitle } from './DiffTitle';
 import { DiffValues } from './DiffValues';
@@ -14,8 +14,8 @@ type DiffGroupProps = {
   title: string;
 };
 
-export const DiffGroup = ({ diffs, title }: DiffGroupProps) => {
-  const styles = useStyles2(getStyles);
+export const DiffGroup: React.FC<DiffGroupProps> = ({ diffs, title }) => {
+  const styles = useStyles(getStyles);
 
   if (diffs.length === 1) {
     return (
@@ -41,17 +41,17 @@ export const DiffGroup = ({ diffs, title }: DiffGroupProps) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme) => ({
   container: css`
-    background-color: ${theme.colors.background.secondary};
-    font-size: ${theme.typography.h6.fontSize};
-    margin-bottom: ${theme.spacing(2)};
-    padding: ${theme.spacing(2)};
+    background-color: ${theme.colors.bg2};
+    font-size: ${theme.typography.size.md};
+    margin-bottom: ${theme.spacing.md};
+    padding: ${theme.spacing.md};
   `,
   list: css`
-    margin-left: ${theme.spacing(4)};
+    margin-left: ${theme.spacing.xl};
   `,
   listItem: css`
-    margin-bottom: ${theme.spacing(1)};
+    margin-bottom: ${theme.spacing.sm};
   `,
 });

@@ -20,7 +20,7 @@ export default function migrateAnnotation(annotation: AnnotationQuery<AzureMonit
     queryType: AzureQueryType.LogAnalytics,
     azureLogAnalytics: {
       query: oldQuery,
-      resources: [oldWorkspace],
+      resource: oldWorkspace,
     },
   };
 

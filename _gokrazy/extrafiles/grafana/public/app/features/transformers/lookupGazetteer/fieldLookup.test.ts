@@ -36,12 +36,12 @@ describe('Lookup gazetteer', () => {
     const out = await addFieldsFromGazetteer([data], gaz, matcher)[0];
 
     expect(out.fields).toMatchInlineSnapshot(`
-      [
-        {
-          "config": {},
+      Array [
+        Object {
+          "config": Object {},
           "name": "location",
           "type": "string",
-          "values": [
+          "values": Array [
             "AL",
             "AK",
             "Arizona",
@@ -49,11 +49,11 @@ describe('Lookup gazetteer', () => {
             "Somewhere",
           ],
         },
-        {
-          "config": {},
+        Object {
+          "config": Object {},
           "name": "id",
           "type": "string",
-          "values": [
+          "values": Array [
             "AL",
             "AK",
             ,
@@ -61,11 +61,11 @@ describe('Lookup gazetteer', () => {
             ,
           ],
         },
-        {
-          "config": {},
+        Object {
+          "config": Object {},
           "name": "name",
           "type": "string",
-          "values": [
+          "values": Array [
             "Alabama",
             "Arkansas",
             ,
@@ -73,11 +73,11 @@ describe('Lookup gazetteer', () => {
             ,
           ],
         },
-        {
-          "config": {},
+        Object {
+          "config": Object {},
           "name": "lng",
           "type": "number",
-          "values": [
+          "values": Array [
             -80.891064,
             -100.891064,
             ,
@@ -85,11 +85,11 @@ describe('Lookup gazetteer', () => {
             ,
           ],
         },
-        {
-          "config": {},
+        Object {
+          "config": Object {},
           "name": "lat",
           "type": "number",
-          "values": [
+          "values": Array [
             12.448457,
             24.448457,
             ,
@@ -97,15 +97,15 @@ describe('Lookup gazetteer', () => {
             ,
           ],
         },
-        {
-          "config": {},
+        Object {
+          "config": Object {},
           "name": "values",
-          "state": {
+          "state": Object {
             "displayName": "values",
             "multipleFrames": false,
           },
           "type": "number",
-          "values": [
+          "values": Array [
             0,
             10,
             5,

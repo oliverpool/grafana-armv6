@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import { OrgRole } from '@grafana/data';
 import { Button, ConfirmModal } from '@grafana/ui';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
-import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
-import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
+import { fetchBuiltinRoles, fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/core';
 import { AccessControlAction, OrgUser, Role } from 'app/types';
 
@@ -17,9 +16,11 @@ export interface Props {
   onRemoveUser: (user: OrgUser) => void;
 }
 
-export const UsersTable = ({ users, orgId, onRoleChange, onRemoveUser }: Props) => {
+const UsersTable: FC<Props> = (props) => {
+  const { users, orgId, onRoleChange, onRemoveUser } = props;
   const [userToRemove, setUserToRemove] = useState<OrgUser | null>(null);
   const [roleOptions, setRoleOptions] = useState<Role[]>([]);
+  const [builtinRoles, setBuiltinRoles] = useState<{ [key: string]: Role[] }>({});
 
   useEffect(() => {
     async function fetchOptions() {
@@ -27,6 +28,11 @@ export const UsersTable = ({ users, orgId, onRoleChange, onRemoveUser }: Props) 
         if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
           let options = await fetchRoleOptions(orgId);
           setRoleOptions(options);
+        }
+
+        if (contextSrv.hasPermission(AccessControlAction.ActionBuiltinRolesList)) {
+          const builtInRoles = await fetchBuiltinRoles(orgId);
+          setBuiltinRoles(builtInRoles);
         }
       } catch (e) {
         console.error('Error loading options');
@@ -49,8 +55,6 @@ export const UsersTable = ({ users, orgId, onRoleChange, onRemoveUser }: Props) 
             <th>Seen</th>
             <th>Role</th>
             <th style={{ width: '34px' }} />
-            <th></th>
-            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -83,33 +87,24 @@ export const UsersTable = ({ users, orgId, onRoleChange, onRemoveUser }: Props) 
                     <UserRolePicker
                       userId={user.userId}
                       orgId={orgId}
+                      builtInRole={user.role}
+                      onBuiltinRoleChange={(newRole) => onRoleChange(newRole, user)}
                       roleOptions={roleOptions}
-                      basicRole={user.role}
-                      onBasicRoleChange={(newRole) => onRoleChange(newRole, user)}
-                      basicRoleDisabled={!contextSrv.hasPermissionInMetadata(AccessControlAction.OrgUsersWrite, user)}
+                      builtInRoles={builtinRoles}
+                      disabled={!contextSrv.hasPermissionInMetadata(AccessControlAction.OrgUsersRoleUpdate, user)}
                     />
                   ) : (
                     <OrgRolePicker
                       aria-label="Role"
                       value={user.role}
-                      disabled={!contextSrv.hasPermissionInMetadata(AccessControlAction.OrgUsersWrite, user)}
+                      disabled={!contextSrv.hasPermissionInMetadata(AccessControlAction.OrgUsersRoleUpdate, user)}
                       onChange={(newRole) => onRoleChange(newRole, user)}
                     />
                   )}
                 </td>
 
-                <td className="width-1 text-center">
-                  {user.isDisabled && <span className="label label-tag label-tag--gray">Disabled</span>}
-                </td>
-
-                <td className="width-1">
-                  {Array.isArray(user.authLabels) && user.authLabels.length > 0 && (
-                    <TagBadge label={user.authLabels[0]} removeIcon={false} count={0} />
-                  )}
-                </td>
-
                 {contextSrv.hasPermissionInMetadata(AccessControlAction.OrgUsersRemove, user) && (
-                  <td className="text-right">
+                  <td>
                     <Button
                       size="sm"
                       variant="destructive"
@@ -147,3 +142,5 @@ export const UsersTable = ({ users, orgId, onRoleChange, onRemoveUser }: Props) 
     </>
   );
 };
+
+export default UsersTable;

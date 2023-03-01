@@ -1,5 +1,6 @@
 import { isEmpty, uniq } from 'lodash';
 import React, { FC, useEffect, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { SelectableValue } from '@grafana/data';
 import { Icon, MultiSelect } from '@grafana/ui';
@@ -10,7 +11,6 @@ import {
   isAsyncRequestMapSliceFulfilled,
   isAsyncRequestMapSlicePending,
 } from 'app/features/alerting/unified/utils/redux';
-import { useDispatch } from 'app/types';
 import { AlertingRule } from 'app/types/unified-alerting';
 import { PromRuleType } from 'app/types/unified-alerting-dto';
 
@@ -71,6 +71,7 @@ export const GroupBy: FC<Props> = (props) => {
         label: key,
         value: key,
       }))}
+      menuShouldPortal={true}
     />
   );
 };

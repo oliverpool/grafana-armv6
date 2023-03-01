@@ -1,26 +1,21 @@
-import { SQLOptions } from 'app/features/plugins/sql/types';
+import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export enum PostgresTLSModes {
-  disable = 'disable',
-  require = 'require',
-  verifyCA = 'verify-ca',
-  verifyFull = 'verify-full',
+export interface PostgresQueryForInterpolation {
+  alias?: any;
+  format?: any;
+  rawSql?: any;
+  refId: any;
+  hide?: any;
 }
 
-export enum PostgresTLSMethods {
-  filePath = 'file-path',
-  fileContent = 'file-content',
-}
-export interface PostgresOptions extends SQLOptions {
-  tlsConfigurationMethod?: PostgresTLSMethods;
-  sslmode?: PostgresTLSModes;
-  sslRootCertFile?: string;
-  sslCertFile?: string;
-  sslKeyFile?: string;
-  postgresVersion?: number;
-  timescaledb?: boolean;
+export interface PostgresOptions extends DataSourceJsonData {
+  timeInterval: string;
 }
 
-export interface SecureJsonData {
-  password: string;
+export type ResultFormat = 'time_series' | 'table';
+
+export interface PostgresQuery extends DataQuery {
+  alias?: string;
+  format?: ResultFormat;
+  rawSql?: any;
 }

@@ -19,7 +19,8 @@ Annotations:
 {{ range .Annotations.SortedPairs }}
 {{ .Name }} = {{ .Value }}
 {{ end }}
-{{ end }}{{ if gt (len .Alerts.Resolved) 0 }}({{ .Alerts.Resolved | len }}) Resolved{{ end }}
+{{ end }}{{ if gt (len .Alerts.Resolved) 0 }}({{ .Alerts.Resolved | len }}) Resolved{{ end
+}}
 {{ range .Alerts.Resolved }}
 Labels:
 {{ range .Labels.SortedPairs }}
@@ -37,5 +38,4 @@ Annotations:
 Go to the Alerts page:
 {{.AlertPageUrl}}
 
-
-Sent by Grafana v{{.BuildVersion}} (c) {{now | date "2006"}} Grafana Labs
+Sent by Grafana v{{.BuildVersion}} (c) 2022 Grafana Labs

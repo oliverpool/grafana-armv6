@@ -94,10 +94,10 @@ describe('CloudMonitoringDataSource', () => {
         const { ds } = getTestcontext();
         await ds.getLabels('cpu', 'a', 'default-proj');
 
-        await expect(fetchMock.mock.calls[0][0].data.queries[0].timeSeriesList).toMatchObject({
+        await expect(fetchMock.mock.calls[0][0].data.queries[0].metricQuery).toMatchObject({
           crossSeriesReducer: 'REDUCE_NONE',
           groupBys: [],
-          filters: ['metric.type', '=', 'cpu'],
+          metricType: 'cpu',
           projectName: 'default-proj',
           view: 'HEADERS',
         });
@@ -112,10 +112,10 @@ describe('CloudMonitoringDataSource', () => {
           groupBys: ['metadata.system_label.name'],
         });
 
-        await expect(fetchMock.mock.calls[0][0].data.queries[0].timeSeriesList).toMatchObject({
+        await expect(fetchMock.mock.calls[0][0].data.queries[0].metricQuery).toMatchObject({
           crossSeriesReducer: 'REDUCE_MEAN',
           groupBys: ['metadata.system_label.name'],
-          filters: ['metric.type', '=', 'sql'],
+          metricType: 'sql',
           projectName: 'default-proj',
           view: 'HEADERS',
         });

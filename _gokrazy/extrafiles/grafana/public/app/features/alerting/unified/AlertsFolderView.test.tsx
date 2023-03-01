@@ -129,7 +129,7 @@ describe('AlertsFolderView tests', () => {
     expect(ui.ruleList.row.queryAll()).toHaveLength(0);
   });
 
-  it('Should filter alert rules by the name, case insensitive', async () => {
+  it('Should filter alert rules by the name, case insensitive', () => {
     // Arrange
     const store = configureStore();
     const folder = mockFolder();
@@ -156,14 +156,14 @@ describe('AlertsFolderView tests', () => {
       </Provider>
     );
 
-    await userEvent.type(ui.filter.name.get(), 'cpu');
+    userEvent.type(ui.filter.name.get(), 'cpu');
 
     // Assert
     expect(ui.ruleList.row.queryAll()).toHaveLength(1);
     expect(ui.ruleList.row.get()).toHaveTextContent('CPU Alert');
   });
 
-  it('Should filter alert rule by labels', async () => {
+  it('Should filter alert rule by labels', () => {
     // Arrange
     const store = configureStore();
     const folder = mockFolder();
@@ -193,7 +193,7 @@ describe('AlertsFolderView tests', () => {
       </Provider>
     );
 
-    await userEvent.type(ui.filter.label.get(), 'severity=critical');
+    userEvent.type(ui.filter.label.get(), 'severity=critical');
 
     // Assert
     expect(ui.ruleList.row.queryAll()).toHaveLength(1);

@@ -6,62 +6,32 @@ import { OrgUser, UsersState } from 'app/types';
 export const initialState: UsersState = {
   users: [] as OrgUser[],
   searchQuery: '',
-  page: 0,
-  perPage: 30,
-  totalPages: 1,
+  searchPage: 1,
   canInvite: !config.externalUserMngLinkName,
   externalUserMngInfo: config.externalUserMngInfo,
   externalUserMngLinkName: config.externalUserMngLinkName,
   externalUserMngLinkUrl: config.externalUserMngLinkUrl,
-  isLoading: false,
+  hasFetched: false,
 };
-
-export interface UsersFetchResult {
-  orgUsers: OrgUser[];
-  perPage: number;
-  page: number;
-  totalCount: number;
-}
 
 const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    usersLoaded: (state, action: PayloadAction<UsersFetchResult>): UsersState => {
-      const { totalCount, perPage, page, orgUsers } = action.payload;
-      const totalPages = Math.ceil(totalCount / perPage);
-
-      return {
-        ...state,
-        isLoading: true,
-        users: orgUsers,
-        perPage,
-        page,
-        totalPages,
-      };
+    usersLoaded: (state, action: PayloadAction<OrgUser[]>): UsersState => {
+      return { ...state, hasFetched: true, users: action.payload };
     },
-    searchQueryChanged: (state, action: PayloadAction<string>): UsersState => {
+    setUsersSearchQuery: (state, action: PayloadAction<string>): UsersState => {
       // reset searchPage otherwise search results won't appear
-      return { ...state, searchQuery: action.payload, page: initialState.page };
+      return { ...state, searchQuery: action.payload, searchPage: initialState.searchPage };
     },
     setUsersSearchPage: (state, action: PayloadAction<number>): UsersState => {
-      return { ...state, page: action.payload };
-    },
-    pageChanged: (state, action: PayloadAction<number>) => ({
-      ...state,
-      page: action.payload,
-    }),
-    usersFetchBegin: (state) => {
-      return { ...state, isLoading: true };
-    },
-    usersFetchEnd: (state) => {
-      return { ...state, isLoading: false };
+      return { ...state, searchPage: action.payload };
     },
   },
 });
 
-export const { searchQueryChanged, setUsersSearchPage, usersLoaded, usersFetchBegin, usersFetchEnd, pageChanged } =
-  usersSlice.actions;
+export const { setUsersSearchQuery, setUsersSearchPage, usersLoaded } = usersSlice.actions;
 
 export const usersReducer = usersSlice.reducer;
 

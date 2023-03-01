@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { SelectableValue } from '@grafana/data';
-import { EditorField } from '@grafana/experimental';
 import { Select } from '@grafana/ui';
 
+import { SELECT_WIDTH } from '../constants';
 import CloudMonitoringDatasource from '../datasource';
+
+import { QueryEditorRow } from '.';
 
 export interface Props {
   refId: string;
@@ -33,9 +35,10 @@ export function Project({ refId, projectName, datasource, onChange, templateVari
   );
 
   return (
-    <EditorField label="Project">
+    <QueryEditorRow label="Project" htmlFor={`${refId}-project`}>
       <Select
-        width="auto"
+        menuShouldPortal
+        width={SELECT_WIDTH}
         allowCustomValue
         formatCreateLabel={(v) => `Use project: ${v}`}
         onChange={({ value }) => onChange(value!)}
@@ -44,6 +47,6 @@ export function Project({ refId, projectName, datasource, onChange, templateVari
         placeholder="Select Project"
         inputId={`${refId}-project`}
       />
-    </EditorField>
+    </QueryEditorRow>
   );
 }

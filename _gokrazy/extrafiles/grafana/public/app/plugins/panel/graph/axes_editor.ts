@@ -11,8 +11,7 @@ export class AxesEditorCtrl {
   xNameSegment: any;
   selectors: typeof selectors.components.Panels.Visualization.Graph.VisualizationTab;
 
-  static $inject = ['$scope'];
-
+  /** @ngInject */
   constructor(private $scope: any) {
     this.panelCtrl = $scope.ctrl as GraphCtrl;
     this.panel = this.panelCtrl.panel;
@@ -77,6 +76,7 @@ export class AxesEditorCtrl {
   }
 }
 
+/** @ngInject */
 export function axesEditorComponent() {
   'use strict';
   return {

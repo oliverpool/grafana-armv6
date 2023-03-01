@@ -31,11 +31,11 @@ describe('style utils', () => {
     };
 
     const state = await getStyleConfigState(cfg);
-    state.config = null as unknown as StyleConfig; // not interesting in the snapshot
+    state.config = null as any; // not interesting in the snapshot
     expect(state.hasText).toBe(false);
     expect(state).toMatchInlineSnapshot(`
-      {
-        "base": {
+      Object {
+        "base": Object {
           "color": "#37872D",
           "lineWidth": 1,
           "opacity": 0.4,
@@ -43,7 +43,7 @@ describe('style utils', () => {
           "size": 5,
         },
         "config": null,
-        "fields": {
+        "fields": Object {
           "color": "Price",
           "size": "Count",
         },

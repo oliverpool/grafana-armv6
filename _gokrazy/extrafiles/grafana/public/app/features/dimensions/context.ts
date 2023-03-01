@@ -1,5 +1,3 @@
-import { PanelData } from '@grafana/data/src';
-
 import {
   ColorDimensionConfig,
   DimensionSupplier,
@@ -15,5 +13,4 @@ export interface DimensionContext {
   getScalar(scalar: ScalarDimensionConfig): DimensionSupplier<number>;
   getText(text: TextDimensionConfig): DimensionSupplier<string>;
   getResource(resource: ResourceDimensionConfig): DimensionSupplier<string>;
-  getPanelData(): PanelData | undefined;
 }

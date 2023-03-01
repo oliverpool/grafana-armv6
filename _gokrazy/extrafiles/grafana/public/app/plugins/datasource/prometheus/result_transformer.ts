@@ -1,15 +1,11 @@
 import { descending, deviation } from 'd3';
-import { flatten, forOwn, groupBy, partition } from 'lodash';
+import { partition, groupBy } from 'lodash';
 
 import {
   ArrayDataFrame,
   ArrayVector,
-  CoreApp,
   DataFrame,
-  DataFrameType,
   DataLink,
-  DataQueryRequest,
-  DataQueryResponse,
   DataTopic,
   Field,
   FieldType,
@@ -17,10 +13,14 @@ import {
   getDisplayProcessor,
   Labels,
   MutableField,
-  PreferredVisualisationType,
   ScopedVars,
   TIME_SERIES_TIME_FIELD_NAME,
   TIME_SERIES_VALUE_FIELD_NAME,
+  DataQueryResponse,
+  DataQueryRequest,
+  PreferredVisualisationType,
+  CoreApp,
+  DataFrameType,
 } from '@grafana/data';
 import { FetchResponse, getDataSourceSrv, getTemplateSrv } from '@grafana/runtime';
 
@@ -65,7 +65,7 @@ const isHeatmapResult = (dataFrame: DataFrame, options: DataQueryRequest<PromQue
   return target?.format === 'heatmap';
 };
 
-// V2 result transformer used to transform query results from queries that were run through prometheus backend
+// V2 result trasnformer used to transform query results from queries that were run trough prometheus backend
 export function transformV2(
   response: DataQueryResponse,
   request: DataQueryRequest<PromQuery>,
@@ -102,79 +102,27 @@ export function transformV2(
     (df) => isHeatmapResult(df, request)
   );
 
-  // this works around the fact that we only get back frame.name with le buckets when legendFormat == {{le}}...which is not the default
-  heatmapResults.forEach((df) => {
-    if (df.name == null) {
-      let f = df.fields.find((f) => f.name === 'Value');
-
-      if (f) {
-        let le = f.labels?.le;
-
-        if (le) {
-          // this is used for sorting the frames by numeric ascending le labels for de-accum
-          df.name = le;
-          // this is used for renaming the Value fields to le label
-          f.config.displayNameFromDS = le;
-        }
-      }
-    }
-  });
-
-  // Group heatmaps by query
-  const heatmapResultsGroupedByQuery = groupBy<DataFrame>(heatmapResults, (h) => h.refId);
-
-  // Initialize empty array to push grouped histogram frames to
-  let processedHeatmapResultsGroupedByQuery: DataFrame[][] = [];
-
-  // Iterate through every query in this heatmap
-  for (const query in heatmapResultsGroupedByQuery) {
-    // Get reference to dataFrames for heatmap
-    const heatmapResultsGroup = heatmapResultsGroupedByQuery[query];
-
-    // Create a new grouping by iterating through the data frames...
-    const heatmapResultsGroupedByValues = groupBy<DataFrame>(heatmapResultsGroup, (dataFrame) => {
-      // Each data frame has `Time` and `Value` properties, we want to get the values
-      const values = dataFrame.fields.find((field) => field.name === TIME_SERIES_VALUE_FIELD_NAME);
-      // Specific functionality for special "le" quantile heatmap value, we know if this value exists, that we do not want to calculate the heatmap density across data frames from the same quartile
-      if (values?.labels && HISTOGRAM_QUANTILE_LABEL_NAME in values.labels) {
-        const { le, ...notLE } = values?.labels;
-        return Object.values(notLE).join();
-      }
-
-      // Return a string made from the concatenation of this frame's values to represent a grouping in the query
-      return Object.values(values?.labels ?? []).join();
-    });
-
-    // Then iterate through the resultant object
-    forOwn(heatmapResultsGroupedByValues, (dataFrames, key) => {
-      // Sort frames within each grouping
-      const sortedHeatmap = dataFrames.sort(sortSeriesByLabel);
-      // And push the sorted grouping with the rest
-      processedHeatmapResultsGroupedByQuery.push(mergeHeatmapFrames(transformToHistogramOverTime(sortedHeatmap)));
-    });
-  }
+  const processedHeatmapFrames = mergeHeatmapFrames(
+    transformToHistogramOverTime(heatmapResults.sort(sortSeriesByLabel))
+  );
 
   // Everything else is processed as time_series result and graph preferredVisualisationType
   const otherFrames = framesWithoutTableHeatmapsAndExemplars.map((dataFrame) => {
-    const df: DataFrame = {
+    const df = {
       ...dataFrame,
       meta: {
         ...dataFrame.meta,
         preferredVisualisationType: 'graph',
       },
-    };
+    } as DataFrame;
     return df;
   });
 
-  const flattenedProcessedHeatmapFrames = flatten(processedHeatmapResultsGroupedByQuery);
-
   return {
     ...response,
-    data: [...otherFrames, ...processedTableFrames, ...flattenedProcessedHeatmapFrames, ...processedExemplarFrames],
+    data: [...otherFrames, ...processedTableFrames, ...processedHeatmapFrames, ...processedExemplarFrames],
   };
 }
-
-const HISTOGRAM_QUANTILE_LABEL_NAME = 'le';
 
 export function transformDFToTable(dfs: DataFrame[]): DataFrame[] {
   // If no dataFrames or if 1 dataFrames with no values, return original dataFrame
@@ -203,7 +151,7 @@ export function transformDFToTable(dfs: DataFrame[]): DataFrame[] {
         .forEach((label) => {
           // If we don't have label in labelFields, add it
           if (!labelFields.some((l) => l.name === label)) {
-            const numberField = label === HISTOGRAM_QUANTILE_LABEL_NAME;
+            const numberField = label === 'le';
             labelFields.push({
               name: label,
               config: { filterable: true },
@@ -228,8 +176,7 @@ export function transformDFToTable(dfs: DataFrame[]): DataFrame[] {
     return {
       refId,
       fields,
-      // Prometheus specific UI for instant queries
-      meta: { ...dfs[0].meta, preferredVisualisationType: 'rawPrometheus' as PreferredVisualisationType },
+      meta: { ...dfs[0].meta, preferredVisualisationType: 'table' as PreferredVisualisationType },
       length: timeField.values.length,
     };
   });
@@ -264,7 +211,7 @@ export function transform(
     valueWithRefId: transformOptions.target.valueWithRefId,
     meta: {
       // Fix for showing of Prometheus results in Explore table
-      preferredVisualisationType: transformOptions.query.instant ? 'rawPrometheus' : 'graph',
+      preferredVisualisationType: transformOptions.query.instant ? 'table' : 'graph',
     },
   };
   const prometheusResult = response.data.data;
@@ -346,21 +293,15 @@ function getDataLinks(options: ExemplarTraceIdDestination): DataLink[] {
     const dataSourceSrv = getDataSourceSrv();
     const dsSettings = dataSourceSrv.getInstanceSettings(options.datasourceUid);
 
-    // dsSettings is undefined because of the reasons below:
-    // - permissions issues (probably most likely)
-    // - deleted datasource
-    // - misconfiguration
-    if (dsSettings) {
-      dataLinks.push({
-        title: options.urlDisplayLabel || `Query with ${dsSettings?.name}`,
-        url: '',
-        internal: {
-          query: { query: '${__value.raw}', queryType: 'traceql' },
-          datasourceUid: options.datasourceUid,
-          datasourceName: dsSettings?.name ?? 'Data source not found',
-        },
-      });
-    }
+    dataLinks.push({
+      title: options.urlDisplayLabel || `Query with ${dsSettings?.name}`,
+      url: '',
+      internal: {
+        query: { query: '${__value.raw}', queryType: 'traceId' },
+        datasourceUid: options.datasourceUid,
+        datasourceName: dsSettings?.name ?? 'Data source not found',
+      },
+    });
   }
 
   if (options.url) {
@@ -494,7 +435,7 @@ function transformMetricDataToTable(md: MatrixOrVectorResult[], options: Transfo
     .map((label) => {
       // Labels have string field type, otherwise table tries to figure out the type which can result in unexpected results
       // Only "le" label has a number field type
-      const numberField = label === HISTOGRAM_QUANTILE_LABEL_NAME;
+      const numberField = label === 'le';
       return {
         name: label,
         config: { filterable: true },
@@ -528,7 +469,7 @@ function transformMetricDataToTable(md: MatrixOrVectorResult[], options: Transfo
 
 function getLabelValue(metric: PromMetric, label: string): string | number {
   if (metric.hasOwnProperty(label)) {
-    if (label === HISTOGRAM_QUANTILE_LABEL_NAME) {
+    if (label === 'le') {
       return parseSampleValue(metric[label]);
     }
     return metric[label];
@@ -544,7 +485,6 @@ function getTimeField(data: PromValue[], isMs = false): MutableField {
     values: new ArrayVector<number>(data.map((val) => (isMs ? val[0] : val[0] * 1000))),
   };
 }
-
 type ValueFieldOptions = {
   data: PromValue[];
   valueName?: string;
@@ -618,7 +558,7 @@ function mergeHeatmapFrames(frames: DataFrame[]): DataFrame[] {
       ...frames[0],
       meta: {
         ...frames[0].meta,
-        type: DataFrameType.HeatmapRows,
+        type: DataFrameType.HeatmapBuckets,
       },
       fields: [timeField!, ...countFields],
     },

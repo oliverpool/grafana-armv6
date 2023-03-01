@@ -16,20 +16,13 @@ interface Props {
   data: PanelData;
   currentPanel: SupportedPanelPlugins;
   changePanel: (panel: SupportedPanelPlugins) => void;
-  thresholds?: ThresholdsConfig;
-  thresholdsType?: GraphTresholdsStyleMode;
-  onThresholdsChange?: (thresholds: ThresholdsConfig) => void;
+  thresholds: ThresholdsConfig;
+  onThresholdsChange: (thresholds: ThresholdsConfig) => void;
 }
 
 type PanelFieldConfig = FieldConfigSource<GraphFieldConfig>;
 
-export const VizWrapper: FC<Props> = ({
-  data,
-  currentPanel,
-  changePanel,
-  thresholds,
-  thresholdsType = GraphTresholdsStyleMode.Line,
-}) => {
+export const VizWrapper: FC<Props> = ({ data, currentPanel, changePanel, onThresholdsChange, thresholds }) => {
   const [options, setOptions] = useState<PanelOptions>({
     frameIndex: 0,
     showHeader: true,
@@ -37,7 +30,7 @@ export const VizWrapper: FC<Props> = ({
   const vizHeight = useVizHeight(data, currentPanel, options.frameIndex);
   const styles = useStyles2(getStyles(vizHeight));
 
-  const [fieldConfig, setFieldConfig] = useState<PanelFieldConfig>(defaultFieldConfig(data, thresholds));
+  const [fieldConfig, setFieldConfig] = useState<PanelFieldConfig>(defaultFieldConfig(thresholds, data));
 
   useEffect(() => {
     setFieldConfig((fieldConfig) => ({
@@ -49,20 +42,20 @@ export const VizWrapper: FC<Props> = ({
         custom: {
           ...fieldConfig.defaults.custom,
           thresholdsStyle: {
-            mode: thresholdsType,
+            mode: GraphTresholdsStyleMode.Line,
           },
         },
       },
     }));
-  }, [thresholds, setFieldConfig, data, thresholdsType]);
+  }, [thresholds, setFieldConfig, data]);
 
   const context: PanelContext = useMemo(
     () => ({
       eventBus: appEvents,
-      canEditThresholds: false,
-      showThresholds: true,
+      canEditThresholds: true,
+      onThresholdsChange: onThresholdsChange,
     }),
-    []
+    [onThresholdsChange]
   );
 
   if (!options || !data) {
@@ -116,7 +109,7 @@ function defaultUnit(data: PanelData): string | undefined {
   return data.series[0]?.fields.find((field) => field.type === 'number')?.config.unit;
 }
 
-function defaultFieldConfig(data: PanelData, thresholds?: ThresholdsConfig): PanelFieldConfig {
+function defaultFieldConfig(thresholds: ThresholdsConfig, data: PanelData): PanelFieldConfig {
   if (!thresholds) {
     return { defaults: {}, overrides: [] };
   }

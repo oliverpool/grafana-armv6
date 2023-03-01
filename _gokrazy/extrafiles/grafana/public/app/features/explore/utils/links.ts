@@ -10,50 +10,11 @@ import {
   DataFrame,
   getFieldDisplayValuesProxy,
   SplitOpen,
-  DataLink,
-  DisplayValue,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { getLinkSrv } from '../../panel/panellinks/link_srv';
-
-type DataLinkFilter = (link: DataLink, scopedVars: ScopedVars) => boolean;
-
-const dataLinkHasRequiredPermissions = (link: DataLink) => {
-  return !link.internal || contextSrv.hasAccessToExplore();
-};
-
-/**
- * Check if every variable in the link has a value. If not this returns false. If there are no variables in the link
- * this will return true.
- * @param link
- * @param scopedVars
- */
-const dataLinkHasAllVariablesDefined = (link: DataLink, scopedVars: ScopedVars) => {
-  let hasAllRequiredVarDefined = true;
-
-  if (link.internal) {
-    let stringifiedQuery = '';
-    try {
-      stringifiedQuery = JSON.stringify(link.internal.query || {});
-      // Hook into format function to verify if all values are non-empty
-      // Format function is run on all existing field values allowing us to check it's value is non-empty
-      getTemplateSrv().replace(stringifiedQuery, scopedVars, (f: string) => {
-        hasAllRequiredVarDefined = hasAllRequiredVarDefined && !!f;
-        return '';
-      });
-    } catch (err) {}
-  }
-
-  return hasAllRequiredVarDefined;
-};
-
-/**
- * Fixed list of filters used in Explore. DataLinks that do not pass all the filters will not
- * be passed back to the visualization.
- */
-const DATA_LINK_FILTERS: DataLinkFilter[] = [dataLinkHasAllVariablesDefined, dataLinkHasRequiredPermissions];
 
 /**
  * Get links from the field of a dataframe and in addition check if there is associated
@@ -79,42 +40,29 @@ export const getFieldLinksForExplore = (options: {
     text: 'Raw value',
   };
 
-  let fieldDisplayValuesProxy: Record<string, DisplayValue> | undefined = undefined;
-
   // If we have a dataFrame we can allow referencing other columns and their values in the interpolation.
   if (dataFrame) {
-    fieldDisplayValuesProxy = getFieldDisplayValuesProxy({
-      frame: dataFrame,
-      rowIndex,
-    });
-
     scopedVars['__data'] = {
       value: {
         name: dataFrame.name,
         refId: dataFrame.refId,
-        fields: fieldDisplayValuesProxy,
+        fields: getFieldDisplayValuesProxy({
+          frame: dataFrame,
+          rowIndex,
+        }),
       },
       text: 'Data',
-    };
-
-    dataFrame.fields.forEach((f) => {
-      if (fieldDisplayValuesProxy && fieldDisplayValuesProxy[f.name]) {
-        scopedVars[f.name] = {
-          value: fieldDisplayValuesProxy[f.name],
-        };
-      }
-    });
-
-    // add this for convenience
-    scopedVars['__targetField'] = {
-      value: fieldDisplayValuesProxy[field.name],
     };
   }
 
   if (field.config.links) {
-    const links = field.config.links.filter((link) => {
-      return DATA_LINK_FILTERS.every((filter) => filter(link, scopedVars));
-    });
+    const links = [];
+
+    if (!contextSrv.hasAccessToExplore()) {
+      links.push(...field.config.links.filter((l) => !l.internal));
+    } else {
+      links.push(...field.config.links);
+    }
 
     return links.map((link) => {
       if (!link.internal) {

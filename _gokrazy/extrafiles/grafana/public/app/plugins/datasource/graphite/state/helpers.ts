@@ -1,4 +1,4 @@
-import { clone, some } from 'lodash';
+import { clone } from 'lodash';
 
 import { createErrorNotification } from '../../../../core/copy/appNotification';
 import { notifyApp } from '../../../../core/reducers/appNotification';
@@ -69,8 +69,7 @@ export async function checkOtherSegments(
     return;
   }
 
-  const currentFromIndex = fromIndex + 1;
-  const path = state.queryModel.getSegmentPathUpTo(currentFromIndex);
+  const path = state.queryModel.getSegmentPathUpTo(fromIndex + 1);
   if (path === '') {
     return;
   }
@@ -79,23 +78,19 @@ export async function checkOtherSegments(
     const segments = await state.datasource.metricFindQuery(path);
     if (segments.length === 0) {
       if (path !== '' && modifyLastSegment) {
-        state.queryModel.segments = state.queryModel.segments.splice(0, currentFromIndex);
-        state.segments = state.segments.splice(0, currentFromIndex);
-        if (!some(state.segments, { fake: true })) {
-          addSelectMetricSegment(state);
-        }
+        state.queryModel.segments = state.queryModel.segments.splice(0, fromIndex);
+        state.segments = state.segments.splice(0, fromIndex);
+        addSelectMetricSegment(state);
       }
     } else if (segments[0].expandable) {
       if (state.segments.length === fromIndex) {
         addSelectMetricSegment(state);
       } else {
-        await checkOtherSegments(state, currentFromIndex);
+        await checkOtherSegments(state, fromIndex + 1);
       }
     }
   } catch (err) {
-    if (err instanceof Error) {
-      handleMetricsAutoCompleteError(state, err);
-    }
+    handleMetricsAutoCompleteError(state, err);
   }
 }
 
@@ -158,7 +153,7 @@ export function handleTargetChanged(state: GraphiteQueryEditorState): void {
     return;
   }
 
-  let oldTarget = state.queryModel.target.target;
+  const oldTarget = state.queryModel.target.target;
   // Interpolate from other queries:
   // Because of mixed data sources the list may contain queries for non-Graphite data sources. To ensure a valid query
   // is used for interpolation we should check required properties are passed though in theory it allows to interpolate
@@ -167,11 +162,7 @@ export function handleTargetChanged(state: GraphiteQueryEditorState): void {
     (state.queries || []).filter((query) => 'target' in query && typeof (query as GraphiteQuery).target === 'string')
   );
 
-  // remove spaces from old and new targets
-  const newTarget = state.queryModel.target.target.replace(/\s+/g, '');
-  oldTarget = oldTarget.replace(/\s+/g, '');
-
-  if (newTarget !== oldTarget && !state.paused) {
+  if (state.queryModel.target.target !== oldTarget && !state.paused) {
     state.refresh();
   }
 }

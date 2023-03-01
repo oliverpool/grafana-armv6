@@ -3,10 +3,7 @@ import React, { PureComponent } from 'react';
 import tinycolor from 'tinycolor2';
 
 import { LogRowModel, TimeZone, dateTimeFormat, GrafanaTheme2 } from '@grafana/data';
-import { Icon, Button, Themeable2, withTheme2 } from '@grafana/ui';
-
-import { LogMessageAnsi } from '../logs/components/LogMessageAnsi';
-import { getLogRowStyles } from '../logs/components/getLogRowStyles';
+import { LogMessageAnsi, getLogRowStyles, Icon, Button, Themeable2, withTheme2 } from '@grafana/ui';
 
 import { ElapsedTime } from './ElapsedTime';
 
@@ -122,14 +119,14 @@ class LiveLogs extends PureComponent<Props, State> {
         <table className={styles.fullWidth}>
           <tbody
             onScroll={isPaused ? undefined : this.onScroll}
-            className={styles.logsRowsLive}
+            className={cx(['logs-rows', styles.logsRowsLive])}
             ref={this.scrollContainerRef}
           >
             {this.rowsToRender().map((row: LogRowModel) => {
               return (
                 <tr className={cx(logsRow, styles.logsRowFade)} key={row.uid}>
-                  <td className={logsRowLocalTime}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
-                  <td className={logsRowMessage}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
+                  <td className={cx(logsRowLocalTime)}>{dateTimeFormat(row.timeEpochMs, { timeZone })}</td>
+                  <td className={cx(logsRowMessage)}>{row.hasAnsi ? <LogMessageAnsi value={row.raw} /> : row.entry}</td>
                 </tr>
               );
             })}
@@ -138,8 +135,7 @@ class LiveLogs extends PureComponent<Props, State> {
                 this.liveEndDiv = element;
                 // This is triggered on every update so on every new row. It keeps the view scrolled at the bottom by
                 // default.
-                // As scrollTo is not implemented in JSDOM it needs to be part of the condition
-                if (this.liveEndDiv && this.scrollContainerRef.current?.scrollTo && !isPaused) {
+                if (this.liveEndDiv && !isPaused) {
                   this.scrollContainerRef.current?.scrollTo(0, this.scrollContainerRef.current.scrollHeight);
                 }
               }}

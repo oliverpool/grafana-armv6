@@ -2,14 +2,7 @@ import { css, cx } from '@emotion/css';
 import React, { ReactNode, useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { IconButton, Pagination, useStyles2 } from '@grafana/ui';
-
-import { usePagination } from '../hooks/usePagination';
-import { getPaginationStyles } from '../styles/pagination';
-
-interface DynamicTablePagination {
-  itemsPerPage: number;
-}
+import { IconButton, useStyles2 } from '@grafana/ui';
 
 export interface DynamicTableColumnProps<T = unknown> {
   id: string | number;
@@ -30,8 +23,6 @@ export interface DynamicTableProps<T = unknown> {
   items: Array<DynamicTableItemProps<T>>;
 
   isExpandable?: boolean;
-  pagination?: DynamicTablePagination;
-  paginationStyles?: string;
 
   // provide these to manually control expanded status
   onCollapse?: (item: DynamicTableItemProps<T>) => void;
@@ -50,8 +41,6 @@ export interface DynamicTableProps<T = unknown> {
     index: number,
     items: Array<DynamicTableItemProps<T>>
   ) => ReactNode;
-
-  footerRow?: JSX.Element;
 }
 
 export const DynamicTable = <T extends object>({
@@ -63,16 +52,12 @@ export const DynamicTable = <T extends object>({
   isExpanded,
   renderExpandedContent,
   testIdGenerator,
-  pagination,
-  paginationStyles,
+
   // render a cell BEFORE expand icon for header/ each row.
   // currently use by RuleList to render guidelines
   renderPrefixCell,
   renderPrefixHeader,
-  footerRow,
 }: DynamicTableProps<T>) => {
-  const defaultPaginationStyles = useStyles2(getPaginationStyles);
-
   if ((onCollapse || onExpand || isExpanded) && !(onCollapse && onExpand && isExpanded)) {
     throw new Error('either all of onCollapse, onExpand, isExpanded must be provided, or none');
   }
@@ -92,70 +77,50 @@ export const DynamicTable = <T extends object>({
       );
     }
   };
-
-  const itemsPerPage = pagination?.itemsPerPage ?? items.length;
-  const { page, numberOfPages, onPageChange, pageItems } = usePagination(items, 1, itemsPerPage);
-
   return (
-    <>
-      <div className={styles.container} data-testid="dynamic-table">
-        <div className={styles.row} data-testid="header">
-          {renderPrefixHeader && renderPrefixHeader()}
-          {isExpandable && <div className={styles.cell} />}
-          {cols.map((col) => (
-            <div className={styles.cell} key={col.id}>
-              {col.label}
-            </div>
-          ))}
-        </div>
-
-        {pageItems.map((item, index) => {
-          const isItemExpanded = isExpanded ? isExpanded(item) : expandedIds.includes(item.id);
-          return (
-            <div
-              className={styles.row}
-              key={`${item.id}-${index}`}
-              data-testid={testIdGenerator?.(item, index) ?? 'row'}
-            >
-              {renderPrefixCell && renderPrefixCell(item, index, items)}
-              {isExpandable && (
-                <div className={cx(styles.cell, styles.expandCell)}>
-                  <IconButton
-                    aria-label={`${isItemExpanded ? 'Collapse' : 'Expand'} row`}
-                    size="xl"
-                    data-testid="collapse-toggle"
-                    className={styles.expandButton}
-                    name={isItemExpanded ? 'angle-down' : 'angle-right'}
-                    onClick={() => toggleExpanded(item)}
-                    type="button"
-                  />
-                </div>
-              )}
-              {cols.map((col) => (
-                <div className={cx(styles.cell, styles.bodyCell)} data-column={col.label} key={`${item.id}-${col.id}`}>
-                  {col.renderCell(item, index)}
-                </div>
-              ))}
-              {isItemExpanded && renderExpandedContent && (
-                <div className={styles.expandedContentRow} data-testid="expanded-content">
-                  {renderExpandedContent(item, index, items)}
-                </div>
-              )}
-            </div>
-          );
-        })}
-        {footerRow && <div className={cx(styles.row, styles.footerRow)}>{footerRow}</div>}
+    <div className={styles.container} data-testid="dynamic-table">
+      <div className={styles.row} data-testid="header">
+        {renderPrefixHeader && renderPrefixHeader()}
+        {isExpandable && <div className={styles.cell} />}
+        {cols.map((col) => (
+          <div className={styles.cell} key={col.id}>
+            {col.label}
+          </div>
+        ))}
       </div>
-      {pagination && (
-        <Pagination
-          className={cx(defaultPaginationStyles, paginationStyles)}
-          currentPage={page}
-          numberOfPages={numberOfPages}
-          onNavigate={onPageChange}
-          hideWhenSinglePage
-        />
-      )}
-    </>
+
+      {items.map((item, index) => {
+        const isItemExpanded = isExpanded ? isExpanded(item) : expandedIds.includes(item.id);
+        return (
+          <div className={styles.row} key={`${item.id}-${index}`} data-testid={testIdGenerator?.(item, index) ?? 'row'}>
+            {renderPrefixCell && renderPrefixCell(item, index, items)}
+            {isExpandable && (
+              <div className={cx(styles.cell, styles.expandCell)}>
+                <IconButton
+                  aria-label={`${isItemExpanded ? 'Collapse' : 'Expand'} row`}
+                  size="xl"
+                  data-testid="collapse-toggle"
+                  className={styles.expandButton}
+                  name={isItemExpanded ? 'angle-down' : 'angle-right'}
+                  onClick={() => toggleExpanded(item)}
+                  type="button"
+                />
+              </div>
+            )}
+            {cols.map((col) => (
+              <div className={cx(styles.cell, styles.bodyCell)} data-column={col.label} key={`${item.id}-${col.id}`}>
+                {col.renderCell(item, index)}
+              </div>
+            ))}
+            {isItemExpanded && renderExpandedContent && (
+              <div className={styles.expandedContentRow} data-testid="expanded-content">
+                {renderExpandedContent(item, index, items)}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
@@ -221,10 +186,6 @@ const getStyles = <T extends unknown>(
           : ''}
       }
     `,
-    footerRow: css`
-      display: flex;
-      padding: ${theme.spacing(1)};
-    `,
     cell: css`
       align-items: center;
       padding: ${theme.spacing(1)};
@@ -236,7 +197,7 @@ const getStyles = <T extends unknown>(
     `,
     bodyCell: css`
       overflow: hidden;
-
+      word-break: break-all;
       ${theme.breakpoints.down('sm')} {
         grid-column-end: right;
         grid-column-start: right;

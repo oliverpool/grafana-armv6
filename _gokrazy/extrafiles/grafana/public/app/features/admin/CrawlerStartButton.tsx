@@ -39,9 +39,7 @@ export const CrawlerStartButton = () => {
           />
         </div>
         <Modal.ButtonRow>
-          <Button type="submit" onClick={doStart}>
-            Start
-          </Button>
+          <Button onClick={doStart}>Start</Button>
           <Button variant="secondary" onClick={onDismiss}>
             Cancel
           </Button>

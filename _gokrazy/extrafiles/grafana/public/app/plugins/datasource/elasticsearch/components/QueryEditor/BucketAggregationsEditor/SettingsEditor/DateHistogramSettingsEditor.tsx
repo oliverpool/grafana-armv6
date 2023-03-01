@@ -59,6 +59,7 @@ export const DateHistogramSettingsEditor = ({ bucketAgg }: Props) => {
     <>
       <InlineField label="Interval" {...inlineFieldProps}>
         <Select
+          menuShouldPortal
           inputId={uniqueId('es-date_histogram-interval')}
           isValidNewOption={isValidNewOption}
           filterOption={optionStartsWithValue}

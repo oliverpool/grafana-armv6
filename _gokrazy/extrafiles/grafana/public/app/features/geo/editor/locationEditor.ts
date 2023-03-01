@@ -1,25 +1,33 @@
-import { Field, FieldType, PanelOptionsEditorBuilder, DataFrame } from '@grafana/data';
-import { FrameGeometrySource, FrameGeometrySourceMode } from '@grafana/schema';
+import {
+  Field,
+  FieldType,
+  FrameGeometrySource,
+  FrameGeometrySourceMode,
+  PanelOptionsEditorBuilder,
+} from '@grafana/data';
 import { GazetteerPathEditor } from 'app/features/geo/editor/GazetteerPathEditor';
-
-import { LocationModeEditor } from './locationModeEditor';
 
 export function addLocationFields<TOptions>(
   title: string,
   prefix: string,
-  builder: PanelOptionsEditorBuilder<TOptions>, // ??? Perhaps pass in the filtered data?
-  source?: FrameGeometrySource,
-  data?: DataFrame[]
+  builder: PanelOptionsEditorBuilder<TOptions>,
+  source?: FrameGeometrySource
 ) {
-  builder.addCustomEditor({
-    id: 'modeEditor',
+  builder.addRadio({
     path: `${prefix}mode`,
-    name: 'Location Mode',
-    editor: LocationModeEditor,
-    settings: { data, source },
+    name: title,
+    description: '',
+    defaultValue: FrameGeometrySourceMode.Auto,
+    settings: {
+      options: [
+        { value: FrameGeometrySourceMode.Auto, label: 'Auto' },
+        { value: FrameGeometrySourceMode.Coords, label: 'Coords' },
+        { value: FrameGeometrySourceMode.Geohash, label: 'Geohash' },
+        { value: FrameGeometrySourceMode.Lookup, label: 'Lookup' },
+      ],
+    },
   });
 
-  // TODO apply data filter to field pickers
   switch (source?.mode) {
     case FrameGeometrySourceMode.Coords:
       builder

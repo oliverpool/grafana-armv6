@@ -1,6 +1,6 @@
 // Libraries
 import { css } from '@emotion/css';
-import React from 'react';
+import React, { FC } from 'react';
 
 // Components
 import { HorizontalGroup, LinkButton } from '@grafana/ui';
@@ -20,7 +20,7 @@ const forgottenPasswordStyles = css`
   margin-top: 4px;
 `;
 
-export const LoginPage = () => {
+export const LoginPage: FC = () => {
   document.title = Branding.AppTitle;
   return (
     <LoginLayout>
@@ -28,6 +28,8 @@ export const LoginPage = () => {
         {({
           loginHint,
           passwordHint,
+          ldapEnabled,
+          authProxyEnabled,
           disableLoginForm,
           disableUserSignUp,
           login,
@@ -46,15 +48,19 @@ export const LoginPage = () => {
                     passwordHint={passwordHint}
                     isLoggingIn={isLoggingIn}
                   >
-                    <HorizontalGroup justify="flex-end">
-                      <LinkButton
-                        className={forgottenPasswordStyles}
-                        fill="text"
-                        href={`${config.appSubUrl}/user/password/send-reset-email`}
-                      >
-                        Forgot your password?
-                      </LinkButton>
-                    </HorizontalGroup>
+                    {!(ldapEnabled || authProxyEnabled) ? (
+                      <HorizontalGroup justify="flex-end">
+                        <LinkButton
+                          className={forgottenPasswordStyles}
+                          fill="text"
+                          href={`${config.appSubUrl}/user/password/send-reset-email`}
+                        >
+                          Forgot your password?
+                        </LinkButton>
+                      </HorizontalGroup>
+                    ) : (
+                      <></>
+                    )}
                   </LoginForm>
                 )}
                 <LoginServiceButtons />

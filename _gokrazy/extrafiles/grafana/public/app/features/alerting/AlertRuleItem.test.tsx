@@ -12,7 +12,7 @@ const setup = (propOverrides?: object) => {
       name: 'Some rule',
       state: 'Open',
       stateText: 'state text',
-      stateIcon: 'anchor',
+      stateIcon: 'icon',
       stateClass: 'state class',
       stateAge: 'age',
       url: 'https://something.something.darkside',

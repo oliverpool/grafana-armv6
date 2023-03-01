@@ -11,10 +11,9 @@ import ExemplarSetting from './ExemplarSetting';
 type Props = {
   options?: ExemplarTraceIdDestination[];
   onChange: (value: ExemplarTraceIdDestination[]) => void;
-  disabled?: boolean;
 };
 
-export function ExemplarsSettings({ options, onChange, disabled }: Props) {
+export function ExemplarsSettings({ options, onChange }: Props) {
   return (
     <>
       <h3 className="page-heading">Exemplars</h3>
@@ -35,28 +34,25 @@ export function ExemplarsSettings({ options, onChange, disabled }: Props) {
                 newOptions.splice(index, 1);
                 onChange(newOptions);
               }}
-              disabled={disabled}
             />
           );
         })}
 
-      {!disabled && (
-        <Button
-          variant="secondary"
-          aria-label={selectors.components.DataSource.Prometheus.configPage.exemplarsAddButton}
-          className={css`
-            margin-bottom: 10px;
-          `}
-          icon="plus"
-          onClick={(event) => {
-            event.preventDefault();
-            const newOptions = [...(options || []), { name: 'traceID' }];
-            onChange(newOptions);
-          }}
-        >
-          Add
-        </Button>
-      )}
+      <Button
+        variant="secondary"
+        aria-label={selectors.components.DataSource.Prometheus.configPage.exemplarsAddButton}
+        className={css`
+          margin-bottom: 10px;
+        `}
+        icon="plus"
+        onClick={(event) => {
+          event.preventDefault();
+          const newOptions = [...(options || []), { name: 'traceID' }];
+          onChange(newOptions);
+        }}
+      >
+        Add
+      </Button>
     </>
   );
 }

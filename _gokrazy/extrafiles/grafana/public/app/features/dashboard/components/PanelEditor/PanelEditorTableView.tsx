@@ -12,7 +12,7 @@ import { DashboardModel, PanelModel } from '../../state';
 
 import { usePanelLatestData } from './usePanelLatestData';
 
-export interface Props {
+interface Props {
   width: number;
   height: number;
   panel: PanelModel;
@@ -30,16 +30,10 @@ export function PanelEditorTableView({ width, height, panel, dashboard }: Props)
   // Subscribe to panel event
   useEffect(() => {
     const timeSrv = getTimeSrv();
+    const timeData = applyPanelTimeOverrides(panel, timeSrv.timeRange());
 
     const sub = panel.events.subscribe(RefreshEvent, () => {
-      const timeData = applyPanelTimeOverrides(panel, timeSrv.timeRange());
-      panel.runAllPanelQueries({
-        dashboardId: dashboard.id,
-        dashboardUID: dashboard.uid,
-        dashboardTimezone: dashboard.getTimezone(),
-        timeData,
-        width,
-      });
+      panel.runAllPanelQueries(dashboard.id, dashboard.getTimezone(), timeData, width);
     });
     return () => {
       sub.unsubscribe();
@@ -49,6 +43,7 @@ export function PanelEditorTableView({ width, height, panel, dashboard }: Props)
   if (!data) {
     return null;
   }
+
   return (
     <PanelChrome width={width} height={height} padding="none">
       {(innerWidth, innerHeight) => (

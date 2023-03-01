@@ -1,5 +1,3 @@
-import { config } from '@grafana/runtime';
-
 import { isGUIDish } from './components/ResourcePicker/utils';
 import DataSource from './datasource';
 import { AzureMonitorQuery, AzureQueryType } from './types';
@@ -7,6 +5,7 @@ import {
   AppInsightsGroupByQuery,
   AppInsightsMetricNameQuery,
   GrafanaTemplateVariableQuery,
+  MetricDefinitionsQuery,
   MetricNamespaceQuery,
   MetricNamesQuery,
   ResourceGroupsQuery,
@@ -29,8 +28,8 @@ export const grafanaTemplateVariableFnMatches = (query: string) => {
     subscriptions: query.match(/^Subscriptions\(\)/i),
     resourceGroups: query.match(/^ResourceGroups\(\)/i),
     resourceGroupsWithSub: query.match(/^ResourceGroups\(([^\)]+?)(,\s?([^,]+?))?\)/i),
-    namespaces: query.match(/^Namespaces\(([^\)]+?)(,\s?([^,]+?))?\)/i),
-    namespacesWithSub: query.match(/^Namespaces\(([^,]+?),\s?([^,]+?)\)/i),
+    metricDefinitions: query.match(/^Namespaces\(([^\)]+?)(,\s?([^,]+?))?\)/i),
+    metricDefinitionsWithSub: query.match(/^Namespaces\(([^,]+?),\s?([^,]+?)\)/i),
     resourceNames: query.match(/^ResourceNames\(([^,]+?),\s?([^,]+?)\)/i),
     resourceNamesWithSub: query.match(/^ResourceNames\(([^,]+?),\s?([^,]+?),\s?(.+?)\)/i),
     metricNamespace: query.match(/^MetricNamespace\(([^,]+?),\s?([^,]+?),\s?([^,]+?)\)/i),
@@ -94,22 +93,22 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
       return queryDetails;
     }
 
-    if (matchesForQuery.namespacesWithSub) {
-      const queryDetails: MetricNamespaceQuery = {
-        kind: 'MetricNamespaceQuery',
+    if (matchesForQuery.metricDefinitionsWithSub) {
+      const queryDetails: MetricDefinitionsQuery = {
+        kind: 'MetricDefinitionsQuery',
         rawQuery,
-        subscription: matchesForQuery.namespacesWithSub[1],
-        resourceGroup: matchesForQuery.namespacesWithSub[2],
+        subscription: matchesForQuery.metricDefinitionsWithSub[1],
+        resourceGroup: matchesForQuery.metricDefinitionsWithSub[2],
       };
       return queryDetails;
     }
 
-    if (matchesForQuery.namespaces && defaultSubscriptionId) {
-      const queryDetails: MetricNamespaceQuery = {
-        kind: 'MetricNamespaceQuery',
+    if (matchesForQuery.metricDefinitions && defaultSubscriptionId) {
+      const queryDetails: MetricDefinitionsQuery = {
+        kind: 'MetricDefinitionsQuery',
         rawQuery,
         subscription: defaultSubscriptionId,
-        resourceGroup: matchesForQuery.namespaces[1],
+        resourceGroup: matchesForQuery.metricDefinitions[1],
       };
       return queryDetails;
     }
@@ -120,7 +119,7 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
         rawQuery,
         subscription: matchesForQuery.resourceNamesWithSub[1],
         resourceGroup: matchesForQuery.resourceNamesWithSub[2],
-        metricNamespace: matchesForQuery.resourceNamesWithSub[3],
+        metricDefinition: matchesForQuery.resourceNamesWithSub[3],
       };
       return queryDetails;
     }
@@ -131,7 +130,7 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
         rawQuery,
         subscription: defaultSubscriptionId,
         resourceGroup: matchesForQuery.resourceNames[1],
-        metricNamespace: matchesForQuery.resourceNames[2],
+        metricDefinition: matchesForQuery.resourceNames[2],
       };
       return queryDetails;
     }
@@ -142,7 +141,7 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
         rawQuery,
         subscription: matchesForQuery.metricNamespaceWithSub[1],
         resourceGroup: matchesForQuery.metricNamespaceWithSub[2],
-        metricNamespace: matchesForQuery.metricNamespaceWithSub[3],
+        metricDefinition: matchesForQuery.metricNamespaceWithSub[3],
         resourceName: matchesForQuery.metricNamespaceWithSub[4],
       };
       return queryDetails;
@@ -154,7 +153,7 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
         rawQuery,
         subscription: defaultSubscriptionId,
         resourceGroup: matchesForQuery.metricNamespace[1],
-        metricNamespace: matchesForQuery.metricNamespace[2],
+        metricDefinition: matchesForQuery.metricNamespace[2],
         resourceName: matchesForQuery.metricNamespace[3],
       };
       return queryDetails;
@@ -167,8 +166,9 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
           rawQuery,
           subscription: defaultSubscriptionId,
           resourceGroup: matchesForQuery.metricNames[1],
-          metricNamespace: matchesForQuery.metricNames[2],
+          metricDefinition: matchesForQuery.metricNames[2],
           resourceName: matchesForQuery.metricNames[3],
+          metricNamespace: matchesForQuery.metricNames[4],
         };
         return queryDetails;
       }
@@ -180,8 +180,9 @@ const createGrafanaTemplateVariableQuery = (rawQuery: string, datasource: DataSo
         rawQuery,
         subscription: matchesForQuery.metricNamesWithSub[1],
         resourceGroup: matchesForQuery.metricNamesWithSub[2],
-        metricNamespace: matchesForQuery.metricNamesWithSub[3],
+        metricDefinition: matchesForQuery.metricNamesWithSub[3],
         resourceName: matchesForQuery.metricNamesWithSub[4],
+        metricNamespace: matchesForQuery.metricNamesWithSub[5],
       };
       return queryDetails;
     }
@@ -246,59 +247,10 @@ const createLogAnalyticsTemplateVariableQuery = async (
     queryType: AzureQueryType.LogAnalytics,
     azureLogAnalytics: {
       query: rawQuery,
-      resources: [resource],
+      resource,
     },
     subscription: defaultSubscriptionId,
   };
-};
-
-const migrateGrafanaTemplateVariableFn = (query: AzureMonitorQuery) => {
-  const { queryType, grafanaTemplateVariableFn } = query;
-  if (queryType !== AzureQueryType.GrafanaTemplateVariableFn || !grafanaTemplateVariableFn) {
-    return query;
-  }
-
-  const migratedQuery: AzureMonitorQuery = {
-    ...query,
-  };
-  if ('subscription' in grafanaTemplateVariableFn) {
-    migratedQuery.subscription = grafanaTemplateVariableFn.subscription;
-  }
-  if ('resourceGroup' in grafanaTemplateVariableFn) {
-    migratedQuery.resourceGroup = grafanaTemplateVariableFn.resourceGroup;
-  }
-  if ('metricNamespace' in grafanaTemplateVariableFn) {
-    migratedQuery.namespace = grafanaTemplateVariableFn.metricNamespace;
-  }
-  if ('resourceName' in grafanaTemplateVariableFn) {
-    migratedQuery.resource = grafanaTemplateVariableFn.resourceName;
-  }
-
-  switch (grafanaTemplateVariableFn.kind) {
-    case 'SubscriptionsQuery':
-      migratedQuery.queryType = AzureQueryType.SubscriptionsQuery;
-      break;
-    case 'ResourceGroupsQuery':
-      migratedQuery.queryType = AzureQueryType.ResourceGroupsQuery;
-      break;
-    case 'ResourceNamesQuery':
-      migratedQuery.queryType = AzureQueryType.ResourceNamesQuery;
-      break;
-    case 'MetricNamespaceQuery':
-      migratedQuery.queryType = AzureQueryType.NamespacesQuery;
-      break;
-    case 'MetricDefinitionsQuery':
-      migratedQuery.queryType = AzureQueryType.NamespacesQuery;
-      break;
-    case 'MetricNamesQuery':
-      migratedQuery.queryType = AzureQueryType.MetricNamesQuery;
-      break;
-    case 'WorkspacesQuery':
-      migratedQuery.queryType = AzureQueryType.WorkspacesQuery;
-      break;
-  }
-
-  return migratedQuery;
 };
 
 export const migrateStringQueriesToObjectQueries = async (
@@ -313,20 +265,4 @@ export const migrateStringQueriesToObjectQueries = async (
   return isGrafanaTemplateVariableFnQuery(rawQuery)
     ? createGrafanaTemplateVariableQuery(rawQuery, options.datasource)
     : createLogAnalyticsTemplateVariableQuery(rawQuery, options.datasource);
-};
-
-export const migrateQuery = async (
-  rawQuery: string | AzureMonitorQuery,
-  options: { datasource: DataSource }
-): Promise<AzureMonitorQuery> => {
-  let query = await migrateStringQueriesToObjectQueries(rawQuery, options);
-
-  if (
-    !config.featureToggles.azLegacyTemplateVariables &&
-    query.queryType === AzureQueryType.GrafanaTemplateVariableFn
-  ) {
-    query = migrateGrafanaTemplateVariableFn(query);
-  }
-
-  return query;
 };

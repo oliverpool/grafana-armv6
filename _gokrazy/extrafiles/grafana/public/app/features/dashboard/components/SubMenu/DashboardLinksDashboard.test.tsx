@@ -1,4 +1,5 @@
-import { DashboardSearchItem, DashboardSearchItemType } from '../../../search/types';
+import { describe, expect } from '../../../../../test/lib/common';
+import { DashboardSearchHit, DashboardSearchItemType } from '../../../search/types';
 import { DashboardLink } from '../../state/DashboardModel';
 
 import { resolveLinks, searchForTags } from './DashboardLinksDashboard';
@@ -39,7 +40,7 @@ describe('searchForTags', () => {
 });
 
 describe('resolveLinks', () => {
-  const setupTestContext = (dashboardUID: string, searchHitId: string) => {
+  const setupTestContext = (dashboardId: number, searchHitId: number) => {
     const link: DashboardLink = {
       targetBlank: false,
       keepTime: false,
@@ -52,9 +53,9 @@ describe('resolveLinks', () => {
       type: 'dashboards',
       url: '/d/6ieouugGk/DashLinks',
     };
-    const searchHits: DashboardSearchItem[] = [
+    const searchHits: DashboardSearchHit[] = [
       {
-        uid: searchHitId,
+        id: searchHitId,
         title: 'DashLinks',
         url: '/d/6ieouugGk/DashLinks',
         isStarred: false,
@@ -70,18 +71,14 @@ describe('resolveLinks', () => {
     const sanitize = jest.fn((args) => args);
     const sanitizeUrl = jest.fn((args) => args);
 
-    return { dashboardUID, link, searchHits, linkSrv, sanitize, sanitizeUrl };
+    return { dashboardId, link, searchHits, linkSrv, sanitize, sanitizeUrl };
   };
 
   describe('when called', () => {
-    it('should filter out the calling dashboardUID', () => {
-      const { dashboardUID, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext('1', '1');
+    it('should filter out the calling dashboardId', () => {
+      const { dashboardId, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext(1, 1);
 
-      const results = resolveLinks(dashboardUID, link, searchHits, {
-        getLinkSrv: () => linkSrv,
-        sanitize,
-        sanitizeUrl,
-      });
+      const results = resolveLinks(dashboardId, link, searchHits, { getLinkSrv: () => linkSrv, sanitize, sanitizeUrl });
 
       expect(results.length).toEqual(0);
       expect(linkSrv.getLinkUrl).toHaveBeenCalledTimes(0);
@@ -90,13 +87,9 @@ describe('resolveLinks', () => {
     });
 
     it('should resolve link url', () => {
-      const { dashboardUID, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext('1', '2');
+      const { dashboardId, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext(1, 2);
 
-      const results = resolveLinks(dashboardUID, link, searchHits, {
-        getLinkSrv: () => linkSrv,
-        sanitize,
-        sanitizeUrl,
-      });
+      const results = resolveLinks(dashboardId, link, searchHits, { getLinkSrv: () => linkSrv, sanitize, sanitizeUrl });
 
       expect(results.length).toEqual(1);
       expect(linkSrv.getLinkUrl).toHaveBeenCalledTimes(1);
@@ -104,13 +97,9 @@ describe('resolveLinks', () => {
     });
 
     it('should sanitize title', () => {
-      const { dashboardUID, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext('1', '2');
+      const { dashboardId, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext(1, 2);
 
-      const results = resolveLinks(dashboardUID, link, searchHits, {
-        getLinkSrv: () => linkSrv,
-        sanitize,
-        sanitizeUrl,
-      });
+      const results = resolveLinks(dashboardId, link, searchHits, { getLinkSrv: () => linkSrv, sanitize, sanitizeUrl });
 
       expect(results.length).toEqual(1);
       expect(sanitize).toHaveBeenCalledTimes(1);
@@ -118,13 +107,9 @@ describe('resolveLinks', () => {
     });
 
     it('should sanitize url', () => {
-      const { dashboardUID, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext('1', '2');
+      const { dashboardId, link, searchHits, linkSrv, sanitize, sanitizeUrl } = setupTestContext(1, 2);
 
-      const results = resolveLinks(dashboardUID, link, searchHits, {
-        getLinkSrv: () => linkSrv,
-        sanitize,
-        sanitizeUrl,
-      });
+      const results = resolveLinks(dashboardId, link, searchHits, { getLinkSrv: () => linkSrv, sanitize, sanitizeUrl });
 
       expect(results.length).toEqual(1);
       expect(sanitizeUrl).toHaveBeenCalledTimes(1);

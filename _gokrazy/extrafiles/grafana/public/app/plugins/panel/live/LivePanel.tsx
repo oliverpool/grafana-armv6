@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import { Unsubscribable, PartialObserver } from 'rxjs';
 
 import {
-  GrafanaTheme2,
+  GrafanaTheme,
   PanelProps,
   LiveChannelStatusEvent,
   isValidLiveChannelAddress,
@@ -38,7 +38,7 @@ interface State {
 export class LivePanel extends PureComponent<Props, State> {
   private readonly isValid: boolean;
   subscription?: Unsubscribable;
-  styles = getStyles(config.theme2);
+  styles = getStyles(config.theme);
 
   constructor(props: Props) {
     super(props);
@@ -301,31 +301,28 @@ export class LivePanel extends PureComponent<Props, State> {
   }
 }
 
-const getStyles = stylesFactory((theme: GrafanaTheme2) => ({
+const getStyles = stylesFactory((theme: GrafanaTheme) => ({
   statusWrap: css`
     margin: auto;
     position: absolute;
     top: 0;
     right: 0;
-    background: ${theme.components.panel.background};
+    background: ${theme.colors.panelBg};
     padding: 10px;
     z-index: ${theme.zIndex.modal};
   `,
   status: {
     [LiveChannelConnectionState.Pending]: css`
-      border: 1px solid ${theme.v1.palette.orange};
+      border: 1px solid ${theme.palette.brandPrimary};
     `,
     [LiveChannelConnectionState.Connected]: css`
-      border: 1px solid ${theme.colors.success.main};
-    `,
-    [LiveChannelConnectionState.Connecting]: css`
-      border: 1px solid ${theme.v1.palette.brandWarning};
+      border: 1px solid ${theme.palette.brandSuccess};
     `,
     [LiveChannelConnectionState.Disconnected]: css`
-      border: 1px solid ${theme.colors.warning.main};
+      border: 1px solid ${theme.palette.brandWarning};
     `,
     [LiveChannelConnectionState.Shutdown]: css`
-      border: 1px solid ${theme.colors.error.main};
+      border: 1px solid ${theme.palette.brandDanger};
     `,
     [LiveChannelConnectionState.Invalid]: css`
       border: 1px solid red;

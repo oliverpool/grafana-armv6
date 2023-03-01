@@ -3,8 +3,7 @@ import React, { ReactNode } from 'react';
 import { Plugin, Node } from 'slate';
 import { Editor } from 'slate-react';
 
-import { CoreApp, QueryEditorProps } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { QueryEditorProps } from '@grafana/data';
 import {
   SlatePrism,
   TypeaheadOutput,
@@ -13,17 +12,28 @@ import {
   TypeaheadInput,
   BracesPlugin,
   DOMUtil,
+  Icon,
 } from '@grafana/ui';
 import { LocalStorageValueProvider } from 'app/core/components/LocalStorageValueProvider';
 
-import LokiLanguageProvider from '../LanguageProvider';
 import { LokiDatasource } from '../datasource';
-import { escapeLabelValueInSelector, shouldRefreshLabels } from '../languageUtils';
+import LokiLanguageProvider from '../language_provider';
+import { shouldRefreshLabels } from '../language_utils';
 import { LokiQuery, LokiOptions } from '../types';
 
-import { MonacoQueryFieldWrapper } from './monaco-query-field/MonacoQueryFieldWrapper';
+import { LokiLabelBrowser } from './LokiLabelBrowser';
 
 const LAST_USED_LABELS_KEY = 'grafana.datasources.loki.browser.labels';
+
+function getChooserText(hasSyntax: boolean, hasLogLabels: boolean) {
+  if (!hasSyntax) {
+    return 'Loading labels...';
+  }
+  if (!hasLogLabels) {
+    return '(No logs found)';
+  }
+  return 'Log browser';
+}
 
 function willApplySuggestion(suggestion: string, { typeaheadContext, typeaheadText }: SuggestionsState): string {
   // Modify suggestion based on context
@@ -38,26 +48,17 @@ function willApplySuggestion(suggestion: string, { typeaheadContext, typeaheadTe
 
     case 'context-label-values': {
       // Always add quotes and remove existing ones instead
-      let suggestionModified = '';
-
       if (!typeaheadText.match(/^(!?=~?"|")/)) {
-        suggestionModified = '"';
+        suggestion = `"${suggestion}`;
       }
-
-      suggestionModified += escapeLabelValueInSelector(suggestion, typeaheadText);
-
       if (DOMUtil.getNextCharacter() !== '"') {
-        suggestionModified += '"';
+        suggestion = `${suggestion}"`;
       }
-
-      suggestion = suggestionModified;
-
       break;
     }
 
     default:
   }
-
   return suggestion;
 }
 
@@ -135,6 +136,10 @@ export class LokiQueryField extends React.PureComponent<LokiQueryFieldProps, Lok
     }
   };
 
+  onClickChooserButton = () => {
+    this.setState((state) => ({ labelBrowserVisible: !state.labelBrowserVisible }));
+  };
+
   onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
     const { datasource } = this.props;
 
@@ -157,13 +162,16 @@ export class LokiQueryField extends React.PureComponent<LokiQueryFieldProps, Lok
     const {
       ExtraFieldElement,
       query,
-      app,
       datasource,
       placeholder = 'Enter a Loki query (run with Shift+Enter)',
-      history,
-      onRunQuery,
-      onBlur,
     } = this.props;
+
+    const { labelsLoaded, labelBrowserVisible } = this.state;
+    const lokiLanguageProvider = datasource.languageProvider as LokiLanguageProvider;
+    const cleanText = datasource.languageProvider ? lokiLanguageProvider.cleanText : undefined;
+    const hasLogLabels = lokiLanguageProvider.getLabelKeys().length > 0;
+    const chooserText = getChooserText(labelsLoaded, hasLogLabels);
+    const buttonDisabled = !(labelsLoaded && hasLogLabels);
 
     return (
       <LocalStorageValueProvider<string[]> storageKey={LAST_USED_LABELS_KEY} defaultValue={[]}>
@@ -174,32 +182,41 @@ export class LokiQueryField extends React.PureComponent<LokiQueryFieldProps, Lok
                 className="gf-form-inline gf-form-inline--xs-view-flex-column flex-grow-1"
                 data-testid={this.props['data-testid']}
               >
+                <button
+                  className="gf-form-label query-keyword pointer"
+                  onClick={this.onClickChooserButton}
+                  disabled={buttonDisabled}
+                >
+                  {chooserText}
+                  <Icon name={labelBrowserVisible ? 'angle-down' : 'angle-right'} />
+                </button>
                 <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
-                  {config.featureToggles.lokiMonacoEditor ? (
-                    <MonacoQueryFieldWrapper
-                      runQueryOnBlur={app !== CoreApp.Explore}
-                      datasource={datasource}
-                      history={history ?? []}
-                      onChange={this.onChangeQuery}
-                      onRunQuery={onRunQuery}
-                      initialValue={query.expr ?? ''}
-                    />
-                  ) : (
-                    <QueryField
-                      additionalPlugins={this.plugins}
-                      cleanText={datasource.languageProvider.cleanText}
-                      query={query.expr}
-                      onTypeahead={this.onTypeahead}
-                      onWillApplySuggestion={willApplySuggestion}
-                      onChange={this.onChangeQuery}
-                      onBlur={onBlur}
-                      onRunQuery={onRunQuery}
-                      placeholder={placeholder}
-                      portalOrigin="loki"
-                    />
-                  )}
+                  <QueryField
+                    additionalPlugins={this.plugins}
+                    cleanText={cleanText}
+                    query={query.expr}
+                    onTypeahead={this.onTypeahead}
+                    onWillApplySuggestion={willApplySuggestion}
+                    onChange={this.onChangeQuery}
+                    onBlur={this.props.onBlur}
+                    onRunQuery={this.props.onRunQuery}
+                    placeholder={placeholder}
+                    portalOrigin="loki"
+                  />
                 </div>
               </div>
+              {labelBrowserVisible && (
+                <div className="gf-form">
+                  <LokiLabelBrowser
+                    languageProvider={lokiLanguageProvider}
+                    onChange={this.onChangeLabelBrowser}
+                    lastUsedLabels={lastUsedLabels || []}
+                    storeLastUsedLabels={onLastUsedLabelsSave}
+                    deleteLastUsedLabels={onLastUsedLabelsDelete}
+                  />
+                </div>
+              )}
+
               {ExtraFieldElement}
             </>
           );

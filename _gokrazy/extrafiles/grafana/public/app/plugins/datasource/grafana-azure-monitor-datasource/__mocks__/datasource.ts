@@ -16,32 +16,21 @@ export default function createMockDatasource(overrides?: DeepPartial<Datasource>
       },
       getSubscriptions: jest.fn().mockResolvedValueOnce([]),
       defaultSubscriptionId: 'subscriptionId',
-      getMetricNamespaces: jest.fn().mockResolvedValueOnce([]),
-      getMetricNames: jest.fn().mockResolvedValueOnce([]),
-      getMetricMetadata: jest.fn().mockResolvedValueOnce({
-        primaryAggType: 'Average',
-        supportedAggTypes: ['Average', 'Maximum', 'Minimum'],
-        supportedTimeGrains: [],
-        dimensions: [],
-      }),
-      getProvider: jest.fn().mockResolvedValueOnce({
-        namespace: 'Microsoft.Insights',
-        resourceTypes: [
-          { resourceType: 'logs', locations: ['North Europe'], apiVersions: ['2022-11-11'], capabilities: '' },
-        ],
-      }),
-      getLocations: jest
-        .fn()
-        .mockResolvedValueOnce(
-          new Map([['northeurope', { displayName: 'North Europe', name: 'northeurope', supportsLogs: false }]])
-        ),
     },
 
     getAzureLogAnalyticsWorkspaces: jest.fn().mockResolvedValueOnce([]),
 
-    getSubscriptions: jest.fn().mockResolvedValue([]),
     getResourceGroups: jest.fn().mockResolvedValueOnce([]),
+    getMetricDefinitions: jest.fn().mockResolvedValueOnce([]),
     getResourceNames: jest.fn().mockResolvedValueOnce([]),
+    getMetricNamespaces: jest.fn().mockResolvedValueOnce([]),
+    getMetricNames: jest.fn().mockResolvedValueOnce([]),
+    getMetricMetadata: jest.fn().mockResolvedValueOnce({
+      primaryAggType: 'Average',
+      supportedAggTypes: ['Average', 'Maximum', 'Minimum'],
+      supportedTimeGrains: [],
+      dimensions: [],
+    }),
 
     azureLogAnalyticsDatasource: {
       getKustoSchema: () => Promise.resolve(),
@@ -52,13 +41,11 @@ export default function createMockDatasource(overrides?: DeepPartial<Datasource>
       getResourceGroupsBySubscriptionId: jest.fn().mockResolvedValue([]),
       getResourcesForResourceGroup: jest.fn().mockResolvedValue([]),
       getResourceURIFromWorkspace: jest.fn().mockReturnValue(''),
-      getResourceURIDisplayProperties: jest.fn().mockResolvedValue({}),
     },
-    getVariablesRaw: jest.fn().mockReturnValue([]),
     ...overrides,
   };
 
   const mockDatasource = _mockDatasource as Datasource;
 
-  return jest.mocked(mockDatasource);
+  return jest.mocked(mockDatasource, true);
 }

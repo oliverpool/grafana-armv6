@@ -2,7 +2,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { dateMath, dateTime, TimeRange } from '@grafana/data';
 
-import { PanelStateWrapper } from './PanelStateWrapper';
+import { PanelChrome } from './PanelChrome';
 
 // target is 20hz (50ms), but we poll at 100ms to smooth out jitter
 const interval = 100;
@@ -10,7 +10,7 @@ const interval = 100;
 interface LiveListener {
   last: number;
   intervalMs: number;
-  panel: PanelStateWrapper;
+  panel: PanelChrome;
 }
 
 class LiveTimer {
@@ -41,7 +41,7 @@ class LiveTimer {
     }
   }
 
-  listen(panel: PanelStateWrapper) {
+  listen(panel: PanelChrome) {
     this.listeners.push({
       last: this.lastUpdate,
       panel: panel,
@@ -52,11 +52,11 @@ class LiveTimer {
     });
   }
 
-  remove(panel: PanelStateWrapper) {
+  remove(panel: PanelChrome) {
     this.listeners = this.listeners.filter((v) => v.panel !== panel);
   }
 
-  updateInterval(panel: PanelStateWrapper) {
+  updateInterval(panel: PanelChrome) {
     if (!this.timeRange || !this.isLive) {
       return;
     }

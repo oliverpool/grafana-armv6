@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Table Migrations migrates styles to field config overrides and defaults 1`] = `
-{
-  "fieldConfig": {
-    "defaults": {
-      "custom": {
+Object {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {
         "align": "right",
         "displayMode": undefined,
       },
@@ -12,63 +12,63 @@ exports[`Table Migrations migrates styles to field config overrides and defaults
       "displayName": "",
       "unit": "short",
     },
-    "overrides": [
-      {
-        "matcher": {
+    "overrides": Array [
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "Time",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "displayName",
             "value": "Time",
           },
-          {
+          Object {
             "id": "unit",
             "value": "time: YYYY-MM-DD HH:mm:ss",
           },
-          {
+          Object {
             "id": "custom.align",
             "value": null,
           },
         ],
       },
-      {
-        "matcher": {
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "ColorCell",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "unit",
             "value": "currencyUSD",
           },
-          {
+          Object {
             "id": "decimals",
             "value": 2,
           },
-          {
+          Object {
             "id": "custom.displayMode",
             "value": "color-background",
           },
-          {
+          Object {
             "id": "custom.align",
             "value": "left",
           },
-          {
+          Object {
             "id": "thresholds",
-            "value": {
+            "value": Object {
               "mode": "absolute",
-              "steps": [
-                {
+              "steps": Array [
+                Object {
                   "color": "rgba(245, 54, 54, 0.9)",
                   "value": -Infinity,
                 },
-                {
+                Object {
                   "color": "rgba(237, 129, 40, 0.89)",
                   "value": 5,
                 },
-                {
+                Object {
                   "color": "rgba(50, 172, 45, 0.97)",
                   "value": 10,
                 },
@@ -77,52 +77,52 @@ exports[`Table Migrations migrates styles to field config overrides and defaults
           },
         ],
       },
-      {
-        "matcher": {
+      Object {
+        "matcher": Object {
           "id": "byName",
           "options": "ColorValue",
         },
-        "properties": [
-          {
+        "properties": Array [
+          Object {
             "id": "unit",
             "value": "Bps",
           },
-          {
+          Object {
             "id": "decimals",
             "value": 2,
           },
-          {
+          Object {
             "id": "links",
-            "value": [
-              {
+            "value": Array [
+              Object {
                 "targetBlank": true,
                 "title": "",
                 "url": "http://www.grafana.com",
               },
             ],
           },
-          {
+          Object {
             "id": "custom.displayMode",
             "value": "color-text",
           },
-          {
+          Object {
             "id": "custom.align",
             "value": null,
           },
-          {
+          Object {
             "id": "thresholds",
-            "value": {
+            "value": Object {
               "mode": "absolute",
-              "steps": [
-                {
+              "steps": Array [
+                Object {
                   "color": "rgba(245, 54, 54, 0.9)",
                   "value": -Infinity,
                 },
-                {
+                Object {
                   "color": "rgba(237, 129, 40, 0.89)",
                   "value": 5,
                 },
-                {
+                Object {
                   "color": "rgba(50, 172, 45, 0.97)",
                   "value": 10,
                 },
@@ -133,23 +133,23 @@ exports[`Table Migrations migrates styles to field config overrides and defaults
       },
     ],
   },
-  "transformations": [],
+  "transformations": Array [],
 }
 `;
 
 exports[`Table Migrations migrates transform out to core transforms 1`] = `
-{
-  "fieldConfig": {
-    "defaults": {
-      "custom": {},
+Object {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {},
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "transformations": [
-    {
+  "transformations": Array [
+    Object {
       "id": "seriesToColumns",
-      "options": {
-        "reducers": [],
+      "options": Object {
+        "reducers": Array [],
       },
     },
   ],
@@ -157,18 +157,18 @@ exports[`Table Migrations migrates transform out to core transforms 1`] = `
 `;
 
 exports[`Table Migrations migrates transform out to core transforms 2`] = `
-{
-  "fieldConfig": {
-    "defaults": {
-      "custom": {},
+Object {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {},
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "transformations": [
-    {
+  "transformations": Array [
+    Object {
       "id": "seriesToRows",
-      "options": {
-        "reducers": [],
+      "options": Object {
+        "reducers": Array [],
       },
     },
   ],
@@ -176,19 +176,19 @@ exports[`Table Migrations migrates transform out to core transforms 2`] = `
 `;
 
 exports[`Table Migrations migrates transform out to core transforms 3`] = `
-{
-  "fieldConfig": {
-    "defaults": {
-      "custom": {},
+Object {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {},
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "transformations": [
-    {
+  "transformations": Array [
+    Object {
       "id": "reduce",
-      "options": {
+      "options": Object {
         "includeTimeField": false,
-        "reducers": [
+        "reducers": Array [
           "mean",
           "max",
           "lastNotNull",
@@ -200,18 +200,18 @@ exports[`Table Migrations migrates transform out to core transforms 3`] = `
 `;
 
 exports[`Table Migrations migrates transform out to core transforms 4`] = `
-{
-  "fieldConfig": {
-    "defaults": {
-      "custom": {},
+Object {
+  "fieldConfig": Object {
+    "defaults": Object {
+      "custom": Object {},
     },
-    "overrides": [],
+    "overrides": Array [],
   },
-  "transformations": [
-    {
+  "transformations": Array [
+    Object {
       "id": "merge",
-      "options": {
-        "reducers": [],
+      "options": Object {
+        "reducers": Array [],
       },
     },
   ],

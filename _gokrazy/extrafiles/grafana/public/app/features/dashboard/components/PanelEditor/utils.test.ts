@@ -1,10 +1,4 @@
-import {
-  FieldConfig,
-  FieldConfigSource,
-  PanelPlugin,
-  standardFieldConfigEditorRegistry,
-  ThresholdsMode,
-} from '@grafana/data';
+import { FieldConfig, FieldConfigSource, PanelPlugin, standardFieldConfigEditorRegistry } from '@grafana/data';
 
 import { setOptionImmutably, supportsDataQuery, updateDefaultFieldConfigValue } from './utils';
 
@@ -14,13 +8,10 @@ describe('standardFieldConfigEditorRegistry', () => {
     min: 10,
     max: 10,
     decimals: 10,
-    thresholds: {
-      mode: ThresholdsMode.Absolute,
-      steps: [],
-    },
+    thresholds: {} as any,
     noValue: 'no value',
     unit: 'km/s',
-    links: [],
+    links: {} as any,
   };
 
   it('make sure all fields have a valid name', () => {

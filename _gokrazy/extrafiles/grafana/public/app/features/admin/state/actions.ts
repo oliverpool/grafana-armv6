@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
 
 import { dateTimeFormatTimeAgo } from '@grafana/data';
-import { featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+import { featureEnabled, getBackendSrv, locationService } from '@grafana/runtime';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/core';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
@@ -43,14 +43,12 @@ export function loadAdminUserPage(userId: number): ThunkResult<void> {
     } catch (error) {
       console.error(error);
 
-      if (isFetchError(error)) {
-        const userError = {
-          title: error.data.message,
-          body: error.data.error,
-        };
+      const userError = {
+        title: error.data.message,
+        body: error.data.error,
+      };
 
-        dispatch(userAdminPageFailedAction(userError));
-      }
+      dispatch(userAdminPageFailedAction(userError));
     }
   };
 }
@@ -214,14 +212,12 @@ export function loadLdapState(): ThunkResult<void> {
       const connectionInfo = await getBackendSrv().get(`/api/admin/ldap/status`);
       dispatch(ldapConnectionInfoLoadedAction(connectionInfo));
     } catch (error) {
-      if (isFetchError(error)) {
-        error.isHandled = true;
-        const ldapError = {
-          title: error.data.message,
-          body: error.data.error,
-        };
-        dispatch(ldapFailedAction(ldapError));
-      }
+      error.isHandled = true;
+      const ldapError = {
+        title: error.data.message,
+        body: error.data.error,
+      };
+      dispatch(ldapFailedAction(ldapError));
     }
   };
 }
@@ -239,15 +235,13 @@ export function loadUserMapping(username: string): ThunkResult<void> {
       };
       dispatch(userMappingInfoLoadedAction(userInfo));
     } catch (error) {
-      if (isFetchError(error)) {
-        error.isHandled = true;
-        const userError = {
-          title: error.data.message,
-          body: error.data.error,
-        };
-        dispatch(clearUserMappingInfoAction());
-        dispatch(userMappingInfoFailedAction(userError));
-      }
+      error.isHandled = true;
+      const userError = {
+        title: error.data.message,
+        body: error.data.error,
+      };
+      dispatch(clearUserMappingInfoAction());
+      dispatch(userMappingInfoFailedAction(userError));
     }
   };
 }

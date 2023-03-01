@@ -1,14 +1,15 @@
 import { FieldColorModeId, FieldConfigProperty, PanelPlugin } from '@grafana/data';
+import { LegendDisplayMode } from '@grafana/schema';
 import { commonOptionsBuilder } from '@grafana/ui';
 
-import { addStandardDataReduceOptions } from '../stat/common';
+import { addStandardDataReduceOptions } from '../stat/types';
 
 import { PieChartPanel } from './PieChartPanel';
 import { PieChartPanelChangedHandler } from './migrations';
-import { PanelOptions, PanelFieldConfig, PieChartType, PieChartLabels, PieChartLegendValues } from './panelcfg.gen';
 import { PieChartSuggestionsSupplier } from './suggestions';
+import { PieChartOptions, PieChartType, PieChartLabels, PieChartLegendValues } from './types';
 
-export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(PieChartPanel)
+export const plugin = new PanelPlugin<PieChartOptions>(PieChartPanel)
   .setPanelChangeHandler(PieChartPanelChangedHandler)
   .useFieldConfig({
     disableStandardOptions: [FieldConfigProperty.Thresholds],
@@ -69,7 +70,7 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(PieChartPa
           { value: PieChartLegendValues.Value, label: 'Value' },
         ],
       },
-      showIf: (c) => c.legend.showLegend !== false,
+      showIf: (c) => c.legend.displayMode !== LegendDisplayMode.Hidden,
     });
   })
   .setSuggestionsSupplier(new PieChartSuggestionsSupplier());

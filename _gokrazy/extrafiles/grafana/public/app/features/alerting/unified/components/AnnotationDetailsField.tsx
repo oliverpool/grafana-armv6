@@ -1,13 +1,12 @@
 import { css } from '@emotion/css';
 import React, { FC } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Tooltip, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { Tooltip, useStyles } from '@grafana/ui';
 
 import { Annotation, annotationLabels } from '../utils/constants';
 
 import { DetailsField } from './DetailsField';
-import { Tokenize } from './Tokenize';
 import { Well } from './Well';
 
 const wellableAnnotationKeys = ['message', 'description'];
@@ -34,15 +33,13 @@ export const AnnotationDetailsField: FC<Props> = ({ annotationKey, value }) => {
 };
 
 const AnnotationValue: FC<Props> = ({ annotationKey, value }) => {
-  const styles = useStyles2(getStyles);
+  const styles = useStyles(getStyles);
 
   const needsWell = wellableAnnotationKeys.includes(annotationKey);
   const needsLink = value && value.startsWith('http');
 
-  const tokenizeValue = <Tokenize input={value} delimiter={['{{', '}}']} />;
-
   if (needsWell) {
-    return <Well className={styles.well}>{tokenizeValue}</Well>;
+    return <Well className={styles.well}>{value}</Well>;
   }
 
   if (needsLink) {
@@ -53,15 +50,15 @@ const AnnotationValue: FC<Props> = ({ annotationKey, value }) => {
     );
   }
 
-  return <>{tokenizeValue}</>;
+  return <>{value}</>;
 };
 
-export const getStyles = (theme: GrafanaTheme2) => ({
+export const getStyles = (theme: GrafanaTheme) => ({
   well: css`
-    word-break: break-word;
+    word-break: break-all;
   `,
   link: css`
     word-break: break-all;
-    color: ${theme.colors.primary.text};
+    color: ${theme.colors.textBlue};
   `,
 });

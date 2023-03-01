@@ -1,24 +1,18 @@
-import { ScaleDistributionConfig } from '@grafana/schema';
+import { DataFrameType } from '@grafana/data';
 
 export enum HeatmapCalculationMode {
-  Size = 'size', // When exponential, this is "splitFactor"
+  Size = 'size',
   Count = 'count',
 }
 
-export const enum HeatmapCellLayout {
-  le = 'le',
-  ge = 'ge',
-  unknown = 'unknown', // unknown
-  auto = 'auto', // becomes unknown
-}
-
-export interface HeatmapCalculationBucketConfig {
+export interface HeatmapCalculationAxisConfig {
   mode?: HeatmapCalculationMode;
-  value?: string; // number or interval string ie 10s, or log "split" divisor
-  scale?: ScaleDistributionConfig;
+  value?: string; // number or interval string ie 10s
 }
 
 export interface HeatmapCalculationOptions {
-  xBuckets?: HeatmapCalculationBucketConfig;
-  yBuckets?: HeatmapCalculationBucketConfig;
+  xAxis?: HeatmapCalculationAxisConfig;
+  yAxis?: HeatmapCalculationAxisConfig;
+  xAxisField?: string; // name of the x field
+  encoding?: DataFrameType.HeatmapBuckets | DataFrameType.HeatmapScanlines;
 }

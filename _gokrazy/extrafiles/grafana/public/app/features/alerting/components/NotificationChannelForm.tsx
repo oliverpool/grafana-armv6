@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
 import React, { FC, useEffect } from 'react';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { Button, FormAPI, HorizontalGroup, Spinner, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme, SelectableValue } from '@grafana/data';
+import { Button, FormAPI, HorizontalGroup, stylesFactory, useTheme, Spinner } from '@grafana/ui';
 import config from 'app/core/config';
 
 import { NotificationChannelType, NotificationChannelDTO, NotificationChannelSecureFields } from '../../../types';
@@ -39,7 +39,7 @@ export const NotificationChannelForm: FC<Props> = ({
   resetSecureField,
   secureFields,
 }) => {
-  const styles = useStyles2(getStyles);
+  const styles = getStyles(useTheme());
 
   useEffect(() => {
     /*
@@ -117,15 +117,15 @@ export const NotificationChannelForm: FC<Props> = ({
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => {
+const getStyles = stylesFactory((theme: GrafanaTheme) => {
   return {
     formContainer: css``,
     formItem: css`
       flex-grow: 1;
-      padding-top: ${theme.spacing(2)};
+      padding-top: ${theme.spacing.md};
     `,
     formButtons: css`
-      padding-top: ${theme.spacing(4)};
+      padding-top: ${theme.spacing.xl};
     `,
   };
-};
+});

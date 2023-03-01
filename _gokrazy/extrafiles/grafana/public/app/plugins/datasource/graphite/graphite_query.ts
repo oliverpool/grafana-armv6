@@ -41,6 +41,7 @@ export default class GraphiteQuery {
   templateSrv: any;
   scopedVars: any;
 
+  /** @ngInject */
   constructor(datasource: any, target: any, templateSrv?: TemplateSrv, scopedVars?: ScopedVars) {
     this.datasource = datasource;
     this.target = target;
@@ -78,10 +79,8 @@ export default class GraphiteQuery {
     try {
       this.parseTargetRecursive(astNode, null);
     } catch (err) {
-      if (err instanceof Error) {
-        console.error('error parsing target:', err.message);
-        this.error = err.message;
-      }
+      console.error('error parsing target:', err.message);
+      this.error = err.message;
       this.target.textEditor = true;
     }
 
@@ -211,10 +210,19 @@ export default class GraphiteQuery {
     let targetWithNestedQueries = target.target;
 
     // Use ref count to track circular references
+    function countTargetRefs(targetsByRefId: any, refId: string) {
+      let refCount = 0;
+      each(targetsByRefId, (t, id) => {
+        if (id !== refId) {
+          const match = nestedSeriesRefRegex.exec(t.target);
+          const count = match && match.length ? match.length - 1 : 0;
+          refCount += count;
+        }
+      });
+      targetsByRefId[refId].refCount = refCount;
+    }
     each(targetsByRefId, (t, id) => {
-      const regex = RegExp(`\#(${id})`, 'g');
-      const refMatches = targetWithNestedQueries.match(regex);
-      t.refCount = refMatches?.length ?? 0;
+      countTargetRefs(targetsByRefId, id);
     });
 
     // Keep interpolating until there are no query references

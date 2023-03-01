@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
 import React, { FC } from 'react';
 
-import { FieldConfigOptionsRegistry, GrafanaTheme2, ConfigOverrideRule } from '@grafana/data';
-import { HorizontalGroup, Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { FieldConfigOptionsRegistry, GrafanaTheme, ConfigOverrideRule } from '@grafana/data';
+import { HorizontalGroup, Icon, IconButton, useStyles } from '@grafana/ui';
 import { FieldMatcherUIRegistryItem } from '@grafana/ui/src/components/MatchersUI/types';
 
 interface OverrideCategoryTitleProps {
@@ -21,7 +21,7 @@ export const OverrideCategoryTitle: FC<OverrideCategoryTitleProps> = ({
   override,
   onOverrideRemove,
 }) => {
-  const styles = useStyles2(getStyles);
+  const styles = useStyles(getStyles);
   const properties = override.properties.map((p) => registry.getIfExists(p.id)).filter((prop) => !!prop);
   const propertyNames = properties.map((p) => p?.name).join(', ');
   const matcherOptions = matcherUi.optionsToLabel(override.matcher.options);
@@ -45,22 +45,22 @@ export const OverrideCategoryTitle: FC<OverrideCategoryTitleProps> = ({
 
 OverrideCategoryTitle.displayName = 'OverrideTitle';
 
-const getStyles = (theme: GrafanaTheme2) => {
+const getStyles = (theme: GrafanaTheme) => {
   return {
     matcherUi: css`
-      padding: ${theme.spacing(1)};
+      padding: ${theme.spacing.sm};
     `,
     propertyPickerWrapper: css`
-      margin-top: ${theme.spacing(2)};
+      margin-top: ${theme.spacing.formSpacingBase * 2}px;
     `,
     overrideDetails: css`
-      font-size: ${theme.typography.bodySmall.fontSize};
-      color: ${theme.colors.text.secondary};
-      font-weight: ${theme.typography.fontWeightRegular};
+      font-size: ${theme.typography.size.sm};
+      color: ${theme.colors.textWeak};
+      font-weight: ${theme.typography.weight.regular};
     `,
     options: css`
       overflow: hidden;
-      padding-right: ${theme.spacing(4)};
+      padding-right: ${theme.spacing.xl};
     `,
     unknownLabel: css`
       margin-bottom: 0;

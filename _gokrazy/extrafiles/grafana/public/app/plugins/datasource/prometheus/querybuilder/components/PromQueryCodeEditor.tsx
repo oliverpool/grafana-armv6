@@ -4,17 +4,19 @@ import React from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
+import { testIds } from '../../components/PromQueryEditor';
 import PromQueryField from '../../components/PromQueryField';
 import { PromQueryEditorProps } from '../../components/types';
 
-import { PromQueryBuilderExplained } from './PromQueryBuilderExplained';
-
-type Props = PromQueryEditorProps & {
-  showExplain: boolean;
-};
-
-export function PromQueryCodeEditor(props: Props) {
-  const { query, datasource, range, onRunQuery, onChange, data, app, showExplain } = props;
+export function PromQueryCodeEditor({
+  query,
+  datasource,
+  range,
+  onRunQuery,
+  onChange,
+  data,
+  app,
+}: PromQueryEditorProps) {
   const styles = useStyles2(getStyles);
 
   return (
@@ -27,10 +29,9 @@ export function PromQueryCodeEditor(props: Props) {
         onChange={onChange}
         history={[]}
         data={data}
+        data-testid={testIds.editor}
         app={app}
       />
-
-      {showExplain && <PromQueryBuilderExplained query={query.expr} />}
     </div>
   );
 }

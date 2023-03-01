@@ -1,6 +1,6 @@
 import { Action } from '@reduxjs/toolkit';
 
-import { defaultMetricAgg } from '../../../../queryDef';
+import { defaultMetricAgg } from '../../../../query_def';
 import { ElasticsearchQuery } from '../../../../types';
 import { removeEmpty } from '../../../../utils';
 import { initQuery } from '../../state';

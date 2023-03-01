@@ -1,13 +1,38 @@
 import { Location } from 'history';
 
-import { GrafanaConfig, locationUtil, NavModelItem } from '@grafana/data';
+import { NavModelItem } from '@grafana/data';
 import { ContextSrv, setContextSrv } from 'app/core/services/context_srv';
 
-import { enrichConfigItems, getActiveItem, isMatchOrChildMatch, isSearchActive } from './utils';
+import { getConfig, updateConfig } from '../../config';
+
+import { enrichConfigItems, getActiveItem, getForcedLoginUrl, isMatchOrChildMatch, isSearchActive } from './utils';
 
 jest.mock('../../app_events', () => ({
   publish: jest.fn(),
 }));
+
+describe('getForcedLoginUrl', () => {
+  it.each`
+    appSubUrl          | url                    | expected
+    ${''}              | ${'/whatever?a=1&b=2'} | ${'/whatever?a=1&b=2&forceLogin=true'}
+    ${'/grafana'}      | ${'/whatever?a=1&b=2'} | ${'/grafana/whatever?a=1&b=2&forceLogin=true'}
+    ${'/grafana/test'} | ${'/whatever?a=1&b=2'} | ${'/grafana/test/whatever?a=1&b=2&forceLogin=true'}
+    ${'/grafana'}      | ${''}                  | ${'/grafana?forceLogin=true'}
+    ${'/grafana'}      | ${'/whatever'}         | ${'/grafana/whatever?forceLogin=true'}
+    ${'/grafana'}      | ${'/whatever/'}        | ${'/grafana/whatever/?forceLogin=true'}
+  `(
+    "when appUrl set to '$appUrl' and appSubUrl set to '$appSubUrl' then result should be '$expected'",
+    ({ appSubUrl, url, expected }) => {
+      updateConfig({
+        appSubUrl,
+      });
+
+      const result = getForcedLoginUrl(url);
+
+      expect(result).toBe(expected);
+    }
+  );
+});
 
 describe('enrichConfigItems', () => {
   let mockItems: NavModelItem[];
@@ -37,8 +62,8 @@ describe('enrichConfigItems', () => {
     const contextSrv = new ContextSrv();
     contextSrv.user.isSignedIn = false;
     setContextSrv(contextSrv);
-    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation);
-    const signInNode = enrichedConfigItems.find((item) => item.id === 'sign-in');
+    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation, jest.fn());
+    const signInNode = enrichedConfigItems.find((item) => item.id === 'signin');
     expect(signInNode).toBeDefined();
   });
 
@@ -46,8 +71,8 @@ describe('enrichConfigItems', () => {
     const contextSrv = new ContextSrv();
     contextSrv.user.isSignedIn = true;
     setContextSrv(contextSrv);
-    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation);
-    const signInNode = enrichedConfigItems.find((item) => item.id === 'sign-in');
+    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation, jest.fn());
+    const signInNode = enrichedConfigItems.find((item) => item.id === 'signin');
     expect(signInNode).toBeDefined();
   });
 
@@ -55,7 +80,7 @@ describe('enrichConfigItems', () => {
     const contextSrv = new ContextSrv();
     contextSrv.user.orgCount = 1;
     setContextSrv(contextSrv);
-    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation);
+    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation, jest.fn());
     const profileNode = enrichedConfigItems.find((item) => item.id === 'profile');
     expect(profileNode!.children).toBeUndefined();
   });
@@ -64,7 +89,7 @@ describe('enrichConfigItems', () => {
     const contextSrv = new ContextSrv();
     contextSrv.user.orgCount = 2;
     setContextSrv(contextSrv);
-    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation);
+    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation, jest.fn());
     const profileNode = enrichedConfigItems.find((item) => item.id === 'profile');
     expect(profileNode!.children).toContainEqual(
       expect.objectContaining({
@@ -76,7 +101,7 @@ describe('enrichConfigItems', () => {
   it('enhances the help node with extra child links', () => {
     const contextSrv = new ContextSrv();
     setContextSrv(contextSrv);
-    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation);
+    const enrichedConfigItems = enrichConfigItems(mockItems, mockLocation, jest.fn());
     const helpNode = enrichedConfigItems.find((item) => item.id === 'help');
     expect(helpNode!.children).toContainEqual(
       expect.objectContaining({
@@ -142,10 +167,6 @@ describe('getActiveItem', () => {
       url: '/itemWithQueryParam?foo=bar',
     },
     {
-      text: 'Item after subpath',
-      url: '/subUrl/itemAfterSubpath',
-    },
-    {
       text: 'Item with children',
       url: '/itemWithChildren',
       children: [
@@ -172,27 +193,12 @@ describe('getActiveItem', () => {
       url: '/d/moreSpecificDashboard',
     },
   ];
-  beforeEach(() => {
-    locationUtil.initialize({
-      config: { appSubUrl: '/subUrl' } as GrafanaConfig,
-      getVariablesUrlParams: () => ({}),
-      getTimeRangeForUrl: () => ({ from: 'now-7d', to: 'now' }),
-    });
-  });
 
   it('returns an exact match at the top level', () => {
     const mockPathName = '/item';
     expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
       text: 'Item',
       url: '/item',
-    });
-  });
-
-  it('returns an exact match ignoring root subpath', () => {
-    const mockPathName = '/itemAfterSubpath';
-    expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
-      text: 'Item after subpath',
-      url: '/subUrl/itemAfterSubpath',
     });
   });
 
@@ -220,19 +226,57 @@ describe('getActiveItem', () => {
     });
   });
 
-  it('returns the dashboards route link if the pathname starts with /d/', () => {
-    const mockPathName = '/d/foo';
-    expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
-      text: 'Dashboards',
-      url: '/dashboards',
+  describe('when the newNavigation feature toggle is disabled', () => {
+    beforeEach(() => {
+      updateConfig({
+        featureToggles: {
+          ...getConfig().featureToggles,
+          newNavigation: false,
+        },
+      });
+    });
+
+    it('returns the base route link if the pathname starts with /d/', () => {
+      const mockPathName = '/d/foo';
+      expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
+        text: 'Base',
+        url: '/',
+      });
+    });
+
+    it('returns a more specific link if one exists', () => {
+      const mockPathName = '/d/moreSpecificDashboard';
+      expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
+        text: 'More specific dashboard',
+        url: '/d/moreSpecificDashboard',
+      });
     });
   });
 
-  it('returns a more specific link if one exists', () => {
-    const mockPathName = '/d/moreSpecificDashboard';
-    expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
-      text: 'More specific dashboard',
-      url: '/d/moreSpecificDashboard',
+  describe('when the newNavigation feature toggle is enabled', () => {
+    beforeEach(() => {
+      updateConfig({
+        featureToggles: {
+          ...getConfig().featureToggles,
+          newNavigation: true,
+        },
+      });
+    });
+
+    it('returns the dashboards route link if the pathname starts with /d/', () => {
+      const mockPathName = '/d/foo';
+      expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
+        text: 'Dashboards',
+        url: '/dashboards',
+      });
+    });
+
+    it('returns a more specific link if one exists', () => {
+      const mockPathName = '/d/moreSpecificDashboard';
+      expect(getActiveItem(mockNavTree, mockPathName)).toEqual({
+        text: 'More specific dashboard',
+        url: '/d/moreSpecificDashboard',
+      });
     });
   });
 });

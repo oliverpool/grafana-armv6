@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { ToolbarButton } from '@grafana/ui';
-import { ExploreId, useSelector } from 'app/types';
+import { ExploreId } from 'app/types';
 
 import { getExploreItemSelector } from '../state/selectors';
 
@@ -20,7 +21,6 @@ export const AddToDashboard = ({ exploreId }: Props) => {
     <>
       <ToolbarButton
         icon="apps"
-        variant="canvas"
         onClick={() => setIsOpen(true)}
         aria-label="Add to dashboard"
         disabled={!explorePaneHasQueries}

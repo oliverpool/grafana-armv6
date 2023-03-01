@@ -2,7 +2,7 @@ import { each } from 'lodash';
 
 import { ScopedVars, TimeZone } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
-import TableModel from 'app/core/TableModel';
+import TableModel from 'app/core/table_model';
 
 import { TableRenderer } from '../renderer';
 import { ColumnRender } from '../types';

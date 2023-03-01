@@ -1,5 +1,3 @@
-import produce from 'immer';
-
 import {
   DataSourceApi,
   DataSourceInstanceSettings,
@@ -21,27 +19,15 @@ import {
   Silence,
   SilenceState,
 } from 'app/plugins/datasource/alertmanager/types';
-import { configureStore } from 'app/store/configureStore';
-import { AccessControlAction, FolderDTO, StoreState } from 'app/types';
+import { AccessControlAction, FolderDTO } from 'app/types';
+import { Alert, AlertingRule, CombinedRule, RecordingRule, RuleGroup, RuleNamespace } from 'app/types/unified-alerting';
 import {
-  Alert,
-  AlertingRule,
-  CombinedRule,
-  CombinedRuleGroup,
-  CombinedRuleNamespace,
-  RecordingRule,
-  RuleGroup,
-  RuleNamespace,
-} from 'app/types/unified-alerting';
-import {
-  AlertQuery,
   GrafanaAlertStateDecision,
   GrafanaRuleDefinition,
   PromAlertingRuleState,
   PromRuleType,
   RulerAlertingRuleDTO,
   RulerGrafanaRuleDTO,
-  RulerRecordingRuleDTO,
   RulerRuleGroupDTO,
   RulerRulesConfigDTO,
 } from 'app/types/unified-alerting-dto';
@@ -69,8 +55,7 @@ export function mockDataSource<T extends DataSourceJsonData = DataSourceJsonData
         },
       },
       ...meta,
-    } as unknown as DataSourcePluginMeta,
-    readOnly: false,
+    } as any as DataSourcePluginMeta,
     ...partial,
   };
 }
@@ -132,19 +117,6 @@ export const mockRulerAlertingRule = (partial: Partial<RulerAlertingRuleDTO> = {
   annotations: {
     summary: 'test alert',
   },
-  ...partial,
-});
-
-export const mockRulerRecordingRule = (partial: Partial<RulerRecordingRuleDTO> = {}): RulerAlertingRuleDTO => ({
-  alert: 'alert1',
-  expr: 'up = 1',
-  labels: {
-    severity: 'warning',
-  },
-  annotations: {
-    summary: 'test alert',
-  },
-  ...partial,
 });
 
 export const mockRulerRuleGroup = (partial: Partial<RulerRuleGroupDTO> = {}): RulerRuleGroupDTO => ({
@@ -499,89 +471,8 @@ export const enableRBAC = () => {
   jest.spyOn(contextSrv, 'accessControlEnabled').mockReturnValue(true);
 };
 
-export const disableRBAC = () => {
-  jest.spyOn(contextSrv, 'accessControlEnabled').mockReturnValue(false);
-};
-
 export const grantUserPermissions = (permissions: AccessControlAction[]) => {
   jest
     .spyOn(contextSrv, 'hasPermission')
     .mockImplementation((action) => permissions.includes(action as AccessControlAction));
 };
-
-export function mockDataSourcesStore(partial?: Partial<StoreState['dataSources']>) {
-  const defaultState = configureStore().getState();
-  const store = configureStore({
-    ...defaultState,
-    dataSources: {
-      ...defaultState.dataSources,
-      ...partial,
-    },
-  });
-
-  return store;
-}
-
-export function mockUnifiedAlertingStore(unifiedAlerting?: Partial<StoreState['unifiedAlerting']>) {
-  const defaultState = configureStore().getState();
-
-  return configureStore({
-    ...defaultState,
-    unifiedAlerting: {
-      ...defaultState.unifiedAlerting,
-      ...unifiedAlerting,
-    },
-  });
-}
-
-export function mockStore(recipe: (state: StoreState) => void) {
-  const defaultState = configureStore().getState();
-
-  return configureStore(produce(defaultState, recipe));
-}
-
-export function mockAlertQuery(query: Partial<AlertQuery>): AlertQuery {
-  return {
-    datasourceUid: '--uid--',
-    refId: 'A',
-    queryType: '',
-    model: { refId: 'A' },
-    ...query,
-  };
-}
-
-export function mockCombinedRuleGroup(name: string, rules: CombinedRule[]): CombinedRuleGroup {
-  return { name, rules };
-}
-
-export function mockCombinedRuleNamespace(namespace: Partial<CombinedRuleNamespace>): CombinedRuleNamespace {
-  return {
-    name: 'Grafana',
-    groups: [],
-    rulesSource: 'grafana',
-    ...namespace,
-  };
-}
-
-export function getGrafanaRule(override?: Partial<CombinedRule>) {
-  return mockCombinedRule({
-    namespace: {
-      groups: [],
-      name: 'Grafana',
-      rulesSource: 'grafana',
-    },
-    ...override,
-  });
-}
-export function getCloudRule(override?: Partial<CombinedRule>) {
-  return mockCombinedRule({
-    namespace: {
-      groups: [],
-      name: 'Cortex',
-      rulesSource: mockDataSource(),
-    },
-    promRule: mockPromAlertingRule(),
-    rulerRule: mockRulerAlertingRule(),
-    ...override,
-  });
-}

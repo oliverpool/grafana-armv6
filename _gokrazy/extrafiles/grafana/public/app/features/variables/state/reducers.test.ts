@@ -4,10 +4,9 @@ import { VariableType } from '@grafana/data';
 
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
 import { VariableAdapter, variableAdapters } from '../adapters';
-import { QueryVariableModel } from '../types';
+import { initialVariableModelState, QueryVariableModel } from '../types';
 import { toVariablePayload } from '../utils';
 
-import { createQueryVariable } from './__tests__/fixtures';
 import { VariablePayload, VariablesState } from './types';
 import { cleanVariables, variablesReducer } from './variablesReducer';
 
@@ -33,43 +32,64 @@ describe('variablesReducer', () => {
   describe('when cleanUpDashboard is dispatched', () => {
     it('then all variables except global variables should be removed', () => {
       const initialState: VariablesState = {
-        '0': createQueryVariable({
+        '0': {
+          ...initialVariableModelState,
           id: '0',
           index: 0,
+          type: 'query',
           name: 'Name-0',
           label: 'Label-0',
-        }),
-
-        '1': createQueryVariable({
+        },
+        '1': {
+          ...initialVariableModelState,
           id: '1',
           index: 1,
+          type: 'query',
           name: 'Name-1',
           label: 'Label-1',
           global: true,
-        }),
-
-        '2': createQueryVariable({
+        },
+        '2': {
+          ...initialVariableModelState,
           id: '2',
           index: 2,
+          type: 'query',
           name: 'Name-2',
           label: 'Label-2',
-        }),
-
-        '3': createQueryVariable({
+        },
+        '3': {
+          ...initialVariableModelState,
           id: '3',
           index: 3,
+          type: 'query',
           name: 'Name-3',
           label: 'Label-3',
           global: true,
-        }),
+        },
       };
 
       reducerTester<VariablesState>()
         .givenReducer(variablesReducer, initialState)
         .whenActionIsDispatched(cleanVariables())
         .thenStateShouldEqual({
-          '1': initialState['1'],
-          '3': initialState['3'],
+          '1': {
+            ...initialVariableModelState,
+            id: '1',
+            index: 1,
+            type: 'query',
+            name: 'Name-1',
+            label: 'Label-1',
+            global: true,
+          },
+          '3': {
+            ...initialVariableModelState,
+            id: '3',
+            index: 3,
+            type: 'query',
+            name: 'Name-3',
+            label: 'Label-3',
+            global: true,
+          },
         });
     });
   });
@@ -77,7 +97,14 @@ describe('variablesReducer', () => {
   describe('when any action is dispatched with a type prop that is registered in variableAdapters', () => {
     it('then the reducer for that variableAdapter should be invoked', () => {
       const initialState: VariablesState = {
-        '0': createQueryVariable({ id: '0' }),
+        '0': {
+          ...initialVariableModelState,
+          id: '0',
+          index: 0,
+          type: 'query',
+          name: 'Name-0',
+          label: 'Label-0',
+        },
       };
       variableAdapters.get('mock').reducer = jest.fn().mockReturnValue(initialState);
       const mockAction = createAction<VariablePayload>('mockAction');
@@ -96,7 +123,14 @@ describe('variablesReducer', () => {
   describe('when any action is dispatched with a type prop that is not registered in variableAdapters', () => {
     it('then the reducer for that variableAdapter should be invoked', () => {
       const initialState: VariablesState = {
-        '0': createQueryVariable({ id: '0' }),
+        '0': {
+          ...initialVariableModelState,
+          id: '0',
+          index: 0,
+          type: 'query',
+          name: 'Name-0',
+          label: 'Label-0',
+        },
       };
       variableAdapters.get('mock').reducer = jest.fn().mockReturnValue(initialState);
       const mockAction = createAction<VariablePayload>('mockAction');
@@ -111,7 +145,14 @@ describe('variablesReducer', () => {
   describe('when any action is dispatched missing type prop', () => {
     it('then the reducer for that variableAdapter should be invoked', () => {
       const initialState: VariablesState = {
-        '0': createQueryVariable({ id: '0' }),
+        '0': {
+          ...initialVariableModelState,
+          id: '0',
+          index: 0,
+          type: 'query',
+          name: 'Name-0',
+          label: 'Label-0',
+        },
       };
       variableAdapters.get('mock').reducer = jest.fn().mockReturnValue(initialState);
       const mockAction = createAction<string>('mockAction');

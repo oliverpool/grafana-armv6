@@ -6,7 +6,6 @@ import { catchError, map, mapTo, share, takeUntil, tap } from 'rxjs/operators';
 // Utils & Services
 // Types
 import {
-  CoreApp,
   DataFrame,
   DataQueryError,
   DataQueryRequest,
@@ -24,7 +23,6 @@ import {
 import { toDataQueryError } from '@grafana/runtime';
 import { isExpressionReference } from '@grafana/runtime/src/utils/DataSourceWithBackend';
 import { backendSrv } from 'app/core/services/backend_srv';
-import { queryIsEmpty } from 'app/core/utils/query';
 import { dataSource as expressionDatasource } from 'app/features/expressions/ExpressionDatasource';
 import { ExpressionQuery } from 'app/features/expressions/types';
 
@@ -176,16 +174,7 @@ export function callQueryMethod(
   request: DataQueryRequest,
   queryFunction?: typeof datasource.query
 ) {
-  // If the datasource has defined a default query, make sure it's applied if the query is empty
-  request.targets = request.targets.map((t) =>
-    queryIsEmpty(t) ? { ...datasource?.getDefaultQuery?.(CoreApp.PanelEditor), ...t } : t
-  );
-
-  // If its a public datasource, just return the result. Expressions will be handled on the backend.
-  if (datasource.type === 'public-ds') {
-    return from(datasource.query(request));
-  }
-
+  // If any query has an expression, use the expression endpoint
   for (const target of request.targets) {
     if (isExpressionReference(target.datasource)) {
       return expressionDatasource.query(request as DataQueryRequest<ExpressionQuery>);

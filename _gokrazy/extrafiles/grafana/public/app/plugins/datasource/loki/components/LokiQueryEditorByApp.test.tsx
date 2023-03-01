@@ -1,4 +1,4 @@
-import { render, RenderResult, waitFor } from '@testing-library/react';
+import { render, RenderResult } from '@testing-library/react';
 import { noop } from 'lodash';
 import React from 'react';
 
@@ -6,6 +6,7 @@ import { CoreApp } from '@grafana/data';
 
 import { LokiDatasource } from '../datasource';
 
+import { testIds as exploreTestIds } from './LokiExploreQueryEditor';
 import { testIds as regularTestIds } from './LokiQueryEditor';
 import { LokiQueryEditorByApp } from './LokiQueryEditorByApp';
 import { testIds as alertingTestIds } from './LokiQueryEditorForAlerting';
@@ -18,9 +19,6 @@ function setup(app: CoreApp): RenderResult {
       getLabelKeys: () => [],
       metrics: [],
     },
-    getQueryHints: () => [],
-    getDataSamples: () => [],
-    maxLines: 20,
   } as unknown as LokiDatasource;
 
   return render(
@@ -42,23 +40,24 @@ describe('LokiQueryEditorByApp', () => {
     expect(queryByTestId(regularTestIds.editor)).toBeNull();
   });
 
-  it('should render regular query editor for unknown apps', async () => {
+  it('should render regular query editor for unkown apps', () => {
     const { getByTestId, queryByTestId } = setup(CoreApp.Unknown);
-    expect(await waitFor(() => getByTestId(regularTestIds.editor))).toBeInTheDocument();
+
+    expect(getByTestId(regularTestIds.editor)).toBeInTheDocument();
     expect(queryByTestId(alertingTestIds.editor)).toBeNull();
   });
 
-  it('should render regular query editor for explore', async () => {
+  it('should render expore query editor for explore', () => {
     const { getByTestId, queryByTestId } = setup(CoreApp.Explore);
 
-    expect(await waitFor(() => getByTestId(regularTestIds.editor))).toBeInTheDocument();
+    expect(getByTestId(exploreTestIds.editor)).toBeInTheDocument();
     expect(queryByTestId(alertingTestIds.editor)).toBeNull();
   });
 
-  it('should render regular query editor for dashboard', async () => {
-    const { findByTestId, queryByTestId } = setup(CoreApp.Dashboard);
+  it('should render regular query editor for dashboard', () => {
+    const { getByTestId, queryByTestId } = setup(CoreApp.Dashboard);
 
-    expect(await findByTestId(regularTestIds.editor)).toBeInTheDocument();
+    expect(getByTestId(regularTestIds.editor)).toBeInTheDocument();
     expect(queryByTestId(alertingTestIds.editor)).toBeNull();
   });
 });

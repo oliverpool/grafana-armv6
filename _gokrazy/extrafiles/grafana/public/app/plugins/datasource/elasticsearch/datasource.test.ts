@@ -6,29 +6,23 @@ import {
   CoreApp,
   DataLink,
   DataQueryRequest,
-  DataQueryResponse,
   DataSourceInstanceSettings,
+  DataSourcePluginMeta,
   dateMath,
   DateTime,
   dateTime,
   Field,
-  FieldType,
   MutableDataFrame,
-  RawTimeRange,
-  SupplementaryQueryType,
   TimeRange,
   toUtc,
 } from '@grafana/data';
-import { BackendSrvRequest, FetchResponse, reportInteraction } from '@grafana/runtime';
+import { BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv'; // will use the version in __mocks__
-import { TimeSrv } from 'app/features/dashboard/services/TimeSrv';
-import { TemplateSrv } from 'app/features/templating/template_srv';
 
 import { createFetchResponse } from '../../../../test/helpers/createFetchResponse';
 
 import { Filters } from './components/QueryEditor/BucketAggregationsEditor/aggregations';
 import { ElasticDatasource, enhanceDataFrame } from './datasource';
-import { createElasticDatasource } from './mocks';
 import { ElasticsearchOptions, ElasticsearchQuery } from './types';
 
 const ELASTICSEARCH_MOCK_URL = 'http://elasticsearch.local';
@@ -36,7 +30,6 @@ const ELASTICSEARCH_MOCK_URL = 'http://elasticsearch.local';
 jest.mock('@grafana/runtime', () => ({
   ...(jest.requireActual('@grafana/runtime') as unknown as object),
   getBackendSrv: () => backendSrv,
-  reportInteraction: jest.fn(),
   getDataSourceSrv: () => {
     return {
       getInstanceSettings: () => {
@@ -44,27 +37,6 @@ jest.mock('@grafana/runtime', () => ({
       },
     };
   },
-}));
-
-const TIMESRV_START = [2022, 8, 21, 6, 10, 10];
-const TIMESRV_END = [2022, 8, 24, 6, 10, 21];
-const DATAQUERY_BASE = {
-  requestId: '1',
-  interval: '',
-  intervalMs: 0,
-  scopedVars: {
-    test: { text: '', value: '' },
-  },
-  timezone: '',
-  app: 'test',
-  startTime: 0,
-};
-
-jest.mock('app/features/dashboard/services/TimeSrv', () => ({
-  ...(jest.requireActual('app/features/dashboard/services/TimeSrv') as unknown as object),
-  getTimeSrv: () => ({
-    timeRange: () => createTimeRange(toUtc(TIMESRV_START), toUtc(TIMESRV_END)),
-  }),
 }));
 
 const createTimeRange = (from: DateTime, to: DateTime): TimeRange => ({
@@ -76,136 +48,96 @@ const createTimeRange = (from: DateTime, to: DateTime): TimeRange => ({
   },
 });
 
-interface TestContext {
-  data?: Data;
+interface Args {
+  data?: any;
   from?: string;
-  jsonData?: Partial<ElasticsearchOptions>;
+  jsonData?: any;
   database?: string;
-  fetchMockImplementation?: (options: BackendSrvRequest) => Observable<FetchResponse>;
-  templateSrvMock?: TemplateSrv;
-}
-
-interface Data {
-  [key: string]: undefined | string | string[] | number | Data | Data[];
+  mockImplementation?: (options: BackendSrvRequest) => Observable<FetchResponse>;
 }
 
 function getTestContext({
-  data = { responses: [] },
+  data = {},
   from = 'now-5m',
-  jsonData,
-  database = '[test-]YYYY.MM.DD',
-  fetchMockImplementation,
-  templateSrvMock,
-}: TestContext = {}) {
+  jsonData = {},
+  database = '[asd-]YYYY.MM.DD',
+  mockImplementation = undefined,
+}: Args = {}) {
+  jest.clearAllMocks();
+
   const defaultMock = (options: BackendSrvRequest) => of(createFetchResponse(data));
 
   const fetchMock = jest.spyOn(backendSrv, 'fetch');
-  fetchMock.mockImplementation(fetchMockImplementation ?? defaultMock);
+  fetchMock.mockImplementation(mockImplementation ?? defaultMock);
 
-  const timeSrv = {
+  const templateSrv: any = {
+    replace: jest.fn((text?: string) => {
+      if (text?.startsWith('$')) {
+        return `resolvedVariable`;
+      } else {
+        return text;
+      }
+    }),
+    getAdhocFilters: jest.fn(() => []),
+  };
+
+  const timeSrv: any = {
     time: { from, to: 'now' },
-    timeRange: () => ({
+  };
+
+  timeSrv.timeRange = jest.fn(() => {
+    return {
       from: dateMath.parse(timeSrv.time.from, false),
       to: dateMath.parse(timeSrv.time.to, true),
-    }),
-    setTime: (time: RawTimeRange) => {
-      timeSrv.time = time;
-    },
-  } as TimeSrv;
+    };
+  });
 
-  const settings: Partial<DataSourceInstanceSettings<ElasticsearchOptions>> = { url: ELASTICSEARCH_MOCK_URL };
-  settings.jsonData = jsonData as ElasticsearchOptions;
+  timeSrv.setTime = jest.fn((time) => {
+    timeSrv.time = time;
+  });
 
-  const templateSrv =
-    templateSrvMock ??
-    ({
-      replace: (text?: string) => {
-        if (text?.startsWith('$')) {
-          return `resolvedVariable`;
-        } else {
-          return text;
-        }
-      },
-      getAdhocFilters: () => [],
-    } as unknown as TemplateSrv);
+  const instanceSettings: DataSourceInstanceSettings<ElasticsearchOptions> = {
+    id: 1,
+    meta: {} as DataSourcePluginMeta,
+    name: 'test-elastic',
+    type: 'type',
+    uid: 'uid',
+    access: 'proxy',
+    url: ELASTICSEARCH_MOCK_URL,
+    database,
+    jsonData,
+  };
 
-  const ds = createElasticDatasource(settings, templateSrv);
+  const ds = new ElasticDatasource(instanceSettings, templateSrv);
 
   return { timeSrv, ds, fetchMock };
 }
 
-describe('ElasticDatasource', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('When calling getTagValues', () => {
-    it('should respect the currently selected time range', () => {
-      const data = {
-        responses: [
-          {
-            aggregations: {
-              '1': {
-                buckets: [
-                  {
-                    doc_count: 10,
-                    key: 'val1',
-                  },
-                  {
-                    doc_count: 20,
-                    key: 'val2',
-                  },
-                  {
-                    doc_count: 30,
-                    key: 'val3',
-                  },
-                ],
-              },
-            },
-          },
-        ],
-      };
-      const { ds, fetchMock } = getTestContext({
-        data,
-        jsonData: { interval: 'Daily', esVersion: '7.10.0', timeField: '@timestamp' },
-      });
-
-      ds.getTagValues({ key: 'test' });
-
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      const obj = JSON.parse(fetchMock.mock.calls[0][0].data.split('\n')[1]);
-      const { lte, gte } = obj.query.bool.filter[0].range['@timestamp'];
-
-      expect(gte).toBe('1663740610000'); // 2022-09-21T06:10:10Z
-      expect(lte).toBe('1663999821000'); // 2022-09-24T06:10:21Z
-    });
-  });
-
+describe('ElasticDatasource', function (this: any) {
   describe('When testing datasource with index pattern', () => {
     it('should translate index pattern to current day', () => {
-      const { ds, fetchMock } = getTestContext({ jsonData: { interval: 'Daily', esVersion: '7.10.0' } });
+      const { ds, fetchMock } = getTestContext({ jsonData: { interval: 'Daily', esVersion: 2 } });
 
       ds.testDatasource();
 
       const today = toUtc().format('YYYY.MM.DD');
       expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock.mock.calls[0][0].url).toBe(`${ELASTICSEARCH_MOCK_URL}/test-${today}/_mapping`);
+      expect(fetchMock.mock.calls[0][0].url).toBe(`${ELASTICSEARCH_MOCK_URL}/asd-${today}/_mapping`);
     });
   });
 
   describe('When issuing metric query with interval pattern', () => {
     async function runScenario() {
-      const range = { from: toUtc([2015, 4, 30, 10]), to: toUtc([2015, 5, 1, 10]), raw: { from: '', to: '' } };
-      const targets: ElasticsearchQuery[] = [
+      const range = { from: toUtc([2015, 4, 30, 10]), to: toUtc([2015, 5, 1, 10]) };
+      const targets = [
         {
-          refId: 'test',
           alias: '$varAlias',
           bucketAggs: [{ type: 'date_histogram', field: '@timestamp', id: '1' }],
           metrics: [{ type: 'count', id: '1' }],
           query: 'escape\\:test',
         },
       ];
-      const query = { ...DATAQUERY_BASE, range, targets };
+      const query: any = { range, targets };
       const data = {
         responses: [
           {
@@ -222,31 +154,19 @@ describe('ElasticDatasource', () => {
           },
         ],
       };
-      const { ds, fetchMock } = getTestContext({ jsonData: { interval: 'Daily', esVersion: '7.10.0' }, data });
+      const { ds, fetchMock } = getTestContext({ jsonData: { interval: 'Daily', esVersion: 2 }, data });
 
-      let result: DataQueryResponse = { data: [] };
+      let result: any = {};
       await expect(ds.query(query)).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
         expect(received[0]).toEqual({
           data: [
             {
-              name: 'resolvedVariable',
-              refId: 'test',
-              fields: [
-                {
-                  name: 'Time',
-                  type: FieldType.time,
-                  config: {},
-                  values: new ArrayVector([1000]),
-                },
-                {
-                  name: 'Value',
-                  type: FieldType.number,
-                  config: {},
-                  values: new ArrayVector([10]),
-                },
-              ],
-              length: 1,
+              datapoints: [[10, 1000]],
+              metric: 'count',
+              props: {},
+              refId: undefined,
+              target: 'resolvedVariable',
             },
           ],
         });
@@ -264,7 +184,7 @@ describe('ElasticDatasource', () => {
 
     it('should translate index pattern to current day', async () => {
       const { header } = await runScenario();
-      expect(header.index).toEqual(['test-2015.05.30', 'test-2015.05.31', 'test-2015.06.01']);
+      expect(header.index).toEqual(['asd-2015.05.30', 'asd-2015.05.31', 'asd-2015.06.01']);
     });
 
     it('should not resolve the variable in the original alias field in the query', async () => {
@@ -274,29 +194,12 @@ describe('ElasticDatasource', () => {
 
     it('should resolve the alias variable for the alias/target in the result', async () => {
       const { result } = await runScenario();
-      expect(result.data[0].name).toEqual('resolvedVariable');
+      expect(result.data[0].target).toEqual('resolvedVariable');
     });
 
     it('should json escape lucene query', async () => {
       const { body } = await runScenario();
       expect(body.query.bool.filter[1].query_string.query).toBe('escape\\:test');
-    });
-
-    it('should report query interaction', async () => {
-      await runScenario();
-      expect(reportInteraction).toHaveBeenCalledWith(
-        'grafana_elasticsearch_query_executed',
-        expect.objectContaining({
-          alias: '$varAlias',
-          app: 'test',
-          has_data: true,
-          has_error: false,
-          line_limit: undefined,
-          query_type: 'metric',
-          simultaneously_sent_query_count: 1,
-          with_lucene_query: true,
-        })
-      );
     });
   });
 
@@ -304,7 +207,7 @@ describe('ElasticDatasource', () => {
     async function setupDataSource(jsonData?: Partial<ElasticsearchOptions>) {
       jsonData = {
         interval: 'Daily',
-        esVersion: '7.10.0',
+        esVersion: '2.0.0',
         timeField: '@timestamp',
         ...(jsonData || {}),
       };
@@ -335,7 +238,7 @@ describe('ElasticDatasource', () => {
       } as DataQueryRequest<ElasticsearchQuery>;
 
       const queryBuilderSpy = jest.spyOn(ds.queryBuilder, 'getLogsQuery');
-      let response: DataQueryResponse = { data: [] };
+      let response: any = {};
 
       await expect(ds.query(query)).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
@@ -367,35 +270,16 @@ describe('ElasticDatasource', () => {
       expect(links[0].url).toBe('http://localhost:3000/${__value.raw}');
       expect(links[0].title).toBe('Custom Label');
     });
-
-    it('should report query interaction', async () => {
-      await setupDataSource();
-      expect(reportInteraction).toHaveBeenCalledWith(
-        'grafana_elasticsearch_query_executed',
-        expect.objectContaining({
-          alias: '$varAlias',
-          app: undefined,
-          has_data: true,
-          has_error: false,
-          line_limit: undefined,
-          query_type: 'logs',
-          simultaneously_sent_query_count: 1,
-          with_lucene_query: true,
-        })
-      );
-    });
   });
 
   describe('When issuing document query', () => {
     async function runScenario() {
       const range = createTimeRange(dateTime([2015, 4, 30, 10]), dateTime([2015, 5, 1, 10]));
-      const targets: ElasticsearchQuery[] = [
-        { refId: 'A', metrics: [{ type: 'raw_document', id: '1' }], query: 'test' },
-      ];
-      const query = { ...DATAQUERY_BASE, range, targets };
+      const targets = [{ refId: 'A', metrics: [{ type: 'raw_document', id: '1' }], query: 'test' }];
+      const query: any = { range, targets };
       const data = { responses: [] };
 
-      const { ds, fetchMock } = getTestContext({ jsonData: { esVersion: '7.10.0' }, data, database: 'test' });
+      const { ds, fetchMock } = getTestContext({ jsonData: { esVersion: 2 }, data, database: 'test' });
 
       await expect(ds.query(query)).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
@@ -420,22 +304,6 @@ describe('ElasticDatasource', () => {
       const { body } = await runScenario();
       expect(body.size).toBe(500);
     });
-    it('should report query interaction', async () => {
-      await runScenario();
-      expect(reportInteraction).toHaveBeenCalledWith(
-        'grafana_elasticsearch_query_executed',
-        expect.objectContaining({
-          alias: undefined,
-          app: 'test',
-          has_data: false,
-          has_error: false,
-          line_limit: undefined,
-          query_type: 'raw_document',
-          simultaneously_sent_query_count: 1,
-          with_lucene_query: true,
-        })
-      );
-    });
   });
 
   describe('When getting an error on response', () => {
@@ -454,7 +322,7 @@ describe('ElasticDatasource', () => {
 
     it('should process it properly', async () => {
       const { ds } = getTestContext({
-        jsonData: { interval: 'Daily', esVersion: '7.10.0' },
+        jsonData: { interval: 'Daily', esVersion: 7 },
         data: {
           took: 1,
           responses: [
@@ -472,7 +340,7 @@ describe('ElasticDatasource', () => {
         data: '{\n    "reason": "all shards failed"\n}',
         message: 'all shards failed',
         config: {
-          url: 'http://localhost:3000/api/ds/query',
+          url: 'http://localhost:3000/api/tsdb/query',
         },
       };
 
@@ -489,8 +357,8 @@ describe('ElasticDatasource', () => {
           message: 'Authentication to data source failed',
         },
         status: 400,
-        url: 'http://localhost:3000/api/ds/query',
-        config: { url: 'http://localhost:3000/api/ds/query' },
+        url: 'http://localhost:3000/api/tsdb/query',
+        config: { url: 'http://localhost:3000/api/tsdb/query' },
         type: 'basic',
         statusText: 'Bad Request',
         redirected: false,
@@ -499,9 +367,7 @@ describe('ElasticDatasource', () => {
       };
 
       const { ds } = getTestContext({
-        fetchMockImplementation: () => throwError(response),
-        from: undefined,
-        jsonData: { esVersion: '7.10.0' },
+        mockImplementation: () => throwError(response),
       });
 
       const errObject = {
@@ -517,7 +383,7 @@ describe('ElasticDatasource', () => {
 
     it('should properly throw an unknown error', async () => {
       const { ds } = getTestContext({
-        jsonData: { interval: 'Daily', esVersion: '7.10.0' },
+        jsonData: { interval: 'Daily', esVersion: 7 },
         data: {
           took: 1,
           responses: [
@@ -533,13 +399,109 @@ describe('ElasticDatasource', () => {
         data: '{}',
         message: 'Unknown elastic error response',
         config: {
-          url: 'http://localhost:3000/api/ds/query',
+          url: 'http://localhost:3000/api/tsdb/query',
         },
       };
 
       await expect(ds.query(query)).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
         expect(received[0]).toEqual(errObject);
+      });
+    });
+  });
+
+  describe('When getting fields', () => {
+    const data = {
+      metricbeat: {
+        mappings: {
+          metricsets: {
+            _all: {},
+            _meta: {
+              test: 'something',
+            },
+            properties: {
+              '@timestamp': { type: 'date' },
+              __timestamp: { type: 'date' },
+              '@timestampnano': { type: 'date_nanos' },
+              beat: {
+                properties: {
+                  name: {
+                    fields: { raw: { type: 'keyword' } },
+                    type: 'string',
+                  },
+                  hostname: { type: 'string' },
+                },
+              },
+              system: {
+                properties: {
+                  cpu: {
+                    properties: {
+                      system: { type: 'float' },
+                      user: { type: 'float' },
+                    },
+                  },
+                  process: {
+                    properties: {
+                      cpu: {
+                        properties: {
+                          total: { type: 'float' },
+                        },
+                      },
+                      name: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    it('should return nested fields', async () => {
+      const { ds } = getTestContext({ data, jsonData: { esVersion: 50 }, database: 'metricbeat' });
+
+      await expect(ds.getFields()).toEmitValuesWith((received) => {
+        expect(received.length).toBe(1);
+        const fieldObjects = received[0];
+        const fields = map(fieldObjects, 'text');
+
+        expect(fields).toEqual([
+          '@timestamp',
+          '__timestamp',
+          '@timestampnano',
+          'beat.name.raw',
+          'beat.name',
+          'beat.hostname',
+          'system.cpu.system',
+          'system.cpu.user',
+          'system.process.cpu.total',
+          'system.process.name',
+        ]);
+      });
+    });
+
+    it('should return number fields', async () => {
+      const { ds } = getTestContext({ data, jsonData: { esVersion: 50 }, database: 'metricbeat' });
+
+      await expect(ds.getFields(['number'])).toEmitValuesWith((received) => {
+        expect(received.length).toBe(1);
+        const fieldObjects = received[0];
+        const fields = map(fieldObjects, 'text');
+
+        expect(fields).toEqual(['system.cpu.system', 'system.cpu.user', 'system.process.cpu.total']);
+      });
+    });
+
+    it('should return date fields', async () => {
+      const { ds } = getTestContext({ data, jsonData: { esVersion: 50 }, database: 'metricbeat' });
+
+      await expect(ds.getFields(['date'])).toEmitValuesWith((received) => {
+        expect(received.length).toBe(1);
+        const fieldObjects = received[0];
+        const fields = map(fieldObjects, 'text');
+
+        expect(fields).toEqual(['@timestamp', '__timestamp', '@timestampnano']);
       });
     });
   });
@@ -563,13 +525,55 @@ describe('ElasticDatasource', () => {
       },
     };
 
+    const alternateResponse = {
+      metricbeat: {
+        mappings: {
+          metricsets: {
+            _all: {},
+            properties: {
+              '@timestamp': { type: 'date' },
+            },
+          },
+        },
+      },
+    };
+
+    it('should return fields of the newest available index', async () => {
+      const twoDaysBefore = toUtc().subtract(2, 'day').format('YYYY.MM.DD');
+      const threeDaysBefore = toUtc().subtract(3, 'day').format('YYYY.MM.DD');
+      const baseUrl = `${ELASTICSEARCH_MOCK_URL}/asd-${twoDaysBefore}/_mapping`;
+      const alternateUrl = `${ELASTICSEARCH_MOCK_URL}/asd-${threeDaysBefore}/_mapping`;
+
+      const { ds, timeSrv } = getTestContext({
+        from: 'now-2w',
+        jsonData: { interval: 'Daily', esVersion: 50 },
+        mockImplementation: (options) => {
+          if (options.url === baseUrl) {
+            return of(createFetchResponse(basicResponse));
+          } else if (options.url === alternateUrl) {
+            return of(createFetchResponse(alternateResponse));
+          }
+          return throwError({ status: 404 });
+        },
+      });
+
+      const range = timeSrv.timeRange();
+
+      await expect(ds.getFields(undefined, range)).toEmitValuesWith((received) => {
+        expect(received.length).toBe(1);
+        const fieldObjects = received[0];
+        const fields = map(fieldObjects, 'text');
+        expect(fields).toEqual(['@timestamp', 'beat.hostname']);
+      });
+    });
+
     it('should not retry when ES is down', async () => {
       const twoDaysBefore = toUtc().subtract(2, 'day').format('YYYY.MM.DD');
 
       const { ds, timeSrv, fetchMock } = getTestContext({
         from: 'now-2w',
-        jsonData: { interval: 'Daily', esVersion: '7.10.0' },
-        fetchMockImplementation: (options) => {
+        jsonData: { interval: 'Daily', esVersion: 50 },
+        mockImplementation: (options) => {
           if (options.url === `${ELASTICSEARCH_MOCK_URL}/asd-${twoDaysBefore}/_mapping`) {
             return of(createFetchResponse(basicResponse));
           }
@@ -589,8 +593,8 @@ describe('ElasticDatasource', () => {
     it('should not retry more than 7 indices', async () => {
       const { ds, timeSrv, fetchMock } = getTestContext({
         from: 'now-2w',
-        jsonData: { interval: 'Daily', esVersion: '7.10.0' },
-        fetchMockImplementation: (options) => {
+        jsonData: { interval: 'Daily', esVersion: 50 },
+        mockImplementation: (options) => {
           return throwError({ status: 404 });
         },
       });
@@ -699,11 +703,7 @@ describe('ElasticDatasource', () => {
     ];
 
     it('should return nested fields', async () => {
-      const { ds } = getTestContext({
-        data,
-        database: 'genuine.es7._mapping.response',
-        jsonData: { esVersion: '7.10.0' },
-      });
+      const { ds } = getTestContext({ data, database: 'genuine.es7._mapping.response', jsonData: { esVersion: 70 } });
 
       await expect(ds.getFields()).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
@@ -730,11 +730,7 @@ describe('ElasticDatasource', () => {
     });
 
     it('should return number fields', async () => {
-      const { ds } = getTestContext({
-        data,
-        database: 'genuine.es7._mapping.response',
-        jsonData: { esVersion: '7.10.0' },
-      });
+      const { ds } = getTestContext({ data, database: 'genuine.es7._mapping.response', jsonData: { esVersion: 70 } });
 
       await expect(ds.getFields(['number'])).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
@@ -746,11 +742,7 @@ describe('ElasticDatasource', () => {
     });
 
     it('should return date fields', async () => {
-      const { ds } = getTestContext({
-        data,
-        database: 'genuine.es7._mapping.response',
-        jsonData: { esVersion: '7.10.0' },
-      });
+      const { ds } = getTestContext({ data, database: 'genuine.es7._mapping.response', jsonData: { esVersion: 70 } });
 
       await expect(ds.getFields(['date'])).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
@@ -765,7 +757,7 @@ describe('ElasticDatasource', () => {
   describe('When issuing aggregation query on es5.x', () => {
     async function runScenario() {
       const range = createTimeRange(dateTime([2015, 4, 30, 10]), dateTime([2015, 5, 1, 10]));
-      const targets: ElasticsearchQuery[] = [
+      const targets = [
         {
           refId: 'A',
           bucketAggs: [{ type: 'date_histogram', field: '@timestamp', id: '2' }],
@@ -773,10 +765,10 @@ describe('ElasticDatasource', () => {
           query: 'test',
         },
       ];
-      const query = { ...DATAQUERY_BASE, range, targets };
+      const query: any = { range, targets };
       const data = { responses: [] };
 
-      const { ds, fetchMock } = getTestContext({ jsonData: { esVersion: '7.10.0' }, data, database: 'test' });
+      const { ds, fetchMock } = getTestContext({ jsonData: { esVersion: 5 }, data, database: 'test' });
 
       await expect(ds.query(query)).toEmitValuesWith((received) => {
         expect(received.length).toBe(1);
@@ -824,7 +816,7 @@ describe('ElasticDatasource', () => {
         ],
       };
 
-      const { ds, fetchMock } = getTestContext({ jsonData: { esVersion: '7.10.0' }, data, database: 'test' });
+      const { ds, fetchMock } = getTestContext({ jsonData: { esVersion: 5 }, data, database: 'test' });
 
       const results = await ds.metricFindQuery('{"find": "terms", "field": "test"}');
 
@@ -866,8 +858,8 @@ describe('ElasticDatasource', () => {
 
   describe('query', () => {
     it('should replace range as integer not string', async () => {
-      const { ds } = getTestContext({ jsonData: { interval: 'Daily', esVersion: '7.10.0', timeField: '@time' } });
-      const postMock = jest.fn((url: string, data) => of(createFetchResponse({ responses: [] })));
+      const { ds } = getTestContext({ jsonData: { interval: 'Daily', esVersion: 2, timeField: '@time' } });
+      const postMock = jest.fn((url: string, data: any) => of(createFetchResponse({ responses: [] })));
       ds['post'] = postMock;
 
       await expect(ds.query(createElasticQuery())).toEmitValuesWith((received) => {
@@ -894,24 +886,6 @@ describe('ElasticDatasource', () => {
     expect((interpolatedQuery.bucketAggs![0] as Filters).settings!.filters![0].query).toBe('resolvedVariable');
   });
 
-  it('should correctly add ad hoc filters when interpolating variables in query', () => {
-    const templateSrvMock = {
-      replace: (text?: string) => text,
-      getAdhocFilters: () => [{ key: 'bar', operator: '=', value: 'test' }],
-    } as unknown as TemplateSrv;
-    const { ds } = getTestContext({ templateSrvMock });
-    const query: ElasticsearchQuery = {
-      refId: 'A',
-      bucketAggs: [{ type: 'filters', settings: { filters: [{ query: '$var', label: '' }] }, id: '1' }],
-      metrics: [{ type: 'count', id: '1' }],
-      query: 'foo:"bar"',
-    };
-
-    const interpolatedQuery = ds.interpolateVariablesInQueries([query], {})[0];
-
-    expect(interpolatedQuery.query).toBe('foo:"bar" AND bar:"test"');
-  });
-
   it('should correctly handle empty query strings in filters bucket aggregation', () => {
     const { ds } = getTestContext();
     const query: ElasticsearchQuery = {
@@ -925,76 +899,40 @@ describe('ElasticDatasource', () => {
 
     expect((interpolatedQuery.bucketAggs![0] as Filters).settings!.filters![0].query).toBe('*');
   });
-
-  describe('getSupplementaryQuery', () => {
-    let ds: ElasticDatasource;
-    beforeEach(() => {
-      ds = getTestContext().ds;
-    });
-
-    it('does not return logs volume query for metric query', () => {
-      expect(
-        ds.getSupplementaryQuery(SupplementaryQueryType.LogsVolume, {
-          refId: 'A',
-          metrics: [{ type: 'count', id: '1' }],
-          bucketAggs: [{ type: 'filters', settings: { filters: [{ query: 'foo', label: '' }] }, id: '1' }],
-          query: 'foo="bar"',
-        })
-      ).toEqual(undefined);
-    });
-
-    it('returns logs volume query for log query', () => {
-      expect(
-        ds.getSupplementaryQuery(SupplementaryQueryType.LogsVolume, {
-          refId: 'A',
-          metrics: [{ type: 'logs', id: '1' }],
-          query: 'foo="bar"',
-        })
-      ).toEqual({
-        bucketAggs: [
-          {
-            field: '',
-            id: '3',
-            settings: {
-              interval: 'auto',
-              min_doc_count: '0',
-              trimEdges: '0',
-            },
-            type: 'date_histogram',
-          },
-        ],
-        metrics: [
-          {
-            id: '1',
-            type: 'count',
-          },
-        ],
-        query: 'foo="bar"',
-        refId: 'log-volume-A',
-        timeField: '',
-      });
-    });
-  });
 });
 
 describe('getMultiSearchUrl', () => {
-  describe('When esVersion >= 7.10.0', () => {
+  describe('When esVersion >= 6.6.0', () => {
     it('Should add correct params to URL if "includeFrozen" is enabled', () => {
-      const { ds } = getTestContext({ jsonData: { esVersion: '7.10.0', includeFrozen: true, xpack: true } });
+      const { ds } = getTestContext({ jsonData: { esVersion: '6.6.0', includeFrozen: true, xpack: true } });
 
       expect(ds.getMultiSearchUrl()).toMatch(/ignore_throttled=false/);
     });
 
     it('Should NOT add ignore_throttled if "includeFrozen" is disabled', () => {
-      const { ds } = getTestContext({ jsonData: { esVersion: '7.10.0', includeFrozen: false, xpack: true } });
+      const { ds } = getTestContext({ jsonData: { esVersion: '6.6.0', includeFrozen: false, xpack: true } });
 
       expect(ds.getMultiSearchUrl()).not.toMatch(/ignore_throttled=false/);
     });
 
     it('Should NOT add ignore_throttled if "xpack" is disabled', () => {
-      const { ds } = getTestContext({ jsonData: { esVersion: '7.10.0', includeFrozen: true, xpack: false } });
+      const { ds } = getTestContext({ jsonData: { esVersion: '6.6.0', includeFrozen: true, xpack: false } });
 
       expect(ds.getMultiSearchUrl()).not.toMatch(/ignore_throttled=false/);
+    });
+  });
+
+  describe('When esVersion < 6.6.0', () => {
+    it('Should NOT add ignore_throttled params regardless of includeFrozen', () => {
+      const { ds: dsWithIncludeFrozen } = getTestContext({
+        jsonData: { esVersion: '5.6.0', includeFrozen: false, xpack: true },
+      });
+      const { ds: dsWithoutIncludeFrozen } = getTestContext({
+        jsonData: { esVersion: '5.6.0', includeFrozen: true, xpack: true },
+      });
+
+      expect(dsWithIncludeFrozen.getMultiSearchUrl()).not.toMatch(/ignore_throttled=false/);
+      expect(dsWithoutIncludeFrozen.getMultiSearchUrl()).not.toMatch(/ignore_throttled=false/);
     });
   });
 });
@@ -1083,133 +1021,6 @@ describe('enhanceDataFrame', () => {
   });
 });
 
-describe('modifyQuery', () => {
-  let ds: ElasticDatasource;
-  beforeEach(() => {
-    ds = getTestContext().ds;
-  });
-  describe('with empty query', () => {
-    let query: ElasticsearchQuery;
-    beforeEach(() => {
-      query = { query: '', refId: 'A' };
-    });
-
-    it('should add the filter', () => {
-      expect(ds.modifyQuery(query, { type: 'ADD_FILTER', options: { key: 'foo', value: 'bar' } }).query).toBe(
-        'foo:"bar"'
-      );
-    });
-
-    it('should add the negative filter', () => {
-      expect(ds.modifyQuery(query, { type: 'ADD_FILTER_OUT', options: { key: 'foo', value: 'bar' } }).query).toBe(
-        '-foo:"bar"'
-      );
-    });
-
-    it('should do nothing on unknown type', () => {
-      expect(ds.modifyQuery(query, { type: 'unknown', options: { key: 'foo', value: 'bar' } }).query).toBe(query.query);
-    });
-  });
-
-  describe('with non-empty query', () => {
-    let query: ElasticsearchQuery;
-    beforeEach(() => {
-      query = { query: 'test:"value"', refId: 'A' };
-    });
-
-    it('should add the filter', () => {
-      expect(ds.modifyQuery(query, { type: 'ADD_FILTER', options: { key: 'foo', value: 'bar' } }).query).toBe(
-        'test:"value" AND foo:"bar"'
-      );
-    });
-
-    it('should add the negative filter', () => {
-      expect(ds.modifyQuery(query, { type: 'ADD_FILTER_OUT', options: { key: 'foo', value: 'bar' } }).query).toBe(
-        'test:"value" AND -foo:"bar"'
-      );
-    });
-
-    it('should do nothing on unknown type', () => {
-      expect(ds.modifyQuery(query, { type: 'unknown', options: { key: 'foo', value: 'bar' } }).query).toBe(query.query);
-    });
-  });
-});
-
-describe('addAdhocFilters', () => {
-  describe('with invalid filters', () => {
-    it('should filter out ad hoc filter without key', () => {
-      const templateSrvMock = {
-        getAdhocFilters: () => [{ key: '', operator: '=', value: 'a' }],
-      } as unknown as TemplateSrv;
-      const { ds } = getTestContext({ templateSrvMock });
-
-      const query = ds.addAdHocFilters('foo:"bar"');
-      expect(query).toBe('foo:"bar"');
-    });
-
-    it('should filter out ad hoc filter without value', () => {
-      const templateSrvMock = {
-        getAdhocFilters: () => [{ key: 'a', operator: '=', value: '' }],
-      } as unknown as TemplateSrv;
-      const { ds } = getTestContext({ templateSrvMock });
-
-      const query = ds.addAdHocFilters('foo:"bar"');
-      expect(query).toBe('foo:"bar"');
-    });
-
-    it('should filter out filter ad hoc filter with invalid operator', () => {
-      const templateSrvMock = {
-        getAdhocFilters: () => [{ key: 'a', operator: 'A', value: '' }],
-      } as unknown as TemplateSrv;
-      const { ds } = getTestContext({ templateSrvMock });
-
-      const query = ds.addAdHocFilters('foo:"bar"');
-      expect(query).toBe('foo:"bar"');
-    });
-  });
-
-  describe('with 1 ad hoc filter', () => {
-    const templateSrvMock = {
-      getAdhocFilters: () => [{ key: 'test', operator: '=', value: 'test1' }],
-    } as unknown as TemplateSrv;
-    const { ds } = getTestContext({ templateSrvMock });
-
-    it('should correctly add 1 ad hoc filter when query is not empty', () => {
-      const query = ds.addAdHocFilters('foo:"bar"');
-      expect(query).toBe('foo:"bar" AND test:"test1"');
-    });
-
-    it('should correctly add 1 ad hoc filter when query is empty', () => {
-      const query = ds.addAdHocFilters('');
-      expect(query).toBe('test:"test1"');
-    });
-  });
-
-  describe('with multiple ad hoc filters', () => {
-    const templateSrvMock = {
-      getAdhocFilters: () => [
-        { key: 'bar', operator: '=', value: 'baz' },
-        { key: 'job', operator: '!=', value: 'grafana' },
-        { key: 'service', operator: '=~', value: 'service' },
-        { key: 'count', operator: '>', value: '1' },
-      ],
-    } as unknown as TemplateSrv;
-    const { ds } = getTestContext({ templateSrvMock });
-
-    it('should correctly add ad hoc filters when query is not empty', () => {
-      const query = ds.addAdHocFilters('foo:"bar" AND test:"test1"');
-      expect(query).toBe(
-        'foo:"bar" AND test:"test1" AND bar:"baz" AND -job:"grafana" AND service:/service/ AND count:>1'
-      );
-    });
-
-    it('should correctly add ad hoc filters when query is  empty', () => {
-      const query = ds.addAdHocFilters('');
-      expect(query).toBe('bar:"baz" AND -job:"grafana" AND service:/service/ AND count:>1');
-    });
-  });
-});
-
 const createElasticQuery = (): DataQueryRequest<ElasticsearchQuery> => {
   return {
     requestId: '',
@@ -1224,11 +1035,7 @@ const createElasticQuery = (): DataQueryRequest<ElasticsearchQuery> => {
     range: {
       from: dateTime([2015, 4, 30, 10]),
       to: dateTime([2015, 5, 1, 10]),
-      raw: {
-        from: '',
-        to: '',
-      },
-    },
+    } as any,
     targets: [
       {
         refId: '',

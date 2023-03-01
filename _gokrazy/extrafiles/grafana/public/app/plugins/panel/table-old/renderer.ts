@@ -12,7 +12,8 @@ import {
   TimeZone,
   dateTimeFormatISO,
   dateTimeFormat,
-  GrafanaTheme2,
+  getColorForTheme,
+  GrafanaTheme,
 } from '@grafana/data';
 import { getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 
@@ -29,7 +30,7 @@ export class TableRenderer {
     private timeZone: TimeZone,
     private sanitize: (v: any) => any,
     private templateSrv: TemplateSrv = getTemplateSrv(),
-    private theme: GrafanaTheme2
+    private theme: GrafanaTheme
   ) {
     this.initColumns();
   }
@@ -76,10 +77,10 @@ export class TableRenderer {
     }
     for (let i = style.thresholds.length; i > 0; i--) {
       if (value >= style.thresholds[i - 1]) {
-        return this.theme.visualization.getColorByName(style.colors[i]);
+        return getColorForTheme(style.colors[i], this.theme);
       }
     }
-    return this.theme.visualization.getColorByName(first(style.colors));
+    return getColorForTheme(first(style.colors), this.theme);
   }
 
   defaultCellFormatter(v: any, style: ColumnStyle) {

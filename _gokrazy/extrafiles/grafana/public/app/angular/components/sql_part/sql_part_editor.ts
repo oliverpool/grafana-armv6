@@ -14,8 +14,7 @@ const template = `
 </ul>
 `;
 
-coreModule.directive('sqlPartEditor', ['templateSrv', sqlPartEditorDirective]);
-
+/** @ngInject */
 export function sqlPartEditorDirective(templateSrv: any) {
   const paramTemplate = '<input type="text" class="hide input-mini"></input>';
 
@@ -194,3 +193,5 @@ export function sqlPartEditorDirective(templateSrv: any) {
     },
   };
 }
+
+coreModule.directive('sqlPartEditor', sqlPartEditorDirective);

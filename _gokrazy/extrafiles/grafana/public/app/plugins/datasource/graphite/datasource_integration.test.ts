@@ -130,10 +130,10 @@ function mockBackendSrv(data: string) {
   const user: User = {
     isSignedIn: props.isSignedIn,
     orgId: props.orgId,
-  } as unknown as User;
+  } as any as User;
   const contextSrvMock: ContextSrv = {
     user,
-  } as unknown as ContextSrv;
+  } as any as ContextSrv;
   const logoutMock = jest.fn();
 
   const mockedBackendSrv = new BackendSrv({

@@ -7,10 +7,9 @@ import { VariableHide, VariableModel } from '../../../variables/types';
 
 interface Props {
   variables: VariableModel[];
-  readOnly?: boolean;
 }
 
-export const SubMenuItems: FunctionComponent<Props> = ({ variables, readOnly }) => {
+export const SubMenuItems: FunctionComponent<Props> = ({ variables }) => {
   const [visibleVariables, setVisibleVariables] = useState<VariableModel[]>([]);
 
   useEffect(() => {
@@ -30,7 +29,7 @@ export const SubMenuItems: FunctionComponent<Props> = ({ variables, readOnly }) 
             className="submenu-item gf-form-inline"
             data-testid={selectors.pages.Dashboard.SubMenu.submenuItem}
           >
-            <PickerRenderer variable={variable} readOnly={readOnly} />
+            <PickerRenderer variable={variable} />
           </div>
         );
       })}

@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Route, Redirect, Switch } from 'react-router-dom';
 
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
-import { useDispatch } from 'app/types';
 
 import MuteTimingForm from './components/amroutes/MuteTimingForm';
 import { useAlertManagerSourceName } from './hooks/useAlertManagerSourceName';
@@ -38,18 +38,7 @@ const MuteTimings = () => {
 
   const getMuteTimingByName = useCallback(
     (id: string): MuteTimeInterval | undefined => {
-      const timing = config?.mute_time_intervals?.find(({ name }: MuteTimeInterval) => name === id);
-
-      if (timing) {
-        const provenance = (config?.muteTimeProvenances ?? {})[timing.name];
-
-        return {
-          ...timing,
-          provenance,
-        };
-      }
-
-      return timing;
+      return config?.mute_time_intervals?.find(({ name }: MuteTimeInterval) => name === id);
     },
     [config]
   );
@@ -71,9 +60,7 @@ const MuteTimings = () => {
             {() => {
               if (queryParams['muteName']) {
                 const muteTiming = getMuteTimingByName(String(queryParams['muteName']));
-                const provenance = muteTiming?.provenance;
-
-                return <MuteTimingForm muteTiming={muteTiming} showError={!muteTiming} provenance={provenance} />;
+                return <MuteTimingForm muteTiming={muteTiming} showError={!muteTiming} />;
               }
               return <Redirect to="/alerting/routes" />;
             }}

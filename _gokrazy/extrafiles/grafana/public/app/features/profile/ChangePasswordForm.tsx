@@ -16,11 +16,11 @@ export interface Props {
 }
 
 export const ChangePasswordForm: FC<Props> = ({ user, onChangePassword, isSaving }) => {
-  const { disableLoginForm } = config;
+  const { ldapEnabled, authProxyEnabled, disableLoginForm } = config;
   const authSource = user.authLabels?.length && user.authLabels[0];
 
-  if (authSource === 'LDAP' || authSource === 'Auth Proxy') {
-    return <p>You cannot change password when signed in with LDAP or auth proxy.</p>;
+  if (ldapEnabled || authProxyEnabled) {
+    return <p>You cannot change password when LDAP or auth proxy authentication is enabled.</p>;
   }
   if (authSource && disableLoginForm) {
     return <p>Password cannot be changed here.</p>;
@@ -69,7 +69,7 @@ export const ChangePasswordForm: FC<Props> = ({ user, onChangePassword, isSaving
                 />
               </Field>
               <HorizontalGroup>
-                <Button variant="primary" disabled={isSaving} type="submit">
+                <Button variant="primary" disabled={isSaving}>
                   Change Password
                 </Button>
                 <LinkButton variant="secondary" href={`${config.appSubUrl}/profile`} fill="outline">

@@ -27,31 +27,31 @@ describe('Rows to fields', () => {
     );
 
     expect(result).toMatchInlineSnapshot(`
-      {
-        "fields": [
-          {
-            "config": {
+      Object {
+        "fields": Array [
+          Object {
+            "config": Object {
               "max": 15,
               "min": 3,
               "unit": "degree",
             },
-            "labels": {},
+            "labels": Object {},
             "name": "Temperature",
             "type": "number",
-            "values": [
+            "values": Array [
               10,
             ],
           },
-          {
-            "config": {
+          Object {
+            "config": Object {
               "max": 200,
               "min": 100,
               "unit": "pressurebar",
             },
-            "labels": {},
+            "labels": Object {},
             "name": "Pressure",
             "type": "number",
-            "values": [
+            "values": Array [
               200,
             ],
           },

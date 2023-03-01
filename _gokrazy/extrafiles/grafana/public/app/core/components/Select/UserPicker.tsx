@@ -1,4 +1,4 @@
-import { debounce, DebouncedFuncLeading, isNil } from 'lodash';
+import { debounce, isNil } from 'lodash';
 import React, { Component } from 'react';
 
 import { SelectableValue } from '@grafana/data';
@@ -17,7 +17,7 @@ export interface State {
 }
 
 export class UserPicker extends Component<Props, State> {
-  debouncedSearch: DebouncedFuncLeading<typeof this.search>;
+  debouncedSearch: any;
 
   constructor(props: Props) {
     super(props);
@@ -60,6 +60,7 @@ export class UserPicker extends Component<Props, State> {
     return (
       <div className="user-picker" data-testid="userPicker">
         <AsyncSelect
+          menuShouldPortal
           isClearable
           className={className}
           inputId={inputId}

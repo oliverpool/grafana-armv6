@@ -3,8 +3,7 @@ import { sortBy } from 'lodash';
 import React, { ChangeEvent } from 'react';
 import { FixedSizeList } from 'react-window';
 
-import { CoreApp, GrafanaTheme2 } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
+import { GrafanaTheme2 } from '@grafana/data';
 import {
   Button,
   HighlightPart,
@@ -18,8 +17,7 @@ import {
 } from '@grafana/ui';
 
 import PromQlLanguageProvider from '../../prometheus/language_provider';
-import LokiLanguageProvider from '../LanguageProvider';
-import { escapeLabelValueInExactSelector, escapeLabelValueInRegexSelector } from '../languageUtils';
+import LokiLanguageProvider from '../language_provider';
 
 // Hard limit on labels to render
 const MAX_LABEL_COUNT = 1000;
@@ -32,7 +30,6 @@ export interface BrowserProps {
   languageProvider: LokiLanguageProvider | PromQlLanguageProvider;
   onChange: (selector: string) => void;
   theme: GrafanaTheme2;
-  app?: CoreApp;
   autoSelect?: number;
   hide?: () => void;
   lastUsedLabels: string[];
@@ -70,9 +67,9 @@ export function buildSelector(labels: SelectableLabel[]): string {
     if (label.selected && label.values && label.values.length > 0) {
       const selectedValues = label.values.filter((value) => value.selected).map((value) => value.name);
       if (selectedValues.length > 1) {
-        selectedLabels.push(`${label.name}=~"${selectedValues.map(escapeLabelValueInRegexSelector).join('|')}"`);
+        selectedLabels.push(`${label.name}=~"${selectedValues.join('|')}"`);
       } else if (selectedValues.length === 1) {
-        selectedLabels.push(`${label.name}="${escapeLabelValueInExactSelector(selectedValues[0])}"`);
+        selectedLabels.push(`${label.name}="${selectedValues[0]}"`);
       }
     }
   }
@@ -131,11 +128,16 @@ const getStyles = (theme: GrafanaTheme2) => ({
     margin-bottom: ${theme.spacing(1)};
   `,
   status: css`
-    margin-bottom: ${theme.spacing(1)};
+    padding: ${theme.spacing(0.5)};
     color: ${theme.colors.text.secondary};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* using absolute positioning because flex interferes with ellipsis */
+    position: absolute;
+    width: 50%;
+    right: 0;
+    text-align: right;
     transition: opacity 100ms linear;
     opacity: 0;
   `,
@@ -147,7 +149,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
   `,
   valueList: css`
     margin-right: ${theme.spacing(1)};
-    resize: horizontal;
   `,
   valueListWrapper: css`
     border-left: 1px solid ${theme.colors.border.medium};
@@ -187,19 +188,11 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
   };
 
   onClickRunLogsQuery = () => {
-    reportInteraction('grafana_loki_label_browser_closed', {
-      app: this.props.app,
-      closeType: 'showLogsButton',
-    });
     const selector = buildSelector(this.state.labels);
     this.props.onChange(selector);
   };
 
   onClickRunMetricsQuery = () => {
-    reportInteraction('grafana_loki_label_browser_closed', {
-      app: this.props.app,
-      closeType: 'showLogsRateButton',
-    });
     const selector = buildSelector(this.state.labels);
     const query = `rate(${selector}[$__interval])`;
     this.props.onChange(query);
@@ -358,7 +351,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
   async fetchSeries(selector: string, lastFacetted?: string) {
     const { languageProvider } = this.props;
     if (lastFacetted) {
-      this.updateLabelState(lastFacetted, { loading: true }, `Loading labels for ${selector}`);
+      this.updateLabelState(lastFacetted, { loading: true }, `Facetting labels for ${selector}`);
     }
     try {
       const possibleLabels = await languageProvider.fetchSeriesLabels(selector, true);
@@ -458,12 +451,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
             2. Find values for the selected labels
           </Label>
           <div>
-            <Input
-              onChange={this.onChangeSearch}
-              aria-label="Filter expression for values"
-              value={searchTerm}
-              placeholder={'Enter a label value'}
-            />
+            <Input onChange={this.onChangeSearch} aria-label="Filter expression for values" value={searchTerm} />
           </div>
           <div className={styles.valueListArea}>
             {selectedLabels.map((label) => (
@@ -516,9 +504,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
             {selector}
           </div>
           {validationStatus && <div className={styles.validationStatus}>{validationStatus}</div>}
-          <div className={cx(styles.status, (status || error) && styles.statusShowing)}>
-            <span className={error ? styles.error : ''}>{error || status}</span>
-          </div>
           <HorizontalGroup>
             <Button aria-label="Use selector as logs button" disabled={empty} onClick={this.onClickRunLogsQuery}>
               Show logs
@@ -542,6 +527,9 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
             <Button aria-label="Selector clear button" variant="secondary" onClick={this.onClickClear}>
               Clear
             </Button>
+            <div className={cx(styles.status, (status || error) && styles.statusShowing)}>
+              <span className={error ? styles.error : ''}>{error || status}</span>
+            </div>
           </HorizontalGroup>
         </div>
       </div>

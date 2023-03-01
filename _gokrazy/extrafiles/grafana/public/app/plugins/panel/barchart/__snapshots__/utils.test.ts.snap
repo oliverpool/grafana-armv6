@@ -1,20 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -22,7 +21,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -31,18 +30,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -50,7 +48,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -60,17 +58,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -80,34 +78,21 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -116,8 +101,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -128,15 +112,15 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -156,20 +140,19 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 1`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -177,7 +160,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -186,18 +169,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -205,7 +187,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -215,17 +197,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -235,34 +217,21 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -271,8 +240,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -283,15 +251,15 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -311,18 +279,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 2`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
       "rotate": -0,
       "scale": "x",
@@ -332,7 +299,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -341,18 +308,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 3,
@@ -360,7 +326,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -370,17 +336,17 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -390,34 +356,21 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -426,8 +379,7 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": 1,
       "distr": 2,
@@ -438,15 +390,15 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -466,20 +418,19 @@ exports[`BarChart utils preparePlotConfigBuilder orientation 3`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -487,7 +438,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -496,18 +447,17 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -515,7 +465,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -525,17 +475,17 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -545,34 +495,21 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -581,8 +518,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -593,15 +529,15 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -621,20 +557,19 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 1`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -642,7 +577,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -651,18 +586,17 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -670,7 +604,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -680,17 +614,17 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -700,34 +634,21 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -736,8 +657,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -748,15 +668,15 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -776,20 +696,19 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 2`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -797,7 +716,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -806,18 +725,17 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -825,7 +743,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -835,17 +753,17 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -855,34 +773,21 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -891,8 +796,7 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -903,15 +807,15 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -931,20 +835,19 @@ exports[`BarChart utils preparePlotConfigBuilder stacking 3`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -952,7 +855,7 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -961,18 +864,17 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -980,7 +882,7 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -990,17 +892,17 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -1010,34 +912,21 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -1046,8 +935,7 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -1058,15 +946,15 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,
@@ -1086,20 +974,19 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 1`] = `
 `;
 
 exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
-{
-  "axes": [
-    {
+Object {
+  "axes": Array [
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 15,
-      "grid": {
+      "grid": Object {
         "show": false,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": 0,
+      "rotate": -0,
       "scale": "x",
       "show": true,
       "side": 3,
@@ -1107,7 +994,7 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
       "space": [Function],
       "splits": [Function],
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": false,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -1116,18 +1003,17 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
       "timeZone": undefined,
       "values": [Function],
     },
-    {
+    Object {
       "filter": undefined,
-      "font": "12px "Inter", "Helvetica", "Arial", sans-serif",
+      "font": "12px \\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
       "gap": 5,
-      "grid": {
+      "grid": Object {
         "show": true,
         "stroke": "rgba(240, 250, 255, 0.09)",
         "width": 1,
       },
-      "incrs": undefined,
       "labelGap": 0,
-      "rotate": -0,
+      "rotate": undefined,
       "scale": "m/s",
       "show": true,
       "side": 2,
@@ -1135,7 +1021,7 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
       "space": [Function],
       "splits": undefined,
       "stroke": "rgb(204, 204, 220)",
-      "ticks": {
+      "ticks": Object {
         "show": true,
         "size": 4,
         "stroke": "rgba(240, 250, 255, 0.09)",
@@ -1145,17 +1031,17 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
       "values": [Function],
     },
   ],
-  "cursor": {
+  "cursor": Object {
     "dataIdx": [Function],
-    "drag": {
+    "drag": Object {
       "setScale": false,
       "x": false,
       "y": false,
     },
-    "focus": {
+    "focus": Object {
       "prox": 30,
     },
-    "points": {
+    "points": Object {
       "bbox": [Function],
       "fill": "rgba(255,255,255,0.4)",
       "size": [Function],
@@ -1165,34 +1051,21 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
     "x": false,
     "y": false,
   },
-  "focus": {
-    "alpha": 1,
-  },
-  "hooks": {
-    "draw": [
+  "hooks": Object {
+    "draw": Array [
       [Function],
     ],
-    "drawClear": [
+    "drawClear": Array [
       [Function],
     ],
-    "init": [
+    "init": Array [
       [Function],
     ],
-  },
-  "legend": {
-    "show": false,
   },
   "mode": 1,
-  "ms": 1,
-  "padding": [
-    [Function],
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "scales": {
-    "m/s": {
-      "asinh": undefined,
+  "padding": undefined,
+  "scales": Object {
+    "m/s": Object {
       "auto": true,
       "dir": 1,
       "distr": 1,
@@ -1201,8 +1074,7 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
       "range": [Function],
       "time": undefined,
     },
-    "x": {
-      "asinh": undefined,
+    "x": Object {
       "auto": true,
       "dir": -1,
       "distr": 2,
@@ -1213,15 +1085,15 @@ exports[`BarChart utils preparePlotConfigBuilder value visibility 2`] = `
     },
   },
   "select": undefined,
-  "series": [
-    {
+  "series": Array [
+    Object {
       "value": [Function],
     },
-    {
+    Object {
       "facets": undefined,
       "fill": [Function],
       "paths": [Function],
-      "points": {
+      "points": Object {
         "fill": "#808080",
         "filter": undefined,
         "size": undefined,

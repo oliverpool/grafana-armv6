@@ -10,7 +10,6 @@ import { getPanelStateForModel } from 'app/features/panel/state/selectors';
 import { StoreState } from 'app/types';
 
 import { GetDataOptions } from '../../../query/state/PanelQueryRunner';
-import { HelpWizard } from '../HelpWizard/HelpWizard';
 import { usePanelLatestData } from '../PanelEditor/usePanelLatestData';
 
 import { InspectContent } from './InspectContent';
@@ -27,7 +26,7 @@ export interface ConnectedProps {
 
 export type Props = OwnProps & ConnectedProps;
 
-const PanelInspectorUnconnected = ({ panel, dashboard, plugin }: Props) => {
+const PanelInspectorUnconnected: React.FC<Props> = ({ panel, dashboard, plugin }) => {
   const [dataOptions, setDataOptions] = useState<GetDataOptions>({
     withTransforms: false,
     withFieldConfig: true,
@@ -48,10 +47,6 @@ const PanelInspectorUnconnected = ({ panel, dashboard, plugin }: Props) => {
 
   if (!plugin) {
     return null;
-  }
-
-  if (defaultTab === InspectTab.Help) {
-    return <HelpWizard panel={panel} plugin={plugin} onClose={onClose} />;
   }
 
   return (

@@ -24,7 +24,7 @@ export default class CloudMonitoringCheatSheet extends PureComponent<
           Result: &nbsp;&nbsp;<code>cpu/usage_time - server1-europe-west-1</code>
           <br />
           <br />
-          <span>Patterns:</span>
+          <label>Patterns</label>
           <br />
           <ul
             className={css`

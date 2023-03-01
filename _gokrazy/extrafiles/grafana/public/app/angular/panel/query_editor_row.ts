@@ -24,8 +24,7 @@ export class QueryRowCtrl {
   }
 }
 
-coreModule.directive('queryEditorRow', queryEditorRowDirective);
-
+/** @ngInject */
 function queryEditorRowDirective() {
   return {
     restrict: 'E',
@@ -41,3 +40,5 @@ function queryEditorRowDirective() {
     },
   };
 }
+
+coreModule.directive('queryEditorRow', queryEditorRowDirective);

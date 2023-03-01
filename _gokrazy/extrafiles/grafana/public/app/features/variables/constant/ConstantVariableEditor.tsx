@@ -1,8 +1,9 @@
 import React, { FormEvent, PureComponent } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
+import { VerticalGroup } from '@grafana/ui';
 
-import { VariableLegend } from '../editor/VariableLegend';
+import { VariableSectionHeader } from '../editor/VariableSectionHeader';
 import { VariableTextField } from '../editor/VariableTextField';
 import { VariableEditorProps } from '../editor/types';
 import { ConstantVariableModel } from '../types';
@@ -27,18 +28,19 @@ export class ConstantVariableEditor extends PureComponent<Props> {
 
   render() {
     return (
-      <>
-        <VariableLegend>Constant options</VariableLegend>
+      <VerticalGroup spacing="xs">
+        <VariableSectionHeader name="Constant options" />
         <VariableTextField
           value={this.props.variable.query}
           name="Value"
           placeholder="your metric prefix"
           onChange={this.onChange}
           onBlur={this.onBlur}
+          labelWidth={20}
           testId={selectors.pages.Dashboard.Settings.Variables.Edit.ConstantVariable.constantOptionsQueryInputV2}
-          width={30}
+          grow
         />
-      </>
+      </VerticalGroup>
     );
   }
 }

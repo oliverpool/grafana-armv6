@@ -52,19 +52,19 @@ describe('InspectDataTab', () => {
       render(<InspectDataTab {...createProps()} />);
       expect(screen.getByText(/Data options/i)).toBeInTheDocument();
     });
-    it('should show available options', async () => {
+    it('should show available options', () => {
       render(<InspectDataTab {...createProps()} />);
       const dataOptions = screen.getByText(/Data options/i);
-      await userEvent.click(dataOptions);
+      userEvent.click(dataOptions);
       expect(screen.getByText(/Show data frame/i)).toBeInTheDocument();
       expect(screen.getByText(/Download for Excel/i)).toBeInTheDocument();
     });
-    it('should show available dataFrame options', async () => {
+    it('should show available dataFrame options', () => {
       render(<InspectDataTab {...createProps()} />);
       const dataOptions = screen.getByText(/Data options/i);
-      await userEvent.click(dataOptions);
+      userEvent.click(dataOptions);
       const dataFrameInput = screen.getByRole('combobox', { name: /Select dataframe/i });
-      await userEvent.click(dataFrameInput);
+      userEvent.click(dataFrameInput);
       expect(screen.getByText(/Second data frame/i)).toBeInTheDocument();
     });
     it('should show download logs button if logs data', () => {
@@ -146,32 +146,6 @@ describe('InspectDataTab', () => {
     it('should not show download traces button if no traces data', () => {
       render(<InspectDataTab {...createProps()} />);
       expect(screen.queryByText(/Download traces/i)).not.toBeInTheDocument();
-    });
-    it('should show download service graph button', () => {
-      const sgFrames = [
-        {
-          name: 'Nodes',
-          fields: [],
-          meta: {
-            preferredVisualisationType: 'nodeGraph',
-          },
-        },
-        {
-          name: 'Edges',
-          fields: [],
-          meta: {
-            preferredVisualisationType: 'nodeGraph',
-          },
-        },
-      ] as unknown as DataFrame[];
-      render(
-        <InspectDataTab
-          {...createProps({
-            data: sgFrames,
-          })}
-        />
-      );
-      expect(screen.getByText(/Download service graph/i)).toBeInTheDocument();
     });
   });
 });

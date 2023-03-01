@@ -5,6 +5,7 @@ import { TemplateSrv } from 'app/features/templating/template_srv';
 
 import coreModule from './core_module';
 
+/** @ngInject */
 export function metricSegment($compile: any, $sce: any, templateSrv: TemplateSrv) {
   const inputTemplate =
     '<input type="text" data-provide="typeahead" ' +
@@ -187,6 +188,7 @@ export function metricSegment($compile: any, $sce: any, templateSrv: TemplateSrv
   };
 }
 
+/** @ngInject */
 export function metricSegmentModel(uiSegmentSrv: any) {
   return {
     template:
@@ -262,5 +264,5 @@ export function metricSegmentModel(uiSegmentSrv: any) {
   };
 }
 
-coreModule.directive('metricSegment', ['$compile', '$sce', 'templateSrv', metricSegment]);
-coreModule.directive('metricSegmentModel', ['uiSegmentSrv', metricSegmentModel]);
+coreModule.directive('metricSegment', metricSegment);
+coreModule.directive('metricSegmentModel', metricSegmentModel);

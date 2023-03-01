@@ -1,11 +1,11 @@
 import { css } from '@emotion/css';
 import React, { FC, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { IconButton, LinkButton, Link, useStyles2, ConfirmModal } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AlertManagerCortexConfig, MuteTimeInterval, TimeInterval } from 'app/plugins/datasource/alertmanager/types';
-import { useDispatch } from 'app/types';
 
 import { Authorize } from '../../components/Authorize';
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
@@ -22,7 +22,6 @@ import { makeAMLink } from '../../utils/misc';
 import { AsyncRequestState, initialAsyncRequestState } from '../../utils/redux';
 import { DynamicTable, DynamicTableItemProps, DynamicTableColumnProps } from '../DynamicTable';
 import { EmptyAreaWithCTA } from '../EmptyAreaWithCTA';
-import { ProvisioningBadge } from '../Provisioning';
 
 interface Props {
   alertManagerSourceName: string;
@@ -41,24 +40,15 @@ export const MuteTimingsTable: FC<Props> = ({ alertManagerSourceName, muteTiming
 
   const items = useMemo((): Array<DynamicTableItemProps<MuteTimeInterval>> => {
     const muteTimings = result?.alertmanager_config?.mute_time_intervals ?? [];
-    const muteTimingsProvenances = result?.alertmanager_config?.muteTimeProvenances ?? {};
-
     return muteTimings
       .filter(({ name }) => (muteTimingNames ? muteTimingNames.includes(name) : true))
       .map((mute) => {
         return {
           id: mute.name,
-          data: {
-            ...mute,
-            provenance: muteTimingsProvenances[mute.name],
-          },
+          data: mute,
         };
       });
-  }, [
-    result?.alertmanager_config?.mute_time_intervals,
-    result?.alertmanager_config?.muteTimeProvenances,
-    muteTimingNames,
-  ]);
+  }, [result?.alertmanager_config?.mute_time_intervals, muteTimingNames]);
 
   const columns = useColumns(alertManagerSourceName, hideActions, setMuteTimingName);
 
@@ -117,18 +107,13 @@ function useColumns(alertManagerSourceName: string, hideActions = false, setMute
   const userHasEditPermissions = contextSrv.hasPermission(permissions.update);
   const userHasDeletePermissions = contextSrv.hasPermission(permissions.delete);
   const showActions = !hideActions && (userHasEditPermissions || userHasDeletePermissions);
-
   return useMemo((): Array<DynamicTableColumnProps<MuteTimeInterval>> => {
     const columns: Array<DynamicTableColumnProps<MuteTimeInterval>> = [
       {
         id: 'name',
         label: 'Name',
         renderCell: function renderName({ data }) {
-          return (
-            <>
-              {data.name} {data.provenance && <ProvisioningBadge />}
-            </>
-          );
+          return data.name;
         },
         size: '250px',
       },
@@ -143,19 +128,6 @@ function useColumns(alertManagerSourceName: string, hideActions = false, setMute
         id: 'actions',
         label: 'Actions',
         renderCell: function renderActions({ data }) {
-          if (data.provenance) {
-            return (
-              <div>
-                <Link
-                  href={makeAMLink(`/alerting/routes/mute-timing/edit`, alertManagerSourceName, {
-                    muteName: data.name,
-                  })}
-                >
-                  <IconButton name="file-alt" title="View mute timing" />
-                </Link>
-              </div>
-            );
-          }
           return (
             <div>
               <Authorize actions={[permissions.update]}>

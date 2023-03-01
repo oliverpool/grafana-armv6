@@ -1,13 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
 
 import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
-import { addValueToOptions } from '../../utils/common';
 import { Field } from '../Field';
 
-import { setCustomNamespace } from './setQueryValue';
+import { setMetricNamespace } from './setQueryValue';
 
 interface MetricNamespaceFieldProps extends AzureQueryEditorFieldProps {
   metricNamespaces: AzureMonitorOption[];
@@ -25,22 +24,30 @@ const MetricNamespaceField: React.FC<MetricNamespaceFieldProps> = ({
         return;
       }
 
-      const newQuery = setCustomNamespace(query, change.value);
+      const newQuery = setMetricNamespace(query, change.value);
       onQueryChange(newQuery);
     },
     [onQueryChange, query]
   );
 
-  const value = query.azureMonitor?.customNamespace || query.azureMonitor?.metricNamespace;
-  const options = addValueToOptions(metricNamespaces, variableOptionGroup, value);
+  const options = useMemo(() => [...metricNamespaces, variableOptionGroup], [metricNamespaces, variableOptionGroup]);
+  const optionValues = metricNamespaces
+    .map((m) => m.value.toLowerCase())
+    .concat(variableOptionGroup.options.map((p) => p.value));
+  const value = query.azureMonitor?.metricNamespace;
+  if (value && !optionValues.includes(value.toLowerCase())) {
+    options.push({ label: value, value });
+  }
 
   return (
     <Field label="Metric namespace">
       <Select
+        menuShouldPortal
         inputId="azure-monitor-metrics-metric-namespace-field"
-        value={value || null}
+        value={query.azureMonitor?.metricNamespace}
         onChange={handleChange}
         options={options}
+        width={38}
         allowCustomValue
       />
     </Field>

@@ -49,12 +49,7 @@ export const LoginForm: FC<Props> = ({ children, onSubmit, isLoggingIn, password
                 {...register('password', { required: 'Password is required' })}
               />
             </Field>
-            <Button
-              type="submit"
-              aria-label={selectors.pages.Login.submit}
-              className={submitButton}
-              disabled={isLoggingIn}
-            >
+            <Button aria-label={selectors.pages.Login.submit} className={submitButton} disabled={isLoggingIn}>
               {isLoggingIn ? 'Logging in...' : 'Log in'}
             </Button>
             {children}

@@ -1,6 +1,15 @@
 import { find } from 'lodash';
 
-import { DataFrame, dateTime, Field, FieldType, getFieldDisplayName, getTimeField, TimeRange } from '@grafana/data';
+import {
+  DataFrame,
+  dateTime,
+  Field,
+  FieldType,
+  getColorForTheme,
+  getFieldDisplayName,
+  getTimeField,
+  TimeRange,
+} from '@grafana/data';
 import { colors } from '@grafana/ui';
 import { applyNullInsertThreshold } from '@grafana/ui/src/components/GraphNG/nullInsertThreshold';
 import config from 'app/core/config';
@@ -80,7 +89,7 @@ export class DataProcessor {
     const series = new TimeSeries({
       datapoints: datapoints || [],
       alias: alias,
-      color: config.theme2.visualization.getColorByName(color),
+      color: getColorForTheme(color, config.theme),
       unit: field.config ? field.config.unit : undefined,
       dataFrameIndex,
       fieldIndex,

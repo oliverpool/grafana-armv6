@@ -1,4 +1,5 @@
 import { SelectableValue } from '@grafana/data';
+import { FetchError } from '@grafana/runtime';
 import {
   AlertManagerCortexConfig,
   MatcherOperator,
@@ -258,4 +259,8 @@ export function getMonthsString(months?: string[]): string {
 
 export function getYearsString(years?: string[]): string {
   return 'Years: ' + (years?.join(', ') ?? 'All');
+}
+
+export function isFetchError(e: unknown): e is FetchError {
+  return typeof e === 'object' && e !== null && 'status' in e && 'data' in e;
 }

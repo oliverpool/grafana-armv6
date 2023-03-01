@@ -1,15 +1,15 @@
 import { css } from '@emotion/css';
 import React, { useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
-import { GrafanaTheme2, NavModelItem } from '@grafana/data';
+import { GrafanaTheme2 } from '@grafana/data';
 import { Alert, Field, FieldSet, Input, Button, LinkButton, useStyles2 } from '@grafana/ui';
 import {
   AlertmanagerConfig,
   AlertManagerCortexConfig,
   MuteTimeInterval,
 } from 'app/plugins/datasource/alertmanager/types';
-import { useDispatch } from 'app/types';
 
 import { useAlertManagerSourceName } from '../../hooks/useAlertManagerSourceName';
 import { useAlertManagersByPermission } from '../../hooks/useAlertManagerSources';
@@ -22,14 +22,12 @@ import { createMuteTiming, defaultTimeInterval } from '../../utils/mute-timings'
 import { initialAsyncRequestState } from '../../utils/redux';
 import { AlertManagerPicker } from '../AlertManagerPicker';
 import { AlertingPageWrapper } from '../AlertingPageWrapper';
-import { ProvisionedResource, ProvisioningAlert } from '../Provisioning';
 
 import { MuteTimingTimeInterval } from './MuteTimingTimeInterval';
 
 interface Props {
   muteTiming?: MuteTimeInterval;
   showError?: boolean;
-  provenance?: string;
 }
 
 const useDefaultValues = (muteTiming?: MuteTimeInterval): MuteTimingFields => {
@@ -58,12 +56,7 @@ const useDefaultValues = (muteTiming?: MuteTimeInterval): MuteTimingFields => {
   }, [muteTiming]);
 };
 
-const defaultPageNav: Partial<NavModelItem> = {
-  icon: 'sitemap',
-  breadcrumbs: [{ title: 'Notification Policies', url: 'alerting/routes' }],
-};
-
-const MuteTimingForm = ({ muteTiming, showError, provenance }: Props) => {
+const MuteTimingForm = ({ muteTiming, showError }: Props) => {
   const dispatch = useDispatch();
   const alertManagers = useAlertManagersByPermission('notification');
   const [alertManagerSourceName, setAlertManagerSourceName] = useAlertManagerSourceName(alertManagers);
@@ -109,26 +102,18 @@ const MuteTimingForm = ({ muteTiming, showError, provenance }: Props) => {
   };
 
   return (
-    <AlertingPageWrapper
-      pageId="am-routes"
-      pageNav={{
-        ...defaultPageNav,
-        id: muteTiming ? 'alert-policy-edit' : 'alert-policy-new',
-        text: muteTiming ? 'Edit mute timing' : 'New mute timing',
-      }}
-    >
+    <AlertingPageWrapper pageId="am-routes">
       <AlertManagerPicker
         current={alertManagerSourceName}
         onChange={setAlertManagerSourceName}
         disabled
         dataSources={alertManagers}
       />
-      {provenance && <ProvisioningAlert resource={ProvisionedResource.MuteTiming} />}
       {result && !loading && (
         <FormProvider {...formApi}>
           <form onSubmit={formApi.handleSubmit(onSubmit)} data-testid="mute-timing-form">
             {showError && <Alert title="No matching mute timing found" />}
-            <FieldSet label={'Create mute timing'} disabled={Boolean(provenance)}>
+            <FieldSet label={'Create mute timing'}>
               <Field
                 required
                 label="Name"

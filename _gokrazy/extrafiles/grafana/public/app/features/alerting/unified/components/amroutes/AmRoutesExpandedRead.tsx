@@ -4,11 +4,10 @@ import React, { FC, useState } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
-import { FormAmRoute } from '../../types/amroutes';
+import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
 import { getNotificationsPermissions } from '../../utils/access-control';
 import { emptyRoute } from '../../utils/amroutes';
 import { Authorize } from '../Authorize';
-import { AmRouteReceiver } from '../receivers/grafanaAppReceivers/types';
 
 import { AmRoutesTable } from './AmRoutesTable';
 import { MuteTimingsTable } from './MuteTimingsTable';

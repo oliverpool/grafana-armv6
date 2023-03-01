@@ -1,5 +1,4 @@
-import { DataFrame } from '@grafana/data';
-import { DataQuery, DataSourceRef } from '@grafana/schema';
+import { DataFrame, DataQuery, DataSourceRef } from '@grafana/data';
 import { backendSrv } from 'app/core/services/backend_srv';
 import {
   getNewDashboardModelData,
@@ -64,10 +63,8 @@ const hasRefId = (refId: DataFrame['refId']) => (frame: DataFrame) => frame.refI
 
 function getPanelType(queries: DataQuery[], queryResponse: ExplorePanelData) {
   for (const { refId } of queries.filter(isVisible)) {
+    // traceview is not supported in dashboards, skipping it for now.
     const hasQueryRefId = hasRefId(refId);
-    if (queryResponse.flameGraphFrames.some(hasQueryRefId)) {
-      return 'flamegraph';
-    }
     if (queryResponse.graphFrames.some(hasQueryRefId)) {
       return 'timeseries';
     }
@@ -76,9 +73,6 @@ function getPanelType(queries: DataQuery[], queryResponse: ExplorePanelData) {
     }
     if (queryResponse.nodeGraphFrames.some(hasQueryRefId)) {
       return 'nodeGraph';
-    }
-    if (queryResponse.traceFrames.some(hasQueryRefId)) {
-      return 'traces';
     }
   }
 

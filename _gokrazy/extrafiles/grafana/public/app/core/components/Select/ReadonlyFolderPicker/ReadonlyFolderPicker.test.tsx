@@ -78,7 +78,7 @@ describe('ReadonlyFolderPicker', () => {
 
       expect(within(selectors.container.get()).getByRole('combobox')).toBeInTheDocument();
       getFoldersAsOptionsSpy.mockClear();
-      await userEvent.type(within(selectors.container.get()).getByRole('combobox'), 'A');
+      userEvent.type(within(selectors.container.get()).getByRole('combobox'), 'A');
       await waitFor(() => expect(getFoldersAsOptionsSpy).toHaveBeenCalledTimes(1));
 
       expect(getFoldersAsOptionsSpy).toHaveBeenCalledWith({

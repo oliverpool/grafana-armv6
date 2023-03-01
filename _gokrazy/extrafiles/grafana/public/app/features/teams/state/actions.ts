@@ -1,5 +1,3 @@
-import { debounce } from 'lodash';
-
 import { getBackendSrv } from '@grafana/runtime';
 import { updateNavIndex } from 'app/core/actions';
 import { contextSrv } from 'app/core/core';
@@ -7,63 +5,29 @@ import { accessControlQueryParam } from 'app/core/utils/accessControl';
 import { AccessControlAction, TeamMember, ThunkResult } from 'app/types';
 
 import { buildNavModel } from './navModel';
-import { teamGroupsLoaded, queryChanged, pageChanged, teamLoaded, teamMembersLoaded, teamsLoaded } from './reducers';
+import { teamGroupsLoaded, teamLoaded, teamMembersLoaded, teamsLoaded } from './reducers';
 
-export function loadTeams(initial = false): ThunkResult<void> {
-  return async (dispatch, getState) => {
-    const { query, page, perPage } = getState().teams;
+export function loadTeams(): ThunkResult<void> {
+  return async (dispatch) => {
     // Early return if the user cannot list teams
     if (!contextSrv.hasPermission(AccessControlAction.ActionTeamsRead)) {
-      dispatch(teamsLoaded({ teams: [], totalCount: 0, page: 1, perPage, noTeams: true }));
+      dispatch(teamsLoaded([]));
       return;
     }
 
     const response = await getBackendSrv().get(
       '/api/teams/search',
-      accessControlQueryParam({ query, page, perpage: perPage })
+      accessControlQueryParam({ perpage: 1000, page: 1 })
     );
-
-    // We only want to check if there is no teams on the initial request.
-    // A query that returns no teams should not render the empty list banner.
-    let noTeams = false;
-    if (initial) {
-      noTeams = response.teams.length === 0;
-    }
-
-    dispatch(teamsLoaded({ noTeams, ...response }));
+    dispatch(teamsLoaded(response.teams));
   };
 }
-
-const loadTeamsWithDebounce = debounce((dispatch) => dispatch(loadTeams()), 500);
 
 export function loadTeam(id: number): ThunkResult<void> {
   return async (dispatch) => {
     const response = await getBackendSrv().get(`/api/teams/${id}`, accessControlQueryParam());
     dispatch(teamLoaded(response));
     dispatch(updateNavIndex(buildNavModel(response)));
-  };
-}
-
-export function deleteTeam(id: number): ThunkResult<void> {
-  return async (dispatch) => {
-    await getBackendSrv().delete(`/api/teams/${id}`);
-    // Update users permissions in case they lost teams.read with the deletion
-    await contextSrv.fetchUserPermissions();
-    dispatch(loadTeams());
-  };
-}
-
-export function changeQuery(query: string): ThunkResult<void> {
-  return async (dispatch) => {
-    dispatch(queryChanged(query));
-    loadTeamsWithDebounce(dispatch);
-  };
-}
-
-export function changePage(page: number): ThunkResult<void> {
-  return async (dispatch) => {
-    dispatch(pageChanged(page));
-    dispatch(loadTeams());
   };
 }
 
@@ -120,6 +84,15 @@ export function removeTeamGroup(groupId: string): ThunkResult<void> {
     const team = getStore().team.team;
     await getBackendSrv().delete(`/api/teams/${team.id}/groups/${encodeURIComponent(groupId)}`);
     dispatch(loadTeamGroups());
+  };
+}
+
+export function deleteTeam(id: number): ThunkResult<void> {
+  return async (dispatch) => {
+    await getBackendSrv().delete(`/api/teams/${id}`);
+    // Update users permissions in case they lost teams.read with the deletion
+    await contextSrv.fetchUserPermissions();
+    dispatch(loadTeams());
   };
 }
 

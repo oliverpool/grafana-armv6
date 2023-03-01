@@ -90,7 +90,7 @@ export const ResourcePicker = (props: Props) => {
                 {...popperProps}
                 referenceElement={pickerTriggerRef.current}
                 onMouseEnter={showPopper}
-                onKeyDown={(event) => {
+                onKeyDown={(event: any) => {
                   closePopover(event, hidePopper);
                 }}
               />

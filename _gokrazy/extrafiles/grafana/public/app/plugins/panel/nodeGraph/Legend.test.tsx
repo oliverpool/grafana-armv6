@@ -12,14 +12,16 @@ describe('Legend', () => {
   });
 
   it('renders ok with color fields', () => {
-    const nodes = [
+    const nodes: NodeDatum[] = [
       {
         id: 'nodeId',
-        mainStat: { config: { displayName: 'stat1' } },
-        secondaryStat: { config: { displayName: 'stat2' } },
-        arcSections: [{ config: { displayName: 'error', color: { mode: FieldColorModeId.Fixed, fixedColor: 'red' } } }],
-      },
-    ] as NodeDatum[];
+        mainStat: { config: { displayName: 'stat1' } } as any,
+        secondaryStat: { config: { displayName: 'stat2' } } as any,
+        arcSections: [
+          { config: { displayName: 'error', color: { mode: FieldColorModeId.Fixed, fixedColor: 'red' } } } as any,
+        ],
+      } as any,
+    ];
     render(<Legend nodes={nodes} onSort={(sort) => {}} sortable={false} />);
     const items = screen.getAllByLabelText(/VizLegend series/);
     expect(items.length).toBe(3);

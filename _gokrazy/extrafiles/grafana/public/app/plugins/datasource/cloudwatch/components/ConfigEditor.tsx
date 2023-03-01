@@ -8,55 +8,36 @@ import {
   onUpdateDatasourceJsonDataOption,
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
-import { Input, InlineField, FieldProps } from '@grafana/ui';
+import { Input, InlineField } from '@grafana/ui';
 import { notifyApp } from 'app/core/actions';
 import { createWarningNotification } from 'app/core/copy/appNotification';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { store } from 'app/store/store';
 
 import { CloudWatchDatasource } from '../datasource';
-import { SelectableResourceValue } from '../resources/types';
 import { CloudWatchJsonData, CloudWatchSecureJsonData } from '../types';
 
-import { LogGroupsField } from './LogGroups/LogGroupsField';
 import { XrayLinkConfig } from './XrayLinkConfig';
 
 export type Props = DataSourcePluginOptionsEditorProps<CloudWatchJsonData, CloudWatchSecureJsonData>;
 
-type LogGroupFieldState = Pick<FieldProps, 'invalid'> & { error?: string | null };
-
 export const ConfigEditor: FC<Props> = (props: Props) => {
-  const { options, onOptionsChange } = props;
-  const { defaultLogGroups, logsTimeout, defaultRegion, logGroups } = options.jsonData;
-  const datasource = useDatasource(props);
+  const { options } = props;
+
+  const datasource = useDatasource(options.name);
   useAuthenticationWarning(options.jsonData);
-  const logsTimeoutError = useTimoutValidation(logsTimeout);
-  const saved = useDataSourceSavedState(props);
-  const [logGroupFieldState, setLogGroupFieldState] = useState<LogGroupFieldState>({
-    invalid: false,
-  });
-  useEffect(() => setLogGroupFieldState({ invalid: false }), [props.options]);
+  const logsTimeoutError = useTimoutValidation(props.options.jsonData.logsTimeout);
 
   return (
     <>
       <ConnectionConfig
         {...props}
-        labelWidth={29}
         loadRegions={
           datasource &&
-          (async () => {
-            return datasource.resources
-              .getRegions()
-              .then((regions) =>
-                regions.reduce(
-                  (acc: string[], curr: SelectableResourceValue) => (curr.value ? [...acc, curr.value] : acc),
-                  []
-                )
-              );
-          })
+          (() => datasource!.getRegions().then((r) => r.filter((r) => r.value !== 'default').map((v) => v.value)))
         }
       >
-        <InlineField label="Namespaces of Custom Metrics" labelWidth={29} tooltip="Namespaces of Custom Metrics.">
+        <InlineField label="Namespaces of Custom Metrics" labelWidth={28} tooltip="Namespaces of Custom Metrics.">
           <Input
             width={60}
             placeholder="Namespace1,Namespace2"
@@ -71,7 +52,7 @@ export const ConfigEditor: FC<Props> = (props: Props) => {
         <InlineField
           label="Timeout"
           labelWidth={28}
-          tooltip='Custom timeout for CloudWatch Logs insights queries which have max concurrency limits. Default is 15 minutes. Must be a valid duration string, such as "15m" "30s" "2000ms" etc.'
+          tooltip='Custom timout for CloudWatch Logs insights queries which have max concurrency limits. Default is 15 minutes. Must be a valid duration string, such as "15m" "30s" "2000ms" etc.'
           invalid={Boolean(logsTimeoutError)}
         >
           <Input
@@ -80,47 +61,6 @@ export const ConfigEditor: FC<Props> = (props: Props) => {
             value={options.jsonData.logsTimeout || ''}
             onChange={onUpdateDatasourceJsonDataOption(props, 'logsTimeout')}
             title={'The timeout must be a valid duration string, such as "15m" "30s" "2000ms" etc.'}
-          />
-        </InlineField>
-        <InlineField
-          label="Default Log Groups"
-          labelWidth={28}
-          tooltip="Optionally, specify default log groups for CloudWatch Logs queries."
-          shrink={true}
-          {...logGroupFieldState}
-        >
-          <LogGroupsField
-            region={defaultRegion ?? ''}
-            datasource={datasource}
-            onBeforeOpen={() => {
-              if (saved) {
-                return;
-              }
-
-              let error = 'You need to save the data source before adding log groups.';
-              if (props.options.version && props.options.version > 1) {
-                error =
-                  'You have unsaved connection detail changes. You need to save the data source before adding log groups.';
-              }
-              setLogGroupFieldState({
-                invalid: true,
-                error,
-              });
-              throw new Error(error);
-            }}
-            legacyLogGroupNames={defaultLogGroups}
-            logGroups={logGroups}
-            onChange={(updatedLogGroups) => {
-              onOptionsChange({
-                ...props.options,
-                jsonData: {
-                  ...props.options.jsonData,
-                  logGroups: updatedLogGroups,
-                  defaultLogGroups: undefined,
-                },
-              });
-            }}
-            maxNoOfVisibleLogGroups={2}
           />
         </InlineField>
       </div>
@@ -151,20 +91,18 @@ function useAuthenticationWarning(jsonData: CloudWatchJsonData) {
   }, [jsonData.authType, jsonData.database, jsonData.profile]);
 }
 
-function useDatasource(props: Props) {
+function useDatasource(datasourceName: string) {
   const [datasource, setDatasource] = useState<CloudWatchDatasource>();
 
   useEffect(() => {
-    if (props.options.version) {
-      getDatasourceSrv()
-        .loadDatasource(props.options.name)
-        .then((datasource) => {
-          if (datasource instanceof CloudWatchDatasource) {
-            setDatasource(datasource);
-          }
-        });
-    }
-  }, [props.options.version, props.options.name]);
+    getDatasourceSrv()
+      .loadDatasource(datasourceName)
+      .then((datasource) => {
+        // It's really difficult to type .loadDatasource() because it's inherently untyped as it involves two JSON.parse()'s
+        // So a "as" type assertion here is a necessary evil.
+        setDatasource(datasource as CloudWatchDatasource);
+      });
+  }, [datasourceName]);
 
   return datasource;
 }
@@ -178,9 +116,7 @@ function useTimoutValidation(value: string | undefined) {
           rangeUtil.describeInterval(value);
           setErr(undefined);
         } catch (e) {
-          if (e instanceof Error) {
-            setErr(e.toString());
-          }
+          setErr(e.toString());
         }
       } else {
         setErr(undefined);
@@ -190,26 +126,4 @@ function useTimoutValidation(value: string | undefined) {
     [value]
   );
   return err;
-}
-
-function useDataSourceSavedState(props: Props) {
-  const [saved, setSaved] = useState(!!props.options.version && props.options.version > 1);
-  useEffect(() => {
-    setSaved(false);
-  }, [
-    props.options.jsonData.assumeRoleArn,
-    props.options.jsonData.authType,
-    props.options.jsonData.defaultRegion,
-    props.options.jsonData.endpoint,
-    props.options.jsonData.externalId,
-    props.options.jsonData.profile,
-    props.options.secureJsonData?.accessKey,
-    props.options.secureJsonData?.secretKey,
-  ]);
-
-  useEffect(() => {
-    props.options.version && setSaved(true);
-  }, [props.options.version]);
-
-  return saved;
 }

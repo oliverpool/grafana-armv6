@@ -1,7 +1,7 @@
 import { createAction, createAsyncThunk, Update } from '@reduxjs/toolkit';
 
 import { PanelPlugin } from '@grafana/data';
-import { getBackendSrv, isFetchError } from '@grafana/runtime';
+import { getBackendSrv } from '@grafana/runtime';
 import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
 import { StoreState, ThunkResult } from 'app/types';
 
@@ -15,8 +15,8 @@ import {
   uninstallPlugin,
 } from '../api';
 import { STATE_PREFIX } from '../constants';
-import { mapLocalToCatalog, mergeLocalsAndRemotes, updatePanels } from '../helpers';
-import { CatalogPlugin, RemotePlugin, LocalPlugin } from '../types';
+import { mergeLocalsAndRemotes, updatePanels } from '../helpers';
+import { CatalogPlugin, RemotePlugin } from '../types';
 
 export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, thunkApi) => {
   try {
@@ -33,24 +33,13 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
   }
 });
 
-export const fetchAllLocal = createAsyncThunk(`${STATE_PREFIX}/fetchAllLocal`, async (_, thunkApi) => {
-  try {
-    const localPlugins = await getLocalPlugins();
-    return localPlugins.map((plugin: LocalPlugin) => mapLocalToCatalog(plugin));
-  } catch (e) {
-    return thunkApi.rejectWithValue('Unknown error.');
-  }
-});
-
 export const fetchRemotePlugins = createAsyncThunk<RemotePlugin[], void, { rejectValue: RemotePlugin[] }>(
   `${STATE_PREFIX}/fetchRemotePlugins`,
   async (_, thunkApi) => {
     try {
       return await getRemotePlugins();
     } catch (error) {
-      if (isFetchError(error)) {
-        error.isHandled = true;
-      }
+      error.isHandled = true;
       return thunkApi.rejectWithValue([]);
     }
   }

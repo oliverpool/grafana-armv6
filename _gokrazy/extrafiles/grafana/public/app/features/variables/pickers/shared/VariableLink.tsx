@@ -1,27 +1,23 @@
 import { css } from '@emotion/css';
 import React, { FC, MouseEvent, useCallback } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { Icon, Tooltip, useStyles2 } from '@grafana/ui';
-import { t } from 'app/core/internationalization';
-
-import { ALL_VARIABLE_TEXT } from '../../constants';
+import { Icon, Tooltip, useStyles } from '@grafana/ui';
 
 interface Props {
   onClick: () => void;
   text: string;
   loading: boolean;
   onCancel: () => void;
-  disabled?: boolean;
   /**
    *  htmlFor, needed for the label
    */
   id: string;
 }
 
-export const VariableLink: FC<Props> = ({ loading, disabled, onClick: propsOnClick, text, onCancel, id }) => {
-  const styles = useStyles2(getStyles);
+export const VariableLink: FC<Props> = ({ loading, onClick: propsOnClick, text, onCancel, id }) => {
+  const styles = useStyles(getStyles);
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
@@ -54,7 +50,6 @@ export const VariableLink: FC<Props> = ({ loading, disabled, onClick: propsOnCli
       aria-controls={`options-${id}`}
       id={id}
       title={text}
-      disabled={disabled}
     >
       <VariableLinkText text={text} />
       <Icon aria-hidden name="angle-down" size="sm" />
@@ -67,12 +62,8 @@ interface VariableLinkTextProps {
 }
 
 const VariableLinkText: FC<VariableLinkTextProps> = ({ text }) => {
-  const styles = useStyles2(getStyles);
-  return (
-    <span className={styles.textAndTags}>
-      {text === ALL_VARIABLE_TEXT ? t('variable.picker.link-all', 'All') : text}
-    </span>
-  );
+  const styles = useStyles(getStyles);
+  return <span className={styles.textAndTags}>{text}</span>;
 };
 
 const LoadingIndicator: FC<Pick<Props, 'onCancel'>> = ({ onCancel }) => {
@@ -97,34 +88,28 @@ const LoadingIndicator: FC<Pick<Props, 'onCancel'>> = ({ onCancel }) => {
   );
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme) => ({
   container: css`
     max-width: 500px;
     padding-right: 10px;
-    padding: 0 ${theme.spacing(1)};
-    background-color: ${theme.components.input.background};
-    border: 1px solid ${theme.components.input.borderColor};
-    border-radius: ${theme.shape.borderRadius(1)};
+    padding: 0 ${theme.spacing.sm};
+    background-color: ${theme.colors.formInputBg};
+    border: 1px solid ${theme.colors.formInputBorder};
+    border-radius: ${theme.border.radius.sm};
     display: flex;
     align-items: center;
     color: ${theme.colors.text};
-    height: ${theme.spacing(theme.components.height.md)};
+    height: ${theme.height.md}px;
 
     .label-tag {
       margin: 0 5px;
-    }
-
-    &:disabled {
-      background-color: ${theme.colors.action.disabledBackground};
-      color: ${theme.colors.action.disabledText};
-      border: 1px solid ${theme.colors.action.disabledBackground};
     }
   `,
   textAndTags: css`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-right: ${theme.spacing(0.25)};
+    margin-right: ${theme.spacing.xxs};
     user-select: none;
   `,
 });

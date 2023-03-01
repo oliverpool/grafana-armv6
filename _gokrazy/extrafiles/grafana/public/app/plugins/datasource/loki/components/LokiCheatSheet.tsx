@@ -2,9 +2,8 @@ import { shuffle } from 'lodash';
 import React, { PureComponent } from 'react';
 
 import { QueryEditorHelpProps } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
 
-import LokiLanguageProvider from '../LanguageProvider';
+import LokiLanguageProvider from '../language_provider';
 import { LokiQuery } from '../types';
 
 const DEFAULT_EXAMPLES = ['{job="default/prometheus"}'];
@@ -16,7 +15,7 @@ const LOGQL_EXAMPLES = [
     title: 'Log pipeline',
     expression: '{job="mysql"} |= "metrics" | logfmt | duration > 10s',
     label:
-      'This query targets the MySQL job, keeps logs that contain the substring "metrics", and then parses and filters the logs further.',
+      'This query targets the MySQL job, filters out logs that don’t contain the word "metrics" and parses each log line to extract more labels and filters with them.',
   },
   {
     title: 'Count over time',
@@ -37,14 +36,13 @@ const LOGQL_EXAMPLES = [
 ];
 
 export default class LokiCheatSheet extends PureComponent<QueryEditorHelpProps<LokiQuery>, { userExamples: string[] }> {
-  declare userLabelTimer: ReturnType<typeof setTimeout>;
+  declare userLabelTimer: NodeJS.Timeout;
   state = {
     userExamples: [],
   };
 
   componentDidMount() {
     this.scheduleUserLabelChecking();
-    reportInteraction('grafana_loki_cheatsheet_opened', {});
   }
 
   componentWillUnmount() {
@@ -75,20 +73,11 @@ export default class LokiCheatSheet extends PureComponent<QueryEditorHelpProps<L
 
   renderExpression(expr: string) {
     const { onClickExample } = this.props;
-    const onClick = (query: LokiQuery) => {
-      onClickExample(query);
-      reportInteraction('grafana_loki_cheatsheet_example_clicked', {});
-    };
 
     return (
-      <button
-        type="button"
-        className="cheat-sheet-item__example"
-        key={expr}
-        onClick={(e) => onClick({ refId: 'A', expr })}
-      >
+      <div className="cheat-sheet-item__example" key={expr} onClick={(e) => onClickExample({ refId: 'A', expr })}>
         <code>{expr}</code>
-      </button>
+      </div>
     );
   }
 
@@ -102,8 +91,8 @@ export default class LokiCheatSheet extends PureComponent<QueryEditorHelpProps<L
         <div className="cheat-sheet-item">
           <div className="cheat-sheet-item__title">See your logs</div>
           <div className="cheat-sheet-item__label">
-            Start by selecting a log stream from the Label browser, or alternatively you can write a stream selector
-            into the query field.
+            Start by selecting a log stream from the Log browser, or alternatively you can write a stream selector into
+            the query field.
           </div>
           {hasUserExamples ? (
             <div>

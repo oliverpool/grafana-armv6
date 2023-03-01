@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { FC } from 'react';
 
-import { VerticalGroup } from '@grafana/ui';
-import { EmotionPerfTest } from '@grafana/ui/src/components/ThemeDemos/EmotionPerfTest';
+import { EmotionPerfTest, VerticalGroup } from '@grafana/ui';
 
-export const BenchmarksPage = () => {
+export const BenchmarksPage: FC = () => {
   return (
     <VerticalGroup>
       <EmotionPerfTest />

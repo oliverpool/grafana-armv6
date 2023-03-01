@@ -17,7 +17,6 @@ export interface LibraryElementConnectionDTO {
   kind: LibraryElementConnectionKind;
   elementId: number;
   connectionId: number;
-  connectionUid: string;
   created: string;
   createdBy: LibraryElementDTOMetaUser;
 }
@@ -32,7 +31,7 @@ export interface LibraryElementsSearchResult {
 export interface LibraryElementDTO {
   id: number;
   orgId: number;
-  folderUid: string;
+  folderId: number;
   uid: string;
   name: string;
   kind: LibraryElementKind;
@@ -59,13 +58,10 @@ export interface LibraryElementDTOMetaUser {
   avatarUrl: string;
 }
 
-export interface LibraryPanelRef {
-  name: string;
-  uid: string;
-}
+export type PanelModelLibraryPanel = Pick<LibraryElementDTO, 'uid' | 'name' | 'meta' | 'version'>;
 
 export interface PanelModelWithLibraryPanel extends PanelModel {
-  libraryPanel: LibraryElementDTO;
+  libraryPanel: PanelModelLibraryPanel;
 }
 
 export type DispatchResult = (dispatch: Dispatch<AnyAction>) => void;

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { mount } from 'enzyme';
 import React from 'react';
 
 import { SortOrder } from 'app/core/utils/richHistory';
@@ -9,62 +9,40 @@ import { RichHistoryStarredTab, Props } from './RichHistoryStarredTab';
 
 jest.mock('../state/selectors', () => ({ getExploreDatasources: jest.fn() }));
 
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  getDataSourceSrv: () => {
-    return {
-      getList: () => [],
-    };
-  },
-}));
-
-const setup = (activeDatasourceOnly = false) => {
+const setup = (propOverrides?: Partial<Props>) => {
   const props: Props = {
     queries: [],
-    loading: false,
-    totalQueries: 0,
-    activeDatasourceInstance: {} as any,
-    updateFilters: jest.fn(),
-    loadMoreRichHistory: jest.fn(),
-    clearRichHistoryResults: jest.fn(),
+    sortOrder: SortOrder.Ascending,
+    activeDatasourceOnly: false,
+    datasourceFilters: [],
     exploreId: ExploreId.left,
-    richHistorySettings: {
-      retentionPeriod: 7,
-      starredTabAsFirstTab: false,
-      activeDatasourceOnly,
-      lastUsedDatasourceFilters: [],
-    },
-    richHistorySearchFilters: {
-      search: '',
-      sortOrder: SortOrder.Ascending,
-      datasourceFilters: [],
-      from: 0,
-      to: 7,
-      starred: false,
-    },
+    onChangeSortOrder: jest.fn(),
+    onSelectDatasourceFilters: jest.fn(),
   };
 
-  const container = render(<RichHistoryStarredTab {...props} />);
-  return container;
+  Object.assign(props, propOverrides);
+
+  const wrapper = mount(<RichHistoryStarredTab {...props} />);
+  return wrapper;
 };
 
 describe('RichHistoryStarredTab', () => {
   describe('sorter', () => {
     it('should render sorter', () => {
-      const container = setup();
-      expect(container.queryByLabelText('Sort queries')).toBeInTheDocument();
+      const wrapper = setup();
+      expect(wrapper.find({ 'aria-label': 'Sort queries' })).toHaveLength(1);
     });
   });
 
   describe('select datasource', () => {
     it('should render select datasource if activeDatasourceOnly is false', () => {
-      const container = setup();
-      expect(container.queryByLabelText('Filter queries for data sources(s)')).toBeInTheDocument();
+      const wrapper = setup();
+      expect(wrapper.find({ 'aria-label': 'Filter datasources' })).toHaveLength(1);
     });
 
     it('should not render select datasource if activeDatasourceOnly is true', () => {
-      const container = setup(true);
-      expect(container.queryByLabelText('Filter queries for data sources(s)')).not.toBeInTheDocument();
+      const wrapper = setup({ activeDatasourceOnly: true });
+      expect(wrapper.find({ 'aria-label': 'Filter datasources' })).toHaveLength(0);
     });
   });
 });

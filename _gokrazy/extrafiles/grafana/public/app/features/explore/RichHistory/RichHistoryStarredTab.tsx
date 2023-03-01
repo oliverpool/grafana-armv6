@@ -1,35 +1,28 @@
 import { css } from '@emotion/css';
-import React, { useEffect } from 'react';
+import { uniqBy } from 'lodash';
+import React, { useState, useEffect } from 'react';
+import { useDebounce } from 'react-use';
 
-import { GrafanaTheme2, SelectableValue } from '@grafana/data';
-import { config } from '@grafana/runtime';
-import { useStyles2, Select, MultiSelect, FilterInput, Button } from '@grafana/ui';
-import {
-  createDatasourcesList,
-  SortOrder,
-  RichHistorySearchFilters,
-  RichHistorySettings,
-} from 'app/core/utils/richHistory';
+import { GrafanaTheme, SelectableValue } from '@grafana/data';
+import { stylesFactory, useTheme, Select, MultiSelect, FilterInput } from '@grafana/ui';
+import { filterAndSortQueries, createDatasourcesList, SortOrder } from 'app/core/utils/richHistory';
 import { RichHistoryQuery, ExploreId } from 'app/types/explore';
 
-import { getSortOrderOptions } from './RichHistory';
+import { sortOrderOptions } from './RichHistory';
 import RichHistoryCard from './RichHistoryCard';
 
 export interface Props {
   queries: RichHistoryQuery[];
-  totalQueries: number;
-  loading: boolean;
-  activeDatasourceInstance: string;
-  updateFilters: (filtersToUpdate: Partial<RichHistorySearchFilters>) => void;
-  clearRichHistoryResults: () => void;
-  loadMoreRichHistory: () => void;
-  richHistorySearchFilters?: RichHistorySearchFilters;
-  richHistorySettings: RichHistorySettings;
+  sortOrder: SortOrder;
+  activeDatasourceOnly: boolean;
+  datasourceFilters: SelectableValue[];
   exploreId: ExploreId;
+  onChangeSortOrder: (sortOrder: SortOrder) => void;
+  onSelectDatasourceFilters: (value: SelectableValue[]) => void;
 }
 
-const getStyles = (theme: GrafanaTheme2) => {
-  const bgColor = theme.isLight ? theme.v1.palette.gray5 : theme.v1.palette.dark4;
+const getStyles = stylesFactory((theme: GrafanaTheme) => {
+  const bgColor = theme.isLight ? theme.palette.gray5 : theme.palette.dark4;
   return {
     container: css`
       display: flex;
@@ -44,134 +37,124 @@ const getStyles = (theme: GrafanaTheme2) => {
     `,
     multiselect: css`
       width: 100%;
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing.sm};
       .gf-form-select-box__multi-value {
         background-color: ${bgColor};
-        padding: ${theme.spacing(0.25, 0.5, 0.25, 1)};
-        border-radius: ${theme.shape.borderRadius(1)};
+        padding: ${theme.spacing.xxs} ${theme.spacing.xs} ${theme.spacing.xxs} ${theme.spacing.sm};
+        border-radius: ${theme.border.radius.sm};
       }
     `,
     filterInput: css`
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing.sm};
     `,
     sort: css`
       width: 170px;
     `,
     footer: css`
       height: 60px;
-      margin-top: ${theme.spacing(3)};
+      margin-top: ${theme.spacing.lg};
       display: flex;
       justify-content: center;
-      font-weight: ${theme.typography.fontWeightLight};
-      font-size: ${theme.typography.bodySmall.fontSize};
+      font-weight: ${theme.typography.weight.light};
+      font-size: ${theme.typography.size.sm};
       a {
-        font-weight: ${theme.typography.fontWeightMedium};
-        margin-left: ${theme.spacing(0.25)};
+        font-weight: ${theme.typography.weight.semibold};
+        margin-left: ${theme.spacing.xxs};
       }
     `,
   };
-};
+});
 
 export function RichHistoryStarredTab(props: Props) {
   const {
-    updateFilters,
-    clearRichHistoryResults,
-    loadMoreRichHistory,
-    activeDatasourceInstance,
-    richHistorySettings,
+    datasourceFilters,
+    onSelectDatasourceFilters,
     queries,
-    totalQueries,
-    loading,
-    richHistorySearchFilters,
+    onChangeSortOrder,
+    sortOrder,
+    activeDatasourceOnly,
     exploreId,
   } = props;
 
-  const styles = useStyles2(getStyles);
+  const [data, setData] = useState<[RichHistoryQuery[], ReturnType<typeof createDatasourcesList>]>([[], []]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearchInput, setDebouncedSearchInput] = useState('');
 
-  const listOfDatasources = createDatasourcesList();
+  const theme = useTheme();
+  const styles = getStyles(theme);
+
+  useDebounce(
+    () => {
+      setDebouncedSearchInput(searchInput);
+    },
+    300,
+    [searchInput]
+  );
 
   useEffect(() => {
-    const datasourceFilters =
-      richHistorySettings.activeDatasourceOnly && richHistorySettings.lastUsedDatasourceFilters
-        ? richHistorySettings.lastUsedDatasourceFilters
-        : [activeDatasourceInstance];
-    const filters: RichHistorySearchFilters = {
-      search: '',
-      sortOrder: SortOrder.Descending,
-      datasourceFilters,
-      from: 0,
-      to: richHistorySettings.retentionPeriod,
-      starred: true,
-    };
-    updateFilters(filters);
-    return () => {
-      clearRichHistoryResults();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const datasourcesRetrievedFromQueryHistory = uniqBy(queries, 'datasourceName').map((d) => d.datasourceName);
+    const listOfDatasources = createDatasourcesList(datasourcesRetrievedFromQueryHistory);
+    const starredQueries = queries.filter((q) => q.starred === true);
+    setData([
+      filterAndSortQueries(
+        starredQueries,
+        sortOrder,
+        datasourceFilters.map((d) => d.value),
+        debouncedSearchInput
+      ),
+      listOfDatasources,
+    ]);
+  }, [queries, sortOrder, datasourceFilters, debouncedSearchInput]);
 
-  if (!richHistorySearchFilters) {
-    return <span>Loading...</span>;
-  }
-
-  const sortOrderOptions = getSortOrderOptions();
+  const [filteredQueries, listOfDatasources] = data;
 
   return (
     <div className={styles.container}>
       <div className={styles.containerContent}>
         <div className={styles.selectors}>
-          {!richHistorySettings.activeDatasourceOnly && (
-            <MultiSelect
-              className={styles.multiselect}
-              options={listOfDatasources.map((ds) => {
-                return { value: ds.name, label: ds.name };
-              })}
-              value={richHistorySearchFilters.datasourceFilters}
-              placeholder="Filter queries for data sources(s)"
-              aria-label="Filter queries for data sources(s)"
-              onChange={(options: SelectableValue[]) => {
-                updateFilters({ datasourceFilters: options.map((option) => option.value) });
-              }}
-            />
+          {!activeDatasourceOnly && (
+            <div aria-label="Filter datasources" className={styles.multiselect}>
+              <MultiSelect
+                menuShouldPortal
+                options={listOfDatasources}
+                value={datasourceFilters}
+                placeholder="Filter queries for specific data sources(s)"
+                onChange={onSelectDatasourceFilters}
+              />
+            </div>
           )}
           <div className={styles.filterInput}>
             <FilterInput
               placeholder="Search queries"
-              value={richHistorySearchFilters.search}
-              onChange={(search: string) => updateFilters({ search })}
+              value={searchInput}
+              onChange={(value: string) => {
+                setSearchInput(value);
+              }}
             />
           </div>
           <div aria-label="Sort queries" className={styles.sort}>
             <Select
-              value={sortOrderOptions.filter((order) => order.value === richHistorySearchFilters.sortOrder)}
+              menuShouldPortal
               options={sortOrderOptions}
+              value={sortOrderOptions.filter((order) => order.value === sortOrder)}
               placeholder="Sort queries by"
-              onChange={(e: SelectableValue<SortOrder>) => updateFilters({ sortOrder: e.value })}
+              onChange={(e) => onChangeSortOrder(e.value as SortOrder)}
             />
           </div>
         </div>
-        {loading && <span>Loading results...</span>}
-        {!loading &&
-          queries.map((q) => {
-            const idx = listOfDatasources.findIndex((d) => d.uid === q.datasourceUid);
-            return (
-              <RichHistoryCard
-                query={q}
-                key={q.id}
-                exploreId={exploreId}
-                dsImg={idx === -1 ? 'public/img/icn-datasource.svg' : listOfDatasources[idx].imgUrl}
-                isRemoved={idx === -1}
-              />
-            );
-          })}
-        {queries.length && queries.length !== totalQueries ? (
-          <div>
-            Showing {queries.length} of {totalQueries} <Button onClick={loadMoreRichHistory}>Load more</Button>
-          </div>
-        ) : null}
-        <div className={styles.footer}>
-          {!config.queryHistoryEnabled ? 'The history is local to your browser and is not shared with others.' : ''}
-        </div>
+        {filteredQueries.map((q) => {
+          const idx = listOfDatasources.findIndex((d) => d.label === q.datasourceName);
+          return (
+            <RichHistoryCard
+              query={q}
+              key={q.id}
+              exploreId={exploreId}
+              dsImg={listOfDatasources[idx].imgUrl}
+              isRemoved={listOfDatasources[idx].isRemoved}
+            />
+          );
+        })}
+        <div className={styles.footer}>The history is local to your browser and is not shared with others.</div>
       </div>
     </div>
   );

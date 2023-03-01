@@ -2,25 +2,24 @@ import { css, cx } from '@emotion/css';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { config } from '@grafana/runtime';
+import { Icon, IconButton, stylesFactory } from '@grafana/ui';
 
 import { LayerName } from './LayerName';
 import { LayerElement } from './types';
 
-export const DATA_TEST_ID = 'layer-drag-drop-list';
-
-export type LayerDragDropListProps<T extends LayerElement> = {
+type LayerDragDropListProps<T extends LayerElement> = {
   layers: T[];
   getLayerInfo: (element: T) => string;
   onDragEnd: (result: DropResult) => void;
-  onSelect: (element: T) => void;
-  onDelete: (element: T) => void;
-  onDuplicate?: (element: T) => void;
-  showActions: (element: T) => boolean;
+  onSelect: (element: T) => any;
+  onDelete: (element: T) => any;
+  onDuplicate?: (element: T) => any;
+  isGroup?: (element: T) => boolean;
   selection?: string[]; // list of unique ids (names)
   excludeBaseLayer?: boolean;
-  onNameChange: (element: T, newName: string) => void;
+  onNameChange: (element: T, newName: string) => any;
   verifyLayerNameUniqueness?: (nameToCheck: string) => boolean;
 };
 
@@ -31,13 +30,13 @@ export const LayerDragDropList = <T extends LayerElement>({
   onSelect,
   onDelete,
   onDuplicate,
-  showActions,
+  isGroup,
   selection,
   excludeBaseLayer,
   onNameChange,
   verifyLayerNameUniqueness,
 }: LayerDragDropListProps<T>) => {
-  const style = useStyles2(getStyles);
+  const style = styles(config.theme);
 
   const getRowStyle = (isSelected: boolean) => {
     return isSelected ? `${style.row} ${style.sel}` : style.row;
@@ -47,10 +46,10 @@ export const LayerDragDropList = <T extends LayerElement>({
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="droppable">
         {(provided, snapshot) => (
-          <div {...provided.droppableProps} ref={provided.innerRef} data-testid={DATA_TEST_ID}>
+          <div {...provided.droppableProps} ref={provided.innerRef}>
             {(() => {
               // reverse order
-              const rows: JSX.Element[] = [];
+              const rows: any = [];
               const lastLayerIndex = excludeBaseLayer ? 1 : 0;
               const shouldRenderDragIconLengthThreshold = excludeBaseLayer ? 2 : 1;
               for (let i = layers.length - 1; i >= lastLayerIndex; i--) {
@@ -75,35 +74,34 @@ export const LayerDragDropList = <T extends LayerElement>({
                         />
                         <div className={style.textWrapper}>&nbsp; {getLayerInfo(element)}</div>
 
-                        {showActions(element) && (
+                        {!isGroup!(element) && (
                           <>
                             {onDuplicate ? (
                               <IconButton
                                 name="copy"
                                 title={'Duplicate'}
-                                ariaLabel={'Duplicate button'}
                                 className={style.actionIcon}
                                 onClick={() => onDuplicate(element)}
+                                surface="header"
                               />
                             ) : null}
 
                             <IconButton
                               name="trash-alt"
                               title={'remove'}
-                              ariaLabel={'Remove button'}
                               className={cx(style.actionIcon, style.dragIcon)}
                               onClick={() => onDelete(element)}
+                              surface="header"
                             />
+                            {layers.length > shouldRenderDragIconLengthThreshold && (
+                              <Icon
+                                title="Drag and drop to reorder"
+                                name="draggabledots"
+                                size="lg"
+                                className={style.dragIcon}
+                              />
+                            )}
                           </>
-                        )}
-                        {layers.length > shouldRenderDragIconLengthThreshold && (
-                          <Icon
-                            aria-label="Drag and drop icon"
-                            title="Drag and drop to reorder"
-                            name="draggabledots"
-                            size="lg"
-                            className={style.dragIcon}
-                          />
                         )}
                       </div>
                     )}
@@ -126,43 +124,43 @@ LayerDragDropList.defaultProps = {
   isGroup: () => false,
 };
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const styles = stylesFactory((theme: GrafanaTheme) => ({
   wrapper: css`
-    margin-bottom: ${theme.spacing(2)};
+    margin-bottom: ${theme.spacing.md};
   `,
   row: css`
-    padding: ${theme.spacing(0.5, 1)};
-    border-radius: ${theme.shape.borderRadius(1)};
-    background: ${theme.colors.background.secondary};
-    min-height: ${theme.spacing(4)};
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    border-radius: ${theme.border.radius.sm};
+    background: ${theme.colors.bg2};
+    min-height: ${theme.spacing.formInputHeight}px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 3px;
     cursor: pointer;
 
-    border: 1px solid ${theme.components.input.borderColor};
+    border: 1px solid ${theme.colors.formInputBorder};
     &:hover {
-      border: 1px solid ${theme.components.input.borderHover};
+      border: 1px solid ${theme.colors.formInputBorderHover};
     }
   `,
   sel: css`
-    border: 1px solid ${theme.colors.primary.border};
+    border: 1px solid ${theme.colors.formInputBorderActive};
     &:hover {
-      border: 1px solid ${theme.colors.primary.border};
+      border: 1px solid ${theme.colors.formInputBorderActive};
     }
   `,
   dragIcon: css`
     cursor: drag;
   `,
   actionIcon: css`
-    color: ${theme.colors.text.secondary};
+    color: ${theme.colors.textWeak};
     &:hover {
       color: ${theme.colors.text};
     }
   `,
   typeWrapper: css`
-    color: ${theme.colors.primary.text};
+    color: ${theme.colors.textBlue};
     margin-right: 5px;
   `,
   textWrapper: css`
@@ -170,6 +168,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     align-items: center;
     flex-grow: 1;
     overflow: hidden;
-    margin-right: ${theme.spacing(1)};
+    margin-right: ${theme.spacing.sm};
   `,
-});
+}));

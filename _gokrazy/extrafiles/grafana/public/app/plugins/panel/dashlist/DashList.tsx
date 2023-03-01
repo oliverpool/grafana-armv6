@@ -6,18 +6,16 @@ import { GrafanaTheme2, InterpolateFunction, PanelProps } from '@grafana/data';
 import { CustomScrollbar, stylesFactory, useStyles2 } from '@grafana/ui';
 import { Icon, IconProps } from '@grafana/ui/src/components/Icon/Icon';
 import { getFocusStyles } from '@grafana/ui/src/themes/mixins';
-import { setStarred } from 'app/core/reducers/navBarTree';
 import { getBackendSrv } from 'app/core/services/backend_srv';
 import impressionSrv from 'app/core/services/impression_srv';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { SearchCard } from 'app/features/search/components/SearchCard';
-import { DashboardSearchItem } from 'app/features/search/types';
-import { useDispatch } from 'app/types';
+import { DashboardSearchHit } from 'app/features/search/types';
 
-import { PanelLayout, PanelOptions } from './panelcfg.gen';
+import { PanelLayout, PanelOptions } from './models.gen';
 import { getStyles } from './styles';
 
-type Dashboard = DashboardSearchItem & { id?: number; isSearchResult?: boolean; isRecent?: boolean };
+type Dashboard = DashboardSearchHit & { isSearchResult?: boolean; isRecent?: boolean };
 
 interface DashboardGroup {
   show: boolean;
@@ -26,21 +24,20 @@ interface DashboardGroup {
 }
 
 async function fetchDashboards(options: PanelOptions, replaceVars: InterpolateFunction) {
-  let starredDashboards: Promise<DashboardSearchItem[]> = Promise.resolve([]);
+  let starredDashboards: Promise<Dashboard[]> = Promise.resolve([]);
   if (options.showStarred) {
     const params = { limit: options.maxItems, starred: 'true' };
     starredDashboards = getBackendSrv().search(params);
   }
 
-  let recentDashboards: Promise<DashboardSearchItem[]> = Promise.resolve([]);
-  let dashUIDs: string[] = [];
+  let recentDashboards: Promise<Dashboard[]> = Promise.resolve([]);
+  let dashIds: number[] = [];
   if (options.showRecentlyViewed) {
-    let uids = await impressionSrv.getDashboardOpened();
-    dashUIDs = take<string>(uids, options.maxItems);
-    recentDashboards = getBackendSrv().search({ dashboardUIDs: dashUIDs, limit: options.maxItems });
+    dashIds = take<number>(impressionSrv.getDashboardOpened(), options.maxItems);
+    recentDashboards = getBackendSrv().search({ dashboardIds: dashIds, limit: options.maxItems });
   }
 
-  let searchedDashboards: Promise<DashboardSearchItem[]> = Promise.resolve([]);
+  let searchedDashboards: Promise<Dashboard[]> = Promise.resolve([]);
   if (options.showSearch) {
     const params = {
       limit: options.maxItems,
@@ -56,33 +53,27 @@ async function fetchDashboards(options: PanelOptions, replaceVars: InterpolateFu
   const [starred, searched, recent] = await Promise.all([starredDashboards, searchedDashboards, recentDashboards]);
 
   // We deliberately deal with recent dashboards first so that the order of dash IDs is preserved
-  let dashMap = new Map<string, Dashboard>();
-  for (const dashUID of dashUIDs) {
-    const dash = recent.find((d) => d.uid === dashUID);
+  let dashMap = new Map<number, Dashboard>();
+  for (const dashId of dashIds) {
+    const dash = recent.find((d) => d.id === dashId);
     if (dash) {
-      dashMap.set(dashUID, { ...dash, isRecent: true });
+      dashMap.set(dashId, { ...dash, isRecent: true });
     }
   }
 
   searched.forEach((dash) => {
-    if (!dash.uid) {
-      return;
-    }
-    if (dashMap.has(dash.uid)) {
-      dashMap.get(dash.uid)!.isSearchResult = true;
+    if (dashMap.has(dash.id)) {
+      dashMap.get(dash.id)!.isSearchResult = true;
     } else {
-      dashMap.set(dash.uid, { ...dash, isSearchResult: true });
+      dashMap.set(dash.id, { ...dash, isSearchResult: true });
     }
   });
 
   starred.forEach((dash) => {
-    if (!dash.uid) {
-      return;
-    }
-    if (dashMap.has(dash.uid)) {
-      dashMap.get(dash.uid)!.isStarred = true;
+    if (dashMap.has(dash.id)) {
+      dashMap.get(dash.id)!.isStarred = true;
     } else {
-      dashMap.set(dash.uid, { ...dash, isStarred: true });
+      dashMap.set(dash.id, { ...dash, isStarred: true });
     }
   });
 
@@ -90,8 +81,7 @@ async function fetchDashboards(options: PanelOptions, replaceVars: InterpolateFu
 }
 
 export function DashList(props: PanelProps<PanelOptions>) {
-  const [dashboards, setDashboards] = useState(new Map<string, Dashboard>());
-  const dispatch = useDispatch();
+  const [dashboards, setDashboards] = useState(new Map<number, Dashboard>());
   useEffect(() => {
     fetchDashboards(props.options, props.replaceVariables).then((dashes) => {
       setDashboards(dashes);
@@ -99,16 +89,13 @@ export function DashList(props: PanelProps<PanelOptions>) {
   }, [props.options, props.replaceVariables, props.renderCounter]);
 
   const toggleDashboardStar = async (e: React.SyntheticEvent, dash: Dashboard) => {
-    const { uid, title, url } = dash;
     e.preventDefault();
     e.stopPropagation();
 
-    // FIXME: Do not use dash ID. Use UID to star a dashboard once the backend allows it
-    const isStarred = await getDashboardSrv().starDashboard(dash.id!.toString(), dash.isStarred);
+    const isStarred = await getDashboardSrv().starDashboard(dash.id.toString(), dash.isStarred);
     const updatedDashboards = new Map(dashboards);
-    updatedDashboards.set(dash?.uid ?? '', { ...dash, isStarred });
+    updatedDashboards.set(dash.id, { ...dash, isStarred });
     setDashboards(updatedDashboards);
-    dispatch(setStarred({ id: uid ?? '', title, url, isStarred }));
   };
 
   const [starredDashboards, recentDashboards, searchedDashboards] = useMemo(() => {
@@ -145,7 +132,7 @@ export function DashList(props: PanelProps<PanelOptions>) {
   const renderList = (dashboards: Dashboard[]) => (
     <ul>
       {dashboards.map((dash) => (
-        <li className={css.dashlistItem} key={`dash-${dash.uid}`}>
+        <li className={css.dashlistItem} key={`dash-${dash.id}`}>
           <div className={css.dashlistLink}>
             <div className={css.dashlistLinkBody}>
               <a className={css.dashlistTitle} href={dash.url}>
@@ -240,7 +227,7 @@ export const getCheckboxStyles = stylesFactory((theme: GrafanaTheme2) => {
       display: 'flex',
       alignSelf: 'center',
       cursor: 'pointer',
-      zIndex: 1,
+      zIndex: 100,
     }),
     checkBox: css({
       appearance: 'none',

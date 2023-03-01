@@ -9,15 +9,12 @@ import {
   AnnotationQuery,
   AnnotationSupport,
   DataFrame,
-  DataSourceApi,
-  DataTransformContext,
   Field,
   FieldType,
   getFieldDisplayName,
   KeyValue,
   standardTransformers,
 } from '@grafana/data';
-import { config } from 'app/core/config';
 
 export const standardAnnotationSupport: AnnotationSupport = {
   /**
@@ -29,7 +26,6 @@ export const standardAnnotationSupport: AnnotationSupport = {
       return {
         ...rest,
         target: {
-          refId: 'annotation_query',
           query,
         },
         mappings: {},
@@ -39,12 +35,14 @@ export const standardAnnotationSupport: AnnotationSupport = {
   },
 
   /**
-   * Default will just return target from the annotation.
+   * Convert the stored JSON model and environment to a standard data source query object.
+   * This query will be executed in the data source and the results converted into events.
+   * Returning an undefined result will quietly skip query execution
    */
   prepareQuery: (anno: AnnotationQuery) => anno.target,
 
   /**
-   * Provides default processing from dataFrame to annotation events.
+   * When the standard frame > event processing is insufficient, this allows explicit control of the mappings
    */
   processEvents: (anno: AnnotationQuery, data: DataFrame[]) => {
     return getAnnotationsFromData(data, anno.mappings);
@@ -52,7 +50,7 @@ export const standardAnnotationSupport: AnnotationSupport = {
 };
 
 /**
- * Flatten all frames into a single frame with mergeTransformer.
+ * Flatten all panel data into a single frame
  */
 
 export function singleFrameFromPanelData(): OperatorFunction<DataFrame[], DataFrame | undefined> {
@@ -67,12 +65,8 @@ export function singleFrameFromPanelData(): OperatorFunction<DataFrame[], DataFr
           return of(data[0]);
         }
 
-        const ctx: DataTransformContext = {
-          interpolate: (v: string) => v,
-        };
-
         return of(data).pipe(
-          standardTransformers.mergeTransformer.operator({}, ctx),
+          standardTransformers.mergeTransformer.operator({}),
           map((d) => d[0])
         );
       })
@@ -118,22 +112,9 @@ export const annotationEventNames: AnnotationFieldInfo[] = [
   },
 ];
 
-export const publicDashboardEventNames: AnnotationFieldInfo[] = [
-  {
-    key: 'color',
-  },
-  {
-    key: 'isRegion',
-  },
-  {
-    key: 'source',
-  },
-];
-
 // Given legacy infrastructure, alert events are passed though the same annotation
 // pipeline, but include fields that should not be exposed generally
 const alertEventAndAnnotationFields: AnnotationFieldInfo[] = [
-  ...(config.isPublicDashboardView ? publicDashboardEventNames : []),
   ...annotationEventNames,
   { key: 'userId' },
   { key: 'login' },
@@ -144,7 +125,6 @@ const alertEventAndAnnotationFields: AnnotationFieldInfo[] = [
   { key: 'panelId' },
   { key: 'alertId' },
   { key: 'dashboardId' },
-  { key: 'dashboardUID' },
 ];
 
 export function getAnnotationsFromData(
@@ -204,8 +184,7 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
-        return [];
+        return []; // throw an error?
       }
 
       // Add each value to the string
@@ -246,34 +225,4 @@ export function getAnnotationsFromData(
       return events;
     })
   );
-}
-
-// These opt outs are here only for quicker and easier migration to react based annotations editors and because
-// annotation support API needs some work to support less "standard" editors like prometheus and here it is not
-// polluting public API.
-
-const legacyRunner = [
-  'prometheus',
-  'loki',
-  'elasticsearch',
-  'grafana-opensearch-datasource', // external
-];
-
-/**
- * Opt out of using the default mapping functionality on frontend.
- */
-export function shouldUseMappingUI(datasource: DataSourceApi): boolean {
-  const { type } = datasource;
-  return !(
-    type === 'datasource' || //  ODD behavior for "-- Grafana --" datasource
-    legacyRunner.includes(type)
-  );
-}
-
-/**
- * Use legacy runner. Used only as an escape hatch for easier transition to React based annotation editor.
- */
-export function shouldUseLegacyRunner(datasource: DataSourceApi): boolean {
-  const { type } = datasource;
-  return legacyRunner.includes(type);
 }

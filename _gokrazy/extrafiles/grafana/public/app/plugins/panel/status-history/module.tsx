@@ -3,10 +3,10 @@ import { VisibilityMode } from '@grafana/schema';
 import { commonOptionsBuilder } from '@grafana/ui';
 
 import { StatusHistoryPanel } from './StatusHistoryPanel';
-import { PanelOptions, PanelFieldConfig, defaultPanelFieldConfig } from './panelcfg.gen';
 import { StatusHistorySuggestionsSupplier } from './suggestions';
+import { StatusPanelOptions, StatusFieldConfig, defaultStatusFieldConfig } from './types';
 
-export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StatusHistoryPanel)
+export const plugin = new PanelPlugin<StatusPanelOptions, StatusFieldConfig>(StatusHistoryPanel)
   .useFieldConfig({
     standardOptions: {
       [FieldConfigProperty.Color]: {
@@ -23,7 +23,7 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StatusHist
         .addSliderInput({
           path: 'lineWidth',
           name: 'Line width',
-          defaultValue: defaultPanelFieldConfig.lineWidth,
+          defaultValue: defaultStatusFieldConfig.lineWidth,
           settings: {
             min: 0,
             max: 10,
@@ -33,7 +33,7 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StatusHist
         .addSliderInput({
           path: 'fillOpacity',
           name: 'Fill opacity',
-          defaultValue: defaultPanelFieldConfig.fillOpacity,
+          defaultValue: defaultStatusFieldConfig.fillOpacity,
           settings: {
             min: 0,
             max: 100,
@@ -55,6 +55,16 @@ export const plugin = new PanelPlugin<PanelOptions, PanelFieldConfig>(StatusHist
           ],
         },
         defaultValue: VisibilityMode.Auto,
+      })
+      .addSliderInput({
+        path: 'rowHeight',
+        name: 'Row height',
+        defaultValue: 0.9,
+        settings: {
+          min: 0,
+          max: 1,
+          step: 0.01,
+        },
       })
       .addSliderInput({
         path: 'colWidth',

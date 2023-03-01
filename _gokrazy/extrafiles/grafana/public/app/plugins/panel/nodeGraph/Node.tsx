@@ -4,20 +4,17 @@ import React, { MouseEvent, memo } from 'react';
 import tinycolor from 'tinycolor2';
 
 import { Field, getFieldColorModeForField, GrafanaTheme2 } from '@grafana/data';
-import { useTheme2 } from '@grafana/ui';
+import { useStyles2, useTheme2 } from '@grafana/ui';
 
-import { HoverState } from './NodeGraph';
 import { NodeDatum } from './types';
 import { statToString } from './utils';
 
 const nodeR = 40;
 
-const getStyles = (theme: GrafanaTheme2, hovering: HoverState) => ({
+const getStyles = (theme: GrafanaTheme2) => ({
   mainGroup: css`
     cursor: pointer;
     font-size: 10px;
-    transition: opacity 300ms;
-    opacity: ${hovering === 'inactive' ? 0.5 : 1};
   `,
 
   mainCircle: css`
@@ -64,12 +61,10 @@ export const Node = memo(function Node(props: {
   onMouseEnter: (id: string) => void;
   onMouseLeave: (id: string) => void;
   onClick: (event: MouseEvent<SVGElement>, node: NodeDatum) => void;
-  hovering: HoverState;
+  hovering: boolean;
 }) {
   const { node, onMouseEnter, onMouseLeave, onClick, hovering } = props;
-  const theme = useTheme2();
-  const styles = getStyles(theme, hovering);
-  const isHovered = hovering === 'active';
+  const styles = useStyles2(getStyles);
 
   if (!(node.x !== undefined && node.y !== undefined)) {
     return null;
@@ -91,28 +86,23 @@ export const Node = memo(function Node(props: {
       aria-label={`Node: ${node.title}`}
     >
       <circle className={styles.mainCircle} r={nodeR} cx={node.x} cy={node.y} />
-      {isHovered && <circle className={styles.hoverCircle} r={nodeR - 3} cx={node.x} cy={node.y} strokeWidth={2} />}
+      {hovering && <circle className={styles.hoverCircle} r={nodeR - 3} cx={node.x} cy={node.y} strokeWidth={2} />}
       <ColorCircle node={node} />
       <g className={styles.text}>
-        <foreignObject x={node.x - (isHovered ? 100 : 35)} y={node.y - 15} width={isHovered ? '200' : '70'} height="40">
-          <div className={cx(styles.statsText, isHovered && styles.textHovering)}>
-            <span>
-              {node.mainStat && statToString(node.mainStat.config, node.mainStat.values.get(node.dataFrameRowIndex))}
-            </span>
+        <foreignObject x={node.x - (hovering ? 100 : 35)} y={node.y - 15} width={hovering ? '200' : '70'} height="40">
+          <div className={cx(styles.statsText, hovering && styles.textHovering)}>
+            <span>{node.mainStat && statToString(node.mainStat, node.dataFrameRowIndex)}</span>
             <br />
-            <span>
-              {node.secondaryStat &&
-                statToString(node.secondaryStat.config, node.secondaryStat.values.get(node.dataFrameRowIndex))}
-            </span>
+            <span>{node.secondaryStat && statToString(node.secondaryStat, node.dataFrameRowIndex)}</span>
           </div>
         </foreignObject>
         <foreignObject
-          x={node.x - (isHovered ? 100 : 50)}
+          x={node.x - (hovering ? 100 : 50)}
           y={node.y + nodeR + 5}
-          width={isHovered ? '200' : '100'}
+          width={hovering ? '200' : '100'}
           height="40"
         >
-          <div className={cx(styles.titleText, isHovered && styles.textHovering)}>
+          <div className={cx(styles.titleText, hovering && styles.textHovering)}>
             <span>{node.title}</span>
             <br />
             <span>{node.subTitle}</span>
@@ -128,7 +118,7 @@ export const Node = memo(function Node(props: {
  */
 function ColorCircle(props: { node: NodeDatum }) {
   const { node } = props;
-  const fullStat = node.arcSections.find((s) => s.values.get(node.dataFrameRowIndex) >= 1);
+  const fullStat = node.arcSections.find((s) => s.values.get(node.dataFrameRowIndex) === 1);
   const theme = useTheme2();
 
   if (fullStat) {
@@ -160,14 +150,10 @@ function ColorCircle(props: { node: NodeDatum }) {
     );
   }
 
-  const { elements } = nonZero.reduce<{
-    elements: React.ReactNode[];
-    percent: number;
-  }>(
+  const { elements } = nonZero.reduce(
     (acc, section) => {
       const color = section.config.color?.fixedColor || '';
       const value = section.values.get(node.dataFrameRowIndex);
-
       const el = (
         <ArcSection
           key={color}
@@ -175,13 +161,7 @@ function ColorCircle(props: { node: NodeDatum }) {
           x={node.x!}
           y={node.y!}
           startPercent={acc.percent}
-          percent={
-            value + acc.percent > 1
-              ? // If the values aren't correct and add up to more than 100% lets still render correctly the amounts we
-                // already have and cap it at 100%
-                1 - acc.percent
-              : value
-          }
+          percent={value}
           color={theme.visualization.getColorByName(color)}
           strokeWidth={2}
         />
@@ -190,7 +170,7 @@ function ColorCircle(props: { node: NodeDatum }) {
       acc.percent = acc.percent + value;
       return acc;
     },
-    { elements: [], percent: 0 }
+    { elements: [] as React.ReactNode[], percent: 0 }
   );
 
   return <>{elements}</>;

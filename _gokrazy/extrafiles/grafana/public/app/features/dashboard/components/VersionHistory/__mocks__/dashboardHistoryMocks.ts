@@ -3,7 +3,6 @@ export function versions() {
     {
       id: 4,
       dashboardId: 1,
-      dashboardUID: '_U4zObQMz',
       parentVersion: 3,
       restoredFrom: 0,
       version: 4,
@@ -14,7 +13,6 @@ export function versions() {
     {
       id: 3,
       dashboardId: 1,
-      dashboardUID: '_U4zObQMz',
       parentVersion: 1,
       restoredFrom: 1,
       version: 3,
@@ -25,7 +23,6 @@ export function versions() {
     {
       id: 2,
       dashboardId: 1,
-      dashboardUID: '_U4zObQMz',
       parentVersion: 0,
       restoredFrom: -1,
       version: 2,
@@ -36,7 +33,6 @@ export function versions() {
     {
       id: 1,
       dashboardId: 1,
-      dashboardUID: '_U4zObQMz',
       parentVersion: 0,
       restoredFrom: -1,
       slug: 'history-dashboard',
@@ -76,8 +72,8 @@ export function restore(version: any, restoredFrom?: any): any {
         editable: true,
         gnetId: null,
         graphTooltip: 0,
+        hideControls: false,
         id: 1,
-        uid: '_U4zObQMz',
         links: [],
         restoredFrom: restoredFrom,
         rows: [

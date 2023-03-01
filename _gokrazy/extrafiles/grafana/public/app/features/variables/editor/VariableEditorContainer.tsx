@@ -1,12 +1,13 @@
-import React, { PureComponent } from 'react';
+import React, { MouseEvent, PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { locationService } from '@grafana/runtime';
-import { Page } from 'app/core/components/PageNew/Page';
-import { SettingsPageProps } from 'app/features/dashboard/components/DashboardSettings/types';
+import { selectors } from '@grafana/e2e-selectors';
+import { Button, Icon } from '@grafana/ui';
+import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 
 import { StoreState, ThunkDispatch } from '../../../types';
+import { VariablesDependenciesButton } from '../inspect/VariablesDependenciesButton';
 import { VariablesUnknownTable } from '../inspect/VariablesUnknownTable';
 import { toKeyedAction } from '../state/keyedVariablesReducer';
 import { getEditorVariables, getVariablesState } from '../state/selectors';
@@ -14,10 +15,9 @@ import { changeVariableOrder, duplicateVariable, removeVariable } from '../state
 import { KeyedVariableIdentifier } from '../state/types';
 import { toKeyedVariableIdentifier, toVariablePayload } from '../utils';
 
-import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 import { VariableEditorEditor } from './VariableEditorEditor';
 import { VariableEditorList } from './VariableEditorList';
-import { createNewVariable, initListMode } from './actions';
+import { switchToEditMode, switchToListMode, switchToNewMode } from './actions';
 
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { uid } = ownProps.dashboard;
@@ -32,7 +32,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
 
 const mapDispatchToProps = (dispatch: ThunkDispatch) => {
   return {
-    ...bindActionCreators({ createNewVariable, initListMode }, dispatch),
+    ...bindActionCreators({ switchToNewMode, switchToEditMode, switchToListMode }, dispatch),
     changeVariableOrder: (identifier: KeyedVariableIdentifier, fromIndex: number, toIndex: number) =>
       dispatch(
         toKeyedAction(
@@ -55,32 +55,30 @@ const mapDispatchToProps = (dispatch: ThunkDispatch) => {
   };
 };
 
-interface OwnProps extends SettingsPageProps {}
+interface OwnProps {
+  dashboard: DashboardModel;
+}
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type Props = OwnProps & ConnectedProps<typeof connector>;
 
-interface State {
-  variableId?: KeyedVariableIdentifier;
-}
-
-class VariableEditorContainerUnconnected extends PureComponent<Props, State> {
-  state: State = {
-    variableId: undefined,
-  };
-
-  componentDidMount() {
-    this.props.initListMode(this.props.dashboard.uid);
+class VariableEditorContainerUnconnected extends PureComponent<Props> {
+  componentDidMount(): void {
+    this.props.switchToListMode(this.props.dashboard.uid);
   }
 
+  onChangeToListMode = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.props.switchToListMode(this.props.dashboard.uid);
+  };
+
   onEditVariable = (identifier: KeyedVariableIdentifier) => {
-    const index = this.props.variables.findIndex((x) => x.id === identifier.id);
-    locationService.partial({ editIndex: index });
+    this.props.switchToEditMode(identifier);
   };
 
   onNewVariable = () => {
-    this.props.createNewVariable(this.props.dashboard.uid);
+    this.props.switchToNewMode(this.props.dashboard.uid);
   };
 
   onChangeVariableOrder = (identifier: KeyedVariableIdentifier, fromIndex: number, toIndex: number) => {
@@ -91,26 +89,46 @@ class VariableEditorContainerUnconnected extends PureComponent<Props, State> {
     this.props.duplicateVariable(identifier);
   };
 
-  onModalOpen = (identifier: KeyedVariableIdentifier) => {
-    this.setState({ variableId: identifier });
-  };
-
-  onModalClose = () => {
-    this.setState({ variableId: undefined });
-  };
-
-  onRemoveVariable = () => {
-    this.props.removeVariable(this.state.variableId!);
-    this.onModalClose();
+  onRemoveVariable = (identifier: KeyedVariableIdentifier) => {
+    this.props.removeVariable(identifier);
   };
 
   render() {
-    const { editIndex, variables } = this.props;
-    const variableToEdit = editIndex != null ? variables[editIndex] : undefined;
-    const subPageNav = variableToEdit ? { text: variableToEdit.name } : undefined;
+    const variableToEdit = this.props.variables.find((s) => s.id === this.props.idInEditor) ?? null;
 
     return (
-      <Page navModel={this.props.sectionNav} pageNav={subPageNav}>
+      <div>
+        <div className="page-action-bar">
+          <h3 className="dashboard-settings__header">
+            <a
+              onClick={this.onChangeToListMode}
+              aria-label={selectors.pages.Dashboard.Settings.Variables.Edit.General.headerLink}
+            >
+              Variables
+            </a>
+            {this.props.idInEditor && (
+              <span>
+                <Icon name="angle-right" />
+                Edit
+              </span>
+            )}
+          </h3>
+
+          <div className="page-action-bar__spacer" />
+          {this.props.variables.length > 0 && variableToEdit === null && (
+            <>
+              <VariablesDependenciesButton variables={this.props.variables} />
+              <Button
+                type="button"
+                onClick={this.onNewVariable}
+                aria-label={selectors.pages.Dashboard.Settings.Variables.List.newButton}
+              >
+                New
+              </Button>
+            </>
+          )}
+        </div>
+
         {!variableToEdit && (
           <VariableEditorList
             variables={this.props.variables}
@@ -118,7 +136,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props, State> {
             onEdit={this.onEditVariable}
             onChangeOrder={this.onChangeVariableOrder}
             onDuplicate={this.onDuplicateVariable}
-            onDelete={this.onModalOpen}
+            onDelete={this.onRemoveVariable}
             usages={this.props.usages}
             usagesNetwork={this.props.usagesNetwork}
           />
@@ -127,13 +145,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props, State> {
           <VariablesUnknownTable variables={this.props.variables} dashboard={this.props.dashboard} />
         )}
         {variableToEdit && <VariableEditorEditor identifier={toKeyedVariableIdentifier(variableToEdit)} />}
-        <ConfirmDeleteModal
-          isOpen={this.state.variableId !== undefined}
-          varName={this.state.variableId?.id ?? ''}
-          onConfirm={this.onRemoveVariable}
-          onDismiss={this.onModalClose}
-        />
-      </Page>
+      </div>
     );
   }
 }

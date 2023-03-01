@@ -1,27 +1,16 @@
 import { css } from '@emotion/css';
 import { sortBy } from 'lodash';
 import React, { useEffect, useMemo } from 'react';
-import { useEffectOnce } from 'react-use';
+import { useDispatch } from 'react-redux';
 
 import { GrafanaTheme2, PanelProps } from '@grafana/data';
-import { TimeRangeUpdatedEvent } from '@grafana/runtime';
-import {
-  Alert,
-  BigValue,
-  BigValueGraphMode,
-  BigValueJustifyMode,
-  BigValueTextMode,
-  CustomScrollbar,
-  LoadingPlaceholder,
-  useStyles2,
-} from '@grafana/ui';
-import { config } from 'app/core/config';
+import { Alert, CustomScrollbar, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import alertDef from 'app/features/alerting/state/alertDef';
 import { useUnifiedAlertingSelector } from 'app/features/alerting/unified/hooks/useUnifiedAlertingSelector';
 import { fetchAllPromRulesAction } from 'app/features/alerting/unified/state/actions';
 import { labelsMatchMatchers, parseMatchers } from 'app/features/alerting/unified/utils/alertmanager';
-import { Annotation } from 'app/features/alerting/unified/utils/constants';
+import { Annotation, RULE_LIST_POLL_INTERVAL_MS } from 'app/features/alerting/unified/utils/constants';
 import {
   getAllRulesSourceNames,
   GRAFANA_DATASOURCE_NAME,
@@ -29,12 +18,11 @@ import {
 } from 'app/features/alerting/unified/utils/datasource';
 import { flattenRules, getFirstActiveAt } from 'app/features/alerting/unified/utils/rules';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
-import { DashboardModel } from 'app/features/dashboard/state';
-import { useDispatch, AccessControlAction } from 'app/types';
+import { AccessControlAction } from 'app/types';
 import { PromRuleWithLocation } from 'app/types/unified-alerting';
 import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
-import { GroupMode, SortOrder, UnifiedAlertListOptions, ViewMode } from './types';
+import { GroupMode, SortOrder, UnifiedAlertListOptions } from './types';
 import GroupedModeView from './unified-alerting/GroupedView';
 import UngroupedModeView from './unified-alerting/UngroupedView';
 import { filterAlerts } from './util';
@@ -43,27 +31,13 @@ export function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
   const dispatch = useDispatch();
   const rulesDataSourceNames = useMemo(getAllRulesSourceNames, []);
 
-  // backwards compat for "Inactive" state filter
-  useEffect(() => {
-    if (props.options.stateFilter.inactive === true) {
-      props.options.stateFilter.normal = true; // enable the normal filter
-    }
-    props.options.stateFilter.inactive = undefined; // now disable inactive
-  }, [props.options.stateFilter]);
-
-  let dashboard: DashboardModel | undefined = undefined;
-
-  useEffectOnce(() => {
-    dashboard = getDashboardSrv().getCurrent();
-  });
-
   useEffect(() => {
     dispatch(fetchAllPromRulesAction());
-    const sub = dashboard?.events.subscribe(TimeRangeUpdatedEvent, () => dispatch(fetchAllPromRulesAction()));
+    const interval = setInterval(() => dispatch(fetchAllPromRulesAction()), RULE_LIST_POLL_INTERVAL_MS);
     return () => {
-      sub?.unsubscribe();
+      clearInterval(interval);
     };
-  }, [dispatch, dashboard]);
+  }, [dispatch]);
 
   const promRulesRequests = useUnifiedAlertingSelector((state) => state.promRules);
 
@@ -104,21 +78,10 @@ export function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
         {dispatched && loading && !haveResults && <LoadingPlaceholder text="Loading..." />}
         {noAlertsMessage && <div className={styles.noAlertsMessage}>{noAlertsMessage}</div>}
         <section>
-          {props.options.viewMode === ViewMode.Stat && haveResults && (
-            <BigValue
-              width={props.width}
-              height={props.height}
-              graphMode={BigValueGraphMode.None}
-              textMode={BigValueTextMode.Auto}
-              justifyMode={BigValueJustifyMode.Auto}
-              theme={config.theme2}
-              value={{ text: `${rules.length}`, numeric: rules.length }}
-            />
-          )}
-          {props.options.viewMode === ViewMode.List && props.options.groupMode === GroupMode.Custom && haveResults && (
+          {props.options.groupMode === GroupMode.Custom && haveResults && (
             <GroupedModeView rules={rules} options={props.options} />
           )}
-          {props.options.viewMode === ViewMode.List && props.options.groupMode === GroupMode.Default && haveResults && (
+          {props.options.groupMode === GroupMode.Default && haveResults && (
             <UngroupedModeView rules={rules} options={props.options} />
           )}
         </section>
@@ -165,7 +128,7 @@ function filterRules(props: PanelProps<UnifiedAlertListOptions>, rules: PromRule
     return (
       (options.stateFilter.firing && rule.rule.state === PromAlertingRuleState.Firing) ||
       (options.stateFilter.pending && rule.rule.state === PromAlertingRuleState.Pending) ||
-      (options.stateFilter.normal && rule.rule.state === PromAlertingRuleState.Inactive)
+      (options.stateFilter.inactive && rule.rule.state === PromAlertingRuleState.Inactive)
     );
   });
 
@@ -215,8 +178,8 @@ function filterRules(props: PanelProps<UnifiedAlertListOptions>, rules: PromRule
 
 export const getStyles = (theme: GrafanaTheme2) => ({
   cardContainer: css`
-    padding: ${theme.spacing(0.5)} 0 ${theme.spacing(0.25)} 0;
-    line-height: ${theme.typography.body.lineHeight};
+    padding: ${theme.v1.spacing.xs} 0 ${theme.v1.spacing.xxs} 0;
+    line-height: ${theme.v1.typography.lineHeight.md};
     margin-bottom: 0px;
   `,
   container: css`
@@ -234,34 +197,34 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     align-items: center;
     width: 100%;
     height: 100%;
-    background: ${theme.colors.background.secondary};
-    padding: ${theme.spacing(0.5)} ${theme.spacing(1)};
-    border-radius: ${theme.shape.borderRadius(2)};
-    margin-bottom: ${theme.spacing(0.5)};
+    background: ${theme.v1.colors.bg2};
+    padding: ${theme.v1.spacing.xs} ${theme.v1.spacing.sm};
+    border-radius: ${theme.v1.border.radius.md};
+    margin-bottom: ${theme.v1.spacing.xs};
 
     & > * {
-      margin-right: ${theme.spacing(1)};
+      margin-right: ${theme.v1.spacing.sm};
     }
   `,
   alertName: css`
-    font-size: ${theme.typography.h6.fontSize};
-    font-weight: ${theme.typography.fontWeightBold};
+    font-size: ${theme.v1.typography.size.md};
+    font-weight: ${theme.v1.typography.weight.bold};
   `,
   alertLabels: css`
     > * {
-      margin-right: ${theme.spacing(0.5)};
+      margin-right: ${theme.v1.spacing.xs};
     }
   `,
   alertDuration: css`
-    font-size: ${theme.typography.bodySmall.fontSize};
+    font-size: ${theme.v1.typography.size.sm};
   `,
   alertRuleItemText: css`
-    font-weight: ${theme.typography.fontWeightBold};
-    font-size: ${theme.typography.bodySmall.fontSize};
+    font-weight: ${theme.v1.typography.weight.bold};
+    font-size: ${theme.v1.typography.size.sm};
     margin: 0;
   `,
   alertRuleItemTime: css`
-    color: ${theme.colors.text.secondary};
+    color: ${theme.v1.colors.textWeak};
     font-weight: normal;
     white-space: nowrap;
   `,
@@ -279,7 +242,7 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     height: 100%;
   `,
   alertIcon: css`
-    margin-right: ${theme.spacing(0.5)};
+    margin-right: ${theme.v1.spacing.xs};
   `,
   instanceDetails: css`
     min-width: 1px;
@@ -288,6 +251,6 @@ export const getStyles = (theme: GrafanaTheme2) => ({
     text-overflow: ellipsis;
   `,
   customGroupDetails: css`
-    margin-bottom: ${theme.spacing(0.5)};
+    margin-bottom: ${theme.v1.spacing.xs};
   `,
 });

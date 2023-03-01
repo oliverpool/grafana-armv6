@@ -16,7 +16,7 @@ export interface ImportDashboardDTO {
   constants: string[];
   dataSources: DataSourceInstanceSettings[];
   elements: LibraryElementDTO[];
-  folder: { uid: string; title?: string };
+  folder: { id: number; title?: string };
 }
 
 export enum InputType {
@@ -27,7 +27,7 @@ export enum InputType {
 
 export enum LibraryPanelInputState {
   New = 'new',
-  Exists = 'exists',
+  Exits = 'exists',
   Different = 'different',
 }
 

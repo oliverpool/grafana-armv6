@@ -11,28 +11,17 @@ import {
   onUpdateDatasourceSecureJsonDataOption,
   updateDatasourcePluginJsonDataOption,
 } from '@grafana/data';
-import {
-  Alert,
-  DataSourceHttpSettings,
-  InfoBox,
-  InlineField,
-  InlineFormLabel,
-  LegacyForms,
-  Select,
-  SecureSocksProxySettings,
-} from '@grafana/ui';
-import { config } from 'app/core/config';
+import { Alert, DataSourceHttpSettings, InfoBox, InlineField, InlineFormLabel, LegacyForms, Select } from '@grafana/ui';
 
 const { Input, SecretFormField } = LegacyForms;
-import { BROWSER_MODE_DISABLED_MESSAGE } from '../constants';
 import { InfluxOptions, InfluxSecureJsonData, InfluxVersion } from '../types';
 
-const httpModes: SelectableValue[] = [
+const httpModes = [
   { label: 'GET', value: 'GET' },
   { label: 'POST', value: 'POST' },
-];
+] as SelectableValue[];
 
-const versions: Array<SelectableValue<InfluxVersion>> = [
+const versions = [
   {
     label: 'InfluxQL',
     value: InfluxVersion.InfluxQL,
@@ -43,7 +32,7 @@ const versions: Array<SelectableValue<InfluxVersion>> = [
     value: InfluxVersion.Flux,
     description: 'Advanced data scripting and query language.  Supported in InfluxDB 2.x and 1.8+',
   },
-];
+] as Array<SelectableValue<InfluxVersion>>;
 
 export type Props = DataSourcePluginOptionsEditorProps<InfluxOptions>;
 type State = {
@@ -122,7 +111,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
         <div className="gf-form-inline">
           <div className="gf-form">
             <SecretFormField
-              isConfigured={Boolean(secureJsonFields && secureJsonFields.token)}
+              isConfigured={(secureJsonFields && secureJsonFields.token) as boolean}
               value={secureJsonData.token || ''}
               label="Token"
               aria-label="Token"
@@ -223,7 +212,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
         <div className="gf-form-inline">
           <div className="gf-form">
             <SecretFormField
-              isConfigured={Boolean(secureJsonFields && secureJsonFields.password)}
+              isConfigured={(secureJsonFields && secureJsonFields.password) as boolean}
               value={secureJsonData.password || ''}
               label="Password"
               aria-label="Password"
@@ -247,6 +236,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
             </InlineFormLabel>
             <Select
               inputId={`${htmlPrefix}-http-method`}
+              menuShouldPortal
               className="width-10"
               value={httpModes.find((httpMode) => httpMode.value === options.jsonData.httpMode)}
               options={httpModes}
@@ -281,7 +271,6 @@ export class ConfigEditor extends PureComponent<Props, State> {
 
   render() {
     const { options, onOptionsChange } = this.props;
-    const isDirectAccess = options.access === 'direct';
 
     return (
       <>
@@ -291,6 +280,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
             <div className="gf-form">
               <Select
                 aria-label="Query language"
+                menuShouldPortal
                 className="width-30"
                 value={options.jsonData.version === InfluxVersion.Flux ? versions[1] : versions[0]}
                 options={versions}
@@ -313,22 +303,18 @@ export class ConfigEditor extends PureComponent<Props, State> {
           </InfoBox>
         )}
 
-        {isDirectAccess && (
-          <Alert title="Error" severity="error">
-            {BROWSER_MODE_DISABLED_MESSAGE}
+        {options.access === 'direct' && (
+          <Alert title="Deprecation Notice" severity="warning">
+            Browser access mode in the InfluxDB datasource is deprecated and will be removed in a future release.
           </Alert>
         )}
 
         <DataSourceHttpSettings
-          showAccessOptions={isDirectAccess}
+          showAccessOptions={true}
           dataSourceConfig={options}
           defaultUrl="http://localhost:8086"
           onChange={onOptionsChange}
         />
-
-        {config.featureToggles.secureSocksDatasourceProxy && (
-          <SecureSocksProxySettings options={options} onOptionsChange={onOptionsChange} />
-        )}
 
         <div className="gf-form-group">
           <div>

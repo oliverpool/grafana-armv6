@@ -1,26 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { shallow } from 'enzyme';
 import React from 'react';
-
-import { selectors } from '@grafana/e2e-selectors';
 
 import { PanelModel } from '../../state';
 
-import PanelHeaderCorner, { Props } from './PanelHeaderCorner';
+import { PanelHeaderCorner } from './PanelHeaderCorner';
 
-const setup = () => {
-  const testPanel = new PanelModel({ title: 'test', description: 'test panel' });
-  const props: Props = {
-    panel: testPanel,
-  };
-  return render(<PanelHeaderCorner {...props} />);
-};
-
-describe('Panel header corner test', () => {
+describe('Render', () => {
   it('should render component', () => {
-    setup();
+    const panel = new PanelModel({});
+    const wrapper = shallow(<PanelHeaderCorner panel={panel} />);
+    const instance = wrapper.instance() as PanelHeaderCorner;
 
-    expect(
-      screen.getByRole('button', { name: selectors.components.Panels.Panel.headerCornerInfo('info') })
-    ).toBeInTheDocument();
+    expect(instance.getInfoContent()).toBeDefined();
   });
 });

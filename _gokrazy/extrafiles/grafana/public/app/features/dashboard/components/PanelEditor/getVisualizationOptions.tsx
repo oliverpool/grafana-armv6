@@ -196,7 +196,7 @@ export function fillOptionsPaneItems(
           return (
             <Editor
               value={access.getValue(pluginOption.path)}
-              onChange={(value) => {
+              onChange={(value: any) => {
                 access.onChange(pluginOption.path, value);
               }}
               item={pluginOption}

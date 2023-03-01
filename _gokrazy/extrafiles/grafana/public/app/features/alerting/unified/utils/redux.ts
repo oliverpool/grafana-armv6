@@ -1,8 +1,10 @@
 import { AsyncThunk, createSlice, Draft, isAsyncThunkAction, PayloadAction, SerializedError } from '@reduxjs/toolkit';
 
 import { AppEvents } from '@grafana/data';
-import { FetchError, isFetchError } from '@grafana/runtime';
+import { FetchError } from '@grafana/runtime';
 import { appEvents } from 'app/core/core';
+
+import { isFetchError } from './alertmanager';
 
 export interface AsyncRequestState<T> {
   result?: T;
@@ -26,7 +28,7 @@ export type AsyncRequestMapSlice<T> = Record<string, AsyncRequestState<T>>;
 
 export type AsyncRequestAction<T> = PayloadAction<Draft<T>, string, any, any>;
 
-function requestStateReducer<T, ThunkArg = void, ThunkApiConfig extends {} = {}>(
+function requestStateReducer<T, ThunkArg = void, ThunkApiConfig = {}>(
   asyncThunk: AsyncThunk<T, ThunkArg, ThunkApiConfig>,
   state: Draft<AsyncRequestState<T>> = initialAsyncRequestState,
   action: AsyncRequestAction<T>
@@ -61,10 +63,10 @@ function requestStateReducer<T, ThunkArg = void, ThunkApiConfig extends {} = {}>
 }
 
 /*
- * createAsyncSlice creates a slice based on a given async action, exposing its state.
+ * createAsyncSlice creates a slice based on a given async action, exposing it's state.
  * takes care to only use state of the latest invocation of the action if there are several in flight.
  */
-export function createAsyncSlice<T, ThunkArg = void, ThunkApiConfig extends {} = {}>(
+export function createAsyncSlice<T, ThunkArg = void, ThunkApiConfig = {}>(
   name: string,
   asyncThunk: AsyncThunk<T, ThunkArg, ThunkApiConfig>
 ) {
@@ -84,7 +86,7 @@ export function createAsyncSlice<T, ThunkArg = void, ThunkApiConfig extends {} =
  * separate requests are uniquely indentified by result of provided getEntityId function
  * takes care to only use state of the latest invocation of the action if there are several in flight.
  */
-export function createAsyncMapSlice<T, ThunkArg = void, ThunkApiConfig extends {} = {}>(
+export function createAsyncMapSlice<T, ThunkArg = void, ThunkApiConfig = {}>(
   name: string,
   asyncThunk: AsyncThunk<T, ThunkArg, ThunkApiConfig>,
   getEntityId: (arg: ThunkArg) => string
@@ -169,10 +171,6 @@ export function isAsyncRequestMapSlicePending<T>(slice: AsyncRequestMapSlice<T>)
   return Object.values(slice).some(isAsyncRequestStatePending);
 }
 
-export function isAsyncRequestStatePending<T>(state?: AsyncRequestState<T>): boolean {
-  if (!state) {
-    return false;
-  }
-
+export function isAsyncRequestStatePending<T>(state: AsyncRequestState<T>): boolean {
   return state.dispatched && state.loading;
 }

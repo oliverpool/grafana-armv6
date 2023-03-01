@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
 import React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Icon } from '@grafana/ui';
+import { GrafanaTheme } from '@grafana/data';
+import { useStyles, Icon } from '@grafana/ui';
 
 import { DiffValues } from './DiffValues';
 import { Diff, getDiffText } from './utils';
@@ -15,8 +15,7 @@ type DiffTitleProps = {
 const replaceDiff: Diff = { op: 'replace', originalValue: undefined, path: [''], value: undefined, startLineNumber: 0 };
 
 export const DiffTitle: React.FC<DiffTitleProps> = ({ diff, title }) => {
-  const styles = useStyles2(getDiffTitleStyles);
-
+  const styles = useStyles(getDiffTitleStyles);
   return diff ? (
     <>
       <Icon type="mono" name="circle" className={styles[diff.op]} /> <span className={styles.embolden}>{title}</span>{' '}
@@ -30,32 +29,32 @@ export const DiffTitle: React.FC<DiffTitleProps> = ({ diff, title }) => {
   );
 };
 
-const getDiffTitleStyles = (theme: GrafanaTheme2) => ({
+const getDiffTitleStyles = (theme: GrafanaTheme) => ({
   embolden: css`
-    font-weight: ${theme.typography.fontWeightBold};
+    font-weight: ${theme.typography.weight.bold};
   `,
   add: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.online};
   `,
   replace: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.warn};
   `,
   move: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.warn};
   `,
   copy: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.warn};
   `,
   _get: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.warn};
   `,
   test: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.warn};
   `,
   remove: css`
-    color: ${theme.colors.success.main};
+    color: ${theme.palette.critical};
   `,
   withoutDiff: css`
-    margin-bottom: ${theme.spacing(2)};
+    margin-bottom: ${theme.spacing.md};
   `,
 });

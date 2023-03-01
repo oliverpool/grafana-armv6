@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { PureComponent } from 'react';
 
 import store from '../../store';
 
@@ -8,42 +8,45 @@ export interface Props<T> {
   children: (value: T, onSaveToStore: (value: T) => void, onDeleteFromStore: () => void) => React.ReactNode;
 }
 
-export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
-  const { children, storageKey, defaultValue } = props;
+interface State<T> {
+  value: T;
+}
 
-  const [state, setState] = useState({ value: store.getObject(props.storageKey, props.defaultValue) });
+export class LocalStorageValueProvider<T> extends PureComponent<Props<T>, State<T>> {
+  constructor(props: Props<T>) {
+    super(props);
 
-  useEffect(() => {
-    const onStorageUpdate = (v: StorageEvent) => {
-      if (v.key === storageKey) {
-        setState({ value: store.getObject(props.storageKey, props.defaultValue) });
-      }
+    const { storageKey, defaultValue } = props;
+
+    this.state = {
+      value: store.getObject(storageKey, defaultValue),
     };
+  }
 
-    window.addEventListener('storage', onStorageUpdate);
-
-    return () => {
-      window.removeEventListener('storage', onStorageUpdate);
-    };
-  });
-
-  const onSaveToStore = (value: T) => {
+  onSaveToStore = (value: T) => {
+    const { storageKey } = this.props;
     try {
       store.setObject(storageKey, value);
     } catch (error) {
       console.error(error);
     }
-    setState({ value });
+    this.setState({ value });
   };
 
-  const onDeleteFromStore = () => {
+  onDeleteFromStore = () => {
+    const { storageKey, defaultValue } = this.props;
     try {
       store.delete(storageKey);
     } catch (error) {
       console.log(error);
     }
-    setState({ value: defaultValue });
+    this.setState({ value: defaultValue });
   };
 
-  return <>{children(state.value, onSaveToStore, onDeleteFromStore)}</>;
-};
+  render() {
+    const { children } = this.props;
+    const { value } = this.state;
+
+    return <>{children(value, this.onSaveToStore, this.onDeleteFromStore)}</>;
+  }
+}

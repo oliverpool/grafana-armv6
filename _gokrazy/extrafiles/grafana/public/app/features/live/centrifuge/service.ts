@@ -1,4 +1,4 @@
-import { Centrifuge, State } from 'centrifuge';
+import Centrifuge from 'centrifuge/dist/centrifuge';
 import { BehaviorSubject, Observable, share, startWith } from 'rxjs';
 
 import {
@@ -25,7 +25,6 @@ import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
 
 export type CentrifugeSrvDeps = {
-  grafanaAuthToken: string | null;
   appUrl: string;
   orgId: number;
   orgRole: string;
@@ -67,38 +66,34 @@ export class CentrifugeService implements CentrifugeSrv {
 
   constructor(private deps: CentrifugeSrvDeps) {
     this.dataStreamSubscriberReadiness = deps.dataStreamSubscriberReadiness.pipe(share(), startWith(true));
-
-    let liveUrl = `${deps.appUrl.replace(/^http/, 'ws')}/api/live/ws`;
-
-    const token = deps.grafanaAuthToken;
-    if (token !== null && token !== '') {
-      liveUrl += '?auth_token=' + token;
-    }
-
+    const liveUrl = `${deps.appUrl.replace(/^http/, 'ws')}/api/live/ws`;
     this.centrifuge = new Centrifuge(liveUrl, {
       timeout: 30000,
     });
-    // orgRole is set when logged in *or* anonymous users can use grafana
+    this.centrifuge.setConnectData({
+      sessionId: deps.sessionId,
+      orgId: deps.orgId,
+    });
+    // orgRole is set when logged in *or* anonomus users can use grafana
     if (deps.liveEnabled && deps.orgRole !== '') {
       this.centrifuge.connect(); // do connection
     }
-    this.connectionState = new BehaviorSubject<boolean>(this.centrifuge.state === State.Connected);
+    this.connectionState = new BehaviorSubject<boolean>(this.centrifuge.isConnected());
     this.connectionBlocker = new Promise<void>((resolve) => {
-      if (this.centrifuge.state === State.Connected) {
+      if (this.centrifuge.isConnected()) {
         return resolve();
       }
       const connectListener = () => {
         resolve();
-        this.centrifuge.removeListener('connected', connectListener);
+        this.centrifuge.removeListener('connect', connectListener);
       };
-      this.centrifuge.addListener('connected', connectListener);
+      this.centrifuge.addListener('connect', connectListener);
     });
 
     // Register global listeners
-    this.centrifuge.on('connected', this.onConnect);
-    this.centrifuge.on('connecting', this.onDisconnect);
-    this.centrifuge.on('disconnected', this.onDisconnect);
-    this.centrifuge.on('publication', this.onServerSideMessage);
+    this.centrifuge.on('connect', this.onConnect);
+    this.centrifuge.on('disconnect', this.onDisconnect);
+    this.centrifuge.on('publish', this.onServerSideMessage);
   }
 
   //----------------------------------------------------------
@@ -133,10 +128,7 @@ export class CentrifugeService implements CentrifugeSrv {
       return channel;
     }
     channel.shutdownCallback = () => {
-      this.open.delete(id);
-
-      // without a call to `removeSubscription`, the subscription will remain in centrifuge's internal registry
-      this.centrifuge.removeSubscription(this.centrifuge.getSubscription(id));
+      this.open.delete(id); // remove it from the list of open channels
     };
     this.open.set(id, channel);
 
@@ -154,15 +146,11 @@ export class CentrifugeService implements CentrifugeSrv {
   }
 
   private async initChannel(channel: CentrifugeLiveChannel): Promise<void> {
-    if (this.centrifuge.state !== State.Connected) {
+    const events = channel.initalize();
+    if (!this.centrifuge.isConnected()) {
       await this.connectionBlocker;
     }
-    const subscription = this.centrifuge.newSubscription(channel.id, {
-      data: channel.addr.data,
-    });
-    channel.subscription = subscription;
-    channel.initalize();
-    subscription.subscribe();
+    channel.subscription = this.centrifuge.subscribe(channel.id, events, { data: channel.addr.data });
     return;
   }
 
@@ -224,10 +212,10 @@ export class CentrifugeService implements CentrifugeSrv {
    * Since the initial request and subscription are on the same socket, this will support HA setups
    */
   getQueryData: CentrifugeSrv['getQueryData'] = async (options) => {
-    if (this.centrifuge.state !== State.Connected) {
+    if (!this.centrifuge.isConnected()) {
       await this.connectionBlocker;
     }
-    return this.centrifuge.rpc('grafana.query', options.body);
+    return this.centrifuge.namedRPC('grafana.query', options.body);
   };
 
   /**

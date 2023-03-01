@@ -1,7 +1,7 @@
 import { cx, css } from '@emotion/css';
 import React, { PureComponent } from 'react';
 
-import { SelectableValue, GrafanaTheme2 } from '@grafana/data';
+import { SelectableValue } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import {
   InlineFormLabel,
@@ -11,14 +11,12 @@ import {
   MonacoEditor,
   CodeEditorSuggestionItem,
   CodeEditorSuggestionItemKind,
-  withTheme2,
-  Themeable2,
 } from '@grafana/ui';
 
 import InfluxDatasource from '../datasource';
 import { InfluxQuery } from '../types';
 
-interface Props extends Themeable2 {
+type Props = {
   onChange: (query: InfluxQuery) => void;
   onRunQuery: () => void;
   query: InfluxQuery;
@@ -27,7 +25,7 @@ interface Props extends Themeable2 {
   // query-editor gets converted to react we can stop using this component directly
   // and then we can probably remove the datasource attribute.
   datasource: InfluxDatasource;
-}
+};
 
 const samples: Array<SelectableValue<string>> = [
   { label: 'Show buckets', description: 'List the available buckets (table)', value: 'buckets()' },
@@ -95,7 +93,7 @@ v1.tagValues(
   },
 ];
 
-class UnthemedFluxQueryEditor extends PureComponent<Props> {
+export class FluxQueryEditor extends PureComponent<Props> {
   onFluxQueryChange = (query: string) => {
     this.props.onChange({ ...this.props.query, query });
     this.props.onRunQuery();
@@ -166,8 +164,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
   };
 
   render() {
-    const { query, theme } = this.props;
-    const styles = getStyles(theme);
+    const { query } = this.props;
 
     const helpTooltip = (
       <div>
@@ -179,8 +176,7 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
     return (
       <>
         <CodeEditor
-          height={'100%'}
-          containerStyles={styles.editorContainerStyles}
+          height={'200px'}
           language="sql"
           value={query.query || ''}
           onBlur={this.onFluxQueryChange}
@@ -190,7 +186,14 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
           getSuggestions={this.getSuggestions}
           onEditorDidMount={this.editorDidMountCallbackHack}
         />
-        <div className={cx('gf-form-inline', styles.editorActions)}>
+        <div
+          className={cx(
+            'gf-form-inline',
+            css`
+              margin-top: 6px;
+            `
+          )}
+        >
           <LinkButton
             icon="external-link-alt"
             variant="secondary"
@@ -211,19 +214,3 @@ class UnthemedFluxQueryEditor extends PureComponent<Props> {
     );
   }
 }
-
-const getStyles = (theme: GrafanaTheme2) => ({
-  editorContainerStyles: css`
-    height: 200px;
-    max-width: 100%;
-    resize: vertical;
-    overflow: auto;
-    background-color: ${theme.isDark ? theme.colors.background.canvas : theme.colors.background.primary};
-    padding-bottom: ${theme.spacing(1)};
-  `,
-  editorActions: css`
-    margin-top: 6px;
-  `,
-});
-
-export const FluxQueryEditor = withTheme2(UnthemedFluxQueryEditor);

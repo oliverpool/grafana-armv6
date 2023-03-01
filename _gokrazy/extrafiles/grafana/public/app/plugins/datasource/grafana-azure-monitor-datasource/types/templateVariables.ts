@@ -3,6 +3,7 @@ export type GrafanaTemplateVariableQueryType =
   | 'AppInsightsGroupByQuery'
   | 'SubscriptionsQuery'
   | 'ResourceGroupsQuery'
+  | 'MetricDefinitionsQuery'
   | 'ResourceNamesQuery'
   | 'MetricNamespaceQuery'
   | 'MetricNamesQuery'
@@ -30,31 +31,29 @@ export interface ResourceGroupsQuery extends BaseGrafanaTemplateVariableQuery {
   kind: 'ResourceGroupsQuery';
   subscription: string;
 }
+export interface MetricDefinitionsQuery extends BaseGrafanaTemplateVariableQuery {
+  kind: 'MetricDefinitionsQuery';
+  subscription: string;
+  resourceGroup: string;
+}
 export interface ResourceNamesQuery extends BaseGrafanaTemplateVariableQuery {
   kind: 'ResourceNamesQuery';
   subscription: string;
   resourceGroup: string;
-  metricNamespace: string;
+  metricDefinition: string;
 }
 export interface MetricNamespaceQuery extends BaseGrafanaTemplateVariableQuery {
   kind: 'MetricNamespaceQuery';
   subscription: string;
   resourceGroup: string;
-  metricNamespace?: string;
-  resourceName?: string;
-}
-/** @deprecated Use MetricNamespaceQuery instead */
-export interface MetricDefinitionsQuery extends BaseGrafanaTemplateVariableQuery {
-  kind: 'MetricDefinitionsQuery';
-  subscription: string;
-  resourceGroup: string;
-  metricNamespace?: string;
-  resourceName?: string;
+  metricDefinition: string;
+  resourceName: string;
 }
 export interface MetricNamesQuery extends BaseGrafanaTemplateVariableQuery {
   kind: 'MetricNamesQuery';
   subscription: string;
   resourceGroup: string;
+  metricDefinition: string;
   resourceName: string;
   metricNamespace: string;
 }
@@ -68,9 +67,9 @@ export type GrafanaTemplateVariableQuery =
   | AppInsightsGroupByQuery
   | SubscriptionsQuery
   | ResourceGroupsQuery
+  | MetricDefinitionsQuery
   | ResourceNamesQuery
   | MetricNamespaceQuery
-  | MetricDefinitionsQuery
   | MetricNamesQuery
   | WorkspacesQuery
   | UnknownQuery;

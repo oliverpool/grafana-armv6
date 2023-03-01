@@ -109,8 +109,6 @@ const pluginsSlice = createSlice({
       state.tableViewEnabled = !state.tableViewEnabled;
     },
     closeEditor: (state) => {
-      state.getPanel = () => new PanelModel({});
-      state.getSourcePanel = () => new PanelModel({});
       state.isOpen = false;
       state.initDone = false;
       state.isVizPickerOpen = false;

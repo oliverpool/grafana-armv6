@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { FC, useMemo, useState, useEffect } from 'react';
 
 import { StandardEditorProps, SelectableValue, GrafanaTheme2 } from '@grafana/data';
 import { Alert, Select, stylesFactory, useTheme2 } from '@grafana/ui';
@@ -28,15 +28,15 @@ export interface GazetteerPathEditorConfigSettings {
   options?: Array<SelectableValue<string>>;
 }
 
-export const GazetteerPathEditor = ({
+export const GazetteerPathEditor: FC<StandardEditorProps<string, any, any, GazetteerPathEditorConfigSettings>> = ({
   value,
   onChange,
   context,
   item,
-}: StandardEditorProps<string, GazetteerPathEditorConfigSettings>) => {
+}) => {
   const styles = getStyles(useTheme2());
   const [gaz, setGaz] = useState<Gazetteer>();
-  const settings = item.settings;
+  const settings = item.settings as any;
 
   useEffect(() => {
     async function fetchData() {
@@ -62,6 +62,7 @@ export const GazetteerPathEditor = ({
   return (
     <>
       <Select
+        menuShouldPortal
         value={current}
         options={options}
         onChange={(v) => onChange(v.value)}

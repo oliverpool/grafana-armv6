@@ -91,26 +91,26 @@ describe('Streaming JSON', () => {
 
     it('should create frame with schema & data', () => {
       expect(stream.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               100,
               200,
               300,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "a",
               "b",
               "c",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               1,
               2,
               3,
@@ -128,28 +128,28 @@ describe('Streaming JSON', () => {
       });
 
       expect(stream.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               100,
               200,
               300,
               400,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "a",
               "b",
               "c",
               "d",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               1,
               2,
               3,
@@ -168,28 +168,28 @@ describe('Streaming JSON', () => {
       });
 
       expect(stream.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               200,
               300,
               400,
               500,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "b",
               "c",
               "d",
               "e",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               2,
               3,
               4,
@@ -212,10 +212,10 @@ describe('Streaming JSON', () => {
       });
 
       expect(stream.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               400,
               500,
               501,
@@ -223,9 +223,9 @@ describe('Streaming JSON', () => {
               503,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "d",
               "e",
               "f",
@@ -233,9 +233,9 @@ describe('Streaming JSON', () => {
               "h",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               4,
               5,
               6,
@@ -264,10 +264,10 @@ describe('Streaming JSON', () => {
       });
 
       expect(stream.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               500,
               501,
               502,
@@ -275,9 +275,9 @@ describe('Streaming JSON', () => {
               601,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "e",
               "f",
               "g",
@@ -285,9 +285,9 @@ describe('Streaming JSON', () => {
               "i",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               5,
               6,
               7,
@@ -296,9 +296,9 @@ describe('Streaming JSON', () => {
               10,
             ],
           },
-          {
+          Object {
             "name": "value2",
-            "value": [
+            "value": Array [
               undefined,
               undefined,
               undefined,
@@ -559,26 +559,26 @@ describe('Streaming JSON', () => {
       ]);
       expect(frame.length).toEqual(3);
       expect(frame.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               300,
               601,
               602,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "c",
               "x",
               "y",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               3,
               10,
               11,
@@ -604,24 +604,24 @@ describe('Streaming JSON', () => {
       ]);
       expect(frame.length).toEqual(2);
       expect(frame.fields.map((f) => ({ name: f.name, value: f.values.buffer }))).toMatchInlineSnapshot(`
-        [
-          {
+        Array [
+          Object {
             "name": "time",
-            "value": [
+            "value": Array [
               601,
               602,
             ],
           },
-          {
+          Object {
             "name": "name",
-            "value": [
+            "value": Array [
               "x",
               "y",
             ],
           },
-          {
+          Object {
             "name": "value",
-            "value": [
+            "value": Array [
               10,
               11,
             ],
@@ -663,7 +663,7 @@ describe('Streaming JSON', () => {
     expect(val).toEqual(200);
     expect(stream.length).toEqual(2);
 
-    const copy = { ...stream } as unknown as DataFrame;
+    const copy = { ...stream } as any as DataFrame;
     expect(copy.length).toEqual(2);
   });
 
@@ -722,83 +722,83 @@ describe('Streaming JSON', () => {
 
     expect(stream.fields.map((f) => ({ name: f.name, labels: f.labels, values: f.values.buffer })))
       .toMatchInlineSnapshot(`
-      [
-        {
+      Array [
+        Object {
           "labels": undefined,
           "name": "time",
-          "values": [
+          "values": Array [
             100,
             200,
             300,
             400,
           ],
         },
-        {
-          "labels": {
+        Object {
+          "labels": Object {
             "sensor": "A",
           },
           "name": "speed",
-          "values": [
+          "values": Array [
             10,
             undefined,
             30,
             undefined,
           ],
         },
-        {
-          "labels": {
+        Object {
+          "labels": Object {
             "sensor": "A",
           },
           "name": "light",
-          "values": [
+          "values": Array [
             1,
             undefined,
             5,
             undefined,
           ],
         },
-        {
-          "labels": {
+        Object {
+          "labels": Object {
             "sensor": "B",
           },
           "name": "speed",
-          "values": [
+          "values": Array [
             15,
             20,
             undefined,
             undefined,
           ],
         },
-        {
-          "labels": {
+        Object {
+          "labels": Object {
             "sensor": "B",
           },
           "name": "light",
-          "values": [
+          "values": Array [
             2,
             3,
             undefined,
             undefined,
           ],
         },
-        {
-          "labels": {
+        Object {
+          "labels": Object {
             "sensor": "C",
           },
           "name": "speed",
-          "values": [
+          "values": Array [
             undefined,
             25,
             undefined,
             40,
           ],
         },
-        {
-          "labels": {
+        Object {
+          "labels": Object {
             "sensor": "C",
           },
           "name": "light",
-          "values": [
+          "values": Array [
             undefined,
             4,
             undefined,
@@ -817,7 +817,7 @@ describe('Streaming JSON', () => {
 
     // names are based on legend format
     expect(stream.fields.map((f) => getFieldDisplayName(f, stream, [stream]))).toMatchInlineSnapshot(`
-      [
+      Array [
         "time: sensor",
         "speed: A",
         "light: A",
@@ -860,14 +860,14 @@ describe('Streaming JSON', () => {
     };
 
     expect(getSnapshot(stream)).toMatchInlineSnapshot(`
-      {
-        "info": {
+      Object {
+        "info": Object {
           "action": "replace",
           "length": 3,
           "number": 1,
           "schemaChanged": true,
         },
-        "values": [
+        "values": Array [
           1,
           2,
           3,
@@ -884,14 +884,14 @@ describe('Streaming JSON', () => {
       },
     });
     expect(getSnapshot(stream)).toMatchInlineSnapshot(`
-      {
-        "info": {
+      Object {
+        "info": Object {
           "action": "append",
           "length": 2,
           "number": 2,
           "schemaChanged": false,
         },
-        "values": [
+        "values": Array [
           2,
           3,
           4,
@@ -906,14 +906,14 @@ describe('Streaming JSON', () => {
       },
     });
     expect(getSnapshot(stream)).toMatchInlineSnapshot(`
-      {
-        "info": {
+      Object {
+        "info": Object {
           "action": "append",
           "length": 1,
           "number": 3,
           "schemaChanged": false,
         },
-        "values": [
+        "values": Array [
           3,
           4,
           5,
@@ -946,25 +946,25 @@ describe('Streaming JSON', () => {
     let cTables = transpose(vrecsC);
 
     expect(cTables).toMatchInlineSnapshot(`
-      [
-        [
+      Array [
+        Array [
           "sensor=A",
           "sensor=C",
         ],
-        [
-          [
-            [
+        Array [
+          Array [
+            Array [
               300,
             ],
-            [
+            Array [
               30,
             ],
           ],
-          [
-            [
+          Array [
+            Array [
               400,
             ],
-            [
+            Array [
               40,
             ],
           ],
@@ -975,16 +975,16 @@ describe('Streaming JSON', () => {
     let cJoined = join(cTables[1]);
 
     expect(cJoined).toMatchInlineSnapshot(`
-      [
-        [
+      Array [
+        Array [
           300,
           400,
         ],
-        [
+        Array [
           30,
           undefined,
         ],
-        [
+        Array [
           undefined,
           40,
         ],

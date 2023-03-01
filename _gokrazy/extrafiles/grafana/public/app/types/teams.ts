@@ -1,11 +1,15 @@
-import { Team as TeamBase } from '@grafana/schema';
+import { WithAccessControlMetadata } from '@grafana/data';
 
-export interface Team extends TeamBase {
-  id: number; // TODO switch to UUID
+import { TeamPermissionLevel } from './acl';
+
+export interface Team extends WithAccessControlMetadata {
+  id: number;
+  name: string;
+  avatarUrl: string;
+  email: string;
+  memberCount: number;
+  permission: TeamPermissionLevel;
 }
-
-// Represents the data sent via an API to create a team
-export interface TeamDTO extends Pick<TeamBase, 'name' | 'email'> {}
 
 export interface TeamMember {
   userId: number;
@@ -25,11 +29,8 @@ export interface TeamGroup {
 
 export interface TeamsState {
   teams: Team[];
-  page: number;
-  query: string;
-  perPage: number;
-  noTeams: boolean;
-  totalPages: number;
+  searchQuery: string;
+  searchPage: number;
   hasFetched: boolean;
 }
 

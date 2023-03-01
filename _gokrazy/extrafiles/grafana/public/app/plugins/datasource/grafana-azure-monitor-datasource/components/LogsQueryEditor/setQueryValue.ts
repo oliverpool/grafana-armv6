@@ -19,3 +19,13 @@ export function setFormatAs(query: AzureMonitorQuery, formatAs: string): AzureMo
     },
   };
 }
+
+export function setResource(query: AzureMonitorQuery, resourceURI: string | undefined): AzureMonitorQuery {
+  return {
+    ...query,
+    azureLogAnalytics: {
+      ...query.azureLogAnalytics,
+      resource: resourceURI,
+    },
+  };
+}

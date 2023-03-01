@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
-import { DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
-import { DataSourcePicker } from '@grafana/runtime';
-import { Alert, Field } from '@grafana/ui';
+import { DataSourceRef, SelectableValue } from '@grafana/data';
+import { Alert, InlineFieldRow, VerticalGroup } from '@grafana/ui';
 import { StoreState } from 'app/types';
 
-import { VariableLegend } from '../editor/VariableLegend';
+import { VariableSectionHeader } from '../editor/VariableSectionHeader';
+import { VariableSelectField } from '../editor/VariableSelectField';
 import { initialVariableEditorState } from '../editor/reducer';
 import { getAdhocVariableEditorState } from '../editor/selectors';
 import { VariableEditorProps } from '../editor/types';
@@ -14,7 +14,7 @@ import { getVariablesState } from '../state/selectors';
 import { AdHocVariableModel } from '../types';
 import { toKeyedVariableIdentifier } from '../utils';
 
-import { changeVariableDatasource } from './actions';
+import { changeVariableDatasource, initAdHocVariableEditor } from './actions';
 
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
@@ -34,6 +34,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
 };
 
 const mapDispatchToProps = {
+  initAdHocVariableEditor,
   changeVariableDatasource,
 };
 
@@ -50,25 +51,38 @@ export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
       console.error('AdHocVariableEditor: variable has no rootStateKey');
       return;
     }
+
+    this.props.initAdHocVariableEditor(rootStateKey);
   }
 
-  onDatasourceChanged = (ds: DataSourceInstanceSettings) => {
-    this.props.changeVariableDatasource(toKeyedVariableIdentifier(this.props.variable), getDataSourceRef(ds));
+  onDatasourceChanged = (option: SelectableValue<DataSourceRef>) => {
+    this.props.changeVariableDatasource(toKeyedVariableIdentifier(this.props.variable), option.value);
   };
 
   render() {
     const { variable, extended } = this.props;
+    const dataSources = extended?.dataSources ?? [];
     const infoText = extended?.infoText ?? null;
+    const options = dataSources.map((ds) => ({ label: ds.text, value: ds.value }));
+    const value = options.find((o) => o.value?.uid === variable.datasource?.uid) ?? options[0];
 
     return (
-      <>
-        <VariableLegend>Ad-hoc options</VariableLegend>
-        <Field label="Data source" htmlFor="data-source-picker">
-          <DataSourcePicker current={variable.datasource} onChange={this.onDatasourceChanged} width={30} noDefault />
-        </Field>
+      <VerticalGroup spacing="xs">
+        <VariableSectionHeader name="Options" />
+        <VerticalGroup spacing="sm">
+          <InlineFieldRow>
+            <VariableSelectField
+              name="Data source"
+              value={value}
+              options={options}
+              onChange={this.onDatasourceChanged}
+              labelWidth={10}
+            />
+          </InlineFieldRow>
 
-        {infoText ? <Alert title={infoText} severity="info" /> : null}
-      </>
+          {infoText ? <Alert title={infoText} severity="info" /> : null}
+        </VerticalGroup>
+      </VerticalGroup>
     );
   }
 }

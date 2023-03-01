@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 
-import { CoreApp, DataSourceApi, formattedValueToString, getValueFormat, PanelData, PanelPlugin } from '@grafana/data';
+import { DataSourceApi, formattedValueToString, getValueFormat, PanelData, PanelPlugin } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { Drawer, Tab, TabsBar } from '@grafana/ui';
-import { t, Trans } from 'app/core/internationalization';
 import { InspectDataTab } from 'app/features/inspector/InspectDataTab';
 import { InspectErrorTab } from 'app/features/inspector/InspectErrorTab';
 import { InspectJSONTab } from 'app/features/inspector/InspectJSONTab';
@@ -31,7 +30,7 @@ interface Props {
   onClose: () => void;
 }
 
-export const InspectContent = ({
+export const InspectContent: React.FC<Props> = ({
   panel,
   plugin,
   dashboard,
@@ -43,7 +42,7 @@ export const InspectContent = ({
   defaultTab,
   onDataOptionsChange,
   onClose,
-}: Props) => {
+}) => {
   const [currentTab, setCurrentTab] = useState(defaultTab ?? InspectTab.Data);
 
   if (!plugin) {
@@ -58,12 +57,11 @@ export const InspectContent = ({
     activeTab = InspectTab.JSON;
   }
 
-  const panelTitle = getTemplateSrv().replace(panel.title, panel.scopedVars, 'text') || 'Panel';
-  const title = t('dashboard.inspect.title', 'Inspect: {{panelTitle}}', { panelTitle });
+  const title = getTemplateSrv().replace(panel.title, panel.scopedVars, 'text');
 
   return (
     <Drawer
-      title={title}
+      title={`Inspect: ${title || 'Panel'}`}
       subtitle={data && formatStats(data)}
       width="50%"
       onClose={onClose}
@@ -71,13 +69,13 @@ export const InspectContent = ({
       scrollableContent
       tabs={
         <TabsBar>
-          {tabs.map((tab, index) => {
+          {tabs.map((t, index) => {
             return (
               <Tab
-                key={`${tab.value}-${index}`}
-                label={tab.label}
-                active={tab.value === activeTab}
-                onChangeTab={() => setCurrentTab(tab.value || InspectTab.Data)}
+                key={`${t.value}-${index}`}
+                label={t.label}
+                active={t.value === activeTab}
+                onChangeTab={() => setCurrentTab(t.value || InspectTab.Data)}
               />
             );
           })}
@@ -92,7 +90,6 @@ export const InspectContent = ({
           options={dataOptions}
           onOptionsChange={onDataOptionsChange}
           timeZone={dashboard.timezone}
-          app={CoreApp.Dashboard}
         />
       )}
       {data && activeTab === InspectTab.Meta && (
@@ -121,9 +118,5 @@ function formatStats(data: PanelData) {
   const requestTime = request.endTime ? request.endTime - request.startTime : 0;
   const formatted = formattedValueToString(getValueFormat('ms')(requestTime));
 
-  return (
-    <Trans i18nKey="dashboard.inspect.subtitle">
-      {{ queryCount }} queries with total query time of {{ formatted }}
-    </Trans>
-  );
+  return `${queryCount} queries with total query time of ${formatted}`;
 }

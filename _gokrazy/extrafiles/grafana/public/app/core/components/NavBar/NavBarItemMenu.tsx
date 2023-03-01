@@ -6,11 +6,10 @@ import { SpectrumMenuProps } from '@react-types/menu';
 import React, { ReactElement, useEffect, useRef } from 'react';
 
 import { GrafanaTheme2, NavMenuItemType, NavModelItem } from '@grafana/data';
-import { CustomScrollbar, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
 
 import { NavBarItemMenuItem } from './NavBarItemMenuItem';
 import { useNavBarItemMenuContext } from './context';
-import { getNavTitle } from './navBarItem-translations';
 import { getNavModelItemKey } from './utils';
 
 export interface NavBarItemMenuProps extends SpectrumMenuProps<NavModelItem> {
@@ -52,20 +51,13 @@ export function NavBarItemMenu(props: NavBarItemMenuProps): ReactElement | null 
 
   const menuSubTitle = section.value.subTitle;
 
-  const headerComponent = <NavBarItemMenuItem key={section.key} item={section} state={state} onNavigate={onNavigate} />;
+  const sectionComponent = (
+    <NavBarItemMenuItem key={section.key} item={section} state={state} onNavigate={onNavigate} />
+  );
 
   const itemComponents = items.map((item) => (
     <NavBarItemMenuItem key={getNavModelItemKey(item.value)} item={item} state={state} onNavigate={onNavigate} />
   ));
-
-  if (itemComponents.length === 0 && section.value.emptyMessageId) {
-    const emptyMessageTranslated = getNavTitle(section.value.emptyMessageId);
-    itemComponents.push(
-      <div key="empty-message" className={styles.emptyMessage}>
-        {emptyMessageTranslated}
-      </div>
-    );
-  }
 
   const subTitleComponent = menuSubTitle && (
     <li key={menuSubTitle} className={styles.subtitle}>
@@ -73,17 +65,10 @@ export function NavBarItemMenu(props: NavBarItemMenuProps): ReactElement | null 
     </li>
   );
 
-  const contents = [itemComponents, subTitleComponent];
-  const contentComponent = (
-    <CustomScrollbar hideHorizontalTrack hideVerticalTrack showScrollIndicators key="scrollContainer">
-      {reverseMenuDirection ? contents.reverse() : contents}
-    </CustomScrollbar>
-  );
-
-  const menu = [headerComponent, contentComponent];
+  const menu = [sectionComponent, itemComponents, subTitleComponent];
 
   return (
-    <ul className={styles.menu} ref={ref} {...mergeProps(menuProps, contextMenuProps)} tabIndex={-1}>
+    <ul className={styles.menu} ref={ref} {...mergeProps(menuProps, contextMenuProps)} tabIndex={menuHasFocus ? 0 : -1}>
       {reverseMenuDirection ? menu.reverse() : menu}
     </ul>
   );
@@ -94,13 +79,15 @@ function getStyles(theme: GrafanaTheme2, reverseDirection?: boolean) {
     menu: css`
       background-color: ${theme.colors.background.primary};
       border: 1px solid ${theme.components.panel.borderColor};
+      bottom: ${reverseDirection ? 0 : 'auto'};
       box-shadow: ${theme.shadows.z3};
       display: flex;
       flex-direction: column;
+      left: 100%;
       list-style: none;
-      max-height: 400px;
-      max-width: 300px;
       min-width: 140px;
+      position: absolute;
+      top: ${reverseDirection ? 'auto' : 0};
       transition: ${theme.transitions.create('opacity')};
       z-index: ${theme.zIndex.sidemenu};
     `,
@@ -113,10 +100,6 @@ function getStyles(theme: GrafanaTheme2, reverseDirection?: boolean) {
       padding: ${theme.spacing(1)} ${theme.spacing(2)} ${theme.spacing(1)};
       text-align: left;
       white-space: nowrap;
-    `,
-    emptyMessage: css`
-      font-style: italic;
-      padding: ${theme.spacing(0.5, 2)};
     `,
   };
 }

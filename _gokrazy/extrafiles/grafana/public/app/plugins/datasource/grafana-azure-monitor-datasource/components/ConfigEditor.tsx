@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 
 import { DataSourcePluginOptionsEditorProps, SelectableValue, updateDatasourcePluginOption } from '@grafana/data';
-import { getBackendSrv, getTemplateSrv, isFetchError, TemplateSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 import { Alert } from '@grafana/ui';
 
 import ResponseParser from '../azure_monitor/response_parser';
@@ -9,6 +9,9 @@ import { AzureDataSourceJsonData, AzureDataSourceSecureJsonData, AzureDataSource
 import { routeNames } from '../utils/common';
 
 import { MonitorConfig } from './MonitorConfig';
+import { AnalyticsConfig } from './deprecated/components/AnalyticsConfig';
+import { InsightsConfig } from './deprecated/components/InsightsConfig';
+import { gtGrafana9, isAppInsightsConfigured } from './deprecated/utils';
 
 export type Props = DataSourcePluginOptionsEditorProps<AzureDataSourceJsonData, AzureDataSourceSecureJsonData>;
 
@@ -70,15 +73,13 @@ export class ConfigEditor extends PureComponent<Props, State> {
       this.setState({ error: undefined });
       return ResponseParser.parseSubscriptionsForSelect(result);
     } catch (err) {
-      if (isFetchError(err)) {
-        this.setState({
-          error: {
-            title: 'Error requesting subscriptions',
-            description: 'Could not request subscriptions from Azure. Check your credentials and try again.',
-            details: err?.data?.message,
-          },
-        });
-      }
+      this.setState({
+        error: {
+          title: 'Error requesting subscriptions',
+          description: 'Could not request subscriptions from Azure. Check your credentials and try again.',
+          details: err?.data?.message,
+        },
+      });
       return Promise.resolve([]);
     }
   };
@@ -90,6 +91,14 @@ export class ConfigEditor extends PureComponent<Props, State> {
     return (
       <>
         <MonitorConfig options={options} updateOptions={this.updateOptions} getSubscriptions={this.getSubscriptions} />
+        {/* Remove with Grafana 9 */}
+        {!gtGrafana9() && (
+          <>
+            <AnalyticsConfig options={options} updateOptions={this.updateOptions} />
+            {isAppInsightsConfigured(options) && <InsightsConfig {...this.props} />}
+          </>
+        )}
+        {/* ===================== */}
         {error && (
           <Alert severity="error" title={error.title}>
             <p>{error.description}</p>

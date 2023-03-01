@@ -8,14 +8,13 @@ import { contextSrv } from 'app/core/services/context_srv';
 
 import { Authorize } from '../../components/Authorize';
 import { useURLSearchParams } from '../../hooks/useURLSearchParams';
-import { FormAmRoute } from '../../types/amroutes';
+import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
 import { getNotificationsPermissions } from '../../utils/access-control';
 import { emptyArrayFieldMatcher, emptyRoute } from '../../utils/amroutes';
 import { getNotificationPoliciesFilters } from '../../utils/misc';
 import { EmptyArea } from '../EmptyArea';
 import { EmptyAreaWithCTA } from '../EmptyAreaWithCTA';
 import { MatcherFilter } from '../alert-groups/MatcherFilter';
-import { AmRouteReceiver } from '../receivers/grafanaAppReceivers/types';
 
 import { AmRoutesTable } from './AmRoutesTable';
 
@@ -120,7 +119,7 @@ export const AmSpecificRouting: FC<AmSpecificRoutingProps> = ({
                   onFilterChange={(filter) =>
                     setFilters((currentFilters) => ({ ...currentFilters, queryString: filter }))
                   }
-                  defaultQueryString={filters.queryString ?? ''}
+                  queryString={filters.queryString ?? ''}
                   className={styles.filterInput}
                 />
                 <div className={styles.filterInput}>

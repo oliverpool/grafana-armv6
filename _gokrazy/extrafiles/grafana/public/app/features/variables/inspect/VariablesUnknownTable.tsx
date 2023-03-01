@@ -2,9 +2,9 @@ import { css } from '@emotion/css';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { useAsync } from 'react-use';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
-import { CollapsableSection, HorizontalGroup, Icon, Spinner, Tooltip, useStyles2, VerticalGroup } from '@grafana/ui';
+import { CollapsableSection, HorizontalGroup, Icon, Spinner, Tooltip, useStyles, VerticalGroup } from '@grafana/ui';
 
 import { DashboardModel } from '../../dashboard/state';
 import { VariableModel } from '../types';
@@ -23,7 +23,7 @@ export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknown
   const [open, setOpen] = useState(false);
   const [changed, setChanged] = useState(0);
   const [usages, setUsages] = useState<UsagesToNetwork[]>([]);
-  const style = useStyles2(getStyles);
+  const style = useStyles(getStyles);
   useEffect(() => setChanged((prevState) => prevState + 1), [variables, dashboard]);
   const { loading } = useAsync(async () => {
     if (open && changed > 0) {
@@ -74,7 +74,7 @@ export function VariablesUnknownTable({ variables, dashboard }: VariablesUnknown
 }
 
 function CollapseLabel(): ReactElement {
-  const style = useStyles2(getStyles);
+  const style = useStyles(getStyles);
   return (
     <h5>
       Renamed or missing variables
@@ -90,7 +90,7 @@ function NoUnknowns(): ReactElement {
 }
 
 function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
-  const style = useStyles2(getStyles);
+  const style = useStyles(getStyles);
   return (
     <table className="filter-table filter-table--hover">
       <thead>
@@ -122,13 +122,13 @@ function UnknownTable({ usages }: { usages: UsagesToNetwork[] }): ReactElement {
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme) => ({
   container: css`
-    margin-top: ${theme.spacing(4)};
-    padding-top: ${theme.spacing(4)};
+    margin-top: ${theme.spacing.xl};
+    padding-top: ${theme.spacing.xl};
   `,
   infoIcon: css`
-    margin-left: ${theme.spacing(1)};
+    margin-left: ${theme.spacing.sm};
   `,
   defaultColumn: css`
     width: 1%;
@@ -136,7 +136,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   firstColumn: css`
     width: 1%;
     vertical-align: top;
-    color: ${theme.colors.text.maxContrast};
+    color: ${theme.colors.textStrong};
   `,
   lastColumn: css`
     overflow: hidden;

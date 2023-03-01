@@ -8,18 +8,18 @@ import {
   ThresholdsConfig,
   ThresholdsMode,
   SelectableValue,
-  GrafanaTheme2,
+  GrafanaTheme,
 } from '@grafana/data';
 import {
   Input,
   colors,
   ColorPicker,
+  Icon,
   ThemeContext,
   Button,
   Label,
   RadioButtonGroup,
   stylesFactory,
-  IconButton,
 } from '@grafana/ui';
 
 const modes: Array<SelectableValue<ThresholdsMode>> = [
@@ -198,12 +198,7 @@ export class ThresholdsEditor extends PureComponent<Props, State> {
           </div>
         }
         suffix={
-          <IconButton
-            aria-label={`Remove ${ariaLabel}`}
-            className={styles.trashIcon}
-            name="trash-alt"
-            onClick={() => this.onRemoveThreshold(threshold)}
-          />
+          <Icon className={styles.trashIcon} name="trash-alt" onClick={() => this.onRemoveThreshold(threshold)} />
         }
       />
     );
@@ -216,7 +211,7 @@ export class ThresholdsEditor extends PureComponent<Props, State> {
     return (
       <ThemeContext.Consumer>
         {(theme) => {
-          const styles = getStyles(theme);
+          const styles = getStyles(theme.v1);
           return (
             <div className={styles.wrapper}>
               <Button
@@ -296,7 +291,7 @@ interface ThresholdStyles {
   trashIcon: string;
 }
 
-const getStyles = stylesFactory((theme: GrafanaTheme2): ThresholdStyles => {
+const getStyles = stylesFactory((theme: GrafanaTheme): ThresholdStyles => {
   return {
     wrapper: css`
       display: flex;
@@ -305,33 +300,32 @@ const getStyles = stylesFactory((theme: GrafanaTheme2): ThresholdStyles => {
     thresholds: css`
       display: flex;
       flex-direction: column;
-      margin-bottom: ${theme.spacing(2)};
+      margin-bottom: ${theme.spacing.formSpacingBase * 2}px;
     `,
     item: css`
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing.sm};
 
       &:last-child {
         margin-bottom: 0;
       }
     `,
     colorPicker: css`
-      padding: 0 ${theme.spacing(1)};
+      padding: 0 ${theme.spacing.sm};
     `,
     addButton: css`
-      margin-bottom: ${theme.spacing(1)};
+      margin-bottom: ${theme.spacing.sm};
     `,
     percentIcon: css`
-      font-size: ${theme.typography.bodySmall.fontSize};
-      color: ${theme.colors.text.secondary};
+      font-size: ${theme.typography.size.sm};
+      color: ${theme.colors.textWeak};
     `,
     inputPrefix: css`
       display: flex;
       align-items: center;
     `,
     trashIcon: css`
-      color: ${theme.colors.text.secondary};
+      color: ${theme.colors.textWeak};
       cursor: pointer;
-      margin-right: 0;
 
       &:hover {
         color: ${theme.colors.text};

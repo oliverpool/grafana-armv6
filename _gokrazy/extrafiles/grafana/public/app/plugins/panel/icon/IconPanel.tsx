@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import { PanelProps } from '@grafana/data';
-import { HorizontalConstraint, VerticalConstraint } from 'app/features/canvas';
 import { iconItem } from 'app/features/canvas/elements/icon';
 import { ElementState } from 'app/features/canvas/runtime/element';
 import {
@@ -39,16 +38,17 @@ export class IconPanel extends Component<Props> {
 
   updateSize = (props: Props) => {
     const { width, height } = props;
-    this.element.options.constraint = {
-      vertical: VerticalConstraint.Top,
-      horizontal: HorizontalConstraint.Left,
+    this.element.anchor = {
+      top: true,
+      left: true,
     };
-    this.element.options.placement = {
+    this.element.placement = {
       left: 0,
       top: 0,
       width,
       height,
     };
+    this.element.updateSize(width, height);
   };
 
   dims: DimensionContext = {
@@ -57,7 +57,6 @@ export class IconPanel extends Component<Props> {
     getScalar: (scalar: ScalarDimensionConfig) => getScalarDimensionFromData(this.props.data, scalar),
     getText: (text: TextDimensionConfig) => getTextDimensionFromData(this.props.data, text),
     getResource: (res: ResourceDimensionConfig) => getResourceDimensionFromData(this.props.data, res),
-    getPanelData: () => this.props.data,
   };
 
   shouldComponentUpdate(nextProps: Props) {

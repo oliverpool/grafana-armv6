@@ -2,12 +2,14 @@ import React, { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { SelectableValue } from '@grafana/data';
-import { Select, DeleteButton } from '@grafana/ui';
+import { LegacyForms, DeleteButton } from '@grafana/ui';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
 import { WithFeatureToggle } from 'app/core/components/WithFeatureToggle';
 import { TeamMember, teamsPermissionLevels, TeamPermissionLevel } from 'app/types';
 
 import { updateTeamMember, removeTeamMember } from './state/actions';
+
+const { Select } = LegacyForms;
 
 const mapDispatchToProps = {
   removeTeamMember,
@@ -52,18 +54,19 @@ export class TeamMemberRow extends PureComponent<Props> {
     return (
       <WithFeatureToggle featureToggle={editorsCanAdmin}>
         <td className="width-5 team-permissions">
-          {signedInUserIsTeamAdmin ? (
-            <Select
-              isSearchable={false}
-              options={teamsPermissionLevels}
-              onChange={(item) => this.onPermissionChange(item, member)}
-              value={value}
-              width={32}
-              aria-label={`Select member's ${member.name} permission level`}
-            />
-          ) : (
-            <span>{value.label}</span>
-          )}
+          <div className="gf-form">
+            {signedInUserIsTeamAdmin && (
+              <Select
+                menuShouldPortal
+                isSearchable={false}
+                options={teamsPermissionLevels}
+                onChange={(item) => this.onPermissionChange(item, member)}
+                className="gf-form-select-box__control--menu-right"
+                value={value}
+              />
+            )}
+            {!signedInUserIsTeamAdmin && <span>{value.label}</span>}
+          </div>
         </td>
       </WithFeatureToggle>
     );
@@ -77,7 +80,7 @@ export class TeamMemberRow extends PureComponent<Props> {
     return (
       <td>
         {labels.map((label) => (
-          <TagBadge key={label} label={label} removeIcon={false} count={0} />
+          <TagBadge key={label} label={label} removeIcon={false} count={0} onClick={() => {}} />
         ))}
       </td>
     );
@@ -89,7 +92,7 @@ export class TeamMemberRow extends PureComponent<Props> {
       <tr key={member.userId}>
         <td className="width-4 text-center">
           <img
-            alt={`Avatar for team member "${member.name}"`}
+            aria-label={`Avatar for team member "${member.name}"`}
             className="filter-table__avatar"
             src={member.avatarUrl}
           />
@@ -101,7 +104,7 @@ export class TeamMemberRow extends PureComponent<Props> {
         {syncEnabled && this.renderLabels(member.labels)}
         <td className="text-right">
           <DeleteButton
-            aria-label={`Remove team member ${member.name}`}
+            aria-label="Remove team member"
             size="sm"
             disabled={!signedInUserIsTeamAdmin}
             onConfirm={() => this.onRemoveMember(member)}

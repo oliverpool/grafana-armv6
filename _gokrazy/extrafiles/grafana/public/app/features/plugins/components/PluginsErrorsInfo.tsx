@@ -1,16 +1,16 @@
 import { css } from '@emotion/css';
 import React from 'react';
 
-import { GrafanaTheme2, PluginErrorCode, PluginSignatureStatus } from '@grafana/data';
+import { PluginErrorCode, PluginSignatureStatus } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { HorizontalGroup, InfoBox, List, PluginSignatureBadge, useStyles2 } from '@grafana/ui';
+import { HorizontalGroup, InfoBox, List, PluginSignatureBadge, useTheme } from '@grafana/ui';
 
 import { useGetErrors, useFetchStatus } from '../admin/state/hooks';
 
-export function PluginsErrorsInfo() {
+export function PluginsErrorsInfo(): React.ReactElement | null {
   const errors = useGetErrors();
   const { isLoading } = useFetchStatus();
-  const styles = useStyles2(getStyles);
+  const theme = useTheme();
 
   if (isLoading || errors.length === 0) {
     return null;
@@ -31,14 +31,22 @@ export function PluginsErrorsInfo() {
         The following plugins are disabled and not shown in the list below:
         <List
           items={errors}
-          className={styles.list}
+          className={css`
+            list-style-type: circle;
+          `}
           renderItem={(error) => (
-            <div className={styles.wrapper}>
+            <div
+              className={css`
+                margin-top: ${theme.spacing.sm};
+              `}
+            >
               <HorizontalGroup spacing="sm" justify="flex-start" align="center">
                 <strong>{error.pluginId}</strong>
                 <PluginSignatureBadge
                   status={mapPluginErrorCodeToSignatureStatus(error.errorCode)}
-                  className={styles.badge}
+                  className={css`
+                    margin-top: 0;
+                  `}
                 />
               </HorizontalGroup>
             </div>
@@ -60,18 +68,4 @@ function mapPluginErrorCodeToSignatureStatus(code: PluginErrorCode) {
     default:
       return PluginSignatureStatus.missing;
   }
-}
-
-function getStyles(theme: GrafanaTheme2) {
-  return {
-    list: css({
-      listStyleType: 'circle',
-    }),
-    wrapper: css({
-      marginTop: theme.spacing(1),
-    }),
-    badge: css({
-      marginTop: 0,
-    }),
-  };
 }

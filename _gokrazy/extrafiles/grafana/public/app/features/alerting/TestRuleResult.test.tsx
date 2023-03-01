@@ -1,8 +1,7 @@
-import { render } from '@testing-library/react';
+import { shallow } from 'enzyme';
 import React from 'react';
 
-import { PanelModel } from '../dashboard/state';
-import { createDashboardModelFixture, createPanelJSONFixture } from '../dashboard/state/__fixtures__/dashboardFixtures';
+import { DashboardModel, PanelModel } from '../dashboard/state';
 
 import { TestRuleResult, Props } from './TestRuleResult';
 
@@ -17,22 +16,35 @@ jest.mock('@grafana/runtime', () => {
   };
 });
 
-const props: Props = {
-  panel: new PanelModel({ id: 1 }),
-  dashboard: createDashboardModelFixture({
-    panels: [createPanelJSONFixture({ id: 1 })],
-  }),
+const setup = (propOverrides?: object) => {
+  const props: Props = {
+    panel: new PanelModel({ id: 1 }),
+    dashboard: new DashboardModel({ panels: [{ id: 1 }] }),
+  };
+
+  Object.assign(props, propOverrides);
+
+  const wrapper = shallow(<TestRuleResult {...props} />);
+
+  return { wrapper, instance: wrapper.instance() as TestRuleResult };
 };
 
-describe('TestRuleResult', () => {
-  it('should render without error', () => {
-    expect(() => render(<TestRuleResult {...props} />)).not.toThrow();
+describe('Render', () => {
+  it('should render component', () => {
+    const { wrapper } = setup();
+
+    expect(wrapper).toMatchSnapshot();
   });
+});
 
-  it('should call testRule when mounting', () => {
-    jest.spyOn(TestRuleResult.prototype, 'testRule');
-    render(<TestRuleResult {...props} />);
+describe('Life cycle', () => {
+  describe('component did mount', () => {
+    it('should call testRule', () => {
+      const { instance } = setup();
+      instance.testRule = jest.fn();
+      instance.componentDidMount();
 
-    expect(TestRuleResult.prototype.testRule).toHaveBeenCalled();
+      expect(instance.testRule).toHaveBeenCalled();
+    });
   });
 });

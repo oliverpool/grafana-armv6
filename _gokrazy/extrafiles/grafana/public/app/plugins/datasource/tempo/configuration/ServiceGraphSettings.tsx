@@ -1,16 +1,16 @@
 import { css } from '@emotion/css';
 import React from 'react';
 
-import { DataSourcePluginOptionsEditorProps, GrafanaTheme2, updateDatasourcePluginJsonDataOption } from '@grafana/data';
+import { DataSourcePluginOptionsEditorProps, GrafanaTheme, updateDatasourcePluginJsonDataOption } from '@grafana/data';
 import { DataSourcePicker } from '@grafana/runtime';
-import { Button, InlineField, InlineFieldRow, useStyles2 } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, useStyles } from '@grafana/ui';
 
-import { TempoJsonData } from '../types';
+import { TempoJsonData } from '../datasource';
 
 interface Props extends DataSourcePluginOptionsEditorProps<TempoJsonData> {}
 
 export function ServiceGraphSettings({ options, onOptionsChange }: Props) {
-  const styles = useStyles2(getStyles);
+  const styles = useStyles(getStyles);
 
   return (
     <div className={css({ width: '100%' })}>
@@ -39,31 +39,29 @@ export function ServiceGraphSettings({ options, onOptionsChange }: Props) {
             }
           />
         </InlineField>
-        {options.jsonData.serviceMap?.datasourceUid ? (
-          <Button
-            type={'button'}
-            variant={'secondary'}
-            size={'sm'}
-            fill={'text'}
-            onClick={() => {
-              updateDatasourcePluginJsonDataOption({ onOptionsChange, options }, 'serviceMap', {
-                datasourceUid: undefined,
-              });
-            }}
-          >
-            Clear
-          </Button>
-        ) : null}
+        <Button
+          type={'button'}
+          variant={'secondary'}
+          size={'sm'}
+          fill={'text'}
+          onClick={() => {
+            updateDatasourcePluginJsonDataOption({ onOptionsChange, options }, 'serviceMap', {
+              datasourceUid: undefined,
+            });
+          }}
+        >
+          Clear
+        </Button>
       </InlineFieldRow>
     </div>
   );
 }
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme) => ({
   infoText: css`
     label: infoText;
-    padding-bottom: ${theme.spacing(2)};
-    color: ${theme.colors.text.secondary};
+    padding-bottom: ${theme.spacing.md};
+    color: ${theme.colors.textSemiWeak};
   `,
 
   row: css`

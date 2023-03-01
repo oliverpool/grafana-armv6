@@ -2,7 +2,6 @@ export type ResourcePermission = {
   id: number;
   resourceId: string;
   isManaged: boolean;
-  isInherited: boolean;
   userId?: number;
   userLogin?: string;
   userAvatarUrl?: string;
@@ -23,7 +22,6 @@ export type SetPermission = {
 };
 
 export enum PermissionTarget {
-  None = 'None',
   Team = 'Team',
   User = 'User',
   BuiltInRole = 'builtInRole',

@@ -1,32 +1,35 @@
-import React from 'react';
+import React, { FC } from 'react';
+import { connect } from 'react-redux';
 
-import { config } from '@grafana/runtime';
-import { Page } from 'app/core/components/Page/Page';
+import { NavModel } from '@grafana/data';
+import Page from 'app/core/components/Page/Page';
 import { contextSrv } from 'app/core/core';
+import { getNavModel } from 'app/core/selectors/navModel';
+import { StoreState } from 'app/types/store';
 
 import UserInviteForm from './UserInviteForm';
 
-export function UserInvitePage() {
-  const subTitle = (
-    <>
-      Send invitation or add existing Grafana user to the organization.
-      <span className="highlight-word"> {contextSrv.user.orgName}</span>
-    </>
-  );
+interface Props {
+  navModel: NavModel;
+}
 
-  const navId = config.featureToggles.topnav ? 'global-users' : 'users';
-
+export const UserInvitePage: FC<Props> = ({ navModel }) => {
   return (
-    <Page navId={navId} pageNav={{ text: 'Invite user' }} subTitle={subTitle}>
+    <Page navModel={navModel}>
       <Page.Contents>
-        <Page.OldNavOnly>
-          <h3 className="page-sub-heading">Invite user</h3>
-          <div className="p-b-2">{subTitle}</div>
-        </Page.OldNavOnly>
+        <h3 className="page-sub-heading">Invite user</h3>
+        <div className="p-b-2">
+          Send invitation or add existing Grafana user to the organization.
+          <span className="highlight-word"> {contextSrv.user.orgName}</span>
+        </div>
         <UserInviteForm />
       </Page.Contents>
     </Page>
   );
-}
+};
 
-export default UserInvitePage;
+const mapStateToProps = (state: StoreState) => ({
+  navModel: getNavModel(state.navIndex, 'users'),
+});
+
+export default connect(mapStateToProps)(UserInvitePage);

@@ -1,5 +1,6 @@
 ﻿import coreModule from './core_module';
 
+/** @ngInject */
 export function autofillEventFix($compile: any) {
   return {
     link: ($scope: any, elem: any) => {
@@ -31,4 +32,4 @@ export function autofillEventFix($compile: any) {
   };
 }
 
-coreModule.directive('autofillEventFix', ['$compile', autofillEventFix]);
+coreModule.directive('autofillEventFix', autofillEventFix);

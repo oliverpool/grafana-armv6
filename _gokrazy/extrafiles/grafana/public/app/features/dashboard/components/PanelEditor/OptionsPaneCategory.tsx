@@ -4,8 +4,9 @@ import { useLocalStorage } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { Button, Counter, useStyles2 } from '@grafana/ui';
+import { Counter, useStyles2 } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
+import { CollapseToggle } from 'app/features/alerting/unified/components/CollapseToggle';
 
 import { PANEL_EDITOR_UI_STATE_STORAGE_KEY } from './state/reducers';
 
@@ -56,12 +57,9 @@ export const OptionsPaneCategory: FC<OptionsPaneCategoryProps> = React.memo(
 
     const onToggle = useCallback(() => {
       manualClickTime.current = Date.now();
-      updateQueryParams(
-        {
-          [CATEGORY_PARAM_NAME]: isExpanded ? undefined : id,
-        },
-        true
-      );
+      updateQueryParams({
+        [CATEGORY_PARAM_NAME]: isExpanded ? undefined : id,
+      });
       setSavedState({ isExpanded: !isExpanded });
       setIsExpanded(!isExpanded);
     }, [setSavedState, setIsExpanded, updateQueryParams, isExpanded, id]);
@@ -106,16 +104,7 @@ export const OptionsPaneCategory: FC<OptionsPaneCategoryProps> = React.memo(
         ref={ref}
       >
         <div className={headerStyles} onClick={onToggle} aria-label={selectors.components.OptionsGroup.toggle(id)}>
-          <Button
-            type="button"
-            fill="text"
-            size="sm"
-            variant="secondary"
-            aria-expanded={isExpanded}
-            className={styles.toggleButton}
-            icon={isExpanded ? 'angle-down' : 'angle-right'}
-            onClick={onToggle}
-          />
+          <CollapseToggle isCollapsed={!isExpanded} idControlled={id} onToggle={onToggle} />
           <h6 id={`button-${id}`} className={styles.title}>
             {renderTitle(isExpanded)}
           </h6>
@@ -145,14 +134,13 @@ const getStyles = (theme: GrafanaTheme2) => {
       overflow: hidden;
       line-height: 1.5;
       font-size: 1rem;
-      padding-left: 6px;
       font-weight: ${theme.typography.fontWeightMedium};
       margin: 0;
     `,
     header: css`
       display: flex;
       cursor: pointer;
-      align-items: center;
+      align-items: baseline;
       padding: ${theme.spacing(0.5)};
       color: ${theme.colors.text.primary};
       font-weight: ${theme.typography.fontWeightMedium};
@@ -160,9 +148,6 @@ const getStyles = (theme: GrafanaTheme2) => {
       &:hover {
         background: ${theme.colors.emphasize(theme.colors.background.primary, 0.03)};
       }
-    `,
-    toggleButton: css`
-      align-self: baseline;
     `,
     headerExpanded: css`
       color: ${theme.colors.text.primary};

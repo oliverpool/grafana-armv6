@@ -2,7 +2,7 @@ import { VisualizationSuggestionsBuilder, VizOrientation } from '@grafana/data';
 import { BarGaugeDisplayMode } from '@grafana/ui';
 import { SuggestionName } from 'app/types/suggestions';
 
-import { PanelOptions } from './panelcfg.gen';
+import { BarGaugeOptions } from './types';
 
 export class BarGaugeSuggestionsSupplier {
   getSuggestionsForData(builder: VisualizationSuggestionsBuilder) {
@@ -12,7 +12,7 @@ export class BarGaugeSuggestionsSupplier {
       return;
     }
 
-    const list = builder.getListAppender<PanelOptions, {}>({
+    const list = builder.getListAppender<BarGaugeOptions, {}>({
       name: '',
       pluginId: 'bargauge',
       options: {},

@@ -1,6 +1,10 @@
 import { Registry, RegistryItem } from '@grafana/data';
 
-import { FieldExtractorID } from './types';
+export enum FieldExtractorID {
+  JSON = 'json',
+  KeyValues = 'kvp',
+  Auto = 'auto',
+}
 
 export interface FieldExtractor extends RegistryItem {
   parse: (v: string) => Record<string, any> | undefined;

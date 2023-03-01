@@ -1,5 +1,4 @@
-import { DataSourceApi } from '@grafana/data';
-import { DataQuery } from '@grafana/schema';
+import { DataQuery, DataSourceApi } from '@grafana/data';
 import { ExploreId, ExploreItemState } from 'app/types';
 
 import { updateDatasourceInstanceAction, datasourceReducer } from './datasource';

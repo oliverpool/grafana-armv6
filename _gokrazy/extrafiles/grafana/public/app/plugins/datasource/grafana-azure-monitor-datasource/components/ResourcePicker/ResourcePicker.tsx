@@ -1,276 +1,253 @@
 import { cx } from '@emotion/css';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useEffectOnce } from 'react-use';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { config } from '@grafana/runtime';
-import { Alert, Button, LoadingPlaceholder, useStyles2 } from '@grafana/ui';
+import { Alert, Button, Icon, Input, LoadingPlaceholder, Tooltip, useStyles2, Collapse, Label } from '@grafana/ui';
 
-import { selectors } from '../../e2e/selectors';
-import ResourcePickerData, { ResourcePickerQueryType } from '../../resourcePicker/resourcePickerData';
-import { AzureMetricResource } from '../../types';
+import ResourcePickerData from '../../resourcePicker/resourcePickerData';
 import messageFromError from '../../utils/messageFromError';
 import { Space } from '../Space';
 
-import Advanced from './Advanced';
-import AdvancedMulti from './AdvancedMulti';
 import NestedRow from './NestedRow';
-import Search from './Search';
 import getStyles from './styles';
 import { ResourceRow, ResourceRowGroup, ResourceRowType } from './types';
-import { findRows, parseMultipleResourceDetails, resourcesToStrings, matchURI, resourceToString } from './utils';
+import { addResources, findRow, parseResourceURI } from './utils';
 
-interface ResourcePickerProps<T> {
+interface ResourcePickerProps {
   resourcePickerData: ResourcePickerData;
-  resources: T[];
+  resourceURI: string | undefined;
   selectableEntryTypes: ResourceRowType[];
-  queryType: ResourcePickerQueryType;
 
-  onApply: (resources: T[]) => void;
+  onApply: (resourceURI: string | undefined) => void;
   onCancel: () => void;
-  disableRow: (row: ResourceRow, selectedRows: ResourceRowGroup) => boolean;
-  renderAdvanced: (resources: T[], onChange: (resources: T[]) => void) => React.ReactNode;
 }
 
 const ResourcePicker = ({
   resourcePickerData,
-  resources,
+  resourceURI,
   onApply,
   onCancel,
   selectableEntryTypes,
-  queryType,
-  disableRow,
-  renderAdvanced,
-}: ResourcePickerProps<string | AzureMetricResource>) => {
+}: ResourcePickerProps) => {
   const styles = useStyles2(getStyles);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [rows, setRows] = useState<ResourceRowGroup>([]);
-  const [selectedRows, setSelectedRows] = useState<ResourceRowGroup>([]);
-  const [internalSelected, setInternalSelected] = useState(resources);
+  type LoadingStatus = 'NotStarted' | 'Started' | 'Done';
+  const [loadingStatus, setLoadingStatus] = useState<LoadingStatus>('NotStarted');
+  const [azureRows, setAzureRows] = useState<ResourceRowGroup>([]);
+  const [internalSelectedURI, setInternalSelectedURI] = useState<string | undefined>(resourceURI);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const [shouldShowLimitFlag, setShouldShowLimitFlag] = useState(false);
-
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(resourceURI?.includes('$'));
   // Sync the resourceURI prop to internal state
   useEffect(() => {
-    setInternalSelected(resources);
-  }, [resources]);
+    setInternalSelectedURI(resourceURI);
+  }, [resourceURI]);
 
-  const loadInitialData = useCallback(async () => {
-    if (!isLoading) {
-      try {
-        setIsLoading(true);
-        const resources = await resourcePickerData.fetchInitialRows(
-          queryType,
-          parseMultipleResourceDetails(internalSelected ?? {})
-        );
-        setRows(resources);
-      } catch (error) {
-        setErrorMessage(messageFromError(error));
-      }
-      setIsLoading(false);
-    }
-  }, [internalSelected, isLoading, resourcePickerData, queryType]);
-
-  useEffectOnce(() => {
-    loadInitialData();
-  });
-
-  // Avoid using empty resources
-  const isValid = (r: string | AzureMetricResource) =>
-    typeof r === 'string' ? r !== '' : r.subscription && r.resourceGroup && r.resourceName && r.metricNamespace;
-
-  // set selected row data whenever row or selection changes
+  // Request initial data on first mount
   useEffect(() => {
-    if (!internalSelected) {
-      setSelectedRows([]);
-    }
+    if (loadingStatus === 'NotStarted') {
+      const loadInitialData = async () => {
+        try {
+          setLoadingStatus('Started');
+          let resources = await resourcePickerData.getSubscriptions();
+          if (!internalSelectedURI) {
+            setAzureRows(resources);
+            setLoadingStatus('Done');
+            return;
+          }
 
-    const sanitized = internalSelected.filter((r) => isValid(r));
-    const found = internalSelected && findRows(rows, resourcesToStrings(sanitized));
-    if (found && found.length) {
-      return setSelectedRows(found);
-    }
-    return setSelectedRows([]);
-  }, [internalSelected, rows]);
+          const parsedURI = parseResourceURI(internalSelectedURI ?? '');
+          if (parsedURI) {
+            const resourceGroupURI = `/subscriptions/${parsedURI.subscriptionID}/resourceGroups/${parsedURI.resourceGroup}`;
 
-  // Request resources for an expanded resource group
+            // if a resource group was previously selected, but the resource groups under the parent subscription have not been loaded yet
+            if (parsedURI.resourceGroup && !findRow(resources, resourceGroupURI)) {
+              const resourceGroups = await resourcePickerData.getResourceGroupsBySubscriptionId(
+                parsedURI.subscriptionID
+              );
+              resources = addResources(resources, `/subscriptions/${parsedURI.subscriptionID}`, resourceGroups);
+            }
+
+            // if a resource was previously selected, but the resources under the parent resource group have not been loaded yet
+            if (parsedURI.resource && !findRow(azureRows, parsedURI.resource ?? '')) {
+              const resourcesForResourceGroup = await resourcePickerData.getResourcesForResourceGroup(resourceGroupURI);
+              resources = addResources(resources, resourceGroupURI, resourcesForResourceGroup);
+            }
+          }
+          setAzureRows(resources);
+          setLoadingStatus('Done');
+        } catch (error) {
+          setLoadingStatus('Done');
+          setErrorMessage(messageFromError(error));
+        }
+      };
+
+      loadInitialData();
+    }
+  }, [resourcePickerData, internalSelectedURI, azureRows, loadingStatus]);
+
+  // Map the selected item into an array of rows
+  const selectedResourceRows = useMemo(() => {
+    const found = internalSelectedURI && findRow(azureRows, internalSelectedURI);
+
+    return found
+      ? [
+          {
+            ...found,
+            children: undefined,
+          },
+        ]
+      : [];
+  }, [internalSelectedURI, azureRows]);
+
+  // Request resources for a expanded resource group
   const requestNestedRows = useCallback(
-    async (parentRow: ResourceRow) => {
+    async (resourceGroupOrSubscription: ResourceRow) => {
       // clear error message (also when loading cached resources)
       setErrorMessage(undefined);
 
       // If we already have children, we don't need to re-fetch them.
-      if (parentRow.children?.length) {
+      if (resourceGroupOrSubscription.children?.length) {
         return;
       }
 
       try {
-        const nestedRows = await resourcePickerData.fetchAndAppendNestedRow(rows, parentRow, queryType);
-        setRows(nestedRows);
+        const rows =
+          resourceGroupOrSubscription.type === ResourceRowType.Subscription
+            ? await resourcePickerData.getResourceGroupsBySubscriptionId(resourceGroupOrSubscription.id)
+            : await resourcePickerData.getResourcesForResourceGroup(resourceGroupOrSubscription.id);
+
+        const newRows = addResources(azureRows, resourceGroupOrSubscription.uri, rows);
+
+        setAzureRows(newRows);
       } catch (error) {
         setErrorMessage(messageFromError(error));
         throw error;
       }
     },
-    [resourcePickerData, rows, queryType]
+    [resourcePickerData, azureRows]
   );
 
-  const handleSelectionChanged = useCallback(
-    (row: ResourceRow, isSelected: boolean) => {
-      if (isSelected) {
-        const newRes = queryType === 'logs' ? row.uri : parseMultipleResourceDetails([row.uri], row.location)[0];
-        const newSelected = internalSelected ? internalSelected.concat(newRes) : [newRes];
-        setInternalSelected(newSelected);
-      } else {
-        const newInternalSelected = internalSelected?.filter((r) => {
-          return !matchURI(resourceToString(r), row.uri);
-        });
-        setInternalSelected(newInternalSelected);
-      }
-    },
-    [queryType, internalSelected, setInternalSelected]
-  );
+  const handleSelectionChanged = useCallback((row: ResourceRow, isSelected: boolean) => {
+    isSelected ? setInternalSelectedURI(row.uri) : setInternalSelectedURI(undefined);
+  }, []);
 
   const handleApply = useCallback(() => {
-    if (internalSelected) {
-      onApply(queryType === 'logs' ? internalSelected : parseMultipleResourceDetails(internalSelected));
-    }
-  }, [queryType, internalSelected, onApply]);
-
-  const handleSearch = useCallback(
-    async (searchWord: string) => {
-      // clear errors and warnings
-      setErrorMessage(undefined);
-      setShouldShowLimitFlag(false);
-
-      if (!searchWord) {
-        loadInitialData();
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        const searchResults = await resourcePickerData.search(searchWord, queryType);
-        setRows(searchResults);
-        if (searchResults.length >= resourcePickerData.resultLimit) {
-          setShouldShowLimitFlag(true);
-        }
-      } catch (err) {
-        setErrorMessage(messageFromError(err));
-      }
-      setIsLoading(false);
-    },
-    [loadInitialData, resourcePickerData, queryType]
-  );
+    onApply(internalSelectedURI);
+  }, [internalSelectedURI, onApply]);
 
   return (
     <div>
-      <Search searchFn={handleSearch} />
-      {shouldShowLimitFlag ? (
-        <p className={styles.resultLimit}>Showing first {resourcePickerData.resultLimit} results</p>
+      {loadingStatus === 'Started' ? (
+        <div className={styles.loadingWrapper}>
+          <LoadingPlaceholder text={'Loading...'} />
+        </div>
       ) : (
-        <Space v={2} />
-      )}
-
-      <table className={styles.table}>
-        <thead>
-          <tr className={cx(styles.row, styles.header)}>
-            <td className={styles.cell}>Scope</td>
-            <td className={styles.cell}>Type</td>
-            <td className={styles.cell}>Location</td>
-          </tr>
-        </thead>
-      </table>
-
-      <div className={styles.tableScroller}>
-        <table className={styles.table}>
-          <tbody>
-            {isLoading && (
-              <tr className={cx(styles.row)}>
-                <td className={styles.cell}>
-                  <LoadingPlaceholder text={'Loading...'} />
-                </td>
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr className={cx(styles.row, styles.header)}>
+                <td className={styles.cell}>Scope</td>
+                <td className={styles.cell}>Type</td>
+                <td className={styles.cell}>Location</td>
               </tr>
-            )}
-            {!isLoading && rows.length === 0 && (
-              <tr className={cx(styles.row)}>
-                <td className={styles.cell} aria-live="polite">
-                  No resources found
-                </td>
-              </tr>
-            )}
-            {!isLoading &&
-              rows.map((row) => (
-                <NestedRow
-                  key={row.uri}
-                  row={row}
-                  selectedRows={selectedRows}
-                  level={0}
-                  requestNestedRows={requestNestedRows}
-                  onRowSelectedChange={handleSelectionChanged}
-                  selectableEntryTypes={selectableEntryTypes}
-                  scrollIntoView={true}
-                  disableRow={disableRow}
-                />
-              ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+          </table>
 
-      <div className={styles.selectionFooter}>
-        {selectedRows.length > 0 && (
-          <>
-            <h5>Selection</h5>
+          <div className={styles.tableScroller}>
+            <table className={styles.table}>
+              <tbody>
+                {azureRows.map((row) => (
+                  <NestedRow
+                    key={row.uri}
+                    row={row}
+                    selectedRows={selectedResourceRows}
+                    level={0}
+                    requestNestedRows={requestNestedRows}
+                    onRowSelectedChange={handleSelectionChanged}
+                    selectableEntryTypes={selectableEntryTypes}
+                    scrollIntoView={true}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            <div className={styles.tableScroller}>
-              <table className={styles.table}>
-                <tbody>
-                  {selectedRows.map((row) => (
-                    <NestedRow
-                      key={row.uri}
-                      row={row}
-                      selectedRows={selectedRows}
-                      level={0}
-                      requestNestedRows={requestNestedRows}
-                      onRowSelectedChange={handleSelectionChanged}
-                      selectableEntryTypes={selectableEntryTypes}
-                      disableRow={() => false}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className={styles.selectionFooter}>
+            {selectedResourceRows.length > 0 && (
+              <>
+                <h5>Selection</h5>
+
+                <div className={styles.tableScroller}>
+                  <table className={styles.table}>
+                    <tbody>
+                      {selectedResourceRows.map((row) => (
+                        <NestedRow
+                          key={row.uri}
+                          row={row}
+                          selectedRows={selectedResourceRows}
+                          level={0}
+                          requestNestedRows={requestNestedRows}
+                          onRowSelectedChange={handleSelectionChanged}
+                          selectableEntryTypes={selectableEntryTypes}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Space v={2} />
+              </>
+            )}
+
+            <Collapse
+              collapsible
+              label="Advanced"
+              isOpen={isAdvancedOpen}
+              onToggle={() => setIsAdvancedOpen(!isAdvancedOpen)}
+            >
+              <Label htmlFor={`input-${internalSelectedURI}`}>
+                <h6>
+                  Resource URI{' '}
+                  <Tooltip
+                    content={
+                      <>
+                        Manually edit the{' '}
+                        <a
+                          href="https://docs.microsoft.com/en-us/azure/azure-monitor/logs/log-standard-columns#_resourceid"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          resource uri.{' '}
+                        </a>
+                        Supports the use of multiple template variables (ex: /subscriptions/$subId/resourceGroups/$rg)
+                      </>
+                    }
+                    placement="right"
+                    interactive={true}
+                  >
+                    <Icon name="info-circle" />
+                  </Tooltip>
+                </h6>
+              </Label>
+              <Input
+                id={`input-${internalSelectedURI}`}
+                value={internalSelectedURI}
+                onChange={(event) => setInternalSelectedURI(event.currentTarget.value)}
+                placeholder="ex: /subscriptions/$subId"
+              />
+            </Collapse>
             <Space v={2} />
-          </>
-        )}
 
-        {config.featureToggles.azureMultipleResourcePicker ? (
-          <AdvancedMulti
-            resources={internalSelected}
-            onChange={(r) => setInternalSelected(r)}
-            renderAdvanced={renderAdvanced}
-          />
-        ) : (
-          <Advanced resources={internalSelected} onChange={(r) => setInternalSelected(r)} />
-        )}
+            <Button disabled={!!errorMessage} onClick={handleApply}>
+              Apply
+            </Button>
 
-        <Space v={2} />
+            <Space layout="inline" h={1} />
 
-        <Button
-          disabled={!!errorMessage || !internalSelected.every(isValid)}
-          onClick={handleApply}
-          data-testid={selectors.components.queryEditor.resourcePicker.apply.button}
-        >
-          Apply
-        </Button>
-
-        <Space layout="inline" h={1} />
-
-        <Button onClick={onCancel} variant="secondary">
-          Cancel
-        </Button>
-      </div>
-
+            <Button onClick={onCancel} variant="secondary">
+              Cancel
+            </Button>
+          </div>
+        </>
+      )}
       {errorMessage && (
         <>
           <Space v={2} />

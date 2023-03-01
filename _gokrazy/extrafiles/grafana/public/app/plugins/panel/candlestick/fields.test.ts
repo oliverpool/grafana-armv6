@@ -44,7 +44,7 @@ describe('Candlestick data', () => {
       theme
     );
     expect(info?.names).toMatchInlineSnapshot(`
-      {
+      Object {
         "close": "Next open",
         "high": "MAX",
         "low": "min",
@@ -82,13 +82,13 @@ describe('Candlestick data', () => {
 
     // Close should be offset by one and dupliate last point
     expect({ open: info.open!.values.toArray(), close: info.close!.values.toArray() }).toMatchInlineSnapshot(`
-      {
-        "close": [
+      Object {
+        "close": Array [
           5,
           6,
           6,
         ],
-        "open": [
+        "open": Array [
           4,
           5,
           6,

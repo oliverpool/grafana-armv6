@@ -14,7 +14,7 @@ interface SearchArgs {
   searchString: string;
   sortDirection?: string;
   panelFilter?: string[];
-  folderFilterUIDs?: string[];
+  folderFilter?: string[];
   currentPanelId?: string;
 }
 
@@ -29,7 +29,7 @@ export function searchForLibraryPanels(args: SearchArgs): DispatchResult {
         excludeUid: args.currentPanelId,
         sortDirection: args.sortDirection,
         typeFilter: args.panelFilter,
-        folderFilterUIDs: args.folderFilterUIDs,
+        folderFilter: args.folderFilter,
       })
     ).pipe(
       mergeMap(({ perPage, elements: libraryPanels, page, totalCount }) =>

@@ -1,6 +1,6 @@
 import { DataSourcePluginMeta, DataSourceSettings, LayoutMode } from '@grafana/data';
-import { TestingStatus } from '@grafana/runtime';
-import { GenericDataSourcePlugin } from 'app/features/datasources/types';
+import { HealthCheckResultDetails } from '@grafana/runtime/src/utils/DataSourceWithBackend';
+import { GenericDataSourcePlugin } from 'app/features/datasources/settings/PluginSettings';
 
 export interface DataSourcesState {
   dataSources: DataSourceSettings[];
@@ -14,7 +14,12 @@ export interface DataSourcesState {
   isLoadingDataSources: boolean;
   plugins: DataSourcePluginMeta[];
   categories: DataSourcePluginCategory[];
-  isSortAscending: boolean;
+}
+
+export interface TestingStatus {
+  message?: string | null;
+  status?: string | null;
+  details?: HealthCheckResultDetails;
 }
 
 export interface DataSourceSettingsState {

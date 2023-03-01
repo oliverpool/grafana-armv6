@@ -18,7 +18,7 @@ export interface DataFrameFieldsInfo {
   fieldByDisplayName: Record<string, Field>;
 }
 
-export const FilterByValueFilterEditor = (props: Props) => {
+export const FilterByValueFilterEditor: React.FC<Props> = (props) => {
   const { onDelete, onChange, filter, fieldsInfo } = props;
   const { fieldsAsOptions, fieldByDisplayName } = fieldsInfo;
   const fieldName = getFieldName(filter, fieldsAsOptions) ?? '';
@@ -58,7 +58,7 @@ export const FilterByValueFilterEditor = (props: Props) => {
   );
 
   const onChangeMatcherOptions = useCallback(
-    (options: unknown) => {
+    (options) => {
       onChange({
         ...filter,
         config: {
@@ -79,6 +79,7 @@ export const FilterByValueFilterEditor = (props: Props) => {
       <div className="gf-form gf-form-spacing">
         <div className="gf-form-label width-7">Field</div>
         <Select
+          menuShouldPortal
           className="min-width-15 max-width-24"
           placeholder="Field Name"
           options={fieldsAsOptions}
@@ -89,6 +90,7 @@ export const FilterByValueFilterEditor = (props: Props) => {
       <div className="gf-form gf-form-spacing">
         <div className="gf-form-label">Match</div>
         <Select
+          menuShouldPortal
           className="width-12"
           placeholder="Select test"
           options={matcherOptions}

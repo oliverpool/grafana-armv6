@@ -1,13 +1,13 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 
-import { AnnotationQuery, DataQuery, EventBus } from '@grafana/data';
+import { AnnotationQuery, EventBus } from '@grafana/data';
 
 import { AnnotationPicker } from './AnnotationPicker';
 
 interface Props {
   events: EventBus;
   annotations: AnnotationQuery[];
-  onAnnotationChanged: (annotation: AnnotationQuery<DataQuery>) => void;
+  onAnnotationChanged: (annotation: any) => void;
 }
 
 export const Annotations: FunctionComponent<Props> = ({ annotations, onAnnotationChanged, events }) => {

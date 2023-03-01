@@ -1,16 +1,17 @@
+import { css } from '@emotion/css';
 import React, { FormEvent, PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { DataSourceInstanceSettings, getDataSourceRef, LoadingState, SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { DataSourcePicker, getTemplateSrv } from '@grafana/runtime';
-import { Field } from '@grafana/ui';
+import { InlineField, InlineFieldRow, VerticalGroup } from '@grafana/ui';
 
 import { StoreState } from '../../../types';
 import { getTimeSrv } from '../../dashboard/services/TimeSrv';
 import { SelectionOptionsEditor } from '../editor/SelectionOptionsEditor';
-import { VariableLegend } from '../editor/VariableLegend';
-import { VariableTextAreaField } from '../editor/VariableTextAreaField';
+import { VariableSectionHeader } from '../editor/VariableSectionHeader';
+import { VariableTextField } from '../editor/VariableTextField';
 import { initialVariableEditorState } from '../editor/reducer';
 import { getQueryVariableEditorState } from '../editor/selectors';
 import { OnPropChangeArguments, VariableEditorProps } from '../editor/types';
@@ -104,19 +105,19 @@ export class QueryVariableEditorUnConnected extends PureComponent<Props, State> 
     }
   };
 
-  onRegExChange = (event: FormEvent<HTMLTextAreaElement>) => {
+  onRegExChange = (event: FormEvent<HTMLInputElement>) => {
     this.setState({ regex: event.currentTarget.value });
   };
 
-  onRegExBlur = async (event: FormEvent<HTMLTextAreaElement>) => {
+  onRegExBlur = async (event: FormEvent<HTMLInputElement>) => {
     const regex = event.currentTarget.value;
     if (this.props.variable.regex !== regex) {
       this.props.onPropChange({ propName: 'regex', propValue: regex, updateOptions: true });
     }
   };
 
-  onRefreshChange = (option: VariableRefresh) => {
-    this.props.onPropChange({ propName: 'refresh', propValue: option });
+  onRefreshChange = (option: SelectableValue<VariableRefresh>) => {
+    this.props.onPropChange({ propName: 'refresh', propValue: option.value });
   };
 
   onSortChange = async (option: SelectableValue<VariableSort>) => {
@@ -140,14 +141,12 @@ export class QueryVariableEditorUnConnected extends PureComponent<Props, State> 
 
     if (isLegacyQueryEditor(VariableQueryEditor, datasource)) {
       return (
-        <Field label="Query">
-          <VariableQueryEditor
-            datasource={datasource}
-            query={query}
-            templateSrv={getTemplateSrv()}
-            onChange={this.onLegacyQueryChange}
-          />
-        </Field>
+        <VariableQueryEditor
+          datasource={datasource}
+          query={query}
+          templateSrv={getTemplateSrv()}
+          onChange={this.onLegacyQueryChange}
+        />
       );
     }
 
@@ -155,18 +154,16 @@ export class QueryVariableEditorUnConnected extends PureComponent<Props, State> 
 
     if (isQueryEditor(VariableQueryEditor, datasource)) {
       return (
-        <Field label="Query">
-          <VariableQueryEditor
-            datasource={datasource}
-            query={query}
-            onChange={this.onQueryChange}
-            onRunQuery={() => {}}
-            data={{ series: [], state: LoadingState.Done, timeRange: range }}
-            range={range}
-            onBlur={() => {}}
-            history={[]}
-          />
-        </Field>
+        <VariableQueryEditor
+          datasource={datasource}
+          query={query}
+          onChange={this.onQueryChange}
+          onRunQuery={() => {}}
+          data={{ series: [], state: LoadingState.Done, timeRange: range }}
+          range={range}
+          onBlur={() => {}}
+          history={[]}
+        />
       );
     }
 
@@ -175,55 +172,63 @@ export class QueryVariableEditorUnConnected extends PureComponent<Props, State> 
 
   render() {
     return (
-      <>
-        <VariableLegend>Query options</VariableLegend>
-        <Field label="Data source" htmlFor="data-source-picker">
-          <DataSourcePicker
-            current={this.props.variable.datasource}
-            onChange={this.onDataSourceChange}
-            variables={true}
-            width={30}
-          />
-        </Field>
-
-        {this.renderQueryEditor()}
-
-        <VariableTextAreaField
-          value={this.state.regex ?? this.props.variable.regex}
-          name="Regex"
-          description={
-            <div>
-              Optional, if you want to extract part of a series name or metric node segment.
-              <br />
-              Named capture groups can be used to separate the display text and value (
-              <a
-                className="external-link"
-                href="https://grafana.com/docs/grafana/latest/variables/filter-variables-with-regex#filter-and-modify-using-named-text-and-value-capture-groups"
-                target="__blank"
-              >
-                see examples
-              </a>
-              ).
+      <VerticalGroup spacing="xs">
+        <VariableSectionHeader name="Query Options" />
+        <VerticalGroup spacing="lg">
+          <VerticalGroup spacing="none">
+            <InlineFieldRow>
+              <InlineField label="Data source" labelWidth={20} htmlFor="data-source-picker">
+                <DataSourcePicker
+                  current={this.props.variable.datasource}
+                  onChange={this.onDataSourceChange}
+                  variables={true}
+                />
+              </InlineField>
+              <QueryVariableRefreshSelect onChange={this.onRefreshChange} refresh={this.props.variable.refresh} />
+            </InlineFieldRow>
+            <div
+              className={css`
+                flex-direction: column;
+                width: 100%;
+              `}
+            >
+              {this.renderQueryEditor()}
             </div>
-          }
-          placeholder="/.*-(?<text>.*)-(?<value>.*)-.*/"
-          onChange={this.onRegExChange}
-          onBlur={this.onRegExBlur}
-          testId={selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.queryOptionsRegExInputV2}
-          width={52}
-        />
+            <VariableTextField
+              value={this.state.regex ?? this.props.variable.regex}
+              name="Regex"
+              placeholder="/.*-(?<text>.*)-(?<value>.*)-.*/"
+              onChange={this.onRegExChange}
+              onBlur={this.onRegExBlur}
+              labelWidth={20}
+              interactive={true}
+              tooltip={
+                <div>
+                  Optional, if you want to extract part of a series name or metric node segment. Named capture groups
+                  can be used to separate the display text and value (
+                  <a
+                    className="external-link"
+                    href="https://grafana.com/docs/grafana/latest/variables/filter-variables-with-regex#filter-and-modify-using-named-text-and-value-capture-groups"
+                    target="__blank"
+                  >
+                    see examples
+                  </a>
+                  ).
+                </div>
+              }
+              testId={selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.queryOptionsRegExInputV2}
+              grow
+            />
+            <QueryVariableSortSelect onChange={this.onSortChange} sort={this.props.variable.sort} />
+          </VerticalGroup>
 
-        <QueryVariableSortSelect onChange={this.onSortChange} sort={this.props.variable.sort} />
-
-        <QueryVariableRefreshSelect onChange={this.onRefreshChange} refresh={this.props.variable.refresh} />
-
-        <VariableLegend>Selection options</VariableLegend>
-        <SelectionOptionsEditor
-          variable={this.props.variable}
-          onPropChange={this.onSelectionOptionsChange}
-          onMultiChanged={this.props.changeVariableMultiValue}
-        />
-      </>
+          <SelectionOptionsEditor
+            variable={this.props.variable}
+            onPropChange={this.onSelectionOptionsChange}
+            onMultiChanged={this.props.changeVariableMultiValue}
+          />
+        </VerticalGroup>
+      </VerticalGroup>
     );
   }
 }

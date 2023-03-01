@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 import { AnyAction } from 'redux';
 
 import { variableAdapters } from '../adapters';
+import { VariableModel } from '../types';
 
 import { sharedReducer } from './sharedReducer';
 import { initialVariablesState, VariablesState } from './types';
@@ -15,10 +16,10 @@ export const variablesReducer = (state: VariablesState = initialVariablesState, 
       return initialVariablesState;
     }
 
-    const variables = globalVariables.reduce<typeof state>((allVariables, state) => {
+    const variables = globalVariables.reduce((allVariables, state) => {
       allVariables[state.id] = state;
       return allVariables;
-    }, {});
+    }, {} as Record<string, VariableModel>);
 
     return variables;
   }

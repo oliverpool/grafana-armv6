@@ -31,7 +31,7 @@ export class EventManager {
   updateTime(range: { from: any; to: any }) {
     if (!this.event) {
       this.event = {};
-      this.event.dashboardUID = this.panelCtrl.dashboard.uid;
+      this.event.dashboardId = this.panelCtrl.dashboard.id;
       this.event.panelId = this.panelCtrl.panel.id;
     }
 

@@ -1,15 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { PanelModel } from '../../state';
-import { createDashboardModelFixture } from '../../state/__fixtures__/dashboardFixtures';
+import { DashboardModel, PanelModel } from '../../state';
 
 import { AddPanelWidgetUnconnected as AddPanelWidget, Props } from './AddPanelWidget';
 
 const getTestContext = (propOverrides?: object) => {
   const props: Props = {
-    dashboard: createDashboardModelFixture(),
-    panel: new PanelModel({}),
+    dashboard: {} as DashboardModel,
+    panel: {} as PanelModel,
     addPanel: jest.fn() as any,
   };
   Object.assign(props, propOverrides);

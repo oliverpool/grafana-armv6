@@ -1,39 +1,30 @@
-import React, { useMemo, useState } from 'react';
+import React, { FC } from 'react';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { config } from '@grafana/runtime';
 import { Button, Field, Form, HorizontalGroup, Input, LinkButton } from '@grafana/ui';
-import { DashboardPicker } from 'app/core/components/Select/DashboardPicker';
-import { TagFilter } from 'app/core/components/TagFilter/TagFilter';
+import { DashboardPickerByID } from 'app/core/components/editors/DashboardPickerByID';
 
-import { getGrafanaSearcher } from '../search/service';
+import { TagFilter } from '../../core/components/TagFilter/TagFilter';
+import { SearchSrv } from '../../core/services/search_srv';
 
 import { PlaylistTable } from './PlaylistTable';
 import { Playlist } from './types';
 import { usePlaylistItems } from './usePlaylistItems';
 
-interface Props {
+interface PlaylistFormProps {
   onSubmit: (playlist: Playlist) => void;
   playlist: Playlist;
 }
 
-export const PlaylistForm = ({ onSubmit, playlist }: Props) => {
-  const [saving, setSaving] = useState(false);
+const searchSrv = new SearchSrv();
+
+export const PlaylistForm: FC<PlaylistFormProps> = ({ onSubmit, playlist }) => {
   const { name, interval, items: propItems } = playlist;
-  const tagOptions = useMemo(() => {
-    return () => getGrafanaSearcher().tags({ kind: ['dashboard'] });
-  }, []);
-
-  const { items, addById, addByTag, deleteItem, moveItem } = usePlaylistItems(propItems);
-
-  const doSubmit = (list: Playlist) => {
-    setSaving(true);
-    onSubmit({ ...list, items });
-  };
-
+  const { items, addById, addByTag, deleteItem, moveDown, moveUp } = usePlaylistItems(propItems);
   return (
-    <div>
-      <Form onSubmit={doSubmit} validateOn={'onBlur'}>
+    <>
+      <Form onSubmit={(list: Playlist) => onSubmit({ ...list, items })} validateOn={'onBlur'}>
         {({ register, errors }) => {
           const isDisabled = items.length === 0 || Object.keys(errors).length > 0;
           return (
@@ -57,13 +48,13 @@ export const PlaylistForm = ({ onSubmit, playlist }: Props) => {
                 />
               </Field>
 
-              <PlaylistTable items={items} deleteItem={deleteItem} moveItem={moveItem} />
+              <PlaylistTable items={items} onMoveUp={moveUp} onMoveDown={moveDown} onDelete={deleteItem} />
 
               <div className="gf-form-group">
                 <h3 className="page-headering">Add dashboards</h3>
 
                 <Field label="Add by title">
-                  <DashboardPicker id="dashboard-picker" onChange={addById} key={items.length} />
+                  <DashboardPickerByID onChange={addById} id="dashboard-picker" isClearable />
                 </Field>
 
                 <Field label="Add by tag">
@@ -71,20 +62,15 @@ export const PlaylistForm = ({ onSubmit, playlist }: Props) => {
                     isClearable
                     tags={[]}
                     hideValues
-                    tagOptions={tagOptions}
+                    tagOptions={searchSrv.getDashboardTags}
                     onChange={addByTag}
-                    placeholder="Select a tag"
+                    placeholder={''}
                   />
                 </Field>
               </div>
 
               <HorizontalGroup>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={isDisabled}
-                  icon={saving ? 'fa fa-spinner' : undefined}
-                >
+                <Button variant="primary" disabled={isDisabled}>
                   Save
                 </Button>
                 <LinkButton variant="secondary" href={`${config.appSubUrl}/playlists`}>
@@ -95,6 +81,6 @@ export const PlaylistForm = ({ onSubmit, playlist }: Props) => {
           );
         }}
       </Form>
-    </div>
+    </>
   );
 };

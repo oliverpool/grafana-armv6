@@ -1,21 +1,24 @@
 import React, { PureComponent } from 'react';
 import { MapDispatchToProps, MapStateToProps } from 'react-redux';
 
+import { NavModel } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { Form, Spinner } from '@grafana/ui';
-import { Page } from 'app/core/components/Page/Page';
+import Page from 'app/core/components/Page/Page';
 import { connectWithCleanUp } from 'app/core/components/connectWithCleanUp';
 import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { getNavModel } from 'app/core/selectors/navModel';
 import { NotificationChannelType, NotificationChannelDTO, StoreState } from 'app/types';
 
 import { NotificationChannelForm } from './components/NotificationChannelForm';
 import { loadNotificationChannel, testNotificationChannel, updateNotificationChannel } from './state/actions';
-import { initialChannelState, resetSecureField } from './state/reducers';
+import { resetSecureField } from './state/reducers';
 import { mapChannelsToSelectableValue, transformSubmitData, transformTestData } from './utils/notificationChannels';
 
 interface OwnProps extends GrafanaRouteComponentProps<{ id: string }> {}
 
 interface ConnectedProps {
+  navModel: NavModel;
   notificationChannel: any;
   notificationChannelTypes: NotificationChannelType[];
 }
@@ -67,10 +70,10 @@ export class EditNotificationChannelPage extends PureComponent<Props> {
   };
 
   render() {
-    const { notificationChannel, notificationChannelTypes } = this.props;
+    const { navModel, notificationChannel, notificationChannelTypes } = this.props;
 
     return (
-      <Page navId="channels">
+      <Page navModel={navModel}>
         <Page.Contents>
           <h2 className="page-sub-heading">Edit notification channel</h2>
           {notificationChannel && notificationChannel.id > 0 ? (
@@ -116,6 +119,7 @@ export class EditNotificationChannelPage extends PureComponent<Props> {
 
 const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = (state) => {
   return {
+    navModel: getNavModel(state.navIndex, 'channels'),
     notificationChannel: state.notificationChannel.notificationChannel,
     notificationChannelTypes: state.notificationChannel.notificationChannelTypes,
   };
@@ -131,5 +135,5 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = {
 export default connectWithCleanUp(
   mapStateToProps,
   mapDispatchToProps,
-  (state) => (state.notificationChannel = initialChannelState)
+  (state) => state.notificationChannel
 )(EditNotificationChannelPage);

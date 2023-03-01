@@ -4,9 +4,9 @@ import {
   ApiKey,
   Role,
   ServiceAccountDTO,
+  ServiceAccountFilter,
   ServiceAccountProfileState,
   ServiceAccountsState,
-  ServiceAccountStateFilter,
 } from 'app/types';
 
 // serviceAccountsProfilePage
@@ -20,12 +20,6 @@ export const serviceAccountProfileSlice = createSlice({
   name: 'serviceaccount',
   initialState: initialStateProfile,
   reducers: {
-    serviceAccountFetchBegin: (state) => {
-      return { ...state, isLoading: true };
-    },
-    serviceAccountFetchEnd: (state) => {
-      return { ...state, isLoading: false };
-    },
     serviceAccountLoaded: (state, action: PayloadAction<ServiceAccountDTO>): ServiceAccountProfileState => {
       return { ...state, serviceAccount: action.payload, isLoading: false };
     },
@@ -36,22 +30,21 @@ export const serviceAccountProfileSlice = createSlice({
 });
 
 export const serviceAccountProfileReducer = serviceAccountProfileSlice.reducer;
-export const { serviceAccountLoaded, serviceAccountTokensLoaded, serviceAccountFetchBegin, serviceAccountFetchEnd } =
-  serviceAccountProfileSlice.actions;
+export const { serviceAccountLoaded, serviceAccountTokensLoaded } = serviceAccountProfileSlice.actions;
 
 // serviceAccountsListPage
 export const initialStateList: ServiceAccountsState = {
   serviceAccounts: [] as ServiceAccountDTO[],
   isLoading: true,
+  builtInRoles: {},
   roleOptions: [],
+  serviceAccountToRemove: null,
   query: '',
   page: 0,
   perPage: 50,
   totalPages: 1,
   showPaging: false,
-  serviceAccountStateFilter: ServiceAccountStateFilter.All,
-  apiKeysMigrated: false,
-  showApiKeysMigrationInfo: false,
+  filters: [{ name: 'expiredTokens', value: false }],
 };
 
 interface ServiceAccountsFetched {
@@ -87,11 +80,11 @@ const serviceAccountsSlice = createSlice({
     acOptionsLoaded: (state, action: PayloadAction<Role[]>): ServiceAccountsState => {
       return { ...state, roleOptions: action.payload };
     },
-    apiKeysMigrationStatusLoaded: (state, action): ServiceAccountsState => {
-      return { ...state, apiKeysMigrated: action.payload };
+    builtInRolesLoaded: (state, action: PayloadAction<Record<string, Role[]>>): ServiceAccountsState => {
+      return { ...state, builtInRoles: action.payload };
     },
-    showApiKeysMigrationInfoLoaded: (state, action): ServiceAccountsState => {
-      return { ...state, showApiKeysMigrationInfo: action.payload };
+    serviceAccountToRemoveLoaded: (state, action: PayloadAction<ServiceAccountDTO | null>): ServiceAccountsState => {
+      return { ...state, serviceAccountToRemove: action.payload };
     },
     queryChanged: (state, action: PayloadAction<string>) => {
       return {
@@ -104,10 +97,20 @@ const serviceAccountsSlice = createSlice({
       ...state,
       page: action.payload,
     }),
-    stateFilterChanged: (state, action: PayloadAction<ServiceAccountStateFilter>) => ({
-      ...state,
-      serviceAccountStateFilter: action.payload,
-    }),
+    filterChanged: (state, action: PayloadAction<ServiceAccountFilter>) => {
+      const { name, value } = action.payload;
+
+      if (state.filters.some((filter) => filter.name === name)) {
+        return {
+          ...state,
+          filters: state.filters.map((filter) => (filter.name === name ? { ...filter, value } : filter)),
+        };
+      }
+      return {
+        ...state,
+        filters: [...state.filters, action.payload],
+      };
+    },
   },
 });
 export const serviceAccountsReducer = serviceAccountsSlice.reducer;
@@ -117,10 +120,10 @@ export const {
   serviceAccountsFetchEnd,
   serviceAccountsFetched,
   acOptionsLoaded,
-  apiKeysMigrationStatusLoaded,
-  showApiKeysMigrationInfoLoaded,
+  builtInRolesLoaded,
+  serviceAccountToRemoveLoaded,
   pageChanged,
-  stateFilterChanged,
+  filterChanged,
   queryChanged,
 } = serviceAccountsSlice.actions;
 

@@ -1,6 +1,4 @@
 import { Lexer } from './lexer';
-import { GraphiteParserError } from './types';
-import { isGraphiteParserError } from './utils';
 
 export class Parser {
   expression: any;
@@ -23,13 +21,11 @@ export class Parser {
     try {
       return this.functionCall() || this.metricExpression();
     } catch (e) {
-      if (isGraphiteParserError(e)) {
-        return {
-          type: 'error',
-          message: e.message,
-          pos: e.pos,
-        };
-      }
+      return {
+        type: 'error',
+        message: e.message,
+        pos: e.pos,
+      };
     }
   }
 
@@ -68,7 +64,7 @@ export class Parser {
       return curly;
     }
 
-    if (this.match('identifier') || this.match('number') || this.match('bool')) {
+    if (this.match('identifier') || this.match('number')) {
       // hack to handle float numbers in metric segments
       const parts = this.consumeToken().value.split('.');
       if (parts.length === 2) {
@@ -226,11 +222,7 @@ export class Parser {
 
     const token = this.consumeToken();
     if (token.isUnclosed) {
-      const error: GraphiteParserError = {
-        message: 'Unclosed string parameter',
-        pos: token.pos,
-      };
-      throw error;
+      throw { message: 'Unclosed string parameter', pos: token.pos };
     }
 
     return {
@@ -242,11 +234,10 @@ export class Parser {
   errorMark(text: string) {
     const currentToken = this.tokens[this.index];
     const type = currentToken ? currentToken.type : 'end of string';
-    const error: GraphiteParserError = {
+    throw {
       message: text + ' instead found ' + type,
       pos: currentToken ? currentToken.pos : this.lexer.char,
     };
-    throw error;
   }
 
   // returns token value and incre

@@ -96,9 +96,7 @@ async function getAltSegments(
       return altSegments;
     }
   } catch (err) {
-    if (err instanceof Error) {
-      handleMetricsAutoCompleteError(state, err);
-    }
+    handleMetricsAutoCompleteError(state, err);
   }
 
   return [];
@@ -135,9 +133,7 @@ async function getTags(state: GraphiteQueryEditorState, index: number, tagPrefix
     altTags.splice(0, 0, state.removeTagValue);
     return altTags;
   } catch (err) {
-    if (err instanceof Error) {
-      handleTagsAutoCompleteError(state, err);
-    }
+    handleTagsAutoCompleteError(state, err);
   }
 
   return [];
@@ -172,9 +168,7 @@ async function getTagsAsSegments(state: GraphiteQueryEditorState, tagPrefix: str
     });
   } catch (err) {
     tagsAsSegments = [];
-    if (err instanceof Error) {
-      handleTagsAutoCompleteError(state, err);
-    }
+    handleTagsAutoCompleteError(state, err);
   }
 
   return tagsAsSegments;

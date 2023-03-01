@@ -20,8 +20,7 @@ import {
 } from '@grafana/ui';
 
 import { useMuteTimingOptions } from '../../hooks/useMuteTimingOptions';
-import { FormAmRoute } from '../../types/amroutes';
-import { SupportedPlugin } from '../../types/pluginBridges';
+import { AmRouteReceiver, FormAmRoute } from '../../types/amroutes';
 import { matcherFieldOptions } from '../../utils/alertmanager';
 import {
   emptyArrayFieldMatcher,
@@ -30,10 +29,8 @@ import {
   optionalPositiveInteger,
   stringToSelectableValue,
   stringsToSelectableValues,
-  commonGroupByOptions,
 } from '../../utils/amroutes';
 import { timeOptions } from '../../utils/time';
-import { AmRouteReceiver } from '../receivers/grafanaAppReceivers/types';
 
 import { getFormStyles } from './formStyles';
 
@@ -47,16 +44,9 @@ export interface AmRoutesExpandedFormProps {
 export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, onSave, receivers, routes }) => {
   const styles = useStyles2(getStyles);
   const formStyles = useStyles2(getFormStyles);
+  const [overrideGrouping, setOverrideGrouping] = useState(routes.groupBy.length > 0);
   const [groupByOptions, setGroupByOptions] = useState(stringsToSelectableValues(routes.groupBy));
   const muteTimingOptions = useMuteTimingOptions();
-
-  const receiversWithOnCallOnTop = receivers.sort((receiver1, receiver2) => {
-    if (receiver1.grafanaAppReceiverType === SupportedPlugin.OnCall) {
-      return -1;
-    } else {
-      return 0;
-    }
-  });
 
   return (
     <Form defaultValues={routes} onSubmit={onSave}>
@@ -104,6 +94,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                                     onChange={(value) => onChange(value?.value)}
                                     options={matcherFieldOptions}
                                     aria-label="Operator"
+                                    menuShouldPortal
                                   />
                                 )}
                                 defaultValue={field.operator}
@@ -158,7 +149,8 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                   {...field}
                   className={formStyles.input}
                   onChange={(value) => onChange(mapSelectValueToString(value))}
-                  options={receiversWithOnCallOnTop}
+                  options={receivers}
+                  menuShouldPortal
                 />
               )}
               control={control}
@@ -169,9 +161,13 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
             <Switch id="continue-toggle" {...register('continue')} />
           </Field>
           <Field label="Override grouping">
-            <Switch id="override-grouping-toggle" {...register('overrideGrouping')} />
+            <Switch
+              id="override-grouping-toggle"
+              value={overrideGrouping}
+              onChange={() => setOverrideGrouping((overrideGrouping) => !overrideGrouping)}
+            />
           </Field>
-          {watch().overrideGrouping && (
+          {overrideGrouping && (
             <Field
               label="Group by"
               description="Group alerts when you receive a notification based on labels. If empty it will be inherited from the parent policy."
@@ -180,6 +176,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                 render={({ field: { onChange, ref, ...field } }) => (
                   <MultiSelect
                     aria-label="Group by"
+                    menuShouldPortal
                     {...field}
                     allowCustomValue
                     className={formStyles.input}
@@ -190,7 +187,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                       setValue('groupBy', [...field.value, opt]);
                     }}
                     onChange={(value) => onChange(mapMultiSelectValueToStrings(value))}
-                    options={[...commonGroupByOptions, ...groupByOptions]}
+                    options={groupByOptions}
                   />
                 )}
                 control={control}
@@ -229,6 +226,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                     <InputControl
                       render={({ field: { onChange, ref, ...field } }) => (
                         <Select
+                          menuShouldPortal
                           {...field}
                           className={formStyles.input}
                           onChange={(value) => onChange(mapSelectValueToString(value))}
@@ -268,6 +266,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                     <InputControl
                       render={({ field: { onChange, ref, ...field } }) => (
                         <Select
+                          menuShouldPortal
                           {...field}
                           className={formStyles.input}
                           onChange={(value) => onChange(mapSelectValueToString(value))}
@@ -307,6 +306,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
                     <InputControl
                       render={({ field: { onChange, ref, ...field } }) => (
                         <Select
+                          menuShouldPortal
                           {...field}
                           className={formStyles.input}
                           menuPlacement="top"
@@ -333,6 +333,7 @@ export const AmRoutesExpandedForm: FC<AmRoutesExpandedFormProps> = ({ onCancel, 
               render={({ field: { onChange, ref, ...field } }) => (
                 <MultiSelect
                   aria-label="Mute timings"
+                  menuShouldPortal
                   {...field}
                   className={formStyles.input}
                   onChange={(value) => onChange(mapMultiSelectValueToStrings(value))}

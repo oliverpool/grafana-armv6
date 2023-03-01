@@ -4,7 +4,6 @@
   flex-wrap: wrap;
   align-content: flex-start;
   align-items: flex-start;
-  gap: $space-sm $space-md;
   padding: 0 0 $space-sm 0;
 }
 
@@ -19,6 +18,7 @@
 
 .submenu-item {
   display: inline-block;
+  margin-right: 15px;
 
   .fa-caret-down {
     font-size: 75%;

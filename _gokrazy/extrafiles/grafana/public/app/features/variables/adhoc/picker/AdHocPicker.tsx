@@ -48,7 +48,6 @@ export class AdHocPickerUnconnected extends PureComponent<Props> {
       <AdHocFilter
         datasource={datasource}
         filters={filters}
-        disabled={this.props.readOnly}
         addFilter={this.addFilter}
         removeFilter={this.removeFilter}
         changeFilter={this.changeFilter}

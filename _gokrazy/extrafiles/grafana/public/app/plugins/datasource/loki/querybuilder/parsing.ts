@@ -1,49 +1,9 @@
 import { SyntaxNode } from '@lezer/common';
-import { BinModifiers, OnOrIgnoring } from '@prometheus-io/lezer-promql';
+
+import { parser } from '@grafana/lezer-logql';
 
 import {
-  And,
-  BinOpExpr,
-  Bool,
-  By,
-  ConvOp,
-  Filter,
-  FilterOp,
-  Grouping,
-  GroupingLabelList,
-  GroupingLabels,
-  Identifier,
-  Ip,
-  IpLabelFilter,
-  Json,
-  JsonExpression,
-  JsonExpressionParser,
-  LabelFilter,
-  LabelFormatMatcher,
-  LabelParser,
-  LineFilter,
-  LineFormatExpr,
-  LogRangeExpr,
-  Matcher,
-  MetricExpr,
-  Number as NumberLezer,
-  On,
-  Or,
-  parser,
-  Range,
-  RangeAggregationExpr,
-  RangeOp,
-  String,
-  UnitFilter,
-  Unwrap,
-  UnwrapExpr,
-  VectorAggregationExpr,
-  VectorOp,
-  Without,
-} from '@grafana/lezer-logql';
-
-import {
-  ErrorId,
+  ErrorName,
   getAllByType,
   getLeftMostChild,
   getString,
@@ -51,15 +11,10 @@ import {
   makeError,
   replaceVariables,
 } from '../../prometheus/querybuilder/shared/parsingUtils';
-import {
-  QueryBuilderLabelFilter,
-  QueryBuilderOperation,
-  QueryBuilderOperationParamValue,
-} from '../../prometheus/querybuilder/shared/types';
+import { QueryBuilderLabelFilter, QueryBuilderOperation } from '../../prometheus/querybuilder/shared/types';
 
 import { binaryScalarDefs } from './binaryScalarOperations';
-import { checkParamsAreValid, getDefinitionById } from './operations';
-import { LokiOperationId, LokiVisualQuery, LokiVisualQueryBinary } from './types';
+import { LokiVisualQuery, LokiVisualQueryBinary } from './types';
 
 interface Context {
   query: LokiVisualQuery;
@@ -94,11 +49,9 @@ export function buildVisualQueryFromString(expr: string): Context {
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
     console.error(err);
-    if (err instanceof Error) {
-      context.errors.push({
-        text: err.message,
-      });
-    }
+    context.errors.push({
+      text: err.message,
+    });
   }
 
   // If we have empty query, we want to reset errors
@@ -110,17 +63,17 @@ export function buildVisualQueryFromString(expr: string): Context {
 
 export function handleExpression(expr: string, node: SyntaxNode, context: Context) {
   const visQuery = context.query;
-  switch (node.type.id) {
-    case Matcher: {
+  switch (node.name) {
+    case 'Matcher': {
       visQuery.labels.push(getLabel(expr, node));
-      const err = node.getChild(ErrorId);
+      const err = node.getChild(ErrorName);
       if (err) {
         context.errors.push(makeError(expr, err));
       }
       break;
     }
 
-    case LineFilter: {
+    case 'LineFilter': {
       const { operation, error } = getLineFilter(expr, node);
       if (operation) {
         visQuery.operations.push(operation);
@@ -132,12 +85,12 @@ export function handleExpression(expr: string, node: SyntaxNode, context: Contex
       break;
     }
 
-    case LabelParser: {
+    case 'LabelParser': {
       visQuery.operations.push(getLabelParser(expr, node));
       break;
     }
 
-    case LabelFilter: {
+    case 'LabelFilter': {
       const { operation, error } = getLabelFilter(expr, node);
       if (operation) {
         visQuery.operations.push(operation);
@@ -148,23 +101,26 @@ export function handleExpression(expr: string, node: SyntaxNode, context: Contex
       }
       break;
     }
-    case JsonExpressionParser: {
-      visQuery.operations.push(getJsonExpressionParser(expr, node));
-      break;
+
+    case 'JsonExpressionParser': {
+      // JsonExpressionParser is not supported in query builder
+      const error = 'JsonExpressionParser not supported in visual query builder';
+
+      context.errors.push(createNotSupportedError(expr, node, error));
     }
 
-    case LineFormatExpr: {
+    case 'LineFormatExpr': {
       visQuery.operations.push(getLineFormat(expr, node));
       break;
     }
 
-    case LabelFormatMatcher: {
+    case 'LabelFormatMatcher': {
       visQuery.operations.push(getLabelFormat(expr, node));
       break;
     }
 
-    case UnwrapExpr: {
-      const { operation, error } = handleUnwrapExpr(expr, node, context);
+    case 'UnwrapExpr': {
+      const { operation, error } = getUnwrap(expr, node);
       if (operation) {
         visQuery.operations.push(operation);
       }
@@ -176,22 +132,22 @@ export function handleExpression(expr: string, node: SyntaxNode, context: Contex
       break;
     }
 
-    case RangeAggregationExpr: {
+    case 'RangeAggregationExpr': {
       visQuery.operations.push(handleRangeAggregation(expr, node, context));
       break;
     }
 
-    case VectorAggregationExpr: {
+    case 'VectorAggregationExpr': {
       visQuery.operations.push(handleVectorAggregation(expr, node, context));
       break;
     }
 
-    case BinOpExpr: {
+    case 'BinOpExpr': {
       handleBinary(expr, node, context);
       break;
     }
 
-    case ErrorId: {
+    case ErrorName: {
       if (isIntervalVariableError(node)) {
         break;
       }
@@ -200,7 +156,7 @@ export function handleExpression(expr: string, node: SyntaxNode, context: Contex
     }
 
     default: {
-      // Any other nodes we just ignore and go to its children. This should be fine as there are lots of wrapper
+      // Any other nodes we just ignore and go to it's children. This should be fine as there are lot's of wrapper
       // nodes that can be skipped.
       // TODO: there are probably cases where we will just skip nodes we don't support and we should be able to
       //  detect those and report back.
@@ -214,12 +170,10 @@ export function handleExpression(expr: string, node: SyntaxNode, context: Contex
 }
 
 function getLabel(expr: string, node: SyntaxNode): QueryBuilderLabelFilter {
-  const labelNode = node.getChild(Identifier);
+  const labelNode = node.getChild('Identifier');
   const label = getString(expr, labelNode);
   const op = getString(expr, labelNode!.nextSibling);
-  let value = getString(expr, node.getChild(String));
-  // `value` is wrapped in double quotes, so we need to remove them. As a value can contain double quotes, we can't use RegEx here.
-  value = value.substring(1, value.length - 1);
+  const value = getString(expr, node.getChild('String')).replace(/"/g, '');
 
   return {
     label,
@@ -229,24 +183,22 @@ function getLabel(expr: string, node: SyntaxNode): QueryBuilderLabelFilter {
 }
 
 function getLineFilter(expr: string, node: SyntaxNode): { operation?: QueryBuilderOperation; error?: string } {
-  const filter = getString(expr, node.getChild(Filter));
-  const filterExpr = handleQuotes(getString(expr, node.getChild(String)));
-  const ipLineFilter = node.getChild(FilterOp)?.getChild(Ip);
-
-  if (ipLineFilter) {
+  // Check for nodes not supported in visual builder and return error
+  const ipLineFilter = getAllByType(expr, node, 'Ip');
+  if (ipLineFilter.length > 0) {
     return {
-      operation: {
-        id: LokiOperationId.LineFilterIpMatches,
-        params: [filter, filterExpr],
-      },
+      error: 'Matching ip addresses not supported in query builder',
     };
   }
+
   const mapFilter: any = {
-    '|=': LokiOperationId.LineContains,
-    '!=': LokiOperationId.LineContainsNot,
-    '|~': LokiOperationId.LineMatchesRegex,
-    '!~': LokiOperationId.LineMatchesRegexNot,
+    '|=': '__line_contains',
+    '!=': '__line_contains_not',
+    '|~': '__line_matches_regex',
+    '!~': '"__line_matches_regex"_not',
   };
+  const filter = getString(expr, node.getChild('Filter'));
+  const filterExpr = handleQuotes(getString(expr, node.getChild('String')));
 
   return {
     operation: {
@@ -260,24 +212,8 @@ function getLabelParser(expr: string, node: SyntaxNode): QueryBuilderOperation {
   const parserNode = node.firstChild;
   const parser = getString(expr, parserNode);
 
-  const string = handleQuotes(getString(expr, node.getChild(String)));
-  let params: QueryBuilderOperationParamValue[] = !!string ? [string] : [];
-  const opDef = getDefinitionById(parser);
-  if (opDef && !checkParamsAreValid(opDef, params)) {
-    params = opDef?.defaultParams || [];
-  }
-
-  return {
-    id: parser,
-    params,
-  };
-}
-
-function getJsonExpressionParser(expr: string, node: SyntaxNode): QueryBuilderOperation {
-  const parserNode = node.getChild(Json);
-  const parser = getString(expr, parserNode);
-
-  const params = [...getAllByType(expr, node, JsonExpression)];
+  const string = handleQuotes(getString(expr, node.getChild('String')));
+  const params = !!string ? [string] : [];
   return {
     id: parser,
     params,
@@ -286,28 +222,19 @@ function getJsonExpressionParser(expr: string, node: SyntaxNode): QueryBuilderOp
 
 function getLabelFilter(expr: string, node: SyntaxNode): { operation?: QueryBuilderOperation; error?: string } {
   // Check for nodes not supported in visual builder and return error
-  if (node.getChild(Or) || node.getChild(And) || node.getChild('Comma')) {
+  if (node.getChild('Or') || node.getChild('And') || node.getChild('Comma')) {
     return {
       error: 'Label filter with comma, "and", "or" not supported in query builder',
     };
   }
-  if (node.firstChild!.type.id === IpLabelFilter) {
-    const ipLabelFilter = node.firstChild;
-    const label = ipLabelFilter?.getChild(Identifier);
-    const op = label?.nextSibling;
-    const value = ipLabelFilter?.getChild(String);
-    const valueString = handleQuotes(getString(expr, value));
-
+  if (node.firstChild!.name === 'IpLabelFilter') {
     return {
-      operation: {
-        id: LokiOperationId.LabelFilterIpMatches,
-        params: [getString(expr, label), getString(expr, op), valueString],
-      },
+      error: 'IpLabelFilter not supported in query builder',
     };
   }
 
-  const id = LokiOperationId.LabelFilter;
-  if (node.firstChild!.type.id === UnitFilter) {
+  const id = '__label_filter';
+  if (node.firstChild!.name === 'UnitFilter') {
     const filter = node.firstChild!.firstChild;
     const label = filter!.firstChild;
     const op = label!.nextSibling;
@@ -332,7 +259,7 @@ function getLabelFilter(expr: string, node: SyntaxNode): { operation?: QueryBuil
   if (params.join('') === `__error__=`) {
     return {
       operation: {
-        id: LokiOperationId.LabelFilterNoErrors,
+        id: '__label_filter_no_errors',
         params: [],
       },
     };
@@ -347,8 +274,8 @@ function getLabelFilter(expr: string, node: SyntaxNode): { operation?: QueryBuil
 }
 
 function getLineFormat(expr: string, node: SyntaxNode): QueryBuilderOperation {
-  const id = LokiOperationId.LineFormat;
-  const string = handleQuotes(getString(expr, node.getChild(String)));
+  const id = 'line_format';
+  const string = handleQuotes(getString(expr, node.getChild('String')));
 
   return {
     id,
@@ -357,67 +284,48 @@ function getLineFormat(expr: string, node: SyntaxNode): QueryBuilderOperation {
 }
 
 function getLabelFormat(expr: string, node: SyntaxNode): QueryBuilderOperation {
-  const id = LokiOperationId.LabelFormat;
-  const renameTo = node.getChild(Identifier);
-  const op = renameTo!.nextSibling;
-  const originalLabel = op!.nextSibling;
+  const id = 'label_format';
+  const identifier = node.getChild('Identifier');
+  const op = identifier!.nextSibling;
+  const value = op!.nextSibling;
+
+  let valueString = handleQuotes(getString(expr, value));
 
   return {
     id,
-    params: [getString(expr, originalLabel), handleQuotes(getString(expr, renameTo))],
+    params: [getString(expr, identifier), valueString],
   };
 }
 
-function handleUnwrapExpr(
-  expr: string,
-  node: SyntaxNode,
-  context: Context
-): { operation?: QueryBuilderOperation; error?: string } {
-  const unwrapExprChild = node.getChild(UnwrapExpr);
-  const labelFilterChild = node.getChild(LabelFilter);
-  const unwrapChild = node.getChild(Unwrap);
-
-  if (unwrapExprChild) {
-    handleExpression(expr, unwrapExprChild, context);
-  }
-
-  if (labelFilterChild) {
-    handleExpression(expr, labelFilterChild, context);
-  }
-
-  if (unwrapChild) {
-    if (unwrapChild.nextSibling?.type.id === ConvOp) {
-      const convOp = unwrapChild.nextSibling;
-      const identifier = convOp.nextSibling;
-      return {
-        operation: {
-          id: LokiOperationId.Unwrap,
-          params: [getString(expr, identifier), getString(expr, convOp)],
-        },
-      };
-    }
-
+function getUnwrap(expr: string, node: SyntaxNode): { operation?: QueryBuilderOperation; error?: string } {
+  // Check for nodes not supported in visual builder and return error
+  if (node.getChild('ConvOp')) {
     return {
-      operation: {
-        id: LokiOperationId.Unwrap,
-        params: [getString(expr, unwrapChild?.nextSibling), ''],
-      },
+      error: 'Unwrap with conversion operator not supported in query builder',
     };
   }
 
-  return {};
-}
-function handleRangeAggregation(expr: string, node: SyntaxNode, context: Context) {
-  const nameNode = node.getChild(RangeOp);
-  const funcName = getString(expr, nameNode);
-  const number = node.getChild(NumberLezer);
-  const logExpr = node.getChild(LogRangeExpr);
-  const params = number !== null && number !== undefined ? [getString(expr, number)] : [];
-  const range = logExpr?.getChild(Range);
-  const rangeValue = range ? getString(expr, range) : null;
+  const id = 'unwrap';
+  const string = getString(expr, node.getChild('Identifier'));
 
-  if (rangeValue) {
-    params.unshift(rangeValue.substring(1, rangeValue.length - 1));
+  return {
+    operation: {
+      id,
+      params: [string],
+    },
+  };
+}
+
+function handleRangeAggregation(expr: string, node: SyntaxNode, context: Context) {
+  const nameNode = node.getChild('RangeOp');
+  const funcName = getString(expr, nameNode);
+  const number = node.getChild('Number');
+  const logExpr = node.getChild('LogRangeExpr');
+  const params = number !== null && number !== undefined ? [getString(expr, number)] : [];
+
+  let match = getString(expr, node).match(/\[(.+)\]/);
+  if (match?.[1]) {
+    params.push(match[1]);
   }
 
   const op = {
@@ -433,34 +341,28 @@ function handleRangeAggregation(expr: string, node: SyntaxNode, context: Context
 }
 
 function handleVectorAggregation(expr: string, node: SyntaxNode, context: Context) {
-  const nameNode = node.getChild(VectorOp);
+  const nameNode = node.getChild('VectorOp');
   let funcName = getString(expr, nameNode);
 
-  const grouping = node.getChild(Grouping);
-  const params = [];
-
-  const numberNode = node.getChild(NumberLezer);
-
-  if (numberNode) {
-    params.push(Number(getString(expr, numberNode)));
-  }
+  const grouping = node.getChild('Grouping');
+  const labels: string[] = [];
 
   if (grouping) {
-    const byModifier = grouping.getChild(By);
+    const byModifier = grouping.getChild(`By`);
     if (byModifier && funcName) {
       funcName = `__${funcName}_by`;
     }
 
-    const withoutModifier = grouping.getChild(Without);
+    const withoutModifier = grouping.getChild(`Without`);
     if (withoutModifier) {
       funcName = `__${funcName}_without`;
     }
 
-    params.push(...getAllByType(expr, grouping, Identifier));
+    labels.push(...getAllByType(expr, grouping, 'Identifier'));
   }
 
-  const metricExpr = node.getChild(MetricExpr);
-  const op: QueryBuilderOperation = { id: funcName, params };
+  const metricExpr = node.getChild('MetricExpr');
+  const op: QueryBuilderOperation = { id: funcName, params: labels };
 
   if (metricExpr) {
     handleExpression(expr, metricExpr, context);
@@ -488,7 +390,7 @@ function handleBinary(expr: string, node: SyntaxNode, context: Context) {
   const visQuery = context.query;
   const left = node.firstChild!;
   const op = getString(expr, left.nextSibling);
-  const binModifier = getBinaryModifier(expr, node.getChild(BinModifiers));
+  const binModifier = getBinaryModifier(expr, node.getChild('BinModifiers'));
 
   const right = node.lastChild!;
 
@@ -497,7 +399,7 @@ function handleBinary(expr: string, node: SyntaxNode, context: Context) {
   const leftNumber = getLastChildWithSelector(left, 'MetricExpr.LiteralExpr.Number');
   const rightNumber = getLastChildWithSelector(right, 'MetricExpr.LiteralExpr.Number');
 
-  const rightBinary = right.getChild(BinOpExpr);
+  const rightBinary = right.getChild('BinOpExpr');
 
   if (leftNumber) {
     // TODO: this should be already handled in case parent is binary expression as it has to be added to parent
@@ -552,26 +454,26 @@ function getBinaryModifier(
   if (!node) {
     return undefined;
   }
-  if (node.getChild(Bool)) {
+  if (node.getChild('Bool')) {
     return { isBool: true, isMatcher: false };
   } else {
-    const matcher = node.getChild(OnOrIgnoring);
+    const matcher = node.getChild('OnOrIgnoring');
     if (!matcher) {
       // Not sure what this could be, maybe should be an error.
       return undefined;
     }
-    const labels = getString(expr, matcher.getChild(GroupingLabels)?.getChild(GroupingLabelList));
+    const labels = getString(expr, matcher.getChild('GroupingLabels')?.getChild('GroupingLabelList'));
     return {
       isMatcher: true,
       isBool: false,
       matches: labels,
-      matchType: matcher.getChild(On) ? 'on' : 'ignoring',
+      matchType: matcher.getChild('On') ? 'on' : 'ignoring',
     };
   }
 }
 
 function isIntervalVariableError(node: SyntaxNode) {
-  return node?.parent?.type.id === Range;
+  return node?.parent?.name === 'Range';
 }
 
 function handleQuotes(string: string) {

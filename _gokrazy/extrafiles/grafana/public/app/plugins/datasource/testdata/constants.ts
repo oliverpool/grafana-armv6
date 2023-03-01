@@ -1,4 +1,4 @@
-import { CSVWave, TestData, TestDataQueryType } from './dataquery.gen';
+import { CSVWave, TestDataQuery } from './types';
 
 export const defaultPulseQuery: any = {
   timeStep: 60,
@@ -15,7 +15,7 @@ export const defaultCSVWaveQuery: CSVWave[] = [
   },
 ];
 
-export const defaultQuery: TestData = {
-  scenarioId: TestDataQueryType.RandomWalk,
+export const defaultQuery: TestDataQuery = {
+  scenarioId: 'random_walk',
   refId: '',
 };

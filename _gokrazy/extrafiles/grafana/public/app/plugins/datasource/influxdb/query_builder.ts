@@ -1,6 +1,6 @@
 import { reduce } from 'lodash';
 
-import { escapeRegex } from '@grafana/data';
+import kbn from 'app/core/utils/kbn';
 
 function renderTagCondition(tag: { operator: any; value: string; condition: any; key: string }, index: number) {
   // FIXME: merge this function with influx_query_model/renderTagCondition
@@ -19,9 +19,8 @@ function renderTagCondition(tag: { operator: any; value: string; condition: any;
     }
   }
 
-  // quote value unless regex or empty-string
-  // Influx versions before 0.13 had inconsistent requirements on if (numeric) tags are quoted or not.
-  if (value === '' || (operator !== '=~' && operator !== '!~')) {
+  // quote value unless regex or number, or if empty-string
+  if (value === '' || (operator !== '=~' && operator !== '!~' && isNaN(+value))) {
     value = "'" + value.replace(/\\/g, '\\\\').replace(/\'/g, "\\'") + "'";
   }
 
@@ -48,7 +47,7 @@ export class InfluxQueryBuilder {
       query = 'SHOW MEASUREMENTS';
       if (withMeasurementFilter) {
         // we do a case-insensitive regex-based lookup
-        query += ' WITH MEASUREMENT =~ /(?i)' + escapeRegex(withMeasurementFilter) + '/';
+        query += ' WITH MEASUREMENT =~ /(?i)' + kbn.regexEscape(withMeasurementFilter) + '/';
       }
     } else if (type === 'FIELDS') {
       measurement = this.target.measurement;

@@ -66,7 +66,6 @@ export const defaultPanelOptions: CandlestickOptions = {
   fields: {},
   legend: {
     displayMode: LegendDisplayMode.List,
-    showLegend: true,
     placement: 'bottom',
     calcs: [],
   },

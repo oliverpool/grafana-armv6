@@ -25,7 +25,7 @@ const mockTemplateSrv = {
   updateTimeRange: jest.fn(),
 };
 jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
+  ...(jest.requireActual('@grafana/runtime') as unknown as object),
   getTemplateSrv: () => mockTemplateSrv,
 }));
 
@@ -53,7 +53,7 @@ describe('Explore item reducer', () => {
         loading: true,
         logsResult: {
           hasUniqueLabels: false,
-          rows: [],
+          rows: [] as any[],
         },
         queryResponse: {
           ...initialState.queryResponse,
@@ -73,7 +73,7 @@ describe('Explore item reducer', () => {
         refreshInterval: '',
         logsResult: {
           hasUniqueLabels: false,
-          rows: [],
+          rows: [] as any[],
         },
         queryResponse: {
           ...initialState.queryResponse,

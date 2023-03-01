@@ -3,10 +3,9 @@ import userEvent from '@testing-library/user-event';
 import React, { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 
+import { DataQuery } from '@grafana/data';
 import { locationService, setEchoSrv } from '@grafana/runtime';
-import { DataQuery, defaultDashboard } from '@grafana/schema';
 import { backendSrv } from 'app/core/services/backend_srv';
-import { contextSrv } from 'app/core/services/context_srv';
 import { Echo } from 'app/core/services/echo/Echo';
 import * as initDashboard from 'app/features/dashboard/state/initDashboard';
 import { DashboardSearchItemType } from 'app/features/search/types';
@@ -32,16 +31,10 @@ const setup = (children: ReactNode, queries: DataQuery[] = [{ refId: 'A' }]) => 
   return render(<Provider store={store}>{children}</Provider>);
 };
 
-jest.mock('app/core/services/context_srv');
+const openModal = async () => {
+  userEvent.click(screen.getByRole('button', { name: /add to dashboard/i }));
 
-const mocks = {
-  contextSrv: jest.mocked(contextSrv),
-};
-
-const openModal = async (nameOverride?: string) => {
-  await userEvent.click(screen.getByRole('button', { name: /add to dashboard/i }));
-
-  expect(await screen.findByRole('dialog', { name: nameOverride || 'Add panel to dashboard' })).toBeInTheDocument();
+  expect(await screen.findByRole('dialog', { name: 'Add panel to dashboard' })).toBeInTheDocument();
 };
 
 describe('AddToDashboardButton', () => {
@@ -55,7 +48,7 @@ describe('AddToDashboardButton', () => {
     const button = await screen.findByRole('button', { name: /add to dashboard/i });
     expect(button).toBeDisabled();
 
-    await userEvent.click(button);
+    userEvent.click(button);
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
@@ -71,7 +64,6 @@ describe('AddToDashboardButton', () => {
 
     beforeEach(() => {
       jest.spyOn(api, 'setDashboardInLocalStorage').mockReturnValue(addToDashboardResponse);
-      mocks.contextSrv.hasAccess.mockImplementation(() => true);
     });
 
     afterEach(() => {
@@ -83,7 +75,7 @@ describe('AddToDashboardButton', () => {
 
       await openModal();
 
-      await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      userEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -98,7 +90,7 @@ describe('AddToDashboardButton', () => {
 
         await openModal();
 
-        await userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
+        userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
 
         await waitForAddToDashboardResponse();
 
@@ -117,7 +109,7 @@ describe('AddToDashboardButton', () => {
 
         await openModal();
 
-        await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+        userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
         await waitForAddToDashboardResponse();
 
@@ -136,7 +128,7 @@ describe('AddToDashboardButton', () => {
 
           await openModal();
 
-          await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+          userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
           await waitForAddToDashboardResponse();
 
@@ -150,7 +142,7 @@ describe('AddToDashboardButton', () => {
 
           await openModal();
 
-          await userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
+          userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
 
           await waitForAddToDashboardResponse();
 
@@ -169,7 +161,7 @@ describe('AddToDashboardButton', () => {
 
         expect(screen.queryByRole('combobox', { name: /dashboard/ })).not.toBeInTheDocument();
 
-        await userEvent.click(screen.getByRole<HTMLInputElement>('radio', { name: /existing dashboard/i }));
+        userEvent.click(screen.getByRole<HTMLInputElement>('radio', { name: /existing dashboard/i }));
         expect(screen.getByRole('combobox', { name: /dashboard/ })).toBeInTheDocument();
       });
 
@@ -180,9 +172,9 @@ describe('AddToDashboardButton', () => {
 
         await openModal();
 
-        await userEvent.click(screen.getByRole<HTMLInputElement>('radio', { name: /existing dashboard/i }));
+        userEvent.click(screen.getByRole<HTMLInputElement>('radio', { name: /existing dashboard/i }));
 
-        await userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
+        userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
         await waitForAddToDashboardResponse();
 
         expect(locationService.push).not.toHaveBeenCalled();
@@ -194,11 +186,12 @@ describe('AddToDashboardButton', () => {
           const openSpy = jest.spyOn(global, 'open').mockReturnValue(true);
 
           jest.spyOn(backendSrv, 'getDashboardByUid').mockResolvedValue({
-            dashboard: { ...defaultDashboard, templating: { list: [] }, title: 'Dashboard Title', uid: 'someUid' },
+            dashboard: { templating: { list: [] }, title: 'Dashboard Title', uid: 'someUid' },
             meta: {},
           });
           jest.spyOn(backendSrv, 'search').mockResolvedValue([
             {
+              id: 1,
               uid: 'someUid',
               isStarred: false,
               items: [],
@@ -214,16 +207,16 @@ describe('AddToDashboardButton', () => {
 
           await openModal();
 
-          await userEvent.click(screen.getByRole('radio', { name: /existing dashboard/i }));
+          userEvent.click(screen.getByRole('radio', { name: /existing dashboard/i }));
 
-          await userEvent.click(screen.getByRole('combobox', { name: /dashboard/i }));
+          userEvent.click(screen.getByRole('combobox', { name: /dashboard/i }));
 
           await waitFor(async () => {
             await screen.findByLabelText('Select option');
           });
-          await userEvent.click(screen.getByLabelText('Select option'));
+          userEvent.click(screen.getByLabelText('Select option'));
 
-          await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+          userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
           await waitFor(async () => {
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -236,11 +229,12 @@ describe('AddToDashboardButton', () => {
           const pushSpy = jest.spyOn(locationService, 'push');
 
           jest.spyOn(backendSrv, 'getDashboardByUid').mockResolvedValue({
-            dashboard: { ...defaultDashboard, templating: { list: [] }, title: 'Dashboard Title', uid: 'someUid' },
+            dashboard: { templating: { list: [] }, title: 'Dashboard Title', uid: 'someUid' },
             meta: {},
           });
           jest.spyOn(backendSrv, 'search').mockResolvedValue([
             {
+              id: 1,
               uid: 'someUid',
               isStarred: false,
               items: [],
@@ -256,16 +250,16 @@ describe('AddToDashboardButton', () => {
 
           await openModal();
 
-          await userEvent.click(screen.getByRole('radio', { name: /existing dashboard/i }));
+          userEvent.click(screen.getByRole('radio', { name: /existing dashboard/i }));
 
-          await userEvent.click(screen.getByRole('combobox', { name: /dashboard/i }));
+          userEvent.click(screen.getByRole('combobox', { name: /dashboard/i }));
 
           await waitFor(async () => {
             await screen.findByLabelText('Select option');
           });
-          await userEvent.click(screen.getByLabelText('Select option'));
+          userEvent.click(screen.getByLabelText('Select option'));
 
-          await userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
+          userEvent.click(screen.getByRole('button', { name: /open dashboard$/i }));
 
           await waitFor(async () => {
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -277,43 +271,7 @@ describe('AddToDashboardButton', () => {
     });
   });
 
-  describe('Permissions', () => {
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
-    it('Should only show existing dashboard option with no access to create', async () => {
-      mocks.contextSrv.hasAccess.mockImplementation((action) => {
-        if (action === 'dashboards:create') {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      setup(<AddToDashboard exploreId={ExploreId.left} />);
-      await openModal('Add panel to existing dashboard');
-      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
-    });
-
-    it('Should only show new dashboard option with no access to write', async () => {
-      mocks.contextSrv.hasAccess.mockImplementation((action) => {
-        if (action === 'dashboards:write') {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      setup(<AddToDashboard exploreId={ExploreId.left} />);
-      await openModal('Add panel to new dashboard');
-      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
-    });
-  });
-
   describe('Error handling', () => {
-    beforeEach(() => {
-      mocks.contextSrv.hasAccess.mockImplementation(() => true);
-    });
-
     afterEach(() => {
       jest.restoreAllMocks();
     });
@@ -327,7 +285,7 @@ describe('AddToDashboardButton', () => {
       await openModal();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+      userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
       await waitFor(async () => {
         expect(await screen.findByRole('alert')).toBeInTheDocument();
@@ -346,7 +304,7 @@ describe('AddToDashboardButton', () => {
       await openModal();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+      userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
       await waitFor(async () => {
         expect(await screen.findByRole('alert')).toBeInTheDocument();
@@ -357,6 +315,7 @@ describe('AddToDashboardButton', () => {
       jest.spyOn(backendSrv, 'getDashboardByUid').mockRejectedValue('SOME ERROR');
       jest.spyOn(backendSrv, 'search').mockResolvedValue([
         {
+          id: 1,
           uid: 'someUid',
           isStarred: false,
           items: [],
@@ -373,16 +332,16 @@ describe('AddToDashboardButton', () => {
       await openModal();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('radio', { name: /existing dashboard/i }));
+      userEvent.click(screen.getByRole('radio', { name: /existing dashboard/i }));
 
-      await userEvent.click(screen.getByRole('combobox', { name: /dashboard/i }));
+      userEvent.click(screen.getByRole('combobox', { name: /dashboard/i }));
 
       await waitFor(async () => {
         await screen.findByLabelText('Select option');
       });
-      await userEvent.click(screen.getByLabelText('Select option'));
+      userEvent.click(screen.getByLabelText('Select option'));
 
-      await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+      userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
       await waitFor(async () => {
         expect(await screen.findByRole('alert')).toBeInTheDocument();
@@ -397,7 +356,7 @@ describe('AddToDashboardButton', () => {
       await openModal();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
+      userEvent.click(screen.getByRole('button', { name: /open in new tab/i }));
 
       await waitFor(async () => {
         expect(await screen.findByRole('alert')).toBeInTheDocument();

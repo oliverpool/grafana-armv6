@@ -8,7 +8,8 @@ import { initialKeyedVariablesState, toKeyedAction } from '../state/keyedVariabl
 import * as selectors from '../state/selectors';
 import { addVariable } from '../state/sharedReducer';
 
-import { getNextAvailableId, initListMode, createNewVariable } from './actions';
+import { getNextAvailableId, switchToListMode, switchToNewMode } from './actions';
+import { setIdInEditor } from './reducer';
 
 describe('getNextAvailableId', () => {
   describe('when called with a custom type and there is already 2 variables', () => {
@@ -25,7 +26,7 @@ describe('getNextAvailableId', () => {
   });
 });
 
-describe('createNewVariable', () => {
+describe('switchToNewMode', () => {
   variableAdapters.setInit(() => [createConstantVariableAdapter()]);
 
   it('should dispatch with the correct rootStateKey', () => {
@@ -36,15 +37,16 @@ describe('createNewVariable', () => {
     const mockDispatch = jest.fn();
     const model = { ...initialConstantVariableModelState, name: mockId, id: mockId, rootStateKey: 'null' };
 
-    createNewVariable(null, 'constant')(mockDispatch, mockGetState, undefined);
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
+    switchToNewMode(null, 'constant')(mockDispatch, mockGetState, undefined);
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
     expect(mockDispatch.mock.calls[0][0]).toEqual(
       toKeyedAction('null', addVariable({ data: { global: false, index: 0, model }, type: 'constant', id: mockId }))
     );
+    expect(mockDispatch.mock.calls[1][0]).toEqual(toKeyedAction('null', setIdInEditor({ id: mockId })));
   });
 });
 
-describe('initListMode', () => {
+describe('switchToListMode', () => {
   variableAdapters.setInit(() => [createConstantVariableAdapter()]);
 
   it('should dispatch with the correct rootStateKey', () => {
@@ -54,15 +56,9 @@ describe('initListMode', () => {
     const mockGetState = jest.fn().mockReturnValue({ templating: initialKeyedVariablesState, dashboard: initialState });
     const mockDispatch = jest.fn();
 
-    initListMode(null)(mockDispatch, mockGetState, undefined);
-    const keyedAction = {
-      type: expect.any(String),
-      payload: {
-        key: 'null',
-        action: expect.any(Object),
-      },
-    };
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch.mock.calls[0][0]).toMatchObject(keyedAction);
+    switchToListMode(null)(mockDispatch, mockGetState, undefined);
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
+    expect(mockDispatch.mock.calls[0][0]).toEqual(toKeyedAction('null', expect.any(Object)));
+    expect(mockDispatch.mock.calls[1][0]).toEqual(toKeyedAction('null', expect.any(Object)));
   });
 });

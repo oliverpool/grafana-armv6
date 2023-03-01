@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { getBackendSrv } from '@grafana/runtime';
 import { Form, Field, Input, Button, Legend, Container, HorizontalGroup, LinkButton } from '@grafana/ui';
@@ -10,7 +10,7 @@ interface EmailDTO {
   email: string;
 }
 
-export const VerifyEmail = () => {
+export const VerifyEmail: FC = () => {
   const notifyApp = useAppNotification();
   const [emailSent, setEmailSent] = useState(false);
 
@@ -62,7 +62,7 @@ export const VerifyEmail = () => {
             />
           </Field>
           <HorizontalGroup>
-            <Button type="submit">Send verification email</Button>
+            <Button>Send verification email</Button>
             <LinkButton fill="text" href={getConfig().appSubUrl + '/login'}>
               Back to login
             </LinkButton>

@@ -10,22 +10,21 @@ import {
   TransformerRegistryItem,
   TransformerUIProps,
 } from '@grafana/data';
-import {
-  ConvertFieldTypeOptions,
-  ConvertFieldTypeTransformerOptions,
-} from '@grafana/data/src/transformations/transformers/convertFieldType';
+import { ConvertFieldTypeTransformerOptions } from '@grafana/data/src/transformations/transformers/convertFieldType';
 import { Button, InlineField, InlineFieldRow, Input, Select } from '@grafana/ui';
-import { FieldNamePicker } from '@grafana/ui/src/components/MatchersUI/FieldNamePicker';
+
+import { ConvertFieldTypeOptions } from '../../../../../packages/grafana-data/src/transformations/transformers/convertFieldType';
+import { FieldNamePicker } from '../../../../../packages/grafana-ui/src/components/MatchersUI/FieldNamePicker';
 
 const fieldNamePickerSettings: StandardEditorsRegistryItem<string, FieldNamePickerConfigSettings> = {
   settings: { width: 24 },
 } as any;
 
-export const ConvertFieldTypeTransformerEditor = ({
+export const ConvertFieldTypeTransformerEditor: React.FC<TransformerUIProps<ConvertFieldTypeTransformerOptions>> = ({
   input,
   options,
   onChange,
-}: TransformerUIProps<ConvertFieldTypeTransformerOptions>) => {
+}) => {
   const allTypes: Array<SelectableValue<FieldType>> = [
     { value: FieldType.number, label: 'Numeric' },
     { value: FieldType.string, label: 'String' },
@@ -35,7 +34,7 @@ export const ConvertFieldTypeTransformerEditor = ({
   ];
 
   const onSelectField = useCallback(
-    (idx: number) => (value: string | undefined) => {
+    (idx) => (value: string | undefined) => {
       const conversions = options.conversions;
       conversions[idx] = { ...conversions[idx], targetField: value ?? '' };
       onChange({
@@ -47,7 +46,7 @@ export const ConvertFieldTypeTransformerEditor = ({
   );
 
   const onSelectDestinationType = useCallback(
-    (idx: number) => (value: SelectableValue<FieldType>) => {
+    (idx) => (value: SelectableValue<FieldType>) => {
       const conversions = options.conversions;
       conversions[idx] = { ...conversions[idx], destinationType: value.value };
       onChange({
@@ -59,7 +58,7 @@ export const ConvertFieldTypeTransformerEditor = ({
   );
 
   const onInputFormat = useCallback(
-    (idx: number) => (e: ChangeEvent<HTMLInputElement>) => {
+    (idx) => (e: ChangeEvent<HTMLInputElement>) => {
       const conversions = options.conversions;
       conversions[idx] = { ...conversions[idx], dateFormat: e.currentTarget.value };
       onChange({
@@ -81,7 +80,7 @@ export const ConvertFieldTypeTransformerEditor = ({
   }, [onChange, options]);
 
   const onRemoveConvertFieldType = useCallback(
-    (idx: number) => {
+    (idx) => {
       const removed = options.conversions;
       removed.splice(idx, 1);
       onChange({
@@ -107,6 +106,7 @@ export const ConvertFieldTypeTransformerEditor = ({
             </InlineField>
             <InlineField label={'as'}>
               <Select
+                menuShouldPortal
                 options={allTypes}
                 value={c.destinationType}
                 placeholder={'Type'}

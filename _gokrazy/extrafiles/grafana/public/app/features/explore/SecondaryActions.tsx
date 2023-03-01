@@ -7,7 +7,6 @@ import { Button, HorizontalGroup, useTheme2 } from '@grafana/ui';
 type Props = {
   addQueryRowButtonDisabled?: boolean;
   addQueryRowButtonHidden?: boolean;
-  richHistoryRowButtonHidden?: boolean;
   richHistoryButtonActive?: boolean;
   queryInspectorButtonActive?: boolean;
 
@@ -40,17 +39,15 @@ export function SecondaryActions(props: Props) {
             Add query
           </Button>
         )}
-        {!props.richHistoryRowButtonHidden && (
-          <Button
-            variant="secondary"
-            aria-label="Rich history button"
-            className={cx({ ['explore-active-button']: props.richHistoryButtonActive })}
-            onClick={props.onClickRichHistoryButton}
-            icon="history"
-          >
-            Query history
-          </Button>
-        )}
+        <Button
+          variant="secondary"
+          aria-label="Rich history button"
+          className={cx({ ['explore-active-button']: props.richHistoryButtonActive })}
+          onClick={props.onClickRichHistoryButton}
+          icon="history"
+        >
+          Query history
+        </Button>
         <Button
           variant="secondary"
           aria-label="Query inspector button"

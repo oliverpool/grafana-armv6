@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import React, { FC, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { GrafanaTheme2, dateMath } from '@grafana/data';
 import { Stack } from '@grafana/experimental';
@@ -7,7 +8,6 @@ import { Icon, useStyles2, Link, Button } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AlertmanagerAlert, Silence, SilenceState } from 'app/plugins/datasource/alertmanager/types';
-import { useDispatch } from 'app/types';
 
 import { expireSilenceAction } from '../../state/actions';
 import { getInstancesPermissions } from '../../utils/access-control';
@@ -186,7 +186,7 @@ function useColumns(alertManagerSourceName: string) {
         renderCell: function renderStateTag({ data: { status } }) {
           return <SilenceStateTag state={status.state} />;
         },
-        size: 4,
+        size: '88px',
       },
       {
         id: 'matchers',
@@ -194,7 +194,7 @@ function useColumns(alertManagerSourceName: string) {
         renderCell: function renderMatchers({ data: { matchers } }) {
           return <Matchers matchers={matchers || []} />;
         },
-        size: 10,
+        size: 9,
       },
       {
         id: 'alerts',
@@ -202,7 +202,7 @@ function useColumns(alertManagerSourceName: string) {
         renderCell: function renderSilencedAlerts({ data: { silencedAlerts } }) {
           return <span data-testid="alerts">{silencedAlerts.length}</span>;
         },
-        size: 4,
+        size: 1,
       },
       {
         id: 'schedule',
@@ -215,11 +215,12 @@ function useColumns(alertManagerSourceName: string) {
             <>
               {' '}
               {startsAtDate?.format(dateDisplayFormat)} {'-'}
+              <br />
               {endsAtDate?.format(dateDisplayFormat)}
             </>
           );
         },
-        size: 7,
+        size: '150px',
       },
     ];
     if (showActions) {
@@ -249,7 +250,7 @@ function useColumns(alertManagerSourceName: string) {
             </Stack>
           );
         },
-        size: 5,
+        size: '147px',
       });
     }
     return columns;

@@ -1,12 +1,9 @@
 import { css } from '@emotion/css';
 import { isEqual } from 'lodash';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 
-import { AbsoluteTimeRange, GrafanaTheme2, LogsSortOrder, TimeZone } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
-import { DataQuery } from '@grafana/schema';
+import { LogsSortOrder, AbsoluteTimeRange, TimeZone, DataQuery, GrafanaTheme2 } from '@grafana/data';
 import { Button, Icon, Spinner, useTheme2 } from '@grafana/ui';
-import { TOP_BAR_LEVEL_HEIGHT } from 'app/core/components/AppChrome/types';
 
 import { LogsNavigationPages } from './LogsNavigationPages';
 
@@ -110,9 +107,6 @@ function LogsNavigation({
       variant="secondary"
       onClick={() => {
         //If we are not on the last page, use next page's range
-        reportInteraction('grafana_explore_logs_pagination_clicked', {
-          pageType: 'olderLogsButton',
-        });
         if (!onLastPage) {
           const indexChange = oldestLogsFirst ? -1 : 1;
           changeTime({
@@ -139,9 +133,6 @@ function LogsNavigation({
       className={styles.navButton}
       variant="secondary"
       onClick={() => {
-        reportInteraction('grafana_explore_logs_pagination_clicked', {
-          pageType: 'newerLogsButton',
-        });
         //If we are not on the first page, use previous page's range
         if (!onFirstPage) {
           const indexChange = oldestLogsFirst ? 1 : -1;
@@ -190,12 +181,9 @@ function LogsNavigation({
 export default memo(LogsNavigation);
 
 const getStyles = (theme: GrafanaTheme2, oldestLogsFirst: boolean, loading: boolean) => {
-  const navContainerHeight = theme.flags.topnav
-    ? `calc(100vh - 2*${theme.spacing(2)} - 2*${TOP_BAR_LEVEL_HEIGHT}px)`
-    : '95vh';
   return {
     navContainer: css`
-      max-height: ${navContainerHeight};
+      max-height: 95vh;
       display: flex;
       flex-direction: column;
       justify-content: ${oldestLogsFirst ? 'flex-start' : 'space-between'};

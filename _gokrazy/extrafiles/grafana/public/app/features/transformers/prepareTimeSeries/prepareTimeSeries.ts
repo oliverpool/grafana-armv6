@@ -24,12 +24,10 @@ import { Labels } from 'app/types/unified-alerting-dto';
  *
  * @internal -- TBD
  */
-
 export enum timeSeriesFormat {
-  TimeSeriesWide = 'wide',
-  TimeSeriesMany = 'many',
+  TimeSeriesWide = 'wide', // [time,...values]
+  TimeSeriesMany = 'many', // All frames have [time,number]
   TimeSeriesLong = 'long',
-  TimeSeriesMulti = 'multi',
 }
 
 export type PrepareTimeSeriesOptions = {
@@ -39,7 +37,7 @@ export type PrepareTimeSeriesOptions = {
 /**
  * Convert to [][time,number]
  */
-export function toTimeSeriesMulti(data: DataFrame[]): DataFrame[] {
+export function toTimeSeriesMany(data: DataFrame[]): DataFrame[] {
   if (!Array.isArray(data) || data.length === 0) {
     return data;
   }
@@ -106,7 +104,7 @@ export function toTimeSeriesMulti(data: DataFrame[]): DataFrame[] {
             refId: frame.refId,
             meta: {
               ...frame.meta,
-              type: DataFrameType.TimeSeriesMulti,
+              type: DataFrameType.TimeSeriesMany,
             },
             fields: [
               {
@@ -128,7 +126,7 @@ export function toTimeSeriesMulti(data: DataFrame[]): DataFrame[] {
           refId: frame.refId,
           meta: {
             ...frame.meta,
-            type: DataFrameType.TimeSeriesMulti,
+            type: DataFrameType.TimeSeriesMany,
           },
           fields: [timeField, field],
           length: frame.length,
@@ -288,13 +286,13 @@ export const prepareTimeSeriesTransformer: SynchronousDataTransformerInfo<Prepar
   description: `Will stretch data frames from the wide format into the long format. This is really helpful to be able to keep backwards compatibility for panels not supporting the new wide format.`,
   defaultOptions: {},
 
-  operator: (options, ctx) => (source) =>
-    source.pipe(map((data) => prepareTimeSeriesTransformer.transformer(options, ctx)(data))),
+  operator: (options) => (source) =>
+    source.pipe(map((data) => prepareTimeSeriesTransformer.transformer(options)(data))),
 
   transformer: (options: PrepareTimeSeriesOptions) => {
     const format = options?.format ?? timeSeriesFormat.TimeSeriesWide;
-    if (format === timeSeriesFormat.TimeSeriesMany || timeSeriesFormat.TimeSeriesMulti) {
-      return toTimeSeriesMulti;
+    if (format === timeSeriesFormat.TimeSeriesMany) {
+      return toTimeSeriesMany;
     } else if (format === timeSeriesFormat.TimeSeriesLong) {
       return toTimeSeriesLong;
     }

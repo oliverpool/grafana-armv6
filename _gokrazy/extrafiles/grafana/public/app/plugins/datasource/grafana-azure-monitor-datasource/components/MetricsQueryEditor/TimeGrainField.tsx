@@ -5,7 +5,6 @@ import { Select } from '@grafana/ui';
 
 import TimegrainConverter from '../../time_grain_converter';
 import { AzureQueryEditorFieldProps, AzureMonitorOption } from '../../types';
-import { addValueToOptions } from '../../utils/common';
 import { Field } from '../Field';
 
 import { setTimeGrain } from './setQueryValue';
@@ -49,18 +48,18 @@ const TimeGrainField: React.FC<TimeGrainFieldProps> = ({
 
     const baseTimeGrains = timeGrainOptions.map((v) => (v.value === 'auto' ? { ...v, description: autoInterval } : v));
 
-    const options = addValueToOptions(baseTimeGrains, variableOptionGroup, query.azureMonitor?.timeGrain);
-
-    return options;
-  }, [timeGrainOptions, variableOptionGroup, query.azureMonitor?.timeGrain]);
+    return [...baseTimeGrains, variableOptionGroup];
+  }, [timeGrainOptions, variableOptionGroup]);
 
   return (
     <Field label="Time grain">
       <Select
+        menuShouldPortal
         inputId="azure-monitor-metrics-time-grain-field"
         value={query.azureMonitor?.timeGrain}
         onChange={handleChange}
         options={timeGrains}
+        width={38}
       />
     </Field>
   );

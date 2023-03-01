@@ -1,5 +1,4 @@
 import { ResourceRowGroup, ResourceRowType } from '../components/ResourcePicker/types';
-import { AzureMonitorLocations } from '../types';
 
 export const createMockSubscriptions = (): ResourceRowGroup => [
   {
@@ -32,7 +31,7 @@ export const createMockResourceGroupsBySubscription = (): ResourceRowGroup => [
   {
     id: 'dev-1',
     uri: '/subscriptions/def-456/resourceGroups/dev-1',
-    name: 'Development 1',
+    name: 'Development',
     type: ResourceRowType.ResourceGroup,
     typeLabel: 'Resource Group',
     children: [],
@@ -40,7 +39,7 @@ export const createMockResourceGroupsBySubscription = (): ResourceRowGroup => [
   {
     id: 'dev-2',
     uri: '/subscriptions/def-456/resourceGroups/dev-2',
-    name: 'Development 2',
+    name: 'Development',
     type: ResourceRowType.ResourceGroup,
     typeLabel: 'Resource Group',
     children: [],
@@ -56,7 +55,7 @@ export const createMockResourceGroupsBySubscription = (): ResourceRowGroup => [
   {
     id: 'dev-4',
     uri: '/subscriptions/def-456/resourceGroups/dev-4',
-    name: 'Development 3',
+    name: 'Development',
     type: ResourceRowType.ResourceGroup,
     typeLabel: 'Resource Group',
     children: [],
@@ -64,7 +63,7 @@ export const createMockResourceGroupsBySubscription = (): ResourceRowGroup => [
   {
     id: 'dev-5',
     uri: '/subscriptions/def-456/resourceGroups/dev-5',
-    name: 'Development 4',
+    name: 'Development',
     type: ResourceRowType.ResourceGroup,
     typeLabel: 'Resource Group',
     children: [],
@@ -107,17 +106,3 @@ export const mockResourcesByResourceGroup = (): ResourceRowGroup => [
     location: 'northeurope',
   },
 ];
-
-export const mockSearchResults = (): ResourceRowGroup => [
-  {
-    id: 'search-result',
-    uri: '/subscriptions/def-456/resourceGroups/dev-3/providers/Microsoft.Compute/disks/search-result',
-    name: 'search-result',
-    typeLabel: 'Microsoft.Compute/disks',
-    type: ResourceRowType.Resource,
-    location: 'northeurope',
-  },
-];
-
-export const mockGetValidLocations = (): Map<string, AzureMonitorLocations> =>
-  new Map([['northeurope', { displayName: 'North Europe', name: 'northeurope', supportsLogs: true }]]);

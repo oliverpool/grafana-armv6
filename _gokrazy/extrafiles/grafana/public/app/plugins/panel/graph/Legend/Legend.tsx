@@ -265,7 +265,7 @@ class LegendTable extends PureComponent<Partial<LegendComponentProps>> {
     }
 
     return (
-      <table role="grid">
+      <table>
         <colgroup>
           <col style={{ width: '100%' }} />
         </colgroup>

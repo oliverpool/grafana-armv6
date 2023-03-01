@@ -53,9 +53,8 @@ describe('buildVisualQueryFromString', () => {
       buildVisualQueryFromString(
         'avg(rate(access_evaluation_duration_count{instance="host.docker.internal:3000"}[$__rate_interval]))'
       )
-    ).toEqual({
-      errors: [],
-      query: {
+    ).toEqual(
+      noErrors({
         metric: 'access_evaluation_duration_count',
         labels: [
           {
@@ -74,8 +73,8 @@ describe('buildVisualQueryFromString', () => {
             params: [],
           },
         ],
-      },
-    });
+      })
+    );
   });
 
   it('parses query with aggregation by labels', () => {
@@ -161,9 +160,8 @@ describe('buildVisualQueryFromString', () => {
   it('parses function with argument', () => {
     expect(
       buildVisualQueryFromString('histogram_quantile(0.99, rate(counters_logins{app="backend"}[$__rate_interval]))')
-    ).toEqual({
-      errors: [],
-      query: {
+    ).toEqual(
+      noErrors({
         metric: 'counters_logins',
         labels: [{ label: 'app', op: '=', value: 'backend' }],
         operations: [
@@ -176,8 +174,8 @@ describe('buildVisualQueryFromString', () => {
             params: [0.99],
           },
         ],
-      },
-    });
+      })
+    );
   });
 
   it('parses function with multiple arguments', () => {
@@ -185,9 +183,8 @@ describe('buildVisualQueryFromString', () => {
       buildVisualQueryFromString(
         'label_replace(avg_over_time(http_requests_total{instance="foo"}[$__interval]), "instance", "$1", "", "(.*)")'
       )
-    ).toEqual({
-      errors: [],
-      query: {
+    ).toEqual(
+      noErrors({
         metric: 'http_requests_total',
         labels: [{ label: 'instance', op: '=', value: 'foo' }],
         operations: [
@@ -200,14 +197,13 @@ describe('buildVisualQueryFromString', () => {
             params: ['instance', '$1', '', '(.*)'],
           },
         ],
-      },
-    });
+      })
+    );
   });
 
   it('parses binary operation with scalar', () => {
-    expect(buildVisualQueryFromString('avg_over_time(http_requests_total{instance="foo"}[$__interval]) / 2')).toEqual({
-      errors: [],
-      query: {
+    expect(buildVisualQueryFromString('avg_over_time(http_requests_total{instance="foo"}[$__interval]) / 2')).toEqual(
+      noErrors({
         metric: 'http_requests_total',
         labels: [{ label: 'instance', op: '=', value: 'foo' }],
         operations: [
@@ -220,16 +216,15 @@ describe('buildVisualQueryFromString', () => {
             params: [2],
           },
         ],
-      },
-    });
+      })
+    );
   });
 
   it('parses binary operation with 2 queries', () => {
     expect(
       buildVisualQueryFromString('avg_over_time(http_requests_total{instance="foo"}[$__interval]) / sum(logins_count)')
-    ).toEqual({
-      errors: [],
-      query: {
+    ).toEqual(
+      noErrors({
         metric: 'http_requests_total',
         labels: [{ label: 'instance', op: '=', value: 'foo' }],
         operations: [{ id: 'avg_over_time', params: ['$__interval'] }],
@@ -243,8 +238,8 @@ describe('buildVisualQueryFromString', () => {
             },
           },
         ],
-      },
-    });
+      })
+    );
   });
 
   it('parses template variables in strings', () => {

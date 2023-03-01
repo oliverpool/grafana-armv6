@@ -1,34 +1,28 @@
 import React from 'react';
 
-import { CoreApp, SelectableValue } from '@grafana/data';
-import { EditorField, EditorRow } from '@grafana/experimental';
-import { reportInteraction } from '@grafana/runtime';
-import { RadioButtonGroup, Select, AutoSizeInput } from '@grafana/ui';
+import { SelectableValue } from '@grafana/data';
+import { EditorRow, EditorField } from '@grafana/experimental';
+import { RadioButtonGroup, Select } from '@grafana/ui';
+import { AutoSizeInput } from 'app/plugins/datasource/prometheus/querybuilder/shared/AutoSizeInput';
 import { QueryOptionGroup } from 'app/plugins/datasource/prometheus/querybuilder/shared/QueryOptionGroup';
 
 import { preprocessMaxLines, queryTypeOptions, RESOLUTION_OPTIONS } from '../../components/LokiOptionFields';
-import { isLogsQuery } from '../../queryUtils';
+import { isMetricsQuery } from '../../datasource';
 import { LokiQuery, LokiQueryType } from '../../types';
 
 export interface Props {
   query: LokiQuery;
   onChange: (update: LokiQuery) => void;
   onRunQuery: () => void;
-  maxLines: number;
-  app?: CoreApp;
 }
 
-export const LokiQueryBuilderOptions = React.memo<Props>(({ app, query, onChange, onRunQuery, maxLines }) => {
+export const LokiQueryBuilderOptions = React.memo<Props>(({ query, onChange, onRunQuery }) => {
   const onQueryTypeChange = (value: LokiQueryType) => {
     onChange({ ...query, queryType: value });
     onRunQuery();
   };
 
   const onResolutionChange = (option: SelectableValue<number>) => {
-    reportInteraction('grafana_loki_resolution_clicked', {
-      app,
-      resolution: option.value,
-    });
     onChange({ ...query, resolution: option.value });
     onRunQuery();
   };
@@ -47,11 +41,11 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ app, query, onChange
   }
 
   let queryType = query.queryType ?? (query.instant ? LokiQueryType.Instant : LokiQueryType.Range);
-  let showMaxLines = isLogsQuery(query.expr);
+  let showMaxLines = !isMetricsQuery(query.expr);
 
   return (
     <EditorRow>
-      <QueryOptionGroup title="Options" collapsedInfo={getCollapsedInfo(query, queryType, showMaxLines, maxLines)}>
+      <QueryOptionGroup title="Options" collapsedInfo={getCollapsedInfo(query, queryType, showMaxLines)}>
         <EditorField
           label="Legend"
           tooltip="Series name override or template. Ex. {{hostname}} will be replaced with label value for hostname."
@@ -72,7 +66,7 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ app, query, onChange
           <EditorField label="Line limit" tooltip="Upper limit for number of log lines returned by query.">
             <AutoSizeInput
               className="width-4"
-              placeholder={maxLines.toString()}
+              placeholder="auto"
               type="number"
               min={0}
               defaultValue={query.maxLines?.toString() ?? ''}
@@ -87,6 +81,7 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ app, query, onChange
             options={RESOLUTION_OPTIONS}
             value={query.resolution || 1}
             aria-label="Select resolution"
+            menuShouldPortal
           />
         </EditorField>
       </QueryOptionGroup>
@@ -94,12 +89,7 @@ export const LokiQueryBuilderOptions = React.memo<Props>(({ app, query, onChange
   );
 });
 
-function getCollapsedInfo(
-  query: LokiQuery,
-  queryType: LokiQueryType,
-  showMaxLines: boolean,
-  maxLines: number
-): string[] {
+function getCollapsedInfo(query: LokiQuery, queryType: LokiQueryType, showMaxLines: boolean): string[] {
   const queryTypeLabel = queryTypeOptions.find((x) => x.value === queryType);
   const resolutionLabel = RESOLUTION_OPTIONS.find((x) => x.value === (query.resolution ?? 1));
 
@@ -115,8 +105,8 @@ function getCollapsedInfo(
 
   items.push(`Type: ${queryTypeLabel?.label}`);
 
-  if (showMaxLines) {
-    items.push(`Line limit: ${query.maxLines ?? maxLines}`);
+  if (showMaxLines && query.maxLines) {
+    items.push(`Line limit: ${query.maxLines}`);
   }
 
   return items;

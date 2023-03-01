@@ -1,6 +1,6 @@
-import { EchoBackend, EchoEventType, PageviewEchoEvent } from '@grafana/runtime';
+import $ from 'jquery';
 
-import { loadScript } from '../../utils';
+import { EchoBackend, EchoEventType, PageviewEchoEvent } from '@grafana/runtime';
 
 export interface GAEchoBackendOptions {
   googleAnalyticsId: string;
@@ -13,7 +13,12 @@ export class GAEchoBackend implements EchoBackend<PageviewEchoEvent, GAEchoBacke
 
   constructor(public options: GAEchoBackendOptions) {
     const url = `https://www.google-analytics.com/analytics${options.debug ? '_debug' : ''}.js`;
-    loadScript(url);
+
+    $.ajax({
+      url,
+      dataType: 'script',
+      cache: true,
+    });
 
     const ga = (window.ga =
       window.ga ||

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { FC, useState, useCallback } from 'react';
 import useAsync from 'react-use/lib/useAsync';
 
 import { getBackendSrv, locationService } from '@grafana/runtime';
@@ -16,7 +16,7 @@ export function getSnapshots() {
       }));
     });
 }
-export const SnapshotListTable = () => {
+export const SnapshotListTable: FC = () => {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [removeSnapshot, setRemoveSnapshot] = useState<Snapshot | undefined>();
   const currentPath = locationService.getLocation().pathname;

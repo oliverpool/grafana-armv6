@@ -19,7 +19,6 @@ import {
   DataHoverClearEvent,
   DataHoverEvent,
   DataHoverPayload,
-  DecimalCount,
   FieldDisplay,
   FieldType,
   formattedValueToString,
@@ -36,7 +35,7 @@ import {
   PanelEvents,
   toUtc,
 } from '@grafana/data';
-import { graphTickFormatter, graphTimeFormat, MenuItemProps, MenuItemsGroup } from '@grafana/ui';
+import { graphTickFormatter, graphTimeFormat, IconName, MenuItemProps, MenuItemsGroup } from '@grafana/ui';
 import { coreModule } from 'app/angular/core_module';
 import config from 'app/core/config';
 import { updateLegendValues } from 'app/core/core';
@@ -59,7 +58,7 @@ import { ThresholdManager } from './threshold_manager';
 import { TimeRegionManager } from './time_region_manager';
 import { isLegacyGraphHoverEvent } from './utils';
 
-const LegendWithThemeProvider = provideTheme(Legend, config.theme2);
+const LegendWithThemeProvider = provideTheme(Legend);
 
 class GraphElement {
   ctrl: GraphCtrl;
@@ -256,7 +255,7 @@ class GraphElement {
               ariaLabel: link.title,
               url: link.href,
               target: link.target,
-              icon: link.target === '_self' ? 'link' : 'external-link-alt',
+              icon: `${link.target === '_self' ? 'link' : 'external-link-alt'}` as IconName,
               onClick: link.onClick,
             };
           }),
@@ -572,7 +571,7 @@ class GraphElement {
       }
     } catch (e) {
       console.error('flotcharts error', e);
-      this.ctrl.error = e instanceof Error ? e.message : 'Render Error';
+      this.ctrl.error = e.message || 'Render Error';
       this.ctrl.renderError = true;
     }
 
@@ -946,7 +945,11 @@ class GraphElement {
     return ticks;
   }
 
-  configureAxisMode(axis: { tickFormatter: (val: any, axis: any) => string }, format: string, decimals?: DecimalCount) {
+  configureAxisMode(
+    axis: { tickFormatter: (val: any, axis: any) => string },
+    format: string,
+    decimals?: number | null
+  ) {
     axis.tickFormatter = (val, axis) => {
       const formatter = getValueFormat(format);
 
@@ -959,8 +962,7 @@ class GraphElement {
   }
 }
 
-coreModule.directive('grafanaGraph', ['timeSrv', 'popoverSrv', 'contextSrv', graphDirective]);
-
+/** @ngInject */
 function graphDirective(timeSrv: TimeSrv, popoverSrv: any, contextSrv: ContextSrv) {
   return {
     restrict: 'A',
@@ -971,4 +973,5 @@ function graphDirective(timeSrv: TimeSrv, popoverSrv: any, contextSrv: ContextSr
   };
 }
 
+coreModule.directive('grafanaGraph', graphDirective);
 export { GraphElement, graphDirective };

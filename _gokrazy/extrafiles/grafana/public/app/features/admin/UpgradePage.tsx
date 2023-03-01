@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 
 import { GrafanaTheme2, NavModel } from '@grafana/data';
 import { LinkButton, useStyles2 } from '@grafana/ui';
-import { Page } from 'app/core/components/Page/Page';
 
+import Page from '../../core/components/Page/Page';
 import { getNavModel } from '../../core/selectors/navModel';
 import { StoreState } from '../../types';
 
@@ -36,7 +36,7 @@ interface UpgradeInfoProps {
   editionNotice?: string;
 }
 
-export const UpgradeInfo = ({ editionNotice }: UpgradeInfoProps) => {
+export const UpgradeInfo: React.FC<UpgradeInfoProps> = ({ editionNotice }) => {
   const styles = useStyles2(getStyles);
 
   return (
@@ -70,7 +70,7 @@ const getStyles = (theme: GrafanaTheme2) => {
   };
 };
 
-const GetEnterprise = () => {
+const GetEnterprise: React.FC = () => {
   return (
     <div style={{ marginTop: '40px', marginBottom: '30px' }}>
       <h2 style={titleStyles}>Get Grafana Enterprise</h2>
@@ -83,7 +83,7 @@ const GetEnterprise = () => {
   );
 };
 
-const CallToAction = () => {
+const CallToAction: React.FC = () => {
   return (
     <LinkButton
       variant="primary"
@@ -95,7 +95,7 @@ const CallToAction = () => {
   );
 };
 
-const ServiceInfo = () => {
+const ServiceInfo: React.FC = () => {
   return (
     <div>
       <h4>At your service</h4>
@@ -127,7 +127,7 @@ const ServiceInfo = () => {
   );
 };
 
-const FeatureInfo = () => {
+const FeatureInfo: React.FC = () => {
   return (
     <div style={{ paddingRight: '11px' }}>
       <h4>Enhanced functionality</h4>
@@ -136,7 +136,7 @@ const FeatureInfo = () => {
   );
 };
 
-const FeatureListing = () => {
+const FeatureListing: React.FC = () => {
   return (
     <List>
       <Item title="Data source permissions" />
@@ -182,7 +182,7 @@ interface ListProps {
   nested?: boolean;
 }
 
-const List = ({ children, nested }: React.PropsWithChildren<ListProps>) => {
+const List: React.FC<ListProps> = ({ children, nested }) => {
   const listStyle = css`
     display: flex;
     flex-direction: column;
@@ -201,7 +201,7 @@ interface ItemProps {
   image?: string;
 }
 
-const Item = ({ children, title, image }: React.PropsWithChildren<ItemProps>) => {
+const Item: React.FC<ItemProps> = ({ children, title, image }) => {
   const imageUrl = image ? image : 'public/img/licensing/checkmark.svg';
   const itemStyle = css`
     display: flex;

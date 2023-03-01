@@ -1,5 +1,4 @@
 import { css } from '@emotion/css';
-import { noop } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import Draggable, { DraggableBounds } from 'react-draggable';
 
@@ -13,7 +12,7 @@ interface ThresholdDragHandleProps {
   y: number;
   dragBounds: DraggableBounds;
   mapPositionToValue: (y: number) => number;
-  onChange?: (value: number) => void;
+  onChange: (value: number) => void;
   formatValue: (value: number) => string;
 }
 
@@ -47,8 +46,7 @@ export const ThresholdDragHandle: React.FC<ThresholdDragHandleProps> = ({
     yPos = dragBounds.top ?? y;
   }
 
-  const disabled = typeof onChange !== 'function';
-  const styles = useStyles2((theme) => getStyles(theme, step, outOfBounds, disabled));
+  const styles = useStyles2((theme) => getStyles(theme, step, outOfBounds));
   const [currentValue, setCurrentValue] = useState(step.value);
 
   const textColor = useMemo(() => {
@@ -59,16 +57,11 @@ export const ThresholdDragHandle: React.FC<ThresholdDragHandleProps> = ({
     <Draggable
       axis="y"
       grid={[1, 1]}
-      disabled={disabled}
-      onStop={
-        disabled
-          ? noop
-          : (_e, d) => {
-              onChange(mapPositionToValue(d.lastY));
-              // as of https://github.com/react-grid-layout/react-draggable/issues/390#issuecomment-623237835
-              return false;
-            }
-      }
+      onStop={(_e, d) => {
+        onChange(mapPositionToValue(d.lastY));
+        // as of https://github.com/react-grid-layout/react-draggable/issues/390#issuecomment-623237835
+        return false;
+      }}
       onDrag={(_e, d) => setCurrentValue(mapPositionToValue(d.lastY))}
       position={{ x: 0, y: yPos }}
       bounds={dragBounds}
@@ -82,7 +75,7 @@ export const ThresholdDragHandle: React.FC<ThresholdDragHandleProps> = ({
 
 ThresholdDragHandle.displayName = 'ThresholdDragHandle';
 
-const getStyles = (theme: GrafanaTheme2, step: Threshold, outOfBounds: OutOfBounds, disabled?: boolean) => {
+const getStyles = (theme: GrafanaTheme2, step: Threshold, outOfBounds: OutOfBounds) => {
   const mainColor = theme.visualization.getColorByName(step.color);
   const arrowStyles = getArrowStyles(outOfBounds);
   const isOutOfBounds = outOfBounds !== 'none';
@@ -97,7 +90,7 @@ const getStyles = (theme: GrafanaTheme2, step: Threshold, outOfBounds: OutOfBoun
       height: 18px;
       margin-top: -9px;
       border-color: ${mainColor};
-      cursor: ${disabled ? 'initial' : 'grab'};
+      cursor: grab;
       border-top-right-radius: ${theme.shape.borderRadius(1)};
       border-bottom-right-radius: ${theme.shape.borderRadius(1)};
       ${isOutOfBounds &&

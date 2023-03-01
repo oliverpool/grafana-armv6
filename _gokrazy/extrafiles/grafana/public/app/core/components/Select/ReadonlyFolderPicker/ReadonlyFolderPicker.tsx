@@ -74,6 +74,7 @@ export function ReadonlyFolderPicker({
   return (
     <div data-testid={selectors.components.ReadonlyFolderPicker.container}>
       <AsyncSelect
+        menuShouldPortal
         loadingMessage="Loading folders..."
         defaultOptions
         defaultValue={option}

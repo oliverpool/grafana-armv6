@@ -30,9 +30,9 @@ describe('PanelNotSupported', () => {
   });
 
   describe('when the back to queries button is clicked', () => {
-    it('then correct action should be dispatched', async () => {
+    it('then correct action should be dispatched', () => {
       setupTestContext({});
-      await userEvent.click(screen.getByRole('button', { name: /go back to queries/i }));
+      userEvent.click(screen.getByRole('button', { name: /go back to queries/i }));
       expect(locationService.getSearchObject().tab).toBe(PanelEditorTabId.Query);
     });
   });

@@ -3,7 +3,6 @@ import { connect, ConnectedProps } from 'react-redux';
 
 import { Tooltip, Icon, Button } from '@grafana/ui';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
-import { Page } from 'app/core/components/PageNew/Page';
 import AddPermission from 'app/core/components/PermissionList/AddPermission';
 import PermissionList from 'app/core/components/PermissionList/PermissionList';
 import PermissionsInfo from 'app/core/components/PermissionList/PermissionsInfo';
@@ -11,13 +10,13 @@ import { StoreState } from 'app/types';
 import { DashboardAcl, PermissionLevel, NewDashboardAclItem } from 'app/types/acl';
 
 import { checkFolderPermissions } from '../../../folders/state/actions';
+import { DashboardModel } from '../../state/DashboardModel';
 import {
   getDashboardPermissions,
   addDashboardPermission,
   removeDashboardPermission,
   updateDashboardPermission,
 } from '../../state/actions';
-import { SettingsPageProps } from '../DashboardSettings/types';
 
 const mapStateToProps = (state: StoreState) => ({
   permissions: state.dashboard.permissions,
@@ -34,7 +33,11 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
-export type Props = SettingsPageProps & ConnectedProps<typeof connector>;
+export interface OwnProps {
+  dashboard: DashboardModel;
+}
+
+export type Props = OwnProps & ConnectedProps<typeof connector>;
 
 export interface State {
   isAdding: boolean;
@@ -88,20 +91,20 @@ export class DashboardPermissionsUnconnected extends PureComponent<Props, State>
   }
 
   render() {
-    const { permissions, dashboard, sectionNav } = this.props;
+    const {
+      permissions,
+      dashboard: {
+        meta: { hasUnsavedFolderChange },
+      },
+    } = this.props;
     const { isAdding } = this.state;
 
-    if (dashboard.meta.hasUnsavedFolderChange) {
-      return (
-        <Page navModel={sectionNav}>
-          <h5>You have changed a folder, please save to view permissions.</h5>
-        </Page>
-      );
-    }
-
-    return (
-      <Page navModel={sectionNav}>
+    return hasUnsavedFolderChange ? (
+      <h5>You have changed a folder, please save to view permissions.</h5>
+    ) : (
+      <div>
         <div className="page-action-bar">
+          <h3 className="page-sub-heading">Permissions</h3>
           <Tooltip placement="auto" content={<PermissionsInfo />}>
             <Icon className="icon--has-hover page-sub-heading-icon" name="question-circle" />
           </Tooltip>
@@ -120,7 +123,7 @@ export class DashboardPermissionsUnconnected extends PureComponent<Props, State>
           isFetching={false}
           folderInfo={this.getFolder()}
         />
-      </Page>
+      </div>
     );
   }
 }

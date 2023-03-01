@@ -11,8 +11,6 @@ export interface OrgUser extends WithAccessControlMetadata {
   orgId: number;
   role: OrgRole;
   userId: number;
-  isDisabled: boolean;
-  authLabels?: string[];
 }
 
 export interface User {
@@ -68,14 +66,12 @@ export interface Invitee {
 export interface UsersState {
   users: OrgUser[];
   searchQuery: string;
+  searchPage: number;
   canInvite: boolean;
   externalUserMngLinkUrl: string;
   externalUserMngLinkName: string;
   externalUserMngInfo: string;
-  isLoading: boolean;
-  page: number;
-  perPage: number;
-  totalPages: number;
+  hasFetched: boolean;
 }
 
 export interface UserSession {
